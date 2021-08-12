@@ -1,0 +1,41 @@
+package chariot.model;
+
+public record AccountPreferences(Prefs prefs) implements Model {
+    public record Prefs(
+        boolean dark,
+        boolean transp,
+        boolean is3d,
+        boolean clockBar,
+        boolean clockSound,
+        boolean premove,
+        boolean captured,
+        boolean follow,
+        boolean highlight,
+        boolean destination,
+        String bgImg,
+        String theme,
+        String pieceSet,
+        String theme3d,
+        String pieceSet3d,
+        String soundSet,
+        Integer blindfold,
+        Integer autoQueen,
+        Integer autoThreefold,
+        Integer takeback,
+        Integer moretime,
+        Integer clockTenths,
+        Integer animation,
+        Integer coords,
+        Integer replay,
+        Integer challenge,
+        Integer message,
+        Integer coordColor,
+        Integer submitMove,
+        Integer confirmResign,
+        Integer insightShare,
+        Integer keyboardMove,
+        Integer zen,
+        Integer moveEvent,
+        Integer rookCastle
+        ) {}
+}
