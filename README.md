@@ -4,7 +4,8 @@ Java client for the [Lichess API](https://lichess.org/api)
 
 Checkout the [JavaDoc](https://tors42.github.io/chariot/chariot/chariot/Client.html)
 
-# Build
+
+## Build
 
 Make sure to use at least Java 17. A JDK archive can be downloaded and unpacked from https://jdk.java.net/17/
 
@@ -40,3 +41,16 @@ The JDK includes a tool called JShell. It can be used to run Java code and is su
 
     $ java --module-path out/modules --add-modules chariot build/Example.java
 
+## Use as dependency
+
+The coordinates are `io.github.tors42:chariot:0.0.2`, so in a Maven project the following dependency can be added to the `pom.xml`:
+
+    ...
+    <dependency>
+      <groupId>io.github.tors42</groupId>
+      <artifactId>chariot</artifactId>
+      <version>0.0.2</version>
+    </dependency>
+    ...
+
+[Example application](https://github.com/tors42/chariot-example)
