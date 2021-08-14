@@ -75,7 +75,7 @@ public class Util {
                     module.getDescriptor().version().map(v -> v.toString())
                     .orElse(Optional.ofNullable(pkg.getImplementationVersion()).orElse("<unknown>")));
         } else {
-            return String.join("/", pkg.getName().split(".")[0],
+            return String.join("/", "chariot",
                     Optional.ofNullable(pkg.getImplementationVersion()).orElse("<unknown>"));
         }
     }
