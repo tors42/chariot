@@ -16,7 +16,7 @@ public class UsersAuthImpl extends UsersImpl implements UsersAuth {
     public Result<Ack> sendMessageToUser(String userId, String text) {
         var request = Endpoint.sendMessage.newRequest()
             .path(userId)
-            .post(text)
+            .post("text=" + text)
             .build();
 
         return fetchOne(request);
