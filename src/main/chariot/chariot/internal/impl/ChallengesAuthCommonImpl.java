@@ -124,9 +124,9 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Internal
     }
 
     private Result<Ack> declineChallenge(Scope scope, String challengeId, Optional<DeclineReason> reason) {
-        var builder = Endpoint.challengeDecline.newRequest()
-            .post(reason.map(DeclineReason::name).orElse(""))
-            .path(challengeId);
+        var builder = Endpoint.challengeDecline.newRequest();
+        reason.ifPresent(r -> builder.post("reason=" + r.name()));
+        builder.path(challengeId);
 
         var request = builder.build();
 
