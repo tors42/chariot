@@ -119,7 +119,7 @@ public class GamesImpl extends Base implements Internal.Games {
     @Override
     public Result<GameImport> importGame(String pgn) {
         var request = Endpoint.gameImport.newRequest()
-            .post(pgn)
+            .post("pgn=" + pgn)
             .build();
         return fetchOne(request);
     }

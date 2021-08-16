@@ -26,7 +26,7 @@ public class GamesAuthImpl extends GamesImpl implements Internal.GamesAuth {
     @Override
     public Result<GameImport> importGame(String pgn) {
         var request = Endpoint.gameImport.newRequest()
-            .post(pgn)
+            .post("pgn=" + pgn)
             .build();
         return fetchOne(request);
     }
