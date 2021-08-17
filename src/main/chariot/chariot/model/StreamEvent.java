@@ -26,11 +26,12 @@ public sealed interface StreamEvent extends Model {
     }
 
     record GameEvent(Type type, Game game) implements StreamEvent {
-        public record Game(String id) {}
+        public record Game(String id, String source, Compat compat) {}
     }
 
     // Todo, check what challenge structure is used in this StreamEvent - maybe something similar generic (as opposed to identical separate structurs)
-    record ChallengeEvent(Type type, ChallengeResult.ChallengeInfo.Challenge challenge) implements StreamEvent {}
-    record ChallengeAIEvent(Type type, ChallengeResult.ChallengeAI challenge) implements StreamEvent {}
+    record ChallengeEvent(Type type, ChallengeResult.ChallengeInfo.Challenge challenge, Compat compat) implements StreamEvent {}
+    record ChallengeAIEvent(Type type, ChallengeResult.ChallengeAI challenge, Compat compat) implements StreamEvent {}
 
+    record Compat(boolean bot, boolean board) {}
 }
