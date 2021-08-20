@@ -83,7 +83,7 @@ public class TournamentsAuthImpl extends TournamentsImpl implements Internal.Tou
 
     @Override
     public Result<Ack> joinArena(String id, Optional<String> password, Optional<String> teamId) {
-        var requestBuilder = Endpoint.teamMessage.newRequest()
+        var requestBuilder = Endpoint.joinArenaTournament.newRequest()
             .path(id);
 
         record KeyValue(String key, Optional<String> opt) {}
