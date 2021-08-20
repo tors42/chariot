@@ -13,7 +13,6 @@ import java.util.function.Consumer;
 public record User(
         String id,
         String username,
-        String language,
         String title,
         String url,
         String playing,
@@ -42,7 +41,6 @@ public record User(
     public User {
         title = orEmpty(title);
         url = orEmpty(url);
-        language = orEmpty(language);
         playing = orEmpty(playing);
         profile = profile == null ? Profile.missing : profile;
     }
