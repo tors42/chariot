@@ -286,6 +286,9 @@ public interface Internal {
         Result<Arena> updateArena(String id, ArenaParameters params);
         Result<Swiss> createSwiss(String teamId, SwissParameters params);
         Result<Ack> joinArena(String id, Optional<String> password, Optional<String> teamId);
+        Result<Ack> joinSwiss(String id, Optional<String> password);
+        default Result<Ack> joinSwiss(String id) { return joinSwiss(id, Optional.empty()); }
+        default Result<Ack> joinSwiss(String id, String password) { return joinSwiss(id, Optional.of(password)); }
         default Result<Ack> joinArena(String id) { return joinArena(id, Optional.empty(), Optional.empty()); }
         default Result<Ack> joinArena(String id, String password) { return joinArena(id, Optional.of(password), Optional.empty()); }
         default Result<Ack> joinArenaForTeam(String id, String team) { return joinArena(id, Optional.empty(), Optional.of(team)); }

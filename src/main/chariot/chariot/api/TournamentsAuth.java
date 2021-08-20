@@ -25,6 +25,9 @@ public interface TournamentsAuth extends Tournaments {
     Result<Ack>   joinArenaForTeam(String id, String team);
     Result<Ack>   joinArenaForTeam(String id, String team, String password);
 
+    Result<Ack>   joinSwiss(String id);
+    Result<Ack>   joinSwiss(String id, String password);
+
     interface ArenaBBuilder {
         /**
          * @param clockInitial Clock initial time in minutes

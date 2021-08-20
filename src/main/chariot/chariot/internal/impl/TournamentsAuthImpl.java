@@ -2,6 +2,7 @@ package chariot.internal.impl;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -120,6 +121,19 @@ public class TournamentsAuthImpl extends TournamentsImpl implements Internal.Tou
 
         return fetchOne(request);
     }
+
+    @Override
+    public Result<Ack> joinSwiss(String id, Optional<String> password) {
+        var requestBuilder = Endpoint.joinSwissTournament.newRequest()
+            .path(id);
+
+        password.ifPresent(pw -> requestBuilder.post(Util.urlEncode(Map.of("password", pw))));
+
+        var request = requestBuilder.build();
+
+        return fetchOne(request);
+    }
+
 
 
 }
