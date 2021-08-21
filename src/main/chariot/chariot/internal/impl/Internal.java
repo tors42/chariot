@@ -798,11 +798,29 @@ public interface Internal {
     interface Teams extends chariot.api.Teams {
         Result<Tournament>   arenaByTeamId(String teamId, Optional<Integer> max);
         Result<Swiss>       swissByTeamId(String teamId, Optional<Integer> max);
+        Result<Team>        search(Optional<String> text);
+        Result<PageTeam>    searchByPage(Optional<Integer> page, Optional<String> text);
+        Result<PageTeam>    popularTeamsByPage(Optional<Integer> page);
 
+        default int numberOfTeams() {
+            var page = searchByPage();
+            return page.isPresent() ?
+                page.get().nbResults() :
+                0;
+        }
+
+        default Result<Team> search() { return search(Optional.empty()); }
+        default Result<Team> search(String text) { return search(Optional.of(text)); }
         default Result<Tournament> arenaByTeamId(String teamId) { return arenaByTeamId(teamId, Optional.of(100)); }
         default Result<Tournament> arenaByTeamId(String teamId, int max) { return arenaByTeamId(teamId, Optional.of(max)); }
         default Result<Swiss> swissByTeamId(String teamId) { return swissByTeamId(teamId, Optional.of(100)); }
         default Result<Swiss> swissByTeamId(String teamId, int max) { return swissByTeamId(teamId, Optional.of(max)); }
+        default Result<PageTeam> searchByPage() { return searchByPage(Optional.empty(), Optional.empty()); }
+        default Result<PageTeam> searchByPage(String text) { return searchByPage(Optional.empty(), Optional.of(text)); }
+        default Result<PageTeam> searchByPage(int page) { return searchByPage(Optional.of(page), Optional.empty()); }
+        default Result<PageTeam> searchByPage(int page, String text) { return searchByPage(Optional.of(page), Optional.of(text)); }
+        default Result<PageTeam> popularTeamsByPage() { return popularTeamsByPage(Optional.empty()); }
+        default Result<PageTeam> popularTeamsByPage(int page) { return popularTeamsByPage(Optional.of(page)); }
     }
 
     interface TeamsAuth extends chariot.api.TeamsAuth {

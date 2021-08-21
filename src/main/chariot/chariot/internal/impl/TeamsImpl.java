@@ -1,7 +1,11 @@
 package chariot.internal.impl;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import chariot.model.Team;
 import chariot.model.Tournament;
@@ -12,6 +16,7 @@ import chariot.model.User;
 import chariot.internal.Base;
 import chariot.internal.Endpoint;
 import chariot.internal.InternalClient;
+import chariot.internal.Util;
 
 public class TeamsImpl extends Base implements Internal.Teams {
 
@@ -44,18 +49,29 @@ public class TeamsImpl extends Base implements Internal.Teams {
     }
 
     @Override
-    public Result<PageTeam> byPage(int pageNumber) {
-        var request = Endpoint.teamsByPage.newRequest()
-            .query(Map.of("page", pageNumber))
+    public Result<PageTeam> popularTeamsByPage(Optional<Integer> page) {
+        var map = new HashMap<String, Object>() {{
+            page.ifPresent(p -> put("page", p));
+        }};
+
+        var request = Endpoint.popularTeamsByPage.newRequest()
+            .query(map)
             .build();
+
         return fetchOne(request);
      }
 
     @Override
-    public Result<PageTeam> searchPage(String text, int pageNumber) {
+    public Result<PageTeam> searchByPage(Optional<Integer> page, Optional<String> text) {
+        var map = new HashMap<String, Object>() {{
+            page.ifPresent(p -> put("page", p));
+            text.ifPresent(t -> put("text", t));
+        }};
+
         var request = Endpoint.teamsSearch.newRequest()
-            .query(Map.of("text", text, "page", pageNumber))
+            .query(map)
             .build();
+
         return fetchOne(request);
      }
 
@@ -76,4 +92,39 @@ public class TeamsImpl extends Base implements Internal.Teams {
         var request = requestBuilder.build();
         return fetchMany(request);
     }
+
+    @Override
+    public Result<Team> search(Optional<String> text) {
+
+        var firstPage = searchByPage(Optional.of(1), text);
+
+        if (firstPage instanceof Result.One<PageTeam> one) {
+            var page = one.entry();
+            var empty = new PageTeam(0,0,List.of(),0,0,0,0);
+            var spliterator = Util.PageSpliterator.of(page, (pageNum) -> searchByPage(Optional.of(pageNum), text).getOrElse(empty));
+            var teamStream = StreamSupport.stream(spliterator, false);
+            return Result.many(teamStream);
+        } else {
+            return Result.many(Stream.of());
+        }
+
+    }
+
+    @Override
+    public Result<Team> popularTeams() {
+
+        var firstPage = popularTeamsByPage(Optional.of(1));
+
+        if (firstPage instanceof Result.One<PageTeam> one) {
+            var page = one.entry();
+            var empty = new PageTeam(0,0,List.of(),0,0,0,0);
+            var spliterator = Util.PageSpliterator.of(page, (pageNum) -> popularTeamsByPage(Optional.of(pageNum)).getOrElse(empty));
+            var teamStream = StreamSupport.stream(spliterator, false);
+            return Result.many(teamStream);
+        } else {
+            return Result.many(Stream.of());
+        }
+
+    }
+
 }

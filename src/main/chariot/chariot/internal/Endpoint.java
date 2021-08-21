@@ -97,7 +97,7 @@ public record Endpoint<T> (
     public static Endpoint<User> teamUsersById =
         Endpoint.of("/api/team/%s/users", User.class).accept(jsonstream).scope(Scope.team_read).build();
 
-    public static Endpoint<PageTeam> teamsByPage =
+    public static Endpoint<PageTeam> popularTeamsByPage =
         Endpoint.of("/api/team/all", PageTeam.class).build();
 
     public static Endpoint<PageTeam> teamsSearch =
