@@ -11,10 +11,16 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Spliterator;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import chariot.model.Page;
 
 public class Util {
 
@@ -91,6 +97,72 @@ public class Util {
         public static final String wwwform     = "application/x-www-form-urlencoded";
         public static final String chesspgn    = "application/x-chess-pgn";
         public static final String plain       = "text/plain; charset=utf-8";
+    }
+
+
+    public static class PageSpliterator<T> implements Spliterator<T> {
+        final long delayBetweenPageSearches = TimeUnit.SECONDS.toMillis(1);
+        Page<T> page;
+        Function<Integer, Page<T>> search;
+
+        long previousSearchTime = System.currentTimeMillis();
+        int currentElementIndex = 0;
+
+        public PageSpliterator(Page<T> page, Function<Integer, Page<T>> search) {
+            this.page = page;
+            this.search = search;
+        }
+
+        public static <T> PageSpliterator<T> of(Page<T> page, Function<Integer, Page<T>> search) {
+            return new PageSpliterator<>(page, search);
+        }
+
+        @Override
+        public boolean tryAdvance(Consumer<? super T> action) {
+            try {
+                var currentResults = page.currentPageResults();
+                if (currentElementIndex < currentResults.size()) {
+                    action.accept(currentResults.get(currentElementIndex));
+                    currentElementIndex++;
+                    return true;
+                } else {
+                    if (page.currentPage() >= page.nbPages()) {
+                        return false;
+                    }
+                    currentElementIndex = 0;
+
+                    long elapsedMillis = Math.min(System.currentTimeMillis() - previousSearchTime, 1000);
+                    if (elapsedMillis < delayBetweenPageSearches) {
+                        try {Thread.sleep(delayBetweenPageSearches-elapsedMillis);} catch (InterruptedException ie) {}
+                    }
+                    page = search.apply(page.nextPage());
+                    previousSearchTime = System.currentTimeMillis();
+                    return tryAdvance(action);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return false;
+        }
+
+        @Override
+        public Spliterator<T> trySplit() {
+            return null;
+        }
+
+        @Override
+        public long estimateSize() {
+            return page.nbResults();
+        }
+
+        @Override
+        public int characteristics() {
+            return ORDERED | SIZED;
+        }
+
+
     }
 }
 
