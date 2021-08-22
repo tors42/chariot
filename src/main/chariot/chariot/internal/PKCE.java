@@ -23,7 +23,6 @@ import com.sun.net.httpserver.HttpServer;
 import chariot.Client.Scope;
 import chariot.api.Account.UriAndToken;
 import chariot.model.TokenResult;
-import chariot.internal.Util;
 
 public class PKCE {
 
@@ -52,7 +51,7 @@ public class PKCE {
 
         var moduleName = System.getProperty("jdk.module.main", Optional.ofNullable(PKCE.class.getModule().getName()).orElse("chariot"));
 
-        var loopbackAddress = mapNameToLoopbackAddress(moduleName);
+        var loopbackAddress = InetAddress.getLoopbackAddress();
         var local = new InetSocketAddress(loopbackAddress, 0);
         var httpServer = HttpServer.create(local, 0);
         var redirectHost = loopbackAddress.getHostAddress();
@@ -189,59 +188,6 @@ public class PKCE {
             .replaceAll(  "=",  "")
             .replaceAll("\\+", "-")
             .replaceAll("\\/", "_");
-    }
-
-    /**
-     * The Lichess Security page lists Third Party applications with the domain name from the redirect_uri.
-     * If multiple native applications wants to use PKCE,
-     * and they use the same "normal" loopback address "127.0.0.1",
-     * the applications won't have a separate revokable entry - it seems like Lichess
-     * "merges" all the different applications' scopes into one single entry.
-     * This method aims to reduce the contention for 127.0.0.1, by adding
-     * some complexity to map a native application name to one of
-     * the local addresses in the range [ 127.0.0.1 .. 127.255.255.255 ]
-     * This gives each application its own entry in Lichess.
-     * But Lichess will add an extra warning because the application is using
-     * http (not https) on an address other than "127.0.0.1".
-     * I.e "http://127.0.0.1:xxxx" is deemed fine,
-     * but "http://127.0.0.2:xxxx" is deemed insecure.
-     * Haven't figured out a way to use "https://127.0.0.2:xxxx" yet,
-     * without having the user to approve a possibly self-signed certificate - added complexity...
-     * So taking the additional warning I guess. It would feel rude to claim to be the only
-     * Lichess native application using the "127.0.0.1" address...
-     *
-     * Hmm, I guess this setting should be exposed in the Chariot API,
-     * so that the application can choose to use the "127.0.0.1" address or not...
-     */
-    static InetAddress mapNameToLoopbackAddress(String moduleName) {
-        var loopbackAddress = InetAddress.getLoopbackAddress();
-        try {
-            var md = MessageDigest.getInstance("SHA-256");
-            var digest = md.digest(moduleName.getBytes(StandardCharsets.UTF_8));
-            var addressLength = loopbackAddress.getAddress().length;
-            var bytes = new byte[addressLength];
-
-            for (int i = 0; i < addressLength; i++) {
-                bytes[i] = digest[digest.length - 1 - i];
-            }
-
-            if (addressLength == 4) {
-                bytes[0] = 127;
-            }
-
-            if (bytes[bytes.length-1] == 0) {
-                bytes[bytes.length-1]++;
-            }
-
-            // Todo, if IPv6/len 16,
-            // which address space can be used for loopback addresses?
-            var address = InetAddress.getByAddress(bytes);
-            return address;
-        } catch (Exception e) {
-            System.out.format("Note, fallback to default loopback [%s] for module [%s]", loopbackAddress, moduleName);
-        }
-
-        return loopbackAddress;
     }
 
 }
