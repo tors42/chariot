@@ -95,10 +95,13 @@ public class PKCE {
                         System.out.format("Wrong state [%s]", instate);
                         cf.completeExceptionally(new Exception("Authorization Failed"));
                         exchange.sendResponseHeaders(503, -1);
+                        exchange.close();
                         return;
                     } else {
-                        // This should be configurable/optional/better-default?
-                        var successPage = """
+
+                        if (code != null) {
+                            // This should be configurable/optional/better-default?
+                            var successPage = """
                             <html>
                                 <body>
                                     <h1>Success, you may close this page</h1>
@@ -107,9 +110,26 @@ public class PKCE {
                             </html>"""
                             .formatted(lichessUri + "/account/security");
 
-                        var responseBytes = successPage.getBytes();
-                        exchange.sendResponseHeaders(200, responseBytes.length);
-                        exchange.getResponseBody().write(responseBytes);
+                            var responseBytes = successPage.getBytes();
+                            exchange.sendResponseHeaders(200, responseBytes.length);
+                            exchange.getResponseBody().write(responseBytes);
+                            exchange.close();
+                        } else {
+                            var failPage = """
+                            <html>
+                                <body>
+                                    <h1>Failure</h1>
+                                    <p>%s</p>
+                                </body>
+                            </html>"""
+                            .formatted(inparams.get("error_description"));
+                            var responseBytes = failPage.getBytes();
+                            exchange.sendResponseHeaders(200, responseBytes.length);
+                            exchange.getResponseBody().write(responseBytes);
+                            exchange.close();
+                            cf.completeExceptionally(new Exception("Error: " + inparams.get("error") + " Description: " + inparams.get("error_description")));
+                            return;
+                        }
                     }
 
                     var tokenParameters = Map.of(
