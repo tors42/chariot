@@ -21,4 +21,23 @@ public class UsersAuthImpl extends UsersImpl implements UsersAuth {
 
         return fetchOne(request);
     }
+
+    @Override
+    public Result<Ack> followUser(String userId) {
+        var request = Endpoint.followUser.newRequest()
+            .path(userId)
+            .post()
+            .build();
+        return fetchOne(request);
+    }
+
+    @Override
+    public Result<Ack> unfollowUser(String userId) {
+        var request = Endpoint.unfollowUser.newRequest()
+            .path(userId)
+            .post()
+            .build();
+        return fetchOne(request);
+    }
+
 }

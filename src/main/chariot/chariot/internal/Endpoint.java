@@ -76,6 +76,12 @@ public record Endpoint<T> (
     public static Endpoint<User> usersFollowingById =
         Endpoint.of("/api/user/%s/following", User.class).accept(jsonstream).build();
 
+    public static Endpoint<Ack> followUser =
+        Endpoint.of("/api/rel/follow/%s", Ack.class).scope(Scope.follow_write).build();
+
+    public static Endpoint<Ack> unfollowUser =
+        Endpoint.of("/api/rel/unfollow/%s", Ack.class).scope(Scope.follow_write).build();
+
     public static Endpoint<Tournament> tournamentArenaCreatedByUser =
         Endpoint.of("/api/user/%s/tournament/created", Tournament.class).accept(jsonstream).build();
 
