@@ -356,6 +356,11 @@ public sealed interface Client extends AutoCloseable permits ClientAuth, Client.
         bot_play,
 
         /**
+         * Follow and Unfollow players
+         */
+        follow_write,
+
+        /**
          * Create authenticated website sessions (grants full access!)
          */
         web_login,
