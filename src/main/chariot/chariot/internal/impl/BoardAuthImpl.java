@@ -91,7 +91,7 @@ public class BoardAuthImpl extends ChallengesAuthCommonImpl implements Internal.
     }
 
     @Override
-    public Result<Ack> handleDrawOffer(String gameId, Draw accept) {
+    public Result<Ack> handleDrawOffer(String gameId, Offer accept) {
         var request = Endpoint.boardDraw.newRequest()
             .path(gameId, accept.name())
             .post()

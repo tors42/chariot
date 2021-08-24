@@ -109,7 +109,7 @@ public interface BoardAuth extends ChallengesAuthCommon {
      * </ul>
      * @param gameId Example: 5IrD6Gzz
      */
-    Result<Ack> handleDrawOffer(String gameId, Draw accept);
+    Result<Ack> handleDrawOffer(String gameId, Offer accept);
 
     /**
      * Claim victory when the opponent has left the game for a while.
@@ -142,8 +142,8 @@ public interface BoardAuth extends ChallengesAuthCommon {
     /**
      * See {@link chariot.api.BoardAuth#handleDrawOffer}
      */
-     default Result<Ack> handleDrawOffer(String gameId, Function<Draw.Provider, Draw> accept) {
-        return handleDrawOffer(gameId, accept.apply(Draw.provider()));
+    default Result<Ack> handleDrawOffer(String gameId, Function<Offer.Provider, Offer> accept) {
+        return handleDrawOffer(gameId, accept.apply(Offer.provider()));
     }
 
 

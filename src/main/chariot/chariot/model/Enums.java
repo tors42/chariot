@@ -73,11 +73,11 @@ public interface Enums {
         public static Provider provider() {return new Provider(){};}
     }
 
-    enum Draw {
+    enum Offer {
         yes,no;
         public interface Provider {
-            default Draw yes() { return yes; }
-            default Draw no()  { return no; }
+            default Offer yes() { return yes; }
+            default Offer no()  { return no; }
         }
         public static Provider provider() {return new Provider(){};}
     }
