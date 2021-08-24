@@ -66,7 +66,7 @@ public class PKCE {
                 "code",
                 moduleName,
                 "http://" + redirectHost + ":" + redirectPort,
-                scopes.stream().map(Scope::asString).collect(Collectors.joining(",")),
+                scopes.stream().map(Scope::asString).collect(Collectors.joining(" ")),
                 generateRandomState()
                 );
 
