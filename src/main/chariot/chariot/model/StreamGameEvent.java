@@ -42,6 +42,8 @@ public sealed interface StreamGameEvent extends Model {
             long binc,
             boolean wdraw,
             boolean bdraw,
+            boolean wtakeback,
+            boolean btakeback,
             Game.Status status,
             String winner) implements StreamGameEvent {}
 
