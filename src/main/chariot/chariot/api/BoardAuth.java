@@ -112,6 +112,17 @@ public interface BoardAuth extends ChallengesAuthCommon {
     Result<Ack> handleDrawOffer(String gameId, Offer accept);
 
     /**
+     * Create/accept/decline takeback offers.
+     * <ul>
+     * <li> yes: Offer a takeback, or accept the opponent's takeback offer
+     * <li> no: Decline a takeback offer from the opponent
+     * </ul>
+     * @param gameId Example: 5IrD6Gzz
+     */
+    Result<Ack> handleTakebackOffer(String gameId, Offer accept);
+
+
+    /**
      * Claim victory when the opponent has left the game for a while.
      * @param gameId  Example: 5IrD6Gzz
      */
@@ -144,6 +155,13 @@ public interface BoardAuth extends ChallengesAuthCommon {
      */
     default Result<Ack> handleDrawOffer(String gameId, Function<Offer.Provider, Offer> accept) {
         return handleDrawOffer(gameId, accept.apply(Offer.provider()));
+    }
+
+    /**
+     * See {@link chariot.api.BoardAuth#handleTakebackOffer}
+     */
+    default Result<Ack> handleTakebackOffer(String gameId, Function<Offer.Provider, Offer> accept) {
+        return handleTakebackOffer(gameId, accept.apply(Offer.provider()));
     }
 
 

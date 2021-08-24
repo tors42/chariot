@@ -100,6 +100,16 @@ public class BoardAuthImpl extends ChallengesAuthCommonImpl implements Internal.
     }
 
     @Override
+    public Result<Ack> handleTakebackOffer(String gameId, Offer accept) {
+        var request = Endpoint.boardTakeback.newRequest()
+            .path(gameId, accept.name())
+            .post()
+            .build();
+        return fetchOne(request);
+    }
+
+
+    @Override
     public Result<Ack> claimVictory(String gameId) {
         var request = Endpoint.boardClaimVictory.newRequest()
             .path(gameId)

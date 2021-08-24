@@ -343,6 +343,9 @@ public record Endpoint<T> (
     public static Endpoint<Ack> boardDraw =
         Endpoint.of("/api/board/game/%s/draw/%s", Ack.class).scope(Scope.board_play).build();
 
+    public static Endpoint<Ack> boardTakeback =
+        Endpoint.of("/api/board/game/%s/takeback/%s", Ack.class).scope(Scope.board_play).build();
+
     public static Endpoint<Ack> boardClaimVictory =
         Endpoint.of("/api/board/game/%s/claim-victory", Ack.class).scope(Scope.board_play).build();
 
