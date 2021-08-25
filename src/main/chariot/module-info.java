@@ -10,6 +10,9 @@ module chariot {
     requires transitive java.logging;
     requires transitive java.prefs;
     requires java.net.http;
-    requires jdk.httpserver;
+
+    requires jdk.crypto.cryptoki; //https
+    requires jdk.random;     //OAuth PKCE
+    requires jdk.httpserver; //OAuth PKCE
 
 }
