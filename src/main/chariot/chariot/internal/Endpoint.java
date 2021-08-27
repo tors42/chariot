@@ -359,16 +359,16 @@ public record Endpoint<T> (
         Endpoint.of("/api/bot/game/stream/%s", StreamGameEvent.class).accept(jsonstream).scope(Scope.bot_play).build();
 
     public static Endpoint<Ack> botMove =
-        Endpoint.of("/api/board/game/%s/move/%s", Ack.class).scope(Scope.bot_play).build();
+        Endpoint.of("/api/bot/game/%s/move/%s", Ack.class).scope(Scope.bot_play).build();
 
     public static Endpoint<Ack> botChat =
-        Endpoint.of("/api/board/game/%s/chat", Ack.class).content(wwwform).scope(Scope.bot_play).build();
+        Endpoint.of("/api/bot/game/%s/chat", Ack.class).content(wwwform).scope(Scope.bot_play).build();
 
     public static Endpoint<Ack> botAbort =
-        Endpoint.of("/api/board/game/%s/abort", Ack.class).scope(Scope.bot_play).build();
+        Endpoint.of("/api/bot/game/%s/abort", Ack.class).scope(Scope.bot_play).build();
 
     public static Endpoint<Ack> botResign =
-        Endpoint.of("/api/board/game/%s/resign", Ack.class).scope(Scope.bot_play).build();
+        Endpoint.of("/api/bot/game/%s/resign", Ack.class).scope(Scope.bot_play).build();
 
 
     public static class EndpointBuilder<T> {
