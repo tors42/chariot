@@ -43,14 +43,22 @@ The JDK includes a tool called JShell. It can be used to run Java code and is su
 
 ## Use as dependency
 
-The coordinates are `io.github.tors42:chariot:0.0.9`, so in a Maven project the following dependency can be added to the `pom.xml`:
+The coordinates are `io.github.tors42:chariot:0.0.10`, so in a Maven project the following dependency can be added to the `pom.xml`:
 
     ...
     <dependency>
       <groupId>io.github.tors42</groupId>
       <artifactId>chariot</artifactId>
-      <version>0.0.9</version>
+      <version>0.0.10</version>
     </dependency>
     ...
 
-[Example application](https://github.com/tors42/chariot-example)
+Here's a mini [example Maven application](https://github.com/tors42/chariot-example)
+
+# Applications
+
+A list of notable applications based on Chariot,
+
+[Team Check](https://github.com/tors42/teamcheck)
+
+
