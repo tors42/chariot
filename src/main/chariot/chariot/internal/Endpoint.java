@@ -349,6 +349,9 @@ public record Endpoint<T> (
     public static Endpoint<Ack> boardClaimVictory =
         Endpoint.of("/api/board/game/%s/claim-victory", Ack.class).scope(Scope.board_play).build();
 
+    public static Endpoint<ChatMessage[]> boardFetchChat =
+     Endpoint.ofArr("/api/board/game/%s/chat", ChatMessage.class).accept(jsonstream).scope(Scope.board_play).build();
+
     public static Endpoint<User> botsOnline =
         Endpoint.of("/api/bot/online", User.class).accept(jsonstream).build();
 

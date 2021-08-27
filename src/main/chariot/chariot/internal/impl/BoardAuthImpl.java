@@ -9,6 +9,7 @@ import chariot.internal.Endpoint;
 import chariot.internal.InternalClient;
 import chariot.internal.Util;
 import chariot.model.Ack;
+import chariot.model.ChatMessage;
 import chariot.model.Result;
 import chariot.model.StreamGameEvent;
 
@@ -116,6 +117,14 @@ public class BoardAuthImpl extends ChallengesAuthCommonImpl implements Internal.
             .post()
             .build();
         return fetchOne(request);
+    }
+
+    @Override
+    public Result<ChatMessage> fetchChat(String gameId) {
+        var request = Endpoint.boardFetchChat.newRequest()
+            .path(gameId)
+            .build();
+        return fetchArr(request);
     }
 
 

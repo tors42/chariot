@@ -16,6 +16,7 @@ public sealed interface Model permits
     BulkPairings,
     ChallengeResult,
     ChallengeTokens,
+    ChatMessage,
     Crosstable,
     Err,
     ExploreResult,
