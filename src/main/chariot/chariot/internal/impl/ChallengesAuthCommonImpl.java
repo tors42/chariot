@@ -65,20 +65,50 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Internal
     }
 
     private Result<Challenge> challenge(Scope scope, String userId, InternalChallengeParameters parameters) {
-        var parametersString = Util.urlEncode(parameters.toMap());
+        var map = parameters.toMap();
+        boolean stream = (Boolean) map.getOrDefault("keepAliveStream", Boolean.FALSE);
 
-        var request = Endpoint.challengeCreate.newRequest()
+        var parametersString = Util.urlEncode(map);
+
+        var builder = Endpoint.challengeCreate.newRequest()
             .scope(scope)
             .path(userId)
-            .post(parametersString)
-            .build();
+            .post(parametersString);
 
-        var result = fetchOne(request);
+        if (stream) builder.stream();
 
-        if (result instanceof Result.One<ChallengeResult> o && o.entry() instanceof ChallengeResult.ChallengeInfo ci) {
-            return Result.one(ci.challenge());
+        var request = builder.build();
+
+        if (stream) {
+            var result = fetchMany(request);
+
+            if (result instanceof Result.Many<ChallengeResult> o) {
+                // If a keepAliveStream parameter is used,
+                // the response is streamed.
+                // First a challenge info object,
+                // and then a { "done" : "accepted"/"declined" } message.
+                // Hmm. If user closes stream before the "done" message is generated,
+                // the challenge is cancelled. I guess that's the main feature here.
+                // The "done" message itself... Does the user need this info?
+                // Dropping it for now, in order to not mess up the response model,
+                // maybe have a separate API for keepAliveStream parameter in the future...?
+                return Result.many(
+                        o.entries()
+                        .filter(entry -> entry instanceof ChallengeResult.ChallengeInfo)
+                        .map(entry -> ((ChallengeResult.ChallengeInfo) entry).challenge())
+                        );
+            } else {
+                return Result.fail(result.error());
+            }
+
         } else {
-            return Result.fail(result.error());
+            var result = fetchOne(request);
+
+            if (result instanceof Result.One<ChallengeResult> o && o.entry() instanceof ChallengeResult.ChallengeInfo ci) {
+                return Result.one(ci.challenge());
+            } else {
+                return Result.fail(result.error());
+            }
         }
     }
 

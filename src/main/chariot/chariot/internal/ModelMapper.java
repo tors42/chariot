@@ -206,7 +206,14 @@ public class ModelMapper {
                             if (outer.get("challenge") != null) {
                                 return mapper.fromYayTree(node, ChallengeResult.ChallengeInfo.class);
                             } else {
-                                return mapper.fromYayTree(node, ChallengeResult.ChallengeAI.class);
+                                if (outer.get("done") != null) {
+                                    // keepAliveStream responds with the challenge info,
+                                    // and when the opponent decides - a "done" message with the choice
+                                    // is sent "accepted"/"declined"...
+                                    return mapper.fromYayTree(node, ChallengeResult.OpponentDecision.class);
+                                } else {
+                                    return mapper.fromYayTree(node, ChallengeResult.ChallengeAI.class);
+                                }
                             }
                         }
                     }

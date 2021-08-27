@@ -638,6 +638,7 @@ public interface Internal {
                 public Builder variant(VariantName variant) { Objects.requireNonNull(variant); map.put("variant", variant); return this; }
                 public Builder variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
                 public Builder fen(String fen) { Objects.requireNonNull(fen); map.put("fen", fen); return this; }
+                public Builder keepAliveStream(boolean keepAliveStream) { map.put("keepAliveStream", keepAliveStream); return this; }
                 public Builder acceptByToken(String acceptByToken) { Objects.requireNonNull(acceptByToken); map.put("acceptByToken", acceptByToken); return this; }
                 public Builder acceptByToken(String acceptByToken, String message) {
                     Objects.requireNonNull(acceptByToken);

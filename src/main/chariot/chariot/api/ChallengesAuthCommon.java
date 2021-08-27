@@ -80,6 +80,17 @@ public interface ChallengesAuthCommon {
         ChallengeBuilder fen(String fen);
 
         /**
+         * @param keepAliveStream If set, the response is streamed. The challenge is kept alive
+         * until the stream is closed.<br>
+         * If not set, the response is not streamed, and the challenge expires after 20s if not accepted.<br>
+         *
+         * Implementation note for stream: When the challenge is accepted, declined or canceled,
+         * a message of the form {"done":"accepted"} is sent, then the connection is closed by the server -
+         * but this info will be silently dropped - you will still receive this info at {@link #streamEvents()}
+         */
+        ChallengeBuilder keepAliveStream(boolean keepAliveStream);
+
+        /**
          * Immediately accept the challenge and create the game.
          * @param acceptByToken Pass in an OAuth token (with the challenge:write scope) for the receiving user.
          * <p>On success, the response will contain a game field instead of a challenge field.<br/>

@@ -91,6 +91,8 @@ public sealed interface ChallengeResult extends Model {
         }
     }
 
+    public record OpponentDecision(String done) implements ChallengeResult {}
+
     public sealed interface TimeControl permits TimeControl.Clock, TimeControl.Days {
         record Clock(String type, String show, int limit, int increment) implements TimeControl {}
         record Days(String type, int daysPerTurn) implements TimeControl {}
