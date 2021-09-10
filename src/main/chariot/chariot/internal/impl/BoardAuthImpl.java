@@ -25,7 +25,6 @@ public class BoardAuthImpl extends ChallengesAuthCommonImpl implements Internal.
         var postData = Util.urlEncode(map);
 
         var requestBuilder = Endpoint.boardSeek.newRequest()
-            .stream()
             .post(postData);
 
         if ( ! map.containsKey("days") ){
