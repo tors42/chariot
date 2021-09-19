@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -334,7 +335,7 @@ public class ModelMapper {
                                         interval = new Activity.Interval(start, end);
                                     }
                                     var activityTypes = yo.value().keySet();
-                                    var activities = new ArrayList<Activity.Type>();
+                                    var activities = new HashSet<Activity.Type>();
                                     for (String activityType : activityTypes) {
                                         if ("interval".equals(activityType)) continue;
 

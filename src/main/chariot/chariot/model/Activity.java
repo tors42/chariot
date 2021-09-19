@@ -1,6 +1,7 @@
 package chariot.model;
 
 import java.util.List;
+import java.util.Set;
 
 import chariot.model.Enums.Color;
 import chariot.model.Enums.VariantName;
@@ -8,7 +9,7 @@ import static chariot.internal.Util.orEmpty;
 
 import java.time.ZonedDateTime;
 
-public record Activity(Interval interval, List<Activity.Type> activities) implements Model {
+public record Activity(Interval interval, Set<Activity.Type> activities) implements Model {
 
     public record Interval(ZonedDateTime start, ZonedDateTime end) {};
 
