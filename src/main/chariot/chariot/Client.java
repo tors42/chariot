@@ -141,6 +141,11 @@ public sealed interface Client extends AutoCloseable permits ClientAuth, Client.
     Broadcasts broadcasts();
 
     /**
+     * Open-ended challenges. For authenticated challenges, see {@link chariot.api.ChallengesAuth}
+     */
+    Challenges challenges();
+
+    /**
      * Access games and TV channels, played on Lichess.
      */
     Games games();
