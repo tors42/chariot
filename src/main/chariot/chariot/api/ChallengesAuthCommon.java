@@ -41,7 +41,7 @@ public interface ChallengesAuthCommon {
 
         /**
          * Real-time challenge
-         * @param clockInitial Clock initial time in minutes [ 0 .. 10800 ]
+         * @param clockInitial Clock initial time in seconds [ 0 .. 10800 ]
          * @param clockIncrement Clock increment in seconds [ 0 .. 60 ]
          */
         public ChallengeBuilder clock(int clockInitial, int clockIncrement);
