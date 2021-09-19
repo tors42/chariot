@@ -317,8 +317,7 @@ public class ModelMapper {
                                             try {
                                                 var rh = mapper.fromYayTree(e.getValue(), Activity.Result.ResultHelper.class);
                                                 return new Activity.Result(e.getKey(), rh.win(), rh.loss(), rh.draw(), rh.rp());
-                                            } catch (Exception ex) {
-                                            }
+                                            } catch (Exception ex) {}
                                             return null;
                                         }).toList();
                                 }
@@ -334,90 +333,45 @@ public class ModelMapper {
                                         var end = Util.fromLong(yoi.getNumber("end").longValue());
                                         interval = new Activity.Interval(start, end);
                                     }
+                                    var activityTypes = yo.value().keySet();
+                                    var activities = new ArrayList<Activity.Type>();
+                                    for (String activityType : activityTypes) {
+                                        if ("interval".equals(activityType)) continue;
 
-                                    var games = new Activity.Games(resultHelper.apply(yo.value().get("games")));
+                                        var node = yo.value().get(activityType);
 
-                                    Activity.Puzzles puzzles = null;
-                                    var puzzlesNode = yo.value().get("puzzles");
-                                    if (puzzlesNode != null) {
-                                        puzzles = new Activity.Puzzles(resultHelper.apply(puzzlesNode).get(0));
-                                    }
-
-                                    var tournaments = mapper.fromYayTree(yo.value().get("tournaments"), Activity.Tournaments.class);
-
-                                    var practiceArr = yo.value().get("practice");
-                                    List<Activity.Practice> practice = null;
-                                    if (practiceArr != null) {
-                                        if (practiceArr instanceof YayArray pya) {
-                                            practice = pya.value().stream()
-                                                .map(y -> mapper.fromYayTree(y, Activity.Practice.class))
-                                                .toList();
-                                        }
-                                    }
-
-                                    var correspondenceMoves = mapper.fromYayTree(yo.value().get("correspondenceMoves"), Activity.CorrespondenceMoves.class);
-
-                                    // Map firstly to get the List<Game> mapping performed,
-                                    // and then manually get and fix the Result member of the record
-                                    var correspondenceEnds = mapper.fromYayTree(yo.value().get("correspondenceEnds"), Activity.CorrespondenceEnds.class);
-                                    if (yo.value().get("correspondenceEnds") instanceof YayObject correspondenceEndsNode) {
-                                        correspondenceEnds = new Activity.CorrespondenceEnds(
-                                                resultHelper.apply(correspondenceEndsNode).get(0),
-                                                correspondenceEnds.games()
-                                                );
-                                    }
-
-                                    var in = new ArrayList<String>();
-                                    var out = new ArrayList<String>();
-                                    if (yo.value().get("follows") instanceof YayObject yoFollows) {
-                                        if (yoFollows.value().get("in") instanceof YayObject yoIn) {
-                                            if (yoIn.value().get("ids") instanceof YayArray yarr) {
-                                                in.addAll(yarr.value().stream().map(yn -> ((YayString) yn).value()).toList());
+                                        Activity.Type activity = switch(activityType) {
+                                            case "games" -> new Activity.Type.Games(resultHelper.apply(node));
+                                            case "puzzles" -> new Activity.Type.Puzzles(resultHelper.apply(node).get(0));
+                                            case "tournaments" -> mapper.fromYayTree(node, Activity.Type.Tournaments.class);
+                                            case "practice" -> new Activity.Type.Practices(((YayArray)node).value().stream().map(y -> mapper.fromYayTree(y, Activity.Practice.class)).toList());
+                                            case "simuls" -> new Activity.Type.Simuls(((YayArray)node).value().stream().map(y -> mapper.fromYayTree(y, Activity.Simul.class)).toList());
+                                            case "correspondenceMoves" -> mapper.fromYayTree(node, Activity.Type.CorrespondenceMoves.class);
+                                            case "correspondenceEnds" -> {
+                                                var ends = mapper.fromYayTree(node, Activity.Type.CorrespondenceEnds.class);
+                                                yield new Activity.Type.CorrespondenceEnds(resultHelper.apply(node).get(0), ends.games());
                                             }
-                                        }
-                                        if (yoFollows.value().get("out") instanceof YayObject yoOut) {
-                                            if (yoOut.value().get("ids") instanceof YayArray yarr) {
-                                                out.addAll(yarr.value().stream().map(yn -> ((YayString) yn).value()).toList());
+                                            case "follows" -> {
+                                                var yoFollows = (YayObject) node;
+                                                yield new Activity.Type.Follows(
+                                                        yoFollows.value().get("in") instanceof YayObject yoIn && yoIn.value().get("ids") instanceof YayArray yarr ?
+                                                         yarr.value().stream().map(yn -> ((YayString) yn).value()).toList() :
+                                                         List.of(),
+                                                        yoFollows.value().get("out") instanceof YayObject yoOut && yoOut.value().get("ids") instanceof YayArray yarr ?
+                                                         yarr.value().stream().map(yn -> ((YayString) yn).value()).toList() :
+                                                         List.of()
+                                                        );
                                             }
-                                        }
+                                            case "teams" -> new Activity.Type.Teams(((YayArray) node).value().stream().map(y -> mapper.fromYayTree(y, Activity.Team.class)).toList());
+                                            case "posts" -> new Activity.Type.Posts(((YayArray) node).value().stream().map(y -> mapper.fromYayTree(y, Activity.Topic.class)).toList());
+
+                                            default -> new Activity.Type.Unknown(activityType, yo.value().get(activityType).toString());
+                                        };
+
+                                        // :
+                                        activities.add(activity);
                                     }
-                                    var follows = new Activity.Follows(in, out);
-
-                                    var teamsArr = yo.value().get("teams");
-                                    List<Activity.Teams> teams = null;
-                                    if (teamsArr != null) {
-                                        if (teamsArr instanceof YayArray tya) {
-                                            teams = tya.value().stream()
-                                                .map(y -> mapper.fromYayTree(y, Activity.Teams.class))
-                                                .toList();
-                                        }
-                                    }
-
-                                    var postsArr = yo.value().get("posts");
-                                    List<Activity.Posts> posts = null;
-                                    if (postsArr != null) {
-                                        if (postsArr instanceof YayArray pya) {
-                                            posts = pya.value().stream()
-                                                .map(y -> mapper.fromYayTree(y, Activity.Posts.class))
-                                                .toList();
-                                        }
-                                    }
-
-                                    // Activity model ... sigh
-                                    var activity = new Activity(
-                                            interval,
-                                            games,
-                                            puzzles,
-                                            tournaments,
-                                            practice,
-                                            correspondenceMoves,
-                                            correspondenceEnds,
-                                            follows,
-                                            teams,
-                                            posts
-                                            );
-
-                                    return activity;
+                                    return new Activity(interval, activities);
                                 }
                                 //return null;
                                 return Model.unmapped(json);
@@ -431,6 +385,5 @@ public class ModelMapper {
                     }
                     return Model.unmapped(json);
                 });
-
     }
 }
