@@ -18,6 +18,7 @@ public record AccountPreferences(Prefs prefs) implements Model {
         String theme3d,
         String pieceSet3d,
         String soundSet,
+        String language,
         Integer blindfold,
         Integer autoQueen,
         Integer autoThreefold,
