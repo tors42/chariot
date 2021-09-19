@@ -520,7 +520,7 @@ public interface Internal {
                     if (pairings.isEmpty())
                         throw new RuntimeException("You must add pairings in order to create pairings!");
 
-                    map.put("pairings", new Pairings(pairings));
+                    map.put("players", new Pairings(pairings));
                     return new Parameters(map);
                 }
                 public Builder addPairing(String tokenWhite, String tokenBlack) {
