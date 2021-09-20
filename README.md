@@ -30,7 +30,7 @@ The JDK includes a tool called JShell. It can be used to run Java code and is su
     jshell> var client = chariot.Client.basic()
     client ==> chariot.internal.BasicClient@1184ab05
     
-    jshell> client.users().byId("lichess").ifPresent(u -> System.out.println("Online: " + u.online()))
+    jshell> client.users().statusByIds("lichess").ifPresent(u -> System.out.println("Online: " + u.online()))
     Online: true
     
     jshell> /exit
