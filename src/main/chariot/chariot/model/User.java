@@ -16,7 +16,6 @@ public record User(
         String title,
         String url,
         String playing,
-        boolean online,
         boolean disabled,
         boolean closed,
         boolean tosViolation,
