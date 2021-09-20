@@ -91,6 +91,13 @@ public interface Users {
     Result<UserStatus> statusByIds(Set<String> userIds);
 
     /**
+     * {@link #statusByIds(Set)}
+     */
+    default Result<UserStatus> statusByIds(String... userIds) {
+        return statusByIds(Set.of(userIds));
+    }
+
+    /**
      * Read the status of current live streamers<br>
      * This API is very fast and cheap on lichess side.<br>
      * So you can call it quite often (like once every 5 seconds).
