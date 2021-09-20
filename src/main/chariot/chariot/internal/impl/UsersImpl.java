@@ -78,8 +78,8 @@ public class UsersImpl extends Base implements Internal.Users {
 
     @Override
     public Result<UserStatus> statusByIds(Set<String> userIds) {
-        if (userIds.size() > 50) {
-            return Result.fail("Max 50 user ids");
+        if (userIds.size() > 100) {
+            return Result.fail("Max 100 user ids");
         }
 
         var ids = userIds.stream()

@@ -86,7 +86,7 @@ public interface Users {
      * This API is very fast and cheap on lichess side,
      * so you can call it quite often (like once every 5 seconds).<br>
      * Use it to track players and know when they're connected on lichess and playing games.
-     * @param userIds Up to 50 IDs
+     * @param userIds Up to 100 IDs
      */
     Result<UserStatus> statusByIds(Set<String> userIds);
 
