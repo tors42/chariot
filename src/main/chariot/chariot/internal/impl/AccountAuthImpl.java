@@ -61,6 +61,14 @@ public class AccountAuthImpl extends AccountImpl implements chariot.api.AccountA
     }
 
     @Override
+    public Result<User> following() {
+        var request = Endpoint.relFollowing.newRequest()
+            .build();
+        return fetchMany(request);
+    }
+
+
+    @Override
     public Set<Scope> scopes(Supplier<char[]> token) {
         var scopes = client.fetchScopes(Endpoint.accountProfile.endpoint(), token);
         return scopes;

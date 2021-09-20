@@ -77,14 +77,6 @@ public class UsersImpl extends Base implements Internal.Users {
     }
 
     @Override
-    public Result<User> followingById(String userId) {
-        var request = Endpoint.usersFollowingById.newRequest()
-            .path(userId)
-            .build();
-        return fetchMany(request);
-    }
-
-    @Override
     public Result<UserStatus> statusByIds(Set<String> userIds) {
         if (userIds.size() > 50) {
             return Result.fail("Max 50 user ids");

@@ -51,6 +51,11 @@ public interface AccountAuth extends Account {
     Result<Ack> revokeToken();
 
     /**
+     * Get users followed by logged in user.
+     */
+    Result<User> following();
+
+    /**
      * Read which scopes are available with a token
      * @param token 
      */

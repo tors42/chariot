@@ -81,14 +81,6 @@ public interface Users {
      */
     Result<Activity[]> activityById(String userId);
 
-
-    /**
-     * Get users followed by a user
-     *
-     * @param userId
-     */
-    Result<User> followingById(String userId);
-
     /**
      * Read the `online`, `playing` and `streaming` flags of several users.<br/>
      * This API is very fast and cheap on lichess side,
