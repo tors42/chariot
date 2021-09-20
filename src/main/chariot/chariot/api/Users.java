@@ -83,12 +83,6 @@ public interface Users {
 
 
     /**
-     * Get users who follow a user
-     *
-     * @param userId
-     */
-    Result<User> followersById(String userId);
-    /**
      * Get users followed by a user
      *
      * @param userId

@@ -77,14 +77,6 @@ public class UsersImpl extends Base implements Internal.Users {
     }
 
     @Override
-    public Result<User> followersById(String userId) {
-        var request = Endpoint.usersFollowersById.newRequest()
-            .path(userId)
-            .build();
-        return fetchMany(request);
-     }
-
-    @Override
     public Result<User> followingById(String userId) {
         var request = Endpoint.usersFollowingById.newRequest()
             .path(userId)

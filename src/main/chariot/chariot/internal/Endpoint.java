@@ -70,9 +70,6 @@ public record Endpoint<T> (
     public static Endpoint<Game> gameCurrentByUserId =
         Endpoint.of("/api/user/%s/current-game", Game.class).build();
 
-    public static Endpoint<User> usersFollowersById =
-        Endpoint.of("/api/user/%s/followers", User.class).accept(jsonstream).build();
-
     public static Endpoint<User> usersFollowingById =
         Endpoint.of("/api/user/%s/following", User.class).accept(jsonstream).build();
 
