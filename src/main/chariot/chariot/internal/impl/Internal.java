@@ -253,6 +253,7 @@ public interface Internal {
         default Result<ArenaResult> resultsByArenaId(String arenaId, int nb) { return resultsByArenaId(arenaId, Optional.of(nb)); }
         default Result<SwissResult> resultsBySwissId(String swissId) { return resultsBySwissId(swissId, Optional.empty()); }
         default Result<SwissResult> resultsBySwissId(String swissId, int nb) { return resultsBySwissId(swissId, Optional.of(nb)); }
+        default Result<Tournament> arenasCreatedByUserId(String userId) { return arenasCreatedByUserId(userId, Set.of()); }
 
         sealed interface TournamentParams {
             record Parameters(Map<String,Object> params) implements TournamentParams {}

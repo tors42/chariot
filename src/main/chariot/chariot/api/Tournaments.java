@@ -8,7 +8,9 @@ import chariot.model.SwissResult;
 import chariot.model.TeamBattleResults;
 import chariot.model.Tournament;
 import chariot.model.TournamentStatus;
+import chariot.model.Enums.TournamentState;
 
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -33,10 +35,21 @@ public interface Tournaments {
      */
     Result<Arena> arenaById(String arenaId);
     /**
+     * Get tournaments created by a given user of specified status.<br>
+     * Tournaments are sorted by reverse chronological order of start date (last starting first).
+     */
+    Result<Tournament> arenasCreatedByUserId(String userId, Set<TournamentState> specificStatus);
+    /**
      * Get all tournaments created by a given user.<br>
      * Tournaments are sorted by reverse chronological order of start date (last starting first).
      */
     Result<Tournament> arenasCreatedByUserId(String userId);
+    /**
+     * {@link #arenasCreatedByUserId(String, Set)}
+     */
+    default Result<Tournament> arenasCreatedByUserId(String userId, TournamentState... specificStatus) {
+        return arenasCreatedByUserId(userId, Set.of(specificStatus));
+    }
 
     /**
      * Download games of a arena tournament.<br>

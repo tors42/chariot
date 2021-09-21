@@ -67,7 +67,16 @@ public class Util {
                             .collect(Collectors.joining("&"));
                         return arrayString;
                     } else {
-                        return e.getKey() + "=" + URLEncoder.encode(String.valueOf(e.getValue()), StandardCharsets.UTF_8);
+                        if (e.getValue() instanceof String[] arr) {
+                            // Input:           "status=["10", "20", "30"]
+                            // Expected result: "status=10&status=20&status=30"
+                            var arrayString = Arrays.stream(arr)
+                                .map(val -> e.getKey() + "=" + val)
+                                .collect(Collectors.joining("&"));
+                            return arrayString;
+                        } else {
+                            return e.getKey() + "=" + URLEncoder.encode(String.valueOf(e.getValue()), StandardCharsets.UTF_8);
+                        }
                     }
             })
             .collect(Collectors.joining("&"));

@@ -2,6 +2,8 @@ package chariot.internal.impl;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import chariot.model.ArenaResult;
 import chariot.model.Arena;
@@ -11,6 +13,7 @@ import chariot.model.Game;
 import chariot.model.Result;
 import chariot.model.SwissResult;
 import chariot.model.TeamBattleResults;
+import chariot.model.Enums.TournamentState;
 import chariot.internal.Base;
 import chariot.internal.Endpoint;
 import chariot.internal.InternalClient;
@@ -47,10 +50,17 @@ public class TournamentsImpl extends Base implements Internal.Tournaments {
     }
 
     @Override
-    public Result<Tournament> arenasCreatedByUserId(String userId) {
-        var request = Endpoint.tournamentArenaCreatedByUser.newRequest()
+    public Result<Tournament> arenasCreatedByUserId(String userId, Set<TournamentState> specificStatus) {
+        var builder = Endpoint.tournamentArenaCreatedByUser.newRequest();
+
+        if (! specificStatus.isEmpty()) {
+            builder.query(Map.of("status", specificStatus.stream().map(s -> String.valueOf(s.status())).toList().toArray(new String[0])));
+        }
+
+        var request = builder
             .path(userId)
             .build();
+
         return fetchMany(request);
     }
 
