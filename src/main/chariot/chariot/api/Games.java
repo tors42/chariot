@@ -109,8 +109,29 @@ public interface Games {
      * Stream the games played between a list of users, in real time.<br>
      * Only games where both players are part of the list are included.<br>
      * Maximum number of users: 300.
+     * @param withCurrentGames whether to include ongoing games or not. Default: true
+     * @param userIds
      */
-    Result<StreamGame>      streamGamesByUserIds(Set<String> userIds);
+    Result<StreamGame> streamGamesByUserIds(boolean withCurrentGames, Set<String> userIds);
+
+    /**
+     * {@link #streamGamesByUserIds(boolean, Set)}
+     */
+    Result<StreamGame> streamGamesByUserIds(Set<String> userIds);
+
+    /**
+     * {@link #streamGamesByUserIds(boolean, Set)}
+     */
+     default Result<StreamGame> streamGamesByUserIds(boolean withCurrentGames, String... userIds) {
+        return streamGamesByUserIds(withCurrentGames, Set.of(userIds));
+    }
+
+    /**
+     * {@link #streamGamesByUserIds(boolean, Set)}
+     */
+    default Result<StreamGame> streamGamesByUserIds(String... userIds) {
+        return streamGamesByUserIds(Set.of(userIds));
+    }
 
     /**
      * Stream positions and moves of any ongoing game.<br>

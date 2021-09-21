@@ -21,6 +21,7 @@ public interface Internal {
         Result<Game> byGameIds(Set<String> gameIds, InternalGameParams params);
         Result<ExploreResult> openingExplorerMasters(MastersParameters params);
         Result<ExploreResult> openingExplorerLichess(LichessParameters params);
+        default Result<StreamGame> streamGamesByUserIds(Set<String> userIds) { return streamGamesByUserIds(true, userIds); }
         default Result<Game> byGameId(String gameId, Consumer<GameParams> params) { return byGameId(gameId, InternalGameParams.of(params)); }
         default Result<Game> byUserId(String userId, Consumer<SearchFilter> params) { return byUserId(userId, InternalSearchFilter.of(params)); }
         default Result<Game> currentByUserId(String userId, Consumer<GameParams> params) { return currentByUserId(userId, InternalGameParams.of(params)); }

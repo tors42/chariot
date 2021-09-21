@@ -69,12 +69,16 @@ public class GamesImpl extends Base implements Internal.Games {
     }
 
     @Override
-    public Result<StreamGame> streamGamesByUserIds(Set<String> userIds) {
+    public Result<StreamGame> streamGamesByUserIds(boolean withCurrentGames, Set<String> userIds) {
         var ids = userIds.stream()
             .limit(300)
             .collect(Collectors.joining(","));
 
-        var request = Endpoint.streamGamesByUsers.newRequest()
+        var builder = Endpoint.streamGamesByUsers.newRequest();
+
+        if (withCurrentGames) builder.query(Map.of("withCurrentGames", 1));
+
+        var request = builder
             .post(ids)
             .stream()
             .build();
