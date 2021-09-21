@@ -205,12 +205,16 @@ public interface Internal {
                 public Builder moves(int moves) { map.put("moves", moves); return this; }
                 public Builder topGames(int topGames) { map.put("topGames", topGames); return this; }
                 public Builder recentGames(int recentGames) { map.put("recentGames", recentGames); return this; }
-                public Builder speeds(Speed[] speeds) {
-                    map.put("speeds[]", Arrays.stream(speeds).map(Speed::name).toList().toArray(new String[0]));
+                public Builder speeds(Set<Speed> speeds) {
+                    if (! speeds.isEmpty()) {
+                        map.put("speeds[]", speeds.stream().map(Speed::name).toList().toArray(new String[0]));
+                    }
                     return this;
                 }
-                public Builder ratings(RatingGroup[] ratings) {
-                    map.put("ratings[]", Arrays.stream(ratings).map(RatingGroup::name).toList().toArray(new String[0]));
+                public Builder ratings(Set<RatingGroup> ratings) {
+                    if (! ratings.isEmpty()) {
+                        map.put("ratings[]", ratings.stream().map(RatingGroup::name).toList().toArray(new String[0]));
+                    }
                     return this;
                 }
             }

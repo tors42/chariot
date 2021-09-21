@@ -474,11 +474,14 @@ public interface Games {
         /**
          * One or more game speeds to look for
          */
-        LichessBuilder speeds(Speed[] speeds);
+        LichessBuilder speeds(Set<Speed> speeds);
+        default LichessBuilder speeds(Speed... speeds) { return speeds(Set.of(speeds)); }
+
         /**
          * One or more rating groups, ranging from their value to the next higher group
          */
-        LichessBuilder ratings(RatingGroup[] ratings);
+        LichessBuilder ratings(Set<RatingGroup> ratings);
+        default LichessBuilder ratings(RatingGroup... ratings) { return ratings(Set.of(ratings)); }
 
         enum Speed { bullet, blitz, rapid, classical;
             public interface Provider {
