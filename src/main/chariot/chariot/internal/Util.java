@@ -56,28 +56,18 @@ public class Util {
     public static String urlEncodeWithWorkaround(Map<String, Object> map) {
         return map.entrySet().stream()
             .map(e -> {
-                    // Workaround: if-branch (normally the else-branch is all we need...) See GamesImpl class
-                    // Handle multikey/value parameters... Currently "encoded" like this:
-                    // Input:           "speeds[]=a,b,c
-                    // Expected result: "speeds[]=a&speeds[]=b&speeds[]=c"
-                    if (e.getKey().endsWith("[]")) {
-                        var vals = String.valueOf(e.getValue()).split(",");
-                        var arrayString = Arrays.stream(vals)
-                            .map(val -> e.getKey() + "=" + val)
-                            .collect(Collectors.joining("&"));
-                        return arrayString;
-                    } else {
-                        if (e.getValue() instanceof String[] arr) {
-                            // Input:           "status=["10", "20", "30"]
-                            // Expected result: "status=10&status=20&status=30"
-                            var arrayString = Arrays.stream(arr)
-                                .map(val -> e.getKey() + "=" + val)
-                                .collect(Collectors.joining("&"));
-                            return arrayString;
-                        } else {
-                            return e.getKey() + "=" + URLEncoder.encode(String.valueOf(e.getValue()), StandardCharsets.UTF_8);
-                        }
-                    }
+                // Workaround for repeating same parameters multiple times,
+                // is that the mapped value is of type String[]
+                if (e.getValue() instanceof String[] arr) {
+                    // Input:           "status=["10", "20", "30"]
+                    // Expected result: "status=10&status=20&status=30"
+                    var arrayString = Arrays.stream(arr)
+                        .map(val -> e.getKey() + "=" + val)
+                        .collect(Collectors.joining("&"));
+                    return arrayString;
+                } else {
+                    return e.getKey() + "=" + URLEncoder.encode(String.valueOf(e.getValue()), StandardCharsets.UTF_8);
+                }
             })
             .collect(Collectors.joining("&"));
     }

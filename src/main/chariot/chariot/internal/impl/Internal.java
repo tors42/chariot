@@ -205,27 +205,12 @@ public interface Internal {
                 public Builder moves(int moves) { map.put("moves", moves); return this; }
                 public Builder topGames(int topGames) { map.put("topGames", topGames); return this; }
                 public Builder recentGames(int recentGames) { map.put("recentGames", recentGames); return this; }
-                ////
-                // todo, should implement nicer support for these types of query parameters,
-                // where the same key name is used multiple times with different values.
-                // The expected query parameters if two speeds are used for instance, "bullet" and "blitz" should be,
-                //
-                // "...&speeds[]=bullet&speeds[]=blitz&..."
-                //
-                // and not as what currently looks like
-                //
-                // "...&speeds[]=bullet,blitz&..."
-                //
-                // (a workaround exists in the Request class query parameter building,
-                //  with an ugly check if the key ends with "[]" - then
-                //  the value is build differently...)
-                ////
                 public Builder speeds(Speed[] speeds) {
-                    map.put("speeds[]", Arrays.stream(speeds).map(Speed::name).collect(Collectors.joining(",")));
+                    map.put("speeds[]", Arrays.stream(speeds).map(Speed::name).toList().toArray(new String[0]));
                     return this;
                 }
                 public Builder ratings(RatingGroup[] ratings) {
-                    map.put("ratings[]", Arrays.stream(ratings).map(RatingGroup::name).collect(Collectors.joining(",")));
+                    map.put("ratings[]", Arrays.stream(ratings).map(RatingGroup::name).toList().toArray(new String[0]));
                     return this;
                 }
             }
