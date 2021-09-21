@@ -3,6 +3,7 @@ package chariot.model;
 import java.util.List;
 import java.util.function.Consumer;
 
+import chariot.model.Enums.TournamentState;
 import chariot.internal.Util;
 
 // Lighter than Arean (Arena holds duels and standings etc)
@@ -19,7 +20,7 @@ public sealed interface Tournament extends Model {
     Variant variant();
     Long startsAt();
     Long finishesAt();
-    Integer status();
+    TournamentState status();
     Perf perf();
 
     default java.time.ZonedDateTime startsTime() {
@@ -52,7 +53,7 @@ public sealed interface Tournament extends Model {
         Variant variant,
         Long startsAt,
         Long finishesAt,
-        Integer status,
+        TournamentState status,
         Perf perf,
         Pos position,
         boolean hasMaxRating,
@@ -82,7 +83,7 @@ public sealed interface Tournament extends Model {
         Variant variant,
         Long startsAt,
         Long finishesAt,
-        Integer status,
+        TournamentState status,
         Perf perf,
         Pos position,
         boolean hasMaxRating,
@@ -107,7 +108,7 @@ public sealed interface Tournament extends Model {
         Variant variant,
         Long startsAt,
         Long finishesAt,
-        Integer status,
+        TournamentState status,
         Perf perf,
         boolean hasMaxRating,
         Long secondsToStart,

@@ -232,6 +232,14 @@ public class YayMapper {
                 } catch (Throwable t) {
                     t.printStackTrace();
                 }
+            } else if (node instanceof YayValue.YayNumber number) {
+                try {
+                    var mh = MethodHandles.lookup().findStatic(cls, "valueOf", MethodType.methodType(cls, int.class));
+                    var o = mh.invoke(number.value().intValue());
+                    return cls.cast(o);
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
             }
             return null;
         } else {
