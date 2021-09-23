@@ -23,4 +23,12 @@ public class BroadcastsImpl extends Base implements Internal.Broadcasts {
         return fetchMany(request);
      }
 
+    @Override
+    public Result<String> streamBroadcast(String roundId) {
+        var request = Endpoint.streamBroadcast.newRequest()
+            .path(roundId)
+            .build();
+        return fetchMany(request);
+    }
+
 }

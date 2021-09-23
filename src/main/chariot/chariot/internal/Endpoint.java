@@ -319,6 +319,9 @@ public record Endpoint<T> (
     public static Endpoint<Ack> pushPGNbyRoundId =
         Endpoint.of("/broadcast/round/%s/push", Ack.class).content(plain).scope(Scope.study_write).build();
 
+    public static Endpoint<String> streamBroadcast =
+        Endpoint.of("/api/stream/broadcast/round/%s.pgn", Function.identity()).accept(jsonstream).build();
+
     public static Endpoint<Ack> boardSeek =
         Endpoint.of("/api/board/seek", Ack.class).content(wwwform).accept(plain).scope(Scope.board_play).build();
 
