@@ -18,4 +18,21 @@ public interface Broadcasts {
      */
     Result<String> streamBroadcast(String roundId);
 
+    /**
+     * Export one round as PGN
+     * <p>Download all games of a single round of a broadcast tournament in PGN format.
+     * <p> You <i>could</i> poll this endpoint to get updates about a tournament, but it would be slow, and very inneficient.
+     * <p> Instead, consider streaming the tournament to get a new PGN every time a game is updated, in real-time. See {@link #streamBroadcast(String)}
+     * @param roundId The round ID (8 characters).
+     */
+    Result<String> exportOneRoundPgn(String roundId);
+
+    /**
+     * Export all rounds as PGN
+     * <p>Download all games of all rounds of a broadcast in PGN format.
+     * <p>You may want to download only the games of a single round instead. See {@link #exportOneRoundPgn(String)}
+     * @param tourId The broadcast tournament ID (8 characters).
+     */
+    Result<String> exportPgn(String tourId);
+
 }

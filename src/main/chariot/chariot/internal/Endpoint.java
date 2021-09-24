@@ -322,6 +322,12 @@ public record Endpoint<T> (
     public static Endpoint<String> streamBroadcast =
         Endpoint.of("/api/stream/broadcast/round/%s.pgn", Function.identity()).accept(jsonstream).build();
 
+    public static Endpoint<String> exportBroadcastOneRoundPgn =
+        Endpoint.of("/api/broadcast/round/%s.pgn", Function.identity()).accept(jsonstream).build();
+
+    public static Endpoint<String> exportBroadcastAllRoundsPgn =
+        Endpoint.of("/api/broadcast/%s.pgn", Function.identity()).accept(jsonstream).build();
+
     public static Endpoint<Ack> boardSeek =
         Endpoint.of("/api/board/seek", Ack.class).content(wwwform).accept(plain).scope(Scope.board_play).build();
 

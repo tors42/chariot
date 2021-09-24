@@ -32,4 +32,20 @@ public class BroadcastsImpl extends Base implements Internal.Broadcasts {
         return fetchMany(request);
     }
 
+    @Override
+    public Result<String> exportOneRoundPgn(String roundId) {
+        var request = Endpoint.exportBroadcastOneRoundPgn.newRequest()
+            .path(roundId)
+            .build();
+        return fetchMany(request);
+    }
+
+    @Override
+    public Result<String> exportPgn(String tourId) {
+        var request = Endpoint.exportBroadcastAllRoundsPgn.newRequest()
+            .path(tourId)
+            .build();
+        return fetchMany(request);
+    }
+
 }
