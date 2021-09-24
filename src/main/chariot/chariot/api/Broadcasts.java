@@ -5,7 +5,16 @@ import chariot.model.Result;
 
 public interface Broadcasts {
 
+    /**
+     * Get official broadcasts
+     * <p>Get all incoming, ongoing, and finished official broadcasts. The broadcasts are sorted by start date, most recent first.
+     * @param nb Max number of broadcasts to fetch. Default 20.
+     */
     Result<Broadcast> official(int nb);
+
+    /**
+     * See {@link #official(int)}
+     */
     Result<Broadcast> official();
 
     /**
