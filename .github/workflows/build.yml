@@ -49,6 +49,9 @@ jobs:
       - name: Check java version
         run: java -Xinternalversion
 
+      - name: Copy pom template
+        run: cp actions/pom.template.xml .
+
       - name: Run the build.sh script
         run: actions/build.sh
 
