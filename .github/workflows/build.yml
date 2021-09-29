@@ -1,0 +1,62 @@
+name: Build
+
+on:
+  push:
+    branches: [ gh-actions ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: actions
+
+      - uses: actions/checkout@v2
+        with:
+          ref: main
+          path: chariot
+
+      # We create jar files, which use the zip format - which contains timestamps
+      # :facepalm: I.e the generated data will differ depending on when it is built.
+      # In order to get a "Reproducable Build", we will use a tool to fix the jars,
+      # after they have been created.
+      # The tool is called "strip-nondeterminism" and can be used to set a specific
+      # timestamp (instead of "now".)
+      # We'll use the timestamp of the commit we are about to release.
+      # (In addition to the timestamp, I think the order of the files in the jar files
+      # can be random too - but also this will be taken care of by "strip-nondeterminism")
+      - name: Install strip-nondeterminism tool
+        run: |
+          sudo apt-get update
+          sudo apt-get install strip-nondeterminism
+
+      - name: Download OpenJDK 17
+        run: |
+          download_url="https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz"
+          wget -O $RUNNER_TEMP/java_package.tar.gz $download_url
+
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'jdkfile'
+          jdkFile: ${{ runner.temp }}/java_package.tar.gz
+          java-version: '17.0.0'
+          architecture: x64
+
+      - name: Check java version
+        run: java -Xinternalversion
+
+      - name: Run the build.sh script
+        run: actions/build.sh
+
+      # chariot-VERSION.jar
+      # chariot-VERSION-sources.jar
+      # chariot-VERSION-javadoc.jar
+      # pom.xml
+      - uses: actions/upload-artifact@v2
+        with:
+          path: bundle/*
+
