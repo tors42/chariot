@@ -1,0 +1,52 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.tors42</groupId>
+    <artifactId>chariot</artifactId>
+    <version>TEMPLATEVERSION</version>
+
+    <packaging>jar</packaging>
+
+    <name>chariot</name>
+    <description>Java client for the Lichess API</description>
+    <url>https://tors42.github.io/chariot</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://github.com/tors42/chariot/blob/main/LICENSE</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>tors42</name>
+            <email>4084220+tors42@users.noreply.github.com</email>
+            <organizationUrl>https://github.com/tors42</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/tors42/chariot.git</connection>
+        <developerConnection>scm:git:ssh://github.com:tors42/chariot.git</developerConnection>
+        <url>https://github.com/tors42/chariot/tree/main</url>
+    </scm>
+
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
+
