@@ -26,6 +26,7 @@ public record User(
         boolean following,
         boolean blocking,
         boolean followsYou,
+        boolean verified,
         Integer completionRate,
         Long createdAt,
         Long seenAt,
