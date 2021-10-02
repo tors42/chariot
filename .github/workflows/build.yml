@@ -49,9 +49,6 @@ jobs:
       - name: Check java version
         run: java -Xinternalversion
 
-      - name: Check java binaries
-        run: which java && which javac && which jar
-
       - name: Copy pom template
         run: cp actions/pom.template.xml .
 
