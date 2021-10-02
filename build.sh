@@ -37,6 +37,7 @@ files="chariot/out/modules/$basename.jar chariot/out/$basename-sources.jar chari
 # Copy freshly generated jar files
 for file in $files; do
     cp $file bundle
+    cp $file bundle/nonstripped-$(basename $file)
 done
 sed "s/TEMPLATEVERSION/$version$modifier/g" pom.template.xml > bundle/$pom
 

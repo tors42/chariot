@@ -49,6 +49,9 @@ jobs:
       - name: Check java version
         run: java -Xinternalversion
 
+      - name: Check java binaries
+        run: which java && which javac && which jar
+
       - name: Copy pom template
         run: cp actions/pom.template.xml .
 
@@ -64,12 +67,7 @@ jobs:
       # chariot-VERSION-javadoc.jar
       # chariot-VERSION.pom
       - uses: actions/upload-artifact@v2
-        name: stripped
         with:
+          name: bundle
           path: bundle/*
-
-      - uses: actions/upload-artifact@v2
-        name: nonstripped
-        with:
-          path: chariot/out/*
 
