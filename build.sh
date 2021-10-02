@@ -34,12 +34,26 @@ basename="chariot-$version$modifier"
 pom="$basename.pom"
 files="chariot/out/modules/$basename.jar chariot/out/$basename-sources.jar chariot/out/$basename-javadoc.jar"
 
+# Copy freshly generated jar files
 for file in $files; do
     cp $file bundle
+done
+sed "s/TEMPLATEVERSION/$version$modifier/g" pom.template.xml > bundle/$pom
+
+# Check sha before stripping non-deterministic bits (mainly for debugging purposes)
+sha256sum bundle/*
+
+# Run "strip-nondeterminism" on the jar files, which will rewrite the jars
+# with the goal to making it possible to create exactly the same binaries
+# across different build environments.
+for file in $files; do
     indir=bundle/$(basename $file)
     strip-nondeterminism -t jar -T $unixtstamp $indir
 done
-sed "s/TEMPLATEVERSION/$version$modifier/g" pom.template.xml > bundle/$pom
+
+# Check sha after stripping non-deterministic bits (mainly for debugging purposes)
+sha256sum bundle/*
+
 
 # Will look into signing the files using GitHub Actions later...
 #tosign=$(ls bundle)

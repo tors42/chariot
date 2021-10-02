@@ -22,7 +22,7 @@ jobs:
 
       # We create jar files, which use the zip format - which contains timestamps
       # :facepalm: I.e the generated data will differ depending on when it is built.
-      # In order to get a "Reproducable Build", we will use a tool to fix the jars,
+      # In order to get a "Reproducible Build", we will use a tool to fix the jars,
       # after they have been created.
       # The tool is called "strip-nondeterminism" and can be used to set a specific
       # timestamp (instead of "now".)
@@ -52,14 +52,24 @@ jobs:
       - name: Copy pom template
         run: cp actions/pom.template.xml .
 
+      # Fetch tags to be able to figure out the version number
+      - name: Fetch tags
+        run: cd chariot && git fetch --tags
+
       - name: Run the build.sh script
         run: actions/build.sh
 
       # chariot-VERSION.jar
       # chariot-VERSION-sources.jar
       # chariot-VERSION-javadoc.jar
-      # pom.xml
+      # chariot-VERSION.pom
       - uses: actions/upload-artifact@v2
+        name: stripped
         with:
           path: bundle/*
+
+      - uses: actions/upload-artifact@v2
+        name: nonstripped
+        with:
+          path: chariot/out/*
 
