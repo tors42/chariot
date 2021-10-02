@@ -58,6 +58,7 @@ class Build {
            );
 
         run(javadoc,
+                "-encoding", "UTF-8",
                 "--module-source-path", moduleSrc.toString(),
                 "--module", module,
                 "-d", out.resolve("javadoc").toString()
