@@ -37,12 +37,8 @@ files="chariot/out/modules/$basename.jar chariot/out/$basename-sources.jar chari
 # Copy freshly generated jar files
 for file in $files; do
     cp $file bundle
-    cp $file bundle/nonstripped-$(basename $file)
 done
 sed "s/TEMPLATEVERSION/$version$modifier/g" pom.template.xml > bundle/$pom
-
-# Check sha before stripping non-deterministic bits (mainly for debugging purposes)
-sha256sum bundle/*
 
 # Run "strip-nondeterminism" on the jar files, which will rewrite the jars
 # with the goal to making it possible to create exactly the same binaries
@@ -52,7 +48,7 @@ for file in $files; do
     strip-nondeterminism -t jar -T $unixtstamp $indir
 done
 
-# Check sha after stripping non-deterministic bits (mainly for debugging purposes)
+# Show sha256 digest of final artifacts
 sha256sum bundle/*
 
 
