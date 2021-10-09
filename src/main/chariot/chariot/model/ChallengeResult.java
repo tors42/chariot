@@ -4,7 +4,8 @@ import chariot.model.Enums.*;
 import chariot.internal.Util;
 import static chariot.internal.Util.orEmpty;
 
-public sealed interface ChallengeResult extends Model {
+public sealed interface ChallengeResult extends Model
+    permits ChallengeResult.ChallengeInfo, ChallengeResult.ChallengeAI, ChallengeResult.ChallengeOpenEnded, ChallengeResult.OpponentDecision  {
 
     public record ChallengeInfo(Challenge challenge) implements ChallengeResult {}
 

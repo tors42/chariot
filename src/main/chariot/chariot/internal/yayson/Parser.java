@@ -16,7 +16,8 @@ public class Parser {
         }
     }
 
-    public sealed interface YayNode {
+    public sealed interface YayNode
+        permits YayNode.YayWithRaw, YayNode.YayEmpty, YayNode.YayArray, YayNode.YayObject, YayNode.YayValue {
 
         record YayWithRaw(YayNode node, String raw) implements Parser.YayNode {}
         record YayEmpty() implements YayNode {}
