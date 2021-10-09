@@ -368,6 +368,16 @@ public interface Games {
         default SearchFilter perfType(Set<Function<PerfType.Provider, PerfType>> perfTypes) {
             return perfType(perfTypes.stream().map(f -> f.apply(PerfType.provider())).toList().toArray(new PerfType[0]));
         }
+        /**
+         * Include ongoing games. The last 3 moves will be omitted.<br>
+         * Default: false
+         */
+        SearchFilter ongoing(boolean ongoing);
+        /**
+         * Sort order of the games, based on date.<br>
+         * Default sort order is descending (i.e "false")
+         */
+        SearchFilter sortAscending(boolean ascending);
 
         private static long zdtToMillis(ZonedDateTime zdt) { return zdt.toInstant().getEpochSecond() * 1000; }
     }
