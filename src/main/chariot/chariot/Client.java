@@ -41,7 +41,7 @@ import chariot.internal.Config;
  * </i>
  *
  * <pre>{@code
- *     var token = ... // Token with scope preferences:read
+ *     var token = ... // Token with scope email:read
  *     ClientAuth client = Client.auth(token);
  *
  *     var email = client.account().emailAddress();
