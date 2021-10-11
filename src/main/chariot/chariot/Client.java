@@ -296,7 +296,6 @@ public sealed interface Client extends AutoCloseable permits ClientAuth, Client.
 
         /**
          * Read your email address
-         *
          */
         email_read,
 
