@@ -57,8 +57,9 @@ Here's a mini [example Maven application](https://github.com/tors42/chariot-exam
 
 # Applications
 
-A list of notable applications based on Chariot,
+A list of notable applications using Chariot,
 
-[Team Check](https://github.com/tors42/teamcheck)
+[LiSEBot](https://github.com/jalpp/LiSEBot/) _Discord bot where users can play around with Lichess features_
+[Team Check](https://github.com/tors42/teamcheck) _Visualize team members_
 
 
