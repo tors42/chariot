@@ -13,9 +13,9 @@ Make sure to use at least Java 17. A JDK archive can be downloaded and unpacked 
     $ export PATH=$JAVA_HOME/bin:$PATH
 
     $ java -version
-    openjdk version "17" 2021-09-14
-    OpenJDK Runtime Environment (build 17+35-2724)
-    OpenJDK 64-Bit Server VM (build 17+35-2724, mixed mode, sharing)
+    openjdk version "17.0.1" 2021-10-19
+    OpenJDK Runtime Environment (build 17.0.1+12-39)
+    OpenJDK 64-Bit Server VM (build 17.0.1+12-39, mixed mode, sharing)
 
 
     $ java build/Build.java
