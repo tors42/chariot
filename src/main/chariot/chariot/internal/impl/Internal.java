@@ -265,6 +265,7 @@ public interface Internal {
             class Builder implements chariot.api.Games.Filter {
                 private Map<String, Object> map = new HashMap<>();
                 TournamentParams build() { return new Parameters(map); }
+                public Builder player(String player) { map.put("player", player); return this; }
                 public Builder moves(boolean moves) { map.put("moves", moves); return this; }
                 public Builder pgnInJson(boolean pgnInJson) { map.put("pgnInJson", pgnInJson); return this; }
                 public Builder tags(boolean tags) { map.put("tags", tags); return this; }

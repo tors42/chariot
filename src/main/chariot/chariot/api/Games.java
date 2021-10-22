@@ -202,6 +202,10 @@ public interface Games {
 
     interface Filter {
         /**
+         * Only games of a particular player. Leave empty to fetch games of all players.
+         */
+        Filter player(String userId);
+        /**
          * Include the PGN moves.<br>
          * Default `true`
          */
