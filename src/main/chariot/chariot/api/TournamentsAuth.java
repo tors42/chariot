@@ -25,6 +25,13 @@ public interface TournamentsAuth extends Tournaments {
     Result<Ack>   joinArenaForTeam(String id, String team);
     Result<Ack>   joinArenaForTeam(String id, String team, String password);
 
+    /**
+     * Leave a future Arena tournament, or take a break on an ongoing Arena tournament.<br>
+     * It's possible to join again later. Points and streaks are preserved.
+     * @param id The tournament ID. Example: "hL7vMrFQ"
+     */
+    Result<Ack>   withdrawArena(String id);
+
     Result<Ack>   joinSwiss(String id);
     Result<Ack>   joinSwiss(String id, String password);
 

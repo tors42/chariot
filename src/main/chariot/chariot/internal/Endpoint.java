@@ -142,6 +142,9 @@ public record Endpoint<T> (
     public static Endpoint<Ack> joinArenaTournament =
         Endpoint.of("/api/tournament/%s/join", Ack.class).content(wwwform).scope(Scope.tournament_write).build();
 
+    public static Endpoint<Ack> withdrawArenaTournament =
+        Endpoint.of("/api/tournament/%s/withdraw", Ack.class).scope(Scope.tournament_write).build();
+
     public static Endpoint<Arena> updateArenaTournament =
         Endpoint.of("/api/tournament/%s", Arena.class).content(wwwform).scope(Scope.tournament_write).build();
 

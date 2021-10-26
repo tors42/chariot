@@ -101,6 +101,16 @@ public class TournamentsAuthImpl extends TournamentsImpl implements Internal.Tou
     }
 
     @Override
+    public Result<Ack> withdrawArena(String id) {
+        var request = Endpoint.withdrawArenaTournament.newRequest()
+            .path(id)
+            .post()
+            .build();
+
+        return fetchOne(request);
+    }
+
+    @Override
     public Result<Swiss> createSwiss(String teamId, SwissParameters parameters) {
         var parametersString = Util.urlEncode(parameters.toMap());
 
