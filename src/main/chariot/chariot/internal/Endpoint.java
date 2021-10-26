@@ -283,6 +283,9 @@ public record Endpoint<T> (
     public static Endpoint<Swiss> createSwiss =
         Endpoint.of("/api/swiss/new/%s", Swiss.class).content(wwwform).scope(Scope.tournament_write).build();
 
+    public static Endpoint<Swiss> updateSwissTournament =
+        Endpoint.of("/api/swiss/%s/edit", Swiss.class).content(wwwform).scope(Scope.tournament_write).build();
+
     public static Endpoint<Ack> joinSwissTournament =
         Endpoint.of("/api/swiss/%s/join", Ack.class).content(wwwform).scope(Scope.tournament_write).build();
 

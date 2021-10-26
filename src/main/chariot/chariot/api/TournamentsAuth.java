@@ -18,6 +18,20 @@ public interface TournamentsAuth extends Tournaments {
     Result<Arena> updateTeamBattle(String id, int nbLeaders, Set<String> teamIds);
     Result<Ack>   terminateArena(String id);
     Result<Swiss> createSwiss(String teamId, Function<SwissBBuilder, SwissBuilder> params);
+    /**
+     * Update a Swiss tournament.<br>
+     * Be mindful not to make important changes to ongoing tournaments.
+     * @param id The tournament ID. Example: hL7vMrFQ
+     * @param params Parameters of the tournament
+     * <pre>{@code
+     *   String token = "..."; // token with scope tournament:write
+     *   String swissId = "hL7vMrFQ";
+     *   var client = Client.auth(token);
+     *   client.tournaments().updateSwiss(swissId, params -> params.clock(300, 30).description("Another description"));
+     * }</pre>
+     *
+     */
+    Result<Swiss> updateSwiss(String id, Function<SwissBBuilder, SwissBuilder> params);
     Result<Ack>   terminateSwiss(String swissId);
 
     Result<Ack>   joinArena(String id);

@@ -279,6 +279,7 @@ public interface Internal {
         Result<Arena> createArena(ArenaParameters params);
         Result<Arena> updateArena(String id, ArenaParameters params);
         Result<Swiss> createSwiss(String teamId, SwissParameters params);
+        Result<Swiss> updateSwiss(String id, SwissParameters params);
         Result<Ack> joinArena(String id, Optional<String> password, Optional<String> teamId);
         Result<Ack> joinSwiss(String id, Optional<String> password);
         default Result<Ack> joinSwiss(String id) { return joinSwiss(id, Optional.empty()); }
@@ -290,6 +291,7 @@ public interface Internal {
         default Result<Arena> createArena(Function<chariot.api.TournamentsAuth.ArenaBBuilder, chariot.api.TournamentsAuth.ArenaBuilder> params) { return createArena(ArenaParameters.of(params)); }
         default Result<Arena> updateArena(String id, Function<chariot.api.TournamentsAuth.ArenaBBuilder, chariot.api.TournamentsAuth.ArenaBuilder> params) { return updateArena(id, ArenaParameters.of(params)); }
         default Result<Swiss> createSwiss(String teamId, Function<chariot.api.TournamentsAuth.SwissBBuilder, chariot.api.TournamentsAuth.SwissBuilder> params) { return createSwiss(teamId, SwissParameters.of(params)); }
+        default Result<Swiss> updateSwiss(String id, Function<chariot.api.TournamentsAuth.SwissBBuilder, chariot.api.TournamentsAuth.SwissBuilder> params) { return updateSwiss(id, SwissParameters.of(params)); }
         default Result<Arena> updateTeamBattle(String id, int nbLeaders, String... teamIds) { return updateTeamBattle(id, nbLeaders, Set.of(teamIds)); }
 
         sealed interface ArenaParameters {
