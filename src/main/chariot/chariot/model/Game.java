@@ -2,14 +2,14 @@ package chariot.model;
 
 import java.util.List;
 
-import chariot.model.Enums.VariantName;
+import chariot.model.Enums.GameVariant;
 import chariot.internal.Util;
 import static chariot.internal.Util.orEmpty;
 
 public record Game (
     String id,
     boolean rated,
-    VariantName variant,
+    GameVariant variant,
     String speed,
     String perf,
     long createdTime,
