@@ -145,6 +145,32 @@ public interface Enums {
         public static Provider provider() {return new Provider(){};}
      }
 
+    public enum GameVariant {
+        standard,
+        chess960,
+        crazyhouse,
+        antichess,
+        atomic,
+        horde,
+        kingOfTheHill,
+        racingKings,
+        threeCheck,
+        fromPosition;
+        public interface Provider {
+            default GameVariant standard(){ return standard; }
+            default GameVariant chess960() { return chess960; }
+            default GameVariant crazyhouse() { return crazyhouse; }
+            default GameVariant antichess() { return antichess; }
+            default GameVariant atomic() { return atomic; }
+            default GameVariant horde() { return horde; }
+            default GameVariant kingOfTheHill() { return kingOfTheHill; }
+            default GameVariant racingKings() { return racingKings; }
+            default GameVariant threeCheck() { return threeCheck; }
+            default GameVariant fromPosition() { return fromPosition; }
+        }
+        public static Provider provider() {return new Provider(){};}
+     }
+
     /**
      * Specifies who will be able to chat
      */
