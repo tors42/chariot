@@ -388,6 +388,11 @@ public interface Games {
          */
         SearchFilter ongoing(boolean ongoing);
         /**
+         * Include finished games. Set to {@code false} to only get ongoing games<br>
+         * Default: true
+         */
+        SearchFilter finished(boolean finished);
+        /**
          * Sort order of the games, based on date.<br>
          * Default sort order is descending (i.e "false")
          */

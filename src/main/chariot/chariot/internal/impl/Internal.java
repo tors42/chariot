@@ -102,6 +102,7 @@ public interface Internal {
                     return this;
                 }
                 public Builder ongoing(boolean ongoing) { map.put("ongoing", ongoing); return this; }
+                public Builder finished(boolean finished) { map.put("finished", finished); return this; }
                 public Builder sortAscending(boolean ascending) { map.put("sort", ascending ? "dateAsc" : "dateDesc"); return this; }
             }
         }
