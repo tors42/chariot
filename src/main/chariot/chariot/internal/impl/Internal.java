@@ -28,8 +28,8 @@ public interface Internal {
         default Result<Game> byChannel(Channel channel, Consumer<ChannelFilter> params) { return byChannel(channel, ChannelParameters.of(params)); }
         default Result<Game> byChannel(Function<Channel.Provider, Channel> channel, Consumer<ChannelFilter> params) { return byChannel(channel.apply(Channel.provider()), ChannelParameters.of(params)); }
         default Result<Game> byGameIds(Set<String> gameIds, Consumer<GameParams> params) { return byGameIds(gameIds, InternalGameParams.of(params)); }
-        default Result<ExploreResult> openingExplorerMasters(Function<MastersBBuilder, MastersBuilder> params) { return openingExplorerMasters(MastersParameters.of(params)); }
-        default Result<ExploreResult> openingExplorerLichess(Function<LichessBBuilder, LichessBuilder> params) { return openingExplorerLichess(LichessParameters.of(params)); }
+        default Result<ExploreResult> openingExplorerMasters(Consumer<MastersBuilder> params) { return openingExplorerMasters(MastersParameters.of(params)); }
+        default Result<ExploreResult> openingExplorerLichess(Consumer<LichessBuilder> params) { return openingExplorerLichess(LichessParameters.of(params)); }
 
         sealed interface InternalGameParams {
             record Parameters(Map<String,Object> params) implements InternalGameParams {}
@@ -141,28 +141,23 @@ public interface Internal {
                     return Map.of();
             }
 
-            public static MastersParameters of(Function<MastersBBuilder, MastersBuilder> params) {
-                var builder = params.apply(BBuilder.builder());
-                if (builder instanceof Builder b) return b.build(); else return new Parameters(Map.of());
+            public static MastersParameters of(Consumer<MastersBuilder> params) {
+                var builder = new Builder();
+                params.accept(builder);
+                return builder.build();
             }
 
-            public class BBuilder implements MastersBBuilder {
-                private BBuilder() {}
-                private static BBuilder builder() { return new BBuilder(); }
-                /**
-                 * @param fen FEN of the root position
-                 *            Example: "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"
-                 */
-                public Builder fen(String fen) { return new Builder(fen); }
-            }
-
-            public class Builder implements MastersBuilder {
+            public final class Builder implements MastersBuilder {
                 private Map<String, Object> map = new HashMap<>();
-                private Builder(String fen) { Objects.requireNonNull(fen); map.put("fen", fen); }
+
                 private MastersParameters build() { return new Parameters(map); }
+
+                public Builder fen(String fen) { map.put("fen", fen); return this; }
                 public Builder play(String play) { map.put("play", play); return this; }
+                public Builder since(int since) { map.put("since", since); return this; }
+                public Builder until(int until) { map.put("until", until); return this; }
                 public Builder moves(int moves) { map.put("moves", moves); return this; }
-                public Builder games(int games) { map.put("topGames", games); return this; }
+                public Builder topGames(int topGames) { map.put("topGames", topGames); return this; }
             }
         }
 
@@ -176,49 +171,37 @@ public interface Internal {
                     return Map.of();
             }
 
-            public static LichessParameters of(Function<LichessBBuilder, LichessBuilder> params) {
-                var builder = params.apply(BBuilder.builder());
-                if (builder instanceof Builder b) return b.build(); else return new Parameters(Map.of());
-            }
-
-            public class BBuilder implements LichessBBuilder {
-                private BBuilder() {}
-                private static BBuilder builder() { return new BBuilder(); }
-                /**
-                 * @param fen FEN of the root position
-                 *            Example: "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"
-                 */
-                public Builder fen(String fen) { return new Builder(fen, VariantName.standard); }
+            public static LichessParameters of(Consumer<LichessBuilder> params) {
+                var builder = new Builder();
+                params.accept(builder);
+                return builder.build();
             }
 
             public class Builder implements LichessBuilder {
                 private Map<String, Object> map = new HashMap<>();
-                private Builder(String fen, VariantName variantKey) {
-                    Objects.requireNonNull(fen);
-                    Objects.requireNonNull(variantKey);
-                    map.put("fen", fen);
-                    map.put("variant", variantKey);
-                }
                 private LichessParameters build() { return new Parameters(map); }
 
                 public Builder variant(VariantName variant) { map.put("variant", variant); return this; }
                 public Builder variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
+                public Builder fen(String fen) { map.put("fen", fen); return this; }
                 public Builder play(String play) { map.put("play", play); return this; }
-                public Builder moves(int moves) { map.put("moves", moves); return this; }
-                public Builder topGames(int topGames) { map.put("topGames", topGames); return this; }
-                public Builder recentGames(int recentGames) { map.put("recentGames", recentGames); return this; }
                 public Builder speeds(Set<Speed> speeds) {
                     if (! speeds.isEmpty()) {
-                        map.put("speeds[]", speeds.stream().map(Speed::name).toList().toArray(new String[0]));
+                        map.put("speeds", speeds.stream().map(Speed::name).collect(Collectors.joining(",")));
                     }
                     return this;
                 }
                 public Builder ratings(Set<RatingGroup> ratings) {
                     if (! ratings.isEmpty()) {
-                        map.put("ratings[]", ratings.stream().map(RatingGroup::name).toList().toArray(new String[0]));
+                        map.put("ratings", ratings.stream().map(RatingGroup::asString).collect(Collectors.joining(",")));
                     }
                     return this;
                 }
+                public Builder since(String since) { map.put("since", since); return this; }
+                public Builder until(String until) { map.put("until", until); return this; }
+                public Builder moves(int moves) { map.put("moves", moves); return this; }
+                public Builder topGames(int topGames) { map.put("topGames", topGames); return this; }
+                public Builder recentGames(int recentGames) { map.put("recentGames", recentGames); return this; }
             }
         }
     }

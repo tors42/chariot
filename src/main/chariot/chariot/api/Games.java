@@ -8,7 +8,6 @@ import java.util.function.Function;
 
 import chariot.model.Enums.*;
 import chariot.model.ExploreResult;
-import chariot.model.ExplorerStats;
 import chariot.model.Game;
 import chariot.model.GameImport;
 import chariot.model.Result;
@@ -69,15 +68,11 @@ public interface Games {
     /**
      * Find Masters games from Opening Explorer
      */
-    Result<ExploreResult>   openingExplorerMasters(Function<MastersBBuilder, MastersBuilder> params);
+    Result<ExploreResult>   openingExplorerMasters(Consumer<MastersBuilder> params);
     /**
      * Find Lichess games from Opening Explorer
      */
-    Result<ExploreResult>   openingExplorerLichess(Function<LichessBBuilder, LichessBuilder> params);
-    /**
-     * Check Opening Explorer statistics
-     */
-    Result<ExplorerStats>   explorerStats();
+    Result<ExploreResult>   openingExplorerLichess(Consumer<LichessBuilder> params);
     /**
      * Lookup positions from the Lichess tablebase server.
      */
@@ -199,6 +194,21 @@ public interface Games {
     default Result<Game> byGameIds(Set<String> gameIds) {
         return byGameIds(gameIds, __ -> {});
     }
+
+    /**
+     * {@link #openingExplorerMasters(Consumer)}
+     */
+    default Result<ExploreResult> openingExplorerMasters() {
+        return openingExplorerMasters(__ -> {});
+    }
+
+    /**
+     * {@link #openingExplorerLichess(Consumer)}
+     */
+    default Result<ExploreResult> openingExplorerLichess() {
+        return openingExplorerLichess(__ -> {});
+    }
+
 
     interface Filter {
         /**
@@ -421,44 +431,50 @@ public interface Games {
         ChannelFilter nb(int nb);
     }
 
-    interface MastersBBuilder {
-        /**
-         * @param fen FEN of the root position
-         *            Example: "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"
-         */
-        public MastersBuilder fen(String fen);
-    }
-
     interface MastersBuilder {
         /**
-         * Comma separated sequence of legal moves in UCI notation, starting from the given FEN.<br>
-         * Determines the position to be looked up.
+         * @param fen FEN of the root position
+         *            Example: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+         */
+        MastersBuilder fen(String fen);
+        /**
+         * Comma separated sequence of legal moves in UCI notation. Play additional moves starting from {@code fen}.<br>
+         * Required to find an opening name, if  {@code fen} is not an exact match for a named position.<br>
+         * Example: "e2e4,e7e5,c2c4,c7c6,c4e5"
          */
         MastersBuilder play(String play);
+        /**
+         * Include only games from this year or later<br>
+         * Default 1952
+         */
+        MastersBuilder since(int since);
+        /**
+         * Include only games from this year or earlier
+         */
+        MastersBuilder until(int until);
         /**
          * Number of most common moves to display<br>
          * Default 12
          */
         MastersBuilder moves(int moves);
         /**
-         * Number of top games to display<br>
-         * Default 4
+         * Number of top games to display, {@code <= 15}<br>
+         * Default 15
          */
-        MastersBuilder games(int games);
+        MastersBuilder topGames(int topGames);
     }
 
-    interface LichessBBuilder {
+
+    interface LichessBuilder {
         /**
          * @param fen FEN of the root position
          *            Example: "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"
          */
-        public LichessBuilder fen(String fen);
-    }
-
-    interface LichessBuilder {
+        LichessBuilder fen(String fen);
         /**
-         * Comma separated sequence of legal moves in UCI notation, starting from the given FEN.<br>
-         * Determines the position to be looked up.
+         * Comma separated sequence of legal moves in UCI notation. Play additional moves starting from {@code fen}.<br>
+         * Required to find an opening name, if  {@code fen} is not an exact match for a named position.<br>
+         * Example: "e2e4,e7e5,c2c4,c7c6,c4e5"
          */
         LichessBuilder play(String play);
         /**
@@ -467,10 +483,15 @@ public interface Games {
          */
         LichessBuilder moves(int moves);
         /**
-         * Number of top games to display<br>
+         * Number of top games to display {@code <= 8}<br>
          * Default 4
          */
         LichessBuilder topGames(int games);
+        /**
+         * Number of recent games to display {@code <= 8}<br>
+         * Default 4
+         */
+        LichessBuilder recentGames(int recentGames);
         /**
          * Variant
          */
@@ -479,12 +500,17 @@ public interface Games {
          * Variant
          */
         LichessBuilder variant(Function<VariantName.Provider, VariantName> variant);
-
         /**
-         * Number of recent games to display<br>
-         * Default 4
+         * Include only games from this month or later<br>
+         * Default "0000-01"
          */
-        LichessBuilder recentGames(int recentGames);
+        LichessBuilder since(String since);
+        /**
+         * Include only games from this month or earlier<br>
+         * Default "3000-12"
+         */
+        LichessBuilder until(String until);
+
         /**
          * One or more game speeds to look for
          */

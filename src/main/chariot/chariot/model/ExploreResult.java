@@ -2,35 +2,40 @@ package chariot.model;
 
 import java.util.List;
 
+import chariot.model.Enums.Color;
+
 public record ExploreResult(
-        Integer white,
-        Integer draws,
-        Integer black,
-        Float averageRating,
+        int white,
+        int draws,
+        int black,
         List<Move> moves,
         List<Game> topGames,
         List<Game> recentGames,
-        String opening) implements Model {
+        Opening opening) implements Model {
 
     public record Move(
             String uci,
             String san,
-            Integer white,
-            Integer draws,
-            Integer black,
-            Float averageRating) {}
+            int white,
+            int draws,
+            int black,
+            int averageRating,
+            Game game) {}
 
     public record Game(
+            String uci,
             String id,
-            String winner,
+            Color winner,
             Player white,
             Player black,
-            Integer year,
-            String speed) {
+            int year,
+            String month) {
 
         public record Player(
                 String name,
                 Integer rating) {}
     }
+
+    public record Opening(String eco, String name) {}
 
 }

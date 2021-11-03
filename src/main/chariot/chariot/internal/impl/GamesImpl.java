@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import chariot.model.Enums.Channel;
 import chariot.model.Err;
 import chariot.model.ExploreResult;
-import chariot.model.ExplorerStats;
 import chariot.model.Game;
 import chariot.model.GameImport;
 import chariot.model.Result;
@@ -130,7 +129,7 @@ public class GamesImpl extends Base implements Internal.Games {
 
     @Override
     public Result<ExploreResult> openingExplorerMasters(MastersParameters mastersParameters) {
-        var request = Endpoint.exploreMaster.newRequest()
+        var request = Endpoint.exploreMasters.newRequest()
             .query(mastersParameters.toMap())
             .build();
 
@@ -161,14 +160,6 @@ public class GamesImpl extends Base implements Internal.Games {
 
         return one;
     }
-
-    @Override
-    public Result<ExplorerStats> explorerStats() {
-        var request = Endpoint.explorerStats.newRequest()
-            .build();
-
-        return fetchOne(request);
-     }
 
     @Override
     public Result<TablebaseResult> lookupTablebase(String fen) {
