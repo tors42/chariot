@@ -2,6 +2,7 @@ package chariot.model;
 
 import chariot.internal.Util;
 import chariot.model.Enums.Color;
+import static chariot.internal.Util.orEmpty;
 
 public sealed interface StreamMove extends Model {
 
@@ -13,13 +14,19 @@ public sealed interface StreamMove extends Model {
             String fen,
             Status status,
             String source,
-            String swissId,
             String lastMove,
+            int turns,
+            int startedAtTurn,
             Long createdTime,
             boolean rated,
             Variant variant,
             Color player
             ) implements StreamMove {
+
+        public Info {
+            lastMove = orEmpty(lastMove);
+            initialFen = orEmpty(initialFen);
+        }
 
         public record Status(int id, String name) {}
 
@@ -28,5 +35,10 @@ public sealed interface StreamMove extends Model {
         }
     }
 
-    public record Move(String fen, String lm, int wc, int bc) implements StreamMove {}
+    public record Move(String fen, String lm, int wc, int bc) implements StreamMove {
+        public Move {
+            // first move has no lm (last move)
+            lm = orEmpty(lm);
+        }
+    }
 }
