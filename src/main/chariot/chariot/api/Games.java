@@ -528,12 +528,13 @@ public interface Games {
         LichessBuilder ratings(Set<RatingGroup> ratings);
         default LichessBuilder ratings(RatingGroup... ratings) { return ratings(Set.of(ratings)); }
 
-        enum Speed { bullet, blitz, rapid, classical;
+        enum Speed { bullet, blitz, rapid, classical, correspondence;
             public interface Provider {
                 default Speed bullet()    { return bullet; }
                 default Speed blitz() { return blitz; }
                 default Speed rapid() { return rapid; }
                 default Speed classical() { return classical; }
+                default Speed correspondence() { return correspondence; }
             }
             public static Provider provider() {return new Provider(){};}
         }
