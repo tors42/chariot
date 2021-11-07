@@ -21,6 +21,7 @@ public interface Internal {
         Result<Game> byGameIds(Set<String> gameIds, InternalGameParams params);
         Result<ExploreResult> openingExplorerMasters(MastersParameters params);
         Result<ExploreResult> openingExplorerLichess(LichessParameters params);
+        Result<ExploreResult> openingExplorerPlayer(PlayerParameters params);
         default Result<StreamGame> streamGamesByUserIds(Set<String> userIds) { return streamGamesByUserIds(true, userIds); }
         default Result<Game> byGameId(String gameId, Consumer<GameParams> params) { return byGameId(gameId, InternalGameParams.of(params)); }
         default Result<Game> byUserId(String userId, Consumer<SearchFilter> params) { return byUserId(userId, InternalSearchFilter.of(params)); }
@@ -30,6 +31,7 @@ public interface Internal {
         default Result<Game> byGameIds(Set<String> gameIds, Consumer<GameParams> params) { return byGameIds(gameIds, InternalGameParams.of(params)); }
         default Result<ExploreResult> openingExplorerMasters(Consumer<MastersBuilder> params) { return openingExplorerMasters(MastersParameters.of(params)); }
         default Result<ExploreResult> openingExplorerLichess(Consumer<LichessBuilder> params) { return openingExplorerLichess(LichessParameters.of(params)); }
+        default Result<ExploreResult> openingExplorerPlayer(String userId, Consumer<PlayerBuilder> params) { return openingExplorerPlayer(PlayerParameters.of(params, userId)); }
 
         sealed interface InternalGameParams {
             record Parameters(Map<String,Object> params) implements InternalGameParams {}
@@ -202,6 +204,50 @@ public interface Internal {
                 public Builder until(String until) { map.put("until", until); return this; }
                 public Builder moves(int moves) { map.put("moves", moves); return this; }
                 public Builder topGames(int topGames) { map.put("topGames", topGames); return this; }
+                public Builder recentGames(int recentGames) { map.put("recentGames", recentGames); return this; }
+            }
+        }
+
+        sealed interface PlayerParameters {
+            record Parameters(Map<String,Object> params) implements PlayerParameters {}
+
+            default public Map<String, Object> toMap() {
+                if (this instanceof Parameters p)
+                    return p.params();
+                else
+                    return Map.of();
+            }
+
+            public static PlayerParameters of(Consumer<PlayerBuilder> params, String userId) {
+                var builder = new Builder();
+                params.accept(builder);
+                return builder.build(userId);
+            }
+
+            public class Builder implements PlayerBuilder {
+                private Map<String, Object> map = new HashMap<>();
+                private PlayerParameters build(String userId) { map.put("player", userId); map.put("color", Color.white); return new Parameters(map); }
+
+                public Builder variant(VariantName variant) { map.put("variant", variant); return this; }
+                public Builder variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
+                public Builder fen(String fen) { map.put("fen", fen); return this; }
+                public Builder play(String play) { map.put("play", play); return this; }
+                public Builder speeds(Set<Speed> speeds) {
+                    if (! speeds.isEmpty()) {
+                        map.put("speeds", speeds.stream().map(Speed::name).collect(Collectors.joining(",")));
+                    }
+                    return this;
+                }
+                public Builder modes(Set<Games.PlayerBuilder.Mode> modes) {
+                    if (! modes.isEmpty()) {
+                        map.put("modes", modes.stream().map(Mode::name).collect(Collectors.joining(",")));
+                    }
+                    return this;
+                }
+                public Builder since(String since) { map.put("since", since); return this; }
+                public Builder until(String until) { map.put("until", until); return this; }
+                public Builder color(Color color) { map.put("color", color); return this; }
+                public Builder moves(int moves) { map.put("moves", moves); return this; }
                 public Builder recentGames(int recentGames) { map.put("recentGames", recentGames); return this; }
             }
         }

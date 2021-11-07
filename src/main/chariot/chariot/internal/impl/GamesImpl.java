@@ -146,6 +146,16 @@ public class GamesImpl extends Base implements Internal.Games {
      }
 
     @Override
+    public Result<ExploreResult> openingExplorerPlayer(PlayerParameters playerParameters) {
+        var request = Endpoint.explorePlayers.newRequest()
+            .query(playerParameters.toMap())
+            .build();
+
+        return fetchOne(request);
+     }
+
+
+    @Override
     public Result<String> openingExplorerMastersOTB(String gameId) {
         var request = Endpoint.exploreMasterOTB.newRequest()
             .path(gameId)

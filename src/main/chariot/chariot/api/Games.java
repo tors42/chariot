@@ -5,6 +5,8 @@ import java.time.ZonedDateTime;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import chariot.model.Enums.*;
 import chariot.model.ExploreResult;
@@ -74,6 +76,11 @@ public interface Games {
      */
     Result<ExploreResult>   openingExplorerLichess(Consumer<LichessBuilder> params);
     /**
+     * Find Player games from Opening Explorer<br>
+     *
+     */
+    Result<ExploreResult>   openingExplorerPlayer(String userId, Consumer<PlayerBuilder> params);
+     /**
      * Lookup positions from the Lichess tablebase server.
      */
     Result<TablebaseResult> lookupTablebase(String fen);
@@ -207,6 +214,13 @@ public interface Games {
      */
     default Result<ExploreResult> openingExplorerLichess() {
         return openingExplorerLichess(__ -> {});
+    }
+
+    /**
+     * {@link #openingExplorerPlayer(String, Consumer)}
+     */
+    default Result<ExploreResult> openingExplorerPlayer(String userId) {
+        return openingExplorerPlayer(userId, __ -> {});
     }
 
 
@@ -528,17 +542,6 @@ public interface Games {
         LichessBuilder ratings(Set<RatingGroup> ratings);
         default LichessBuilder ratings(RatingGroup... ratings) { return ratings(Set.of(ratings)); }
 
-        enum Speed { bullet, blitz, rapid, classical, correspondence;
-            public interface Provider {
-                default Speed bullet()    { return bullet; }
-                default Speed blitz() { return blitz; }
-                default Speed rapid() { return rapid; }
-                default Speed classical() { return classical; }
-                default Speed correspondence() { return correspondence; }
-            }
-            public static Provider provider() {return new Provider(){};}
-        }
-
         /**
          *  Specifies a rating group, which includes ratings up to next rating group.<br/>
          *  _1600 indicates ratings between 1600-1800 and
@@ -569,6 +572,82 @@ public interface Games {
                  * 2500-over 9000!
                  */
                 default RatingGroup _2500() { return _2500; }
+            }
+            public static Provider provider() {return new Provider(){};}
+        }
+    }
+
+    interface PlayerBuilder {
+        /**
+         * @param fen FEN of the root position
+         *            Example: "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"
+         */
+        PlayerBuilder fen(String fen);
+        /**
+         * Comma separated sequence of legal moves in UCI notation. Play additional moves starting from {@code fen}.<br>
+         * Required to find an opening name, if  {@code fen} is not an exact match for a named position.<br>
+         * Example: "e2e4,e7e5,c2c4,c7c6,c4e5"
+         */
+        PlayerBuilder play(String play);
+        /**
+         * Number of most common moves to display<br>
+         */
+        PlayerBuilder moves(int moves);
+        /**
+         * Number of recent games to display {@code <= 8}<br>
+         * Default 4
+         */
+        PlayerBuilder recentGames(int recentGames);
+        /**
+         * Variant
+         */
+        PlayerBuilder variant(VariantName variant);
+        /**
+         * Variant
+         */
+        PlayerBuilder variant(Function<VariantName.Provider, VariantName> variant);
+        /**
+         * Include only games from this month or later<br>
+         * Default "0000-01"
+         */
+        PlayerBuilder since(String since);
+        /**
+         * Include only games from this month or earlier<br>
+         * Default "3000-12"
+         */
+        PlayerBuilder until(String until);
+
+        /**
+         * Specify for which color to explore games.<br>
+         * Default: white
+         */
+        PlayerBuilder color(Color color);
+
+        /**
+         * Specify for which color to explore games.<br>
+         * Default: white
+         */
+        default PlayerBuilder color(Function<Color.Provider, Color> color) { return color(color.apply(Color.provider())); }
+
+        /**
+         * One or more game speeds to look for
+         */
+        PlayerBuilder speeds(Set<Speed> speeds);
+        default PlayerBuilder speeds(Speed... speeds) { return speeds(Set.of(speeds)); }
+
+        /**
+         * The game modes to include
+         */
+        PlayerBuilder modes(Set<Mode> modes);
+        default PlayerBuilder modes(Mode... modes) { return modes(Set.of(modes)); }
+        @SuppressWarnings("unchecked")
+        default PlayerBuilder modes(Function<Mode.Provider, Mode>... modes) { return modes(Stream.of(modes).map(f -> f.apply(Mode.provider())).collect(Collectors.toSet())); }
+        public enum Mode {
+            casual, rated;
+
+            public interface Provider {
+                default Mode casual() { return casual; }
+                default Mode rated() { return rated; }
             }
             public static Provider provider() {return new Provider(){};}
         }

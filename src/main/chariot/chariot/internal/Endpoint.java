@@ -184,6 +184,9 @@ public record Endpoint<T> (
     public static Endpoint<ExploreResult> exploreLichess =
         Endpoint.of("/lichess", ExploreResult.class).target(ServerType.explorer).build();
 
+    public static Endpoint<ExploreResult> explorePlayers =
+        Endpoint.of("/player", ExploreResult.class).target(ServerType.explorer).build();
+
     public static Endpoint<String> exploreMasterOTB =
         Endpoint.of("/master/pgn/%s", Function.identity()).accept(chesspgn).target(ServerType.explorer).build();
 
