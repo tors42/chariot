@@ -6,6 +6,7 @@ public record UserStatus(
         String id,
         String name,
         String title,
+        String playingId,
         boolean online,
         boolean playing,
         boolean streaming,
@@ -13,6 +14,7 @@ public record UserStatus(
 
     public UserStatus {
         title = orEmpty(title);
+        playingId = orEmpty(playingId);
     }
 
 }
