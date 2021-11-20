@@ -88,7 +88,22 @@ public interface Users {
      * Use it to track players and know when they're connected on lichess and playing games.
      * @param userIds Up to 100 IDs
      */
-    Result<UserStatus> statusByIds(Set<String> userIds);
+    default Result<UserStatus> statusByIds(Set<String> userIds) {
+        return statusByIds(userIds, false);
+    }
+
+    /**
+     * {@link #statusByIds(Set)}
+     * @param withGameIds If set to true, the id of the game the users are playing, if any, will be included. Default: false
+     */
+    Result<UserStatus> statusByIds(Set<String> userIds, boolean withGameIds);
+
+    /**
+     * {@link #statusByIds(Set)}
+     */
+    default Result<UserStatus> statusByIds(boolean withGameIds, String... userIds) {
+        return statusByIds(Set.of(userIds), withGameIds);
+    }
 
     /**
      * {@link #statusByIds(Set)}

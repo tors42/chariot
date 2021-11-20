@@ -77,15 +77,16 @@ public class UsersImpl extends Base implements Internal.Users {
     }
 
     @Override
-    public Result<UserStatus> statusByIds(Set<String> userIds) {
+    public Result<UserStatus> statusByIds(Set<String> userIds, boolean withGameIds) {
         if (userIds.size() > 100) {
             return Result.fail("Max 100 user ids");
         }
 
         var ids = userIds.stream()
             .collect(Collectors.joining(","));
+
         var request = Endpoint.userStatusByIds.newRequest()
-            .query(Map.of("ids", ids))
+            .query(Map.of("ids", ids, "withGameIds", withGameIds))
             .build();
         return fetchArr(request);
     }
