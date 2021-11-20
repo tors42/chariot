@@ -385,6 +385,9 @@ public record Endpoint<T> (
     public static Endpoint<Ack> botResign =
         Endpoint.of("/api/bot/game/%s/resign", Ack.class).scope(Scope.bot_play).build();
 
+    public static Endpoint<ChatMessage[]> botFetchChat =
+     Endpoint.ofArr("/api/bot/game/%s/chat", ChatMessage.class).accept(jsonstream).scope(Scope.bot_play).build();
+
 
     public static class EndpointBuilder<T> {
         private final String endpoint;

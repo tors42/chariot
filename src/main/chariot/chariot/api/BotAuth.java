@@ -4,6 +4,7 @@ import java.util.function.Function;
 
 import chariot.model.Enums.Room;
 import chariot.model.Ack;
+import chariot.model.ChatMessage;
 import chariot.model.Result;
 import chariot.model.StreamGameEvent;
 
@@ -147,5 +148,11 @@ public interface BotAuth extends ChallengesAuthCommon, Bot {
     default Result<Ack> chat(String gameId, String text, Function<Room.Provider, Room> room) {
         return chat(gameId, text, room.apply(Room.provider()));
     }
+
+    /**
+     * Get the messages posted in the game chat.
+     * @param gameId  Example: 5IrD6Gzz
+     */
+    Result<ChatMessage> fetchChat(String gameId);
 
 }
