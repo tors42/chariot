@@ -46,6 +46,10 @@ public record Endpoint<T> (
     public static Endpoint<Ack> apiTokenRevoke =
         Endpoint.of("/api/token", Ack.class).scope(Scope.any).build();
 
+    public static Endpoint<TokenBulkResult> apiTokenBulkTest =
+        Endpoint.of("/api/token/test", TokenBulkResult.class).content(plain).build();
+
+
     public static Endpoint<ChallengeTokens> apiAdminChallengeTokens =
         Endpoint.of("/api/token/admin-challenge", ChallengeTokens.class).content(wwwform).scope(Scope.web_mod).build();
 

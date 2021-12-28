@@ -15,6 +15,8 @@ import chariot.internal.Endpoint;
 import chariot.internal.Util;
 import chariot.internal.InternalClient;
 import chariot.internal.PKCE;
+import chariot.model.Result;
+import chariot.model.TokenBulkResult;
 import chariot.model.TokenResult;
 
 public class AccountImpl extends Base implements chariot.api.Account {
@@ -72,5 +74,14 @@ public class AccountImpl extends Base implements chariot.api.Account {
             return new TokenResult.Error("Unknown Error", "Unknonw");
         }
     }
-}
 
+    @Override
+    public Result<TokenBulkResult> testTokens(Set<String> tokens) {
+
+        var request = Endpoint.apiTokenBulkTest.newRequest()
+            .post(tokens.stream().collect(Collectors.joining(",")))
+            .build();
+
+        return fetchOne(request);
+    }
+}

@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -257,6 +258,23 @@ public class ModelMapper {
                     return Model.unmapped(json);
                 });
 
+        mappings.put(TokenBulkResult.class,
+                (json) -> {
+                    var node = Parser.fromString(json);
+
+                    if (node instanceof YayObject yo) {
+                        var map = new HashMap<String, TokenBulkResult.TokenInfo>();
+                        yo.value().keySet().stream()
+                            .forEach(token -> {
+                                var val = yo.value().get(token) instanceof YayObject tokenInfo ?  new TokenBulkResult.TokenInfo(tokenInfo.getString("userId"), tokenInfo.getString("scopes")) : null;
+                                map.put(token, val);
+                            });
+                        return new TokenBulkResult(map);
+                    }
+
+                    return Model.unmapped(json);
+                });
+
 
         mappingsArr.put(RatingHistory.class,
                 (json) -> {
@@ -386,5 +404,8 @@ public class ModelMapper {
                     }
                     return Model.unmapped(json);
                 });
+
+
+
     }
 }

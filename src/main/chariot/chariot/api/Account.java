@@ -2,10 +2,13 @@ package chariot.api;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import chariot.Client;
 import chariot.Client.Scope;
+import chariot.model.Result;
+import chariot.model.TokenBulkResult;
 
 /**
  * Helpers for obtaining authorization tokens
@@ -111,4 +114,10 @@ public interface Account {
 
     record UriAndToken(URI url, Supplier<Supplier<char[]>> token) {}
 
+
+    Result<TokenBulkResult> testTokens(Set<String> tokens);
+
+    default Result<TokenBulkResult> testTokens(String... tokens) {
+        return testTokens(Set.of(tokens));
+    }
 }
