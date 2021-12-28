@@ -81,6 +81,6 @@ public record Game (
 
     public record Opening (String eco, String name, Integer ply) {}
 
-    public record Clock (Integer initial, Integer increment, Integer totalTime) {}
+    public record Clock (int initial, int increment, int totalTime) {}
 
 }
