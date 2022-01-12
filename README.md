@@ -43,13 +43,13 @@ The JDK includes a tool called JShell. It can be used to run Java code and is su
 
 ## Use as dependency
 
-The coordinates are `io.github.tors42:chariot:0.0.19`, so in a Maven project the following dependency can be added to the `pom.xml`:
+The coordinates are `io.github.tors42:chariot:0.0.20`, so in a Maven project the following dependency can be added to the `pom.xml`:
 
     ...
     <dependency>
       <groupId>io.github.tors42</groupId>
       <artifactId>chariot</artifactId>
-      <version>0.0.19</version>
+      <version>0.0.20</version>
     </dependency>
     ...
 
