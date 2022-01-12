@@ -65,7 +65,7 @@ public class PKCE {
                 generateChallenge(code_verifier),
                 "code",
                 moduleName,
-                "http://" + redirectHost + ":" + redirectPort,
+                "http://" + redirectHost + ":" + redirectPort + "/",
                 scopes.stream().map(Scope::asString).collect(Collectors.joining(" ")),
                 generateRandomState()
                 );
