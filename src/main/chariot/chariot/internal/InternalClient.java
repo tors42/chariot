@@ -55,7 +55,7 @@ public class InternalClient {
             case tablebase -> config.servers().tablebase().get();
         };
 
-        // :  <-- comment to fix broken treesitter syntax highlighter, it doesn't seem to like the case switch without ":"
+        // :  <-- comment to fix treesitter syntax highlighter, not supporting switch-expressions
 
         var uri = URI.create(host + request.path());
 
