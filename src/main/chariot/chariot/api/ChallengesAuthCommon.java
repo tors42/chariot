@@ -30,21 +30,17 @@ public interface ChallengesAuthCommon {
          * Correspondence challenge
          * @param d
          */
-        public ChallengeBuilder clock(DaysPerTurn d);
-
-        /**
-         * Correspondence challenge
-         * @param d
-                 */
-        public ChallengeBuilder clock(Function<DaysPerTurn.Provider, DaysPerTurn> d);
-
+        ChallengeBuilder clock(DaysPerTurn d);
 
         /**
          * Real-time challenge
          * @param clockInitial Clock initial time in seconds [ 0 .. 10800 ]
          * @param clockIncrement Clock increment in seconds [ 0 .. 60 ]
          */
-        public ChallengeBuilder clock(int clockInitial, int clockIncrement);
+        ChallengeBuilder clock(int clockInitial, int clockIncrement);
+
+
+        default ChallengeBuilder clock(Function<DaysPerTurn.Provider, DaysPerTurn> d) { return clock(d.apply(DaysPerTurn.provider())); }
     }
 
     interface ChallengeBuilder {
@@ -56,20 +52,11 @@ public interface ChallengesAuthCommon {
          * if the challenge is accepted.
          */
         ChallengeBuilder color(ColorPref color);
-        /**
-         * @param color Which color you get to play,
-         * if the challenge is accepted.
-         */
-        ChallengeBuilder color(Function<ColorPref.Provider, ColorPref> color);
 
         /**
          * @param variant The variant to use in games
          */
         ChallengeBuilder variant(VariantName variant);
-        /**
-         * @param variant The variant to use in games
-         */
-        ChallengeBuilder variant(Function<VariantName.Provider, VariantName> variant);
 
         /**
          * @param fen Custom initial position (in FEN).
@@ -113,6 +100,10 @@ public interface ChallengesAuthCommon {
          * but if you set your own message, it must at least contain the {game} placeholder.
          */
         ChallengeBuilder acceptByToken(String acceptByToken, String message);
+
+
+        default ChallengeBuilder color(Function<ColorPref.Provider, ColorPref> color) { return color(color.apply(ColorPref.provider())); }
+        default ChallengeBuilder variant(Function<VariantName.Provider, VariantName> variant) {return variant(variant.apply(VariantName.provider())); }
     }
 
 
@@ -121,20 +112,17 @@ public interface ChallengesAuthCommon {
          * Correspondence challenge
          * @param d
          */
-        public ChallengeAIBuilder clock(DaysPerTurn d);
-
-        /**
-         * Correspondence challenge
-         * @param d
-         */
-        public ChallengeAIBuilder clock(Function<DaysPerTurn.Provider, DaysPerTurn> d);
+        ChallengeAIBuilder clock(DaysPerTurn d);
 
         /**
          * Real-time challenge
          * @param clockInitial Clock initial time in seconds [ 0 .. 10800 ]
          * @param clockIncrement Clock increment in seconds [ 0 .. 60 ]
          */
-        public ChallengeAIBuilder clock(int clockInitial, int clockIncrement);
+        ChallengeAIBuilder clock(int clockInitial, int clockIncrement);
+
+
+        default ChallengeAIBuilder clock(Function<DaysPerTurn.Provider, DaysPerTurn> d) { return clock(d.apply(DaysPerTurn.provider())); }
 
     }
 
@@ -146,25 +134,13 @@ public interface ChallengesAuthCommon {
         ChallengeAIBuilder level(Level level);
 
         /**
-         * @param level AI strength
-         */
-        ChallengeAIBuilder level(Function<Level.Provider, Level> level);
-
-        /**
          * @param color Which color you get to play,
          * if the challenge is accepted.
          */
         ChallengeAIBuilder color(ColorPref color);
 
-        /**
-         * @param color Which color you get to play,
-         * if the challenge is accepted.
-         */
-        ChallengeAIBuilder color(Function<ColorPref.Provider, ColorPref> color);
 
         ChallengeAIBuilder variant(VariantName variant);
-
-        ChallengeAIBuilder variant(Function<VariantName.Provider, VariantName> variant);
 
         /**
          * @param fen Custom initial position (in FEN).
@@ -174,6 +150,10 @@ public interface ChallengesAuthCommon {
          */
         ChallengeAIBuilder fen(String fen);
 
+
+        default ChallengeAIBuilder level(Function<Level.Provider, Level> level) { return level(level.apply(Level.provider())); }
+        default ChallengeAIBuilder color(Function<ColorPref.Provider, ColorPref> color) { return color(color.apply(ColorPref.provider())); }
+        default ChallengeAIBuilder variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); };
     }
 
 }

@@ -388,7 +388,7 @@ public interface Games {
          * Only games in these speeds or variants.<br>
          * Multiple perf types can be specified.
          */
-        SearchFilter perfType(PerfType ... perfTypes);
+        SearchFilter perfType(PerfType... perfTypes);
         /**
          * Only games in these speeds or variants.<br>
          * Multiple perf types can be specified.
@@ -516,10 +516,6 @@ public interface Games {
          */
         LichessBuilder variant(VariantName variant);
         /**
-         * Variant
-         */
-        LichessBuilder variant(Function<VariantName.Provider, VariantName> variant);
-        /**
          * Include only games from this month or later<br>
          * Default "0000-01"
          */
@@ -541,6 +537,8 @@ public interface Games {
          */
         LichessBuilder ratings(Set<RatingGroup> ratings);
         default LichessBuilder ratings(RatingGroup... ratings) { return ratings(Set.of(ratings)); }
+
+        default LichessBuilder variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
 
         /**
          *  Specifies a rating group, which includes ratings up to next rating group.<br/>
@@ -603,10 +601,6 @@ public interface Games {
          */
         PlayerBuilder variant(VariantName variant);
         /**
-         * Variant
-         */
-        PlayerBuilder variant(Function<VariantName.Provider, VariantName> variant);
-        /**
          * Include only games from this month or later<br>
          * Default "0000-01"
          */
@@ -623,25 +617,25 @@ public interface Games {
          */
         PlayerBuilder color(Color color);
 
-        /**
-         * Specify for which color to explore games.<br>
-         * Default: white
-         */
-        default PlayerBuilder color(Function<Color.Provider, Color> color) { return color(color.apply(Color.provider())); }
 
         /**
          * One or more game speeds to look for
          */
         PlayerBuilder speeds(Set<Speed> speeds);
-        default PlayerBuilder speeds(Speed... speeds) { return speeds(Set.of(speeds)); }
 
         /**
          * The game modes to include
          */
         PlayerBuilder modes(Set<Mode> modes);
         default PlayerBuilder modes(Mode... modes) { return modes(Set.of(modes)); }
+
+
         @SuppressWarnings("unchecked")
         default PlayerBuilder modes(Function<Mode.Provider, Mode>... modes) { return modes(Stream.of(modes).map(f -> f.apply(Mode.provider())).collect(Collectors.toSet())); }
+        default PlayerBuilder color(Function<Color.Provider, Color> color) { return color(color.apply(Color.provider())); }
+        default PlayerBuilder speeds(Speed... speeds) { return speeds(Set.of(speeds)); }
+        default PlayerBuilder variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
+
         public enum Mode {
             casual, rated;
 
@@ -651,5 +645,6 @@ public interface Games {
             }
             public static Provider provider() {return new Provider(){};}
         }
+
     }
 }

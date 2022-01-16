@@ -55,12 +55,12 @@ public interface TournamentsAuth extends Tournaments {
          * @param clockIncrement Clock increment in seconds [ 0 .. 60 ]
          * @param arenaMinutes How long the tournament lasts, in minutes [ 0 .. 360 ]
          */
-        public ArenaBuilder clock(ClockInitial clockInitial, int clockIncrement, int arenaMinutes);
+        ArenaBuilder clock(ClockInitial clockInitial, int clockIncrement, int arenaMinutes);
 
         /**
          * {@link chariot.api.TournamentsAuth.ArenaBBuilder#clock}
          */
-        public ArenaBuilder clock(Function<ClockInitial.Provider, ClockInitial> clockInitial, int clockIncrement, int arenaMinutes);
+        default ArenaBuilder clock(Function<ClockInitial.Provider, ClockInitial> clockInitial, int clockIncrement, int arenaMinutes) { return clock(clockInitial.apply(ClockInitial.provider()), clockIncrement, arenaMinutes); }
     }
 
     interface ArenaBuilder {
@@ -68,81 +68,81 @@ public interface TournamentsAuth extends Tournaments {
         /**
          * @param name The tournament name. Leave empty to get a random Grandmaster name
          */
-        public ArenaBuilder name(String name);
+        ArenaBuilder name(String name);
 
         /**
          * @param startTime When the tournament starts. Skipping this parameter defaults to in 5 minutes.
          */
-        public ArenaBuilder startTime(Function<StartTime.Provider, StartTime> startTime);
+        ArenaBuilder startTime(Function<StartTime.Provider, StartTime> startTime);
 
         /**
          * @param variant The variant to use in tournament games
          */
-        public ArenaBuilder variant(VariantName variant);
+        ArenaBuilder variant(VariantName variant);
 
         /**
          * @param rated Games are rated and impact players ratings
          */
-        public ArenaBuilder rated(boolean rated);
+        ArenaBuilder rated(boolean rated);
 
         /**
          * @param position Custom initial position (in FEN) for all games of the tournament. Must be a legal chess position. Only works with standard chess, not variants (except Chess960).
          */
-        public ArenaBuilder position(String position);
+        ArenaBuilder position(String position);
 
         /**
          * @param berserkable  Whether the players can use berserk
          */
-        public ArenaBuilder berserkable(boolean berserkable);
+        ArenaBuilder berserkable(boolean berserkable);
 
         /**
          * @param streakable After 2 wins, consecutive wins grant 4 points instead of 2.
          */
-        public ArenaBuilder streakable(boolean streakable);
+        ArenaBuilder streakable(boolean streakable);
 
         /**
          * @param hasChat Whether the players can discuss in a chat
          */
-        public ArenaBuilder hasChat(boolean hasChat);
+        ArenaBuilder hasChat(boolean hasChat);
 
         /**
          * @param description Anything you want to tell players about the tournament
          */
-        public ArenaBuilder description(String description);
+        ArenaBuilder description(String description);
 
         /**
          * @param password Make the tournament private, and restrict access with a password
          */
-        public ArenaBuilder password(String password);
+        ArenaBuilder password(String password);
 
         /**
          * @param teamBattleByTeam Set the ID of a team you lead to create a team battle. The other teams can be added using the team battle edit endpoint.
          */
-        public ArenaBuilder teamBattleByTeam(String teamBattleByTeam);
+        ArenaBuilder teamBattleByTeam(String teamBattleByTeam);
 
         /**
          * @param conditionTeam Restrict entry to members of a team. The teamId is the last part of a team URL, e.g. https://lichess.org/team/coders has teamId = coders.
          */
-        public ArenaBuilder conditionTeam(String conditionTeam);
+        ArenaBuilder conditionTeam(String conditionTeam);
 
         /**
          * @param conditionMinRating Minimum rating to join.
          */
-        public ArenaBuilder conditionMinRating(int conditionMinRating);
+        ArenaBuilder conditionMinRating(int conditionMinRating);
 
         /**
          * @param conditionMaxRating Maximum rating to join. Based on best rating reached in the last 7 days.
          */
-        public ArenaBuilder conditionMaxRating(int conditionMaxRating);
+        ArenaBuilder conditionMaxRating(int conditionMaxRating);
 
         /**
          * @param conditionMinRatedGames Minimum number of rated games required to join.
          */
-        public ArenaBuilder conditionMinRatedGames(int conditionMinRatedGames);
+        ArenaBuilder conditionMinRatedGames(int conditionMinRatedGames);
 
 
         sealed interface StartTime {
-            public interface Provider {
+            interface Provider {
                 /**
                  * @param waitMinutes How long to wait before starting the tournament, from now, in minutes [ 0 .. 360 ]
                  */
@@ -151,20 +151,20 @@ public interface TournamentsAuth extends Tournaments {
                 /**
                  * @param startDate Timestamp to start the tournament at a given date and time. Overrides the waitMinutes setting
                  */
-                 default StartTime atDate(ZonedDateTime startDate) { return new AtDate(startDate.toEpochSecond()); }
+                default StartTime atDate(ZonedDateTime startDate) { return new AtDate(startDate.toEpochSecond()); }
                 /**
                  * @param startDate Timestamp to start the tournament at a given date and time. Overrides the waitMinutes setting
                  */
-                 default StartTime atDate(long startDate) { return new AtDate(startDate); }
+                default StartTime atDate(long startDate) { return new AtDate(startDate); }
              }
 
-            public static Provider provider() { return new Provider() {}; }
-            public record InMinutes(int waitMinutes) implements StartTime {
+            static Provider provider() { return new Provider() {}; }
+            record InMinutes(int waitMinutes) implements StartTime {
                 public InMinutes {
                     if (waitMinutes < 0 || waitMinutes > 360) throw new RuntimeException("waitMinutes [%d] must be between [ 0 .. 360 ]".formatted(waitMinutes));
                 }
             }
-            public record AtDate(long startDate) implements StartTime {}
+            record AtDate(long startDate) implements StartTime {}
         }
     }
 
@@ -181,20 +181,20 @@ public interface TournamentsAuth extends Tournaments {
         /**
          * @param nbRounds Maximum number of rounds to play [ 3 .. 100 ]
          */
-        public SwissBuilder nbRounds(int nbRounds);
+        SwissBuilder nbRounds(int nbRounds);
 
         /**
          * @param name The tournament name. Leave empty to get a random Grandmaster name.
          */
-        public SwissBuilder name(String name);
+        SwissBuilder name(String name);
 
-        public SwissBuilder rated(boolean rated);
+        SwissBuilder rated(boolean rated);
 
         /**
          * Timestamp in milliseconds to start the tournament at a given date and time.
          * By default, it starts 10 minutes after creation.
          */
-        public SwissBuilder startsAt(long startsAt);
+        SwissBuilder startsAt(long startsAt);
 
         /**
          * How long to wait between each round, in seconds.
@@ -202,28 +202,23 @@ public interface TournamentsAuth extends Tournaments {
          * [ 0 .. 86400 ]
          * Set to 99999999 to manually schedule each round from the tournament UI.
          */
-        public SwissBuilder roundInterval(int roundInterval);
+        SwissBuilder roundInterval(int roundInterval);
 
-        public SwissBuilder variant(VariantName variant);
-
-        public SwissBuilder variant(Function<VariantName.Provider, VariantName> variant);
+        SwissBuilder variant(VariantName variant);
 
         /*
          * Anything you want to tell players about the tournament
          */
-        public SwissBuilder description(String description);
+        SwissBuilder description(String description);
 
         /**
          * Who can read and write in the chat.
          * Default only team members.
          */
-        public SwissBuilder chatFor(ChatFor chatFor);
+        SwissBuilder chatFor(ChatFor chatFor);
 
-        /**
-         * Who can read and write in the chat.
-         * Default only team members.
-         */
-        public SwissBuilder chatFor(Function<ChatFor.Provider, ChatFor> chatFor);
+        default SwissBuilder chatFor(Function<ChatFor.Provider, ChatFor> chatFor) { return chatFor(chatFor.apply(ChatFor.provider())); };
+        default SwissBuilder variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
     }
 
 }
