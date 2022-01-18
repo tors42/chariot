@@ -92,7 +92,7 @@ import chariot.internal.Config;
  *     var clientAuth = Client.auth(c -> c.api("https://lichess.dev").auth("mytoken"));
  * }</pre>
  */
-public sealed interface Client extends AutoCloseable permits ClientAuth, Client.Basic {
+public sealed interface Client permits ClientAuth, Client.Basic {
 
     sealed interface Basic extends Client permits chariot.internal.BasicClient {}
 
@@ -240,21 +240,11 @@ public sealed interface Client extends AutoCloseable permits ClientAuth, Client.
     }
 
     /**
-     * Closes this client
-     */
-    void shutdown();
-
-    /**
      * Configure logging levels
      */
     default void levels(Consumer<LogSetter> params) {
         var builder = new Config.LBuilderImpl(false);
         params.accept(builder);
-    }
-
-    @Override
-    default void close() {
-        shutdown();
     }
 
     private static Client load(Config config) {
