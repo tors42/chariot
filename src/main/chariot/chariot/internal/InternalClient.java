@@ -206,37 +206,35 @@ public class InternalClient {
             burst = burstSemaphore.tryAcquire();
         }
 
-        if ( ! burst ) {
-            try {
+        try {
+            if ( ! burst ) {
                 semaphore.acquire();
-            } catch(InterruptedException ie) {
-                config.logging().request().warning(() -> ie.getMessage());
-            }
 
-            long elapsedSincePreviousRequest = System.currentTimeMillis() - previousRequestTS.get();
+                long elapsedSincePreviousRequest = System.currentTimeMillis() - previousRequestTS.get();
 
-            if (! stream) {
-                if (elapsedSincePreviousRequest > burstRefillAfterInactivityMillis) {
-                    burstSemaphore.release(NUMBER_OF_BURST_REQUESTS);
+                if (! stream) {
+                    if (elapsedSincePreviousRequest > burstRefillAfterInactivityMillis) {
+                        burstSemaphore.release(NUMBER_OF_BURST_REQUESTS);
+                    }
+                }
+
+                if (elapsedSincePreviousRequest < requestSpacingMillis) {
+                    long wait = requestSpacingMillis - elapsedSincePreviousRequest;
+                    sleep(wait);
                 }
             }
 
-            if (elapsedSincePreviousRequest < requestSpacingMillis) {
-                long wait = requestSpacingMillis - elapsedSincePreviousRequest;
-                sleep(wait);
+            config.logging().request().fine(() -> "%s".formatted(httpRequest));
+
+            var response = httpClient.send(httpRequest, bodyHandler);
+
+            previousRequestTS.set(System.currentTimeMillis());
+            return response;
+        } finally {
+            if ( ! burst ) {
+                semaphore.release();
             }
         }
-
-
-        config.logging().request().fine(() -> "%s".formatted(httpRequest));
-
-        var response = httpClient.send(httpRequest, bodyHandler);
-
-        previousRequestTS.set(System.currentTimeMillis());
-
-        if ( ! burst ) semaphore.release();
-
-        return response;
     }
 
     public synchronized Set<Scope> fetchScopes(String endpointPath, Supplier<char[]> tokenSupplier) {
