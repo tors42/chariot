@@ -283,7 +283,4 @@ public class InternalClient {
         }
     }
 
-    public void shutdown() {
-    }
-
 }
