@@ -14,9 +14,11 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -28,10 +30,20 @@ import chariot.Client.Scope;
 public class InternalClient {
 
     private final Config config;
-    private final int retrySeconds = 60;
+    private final int retryMillis = 60_000;
+    private final int burstRefillAfterInactivityMillis = 10_000;
+    private final int requestSpacingMillis = 1_000;
 
-    private final ScheduledExecutorService requestExecutor = Executors.newSingleThreadScheduledExecutor(Util.tf);
-    private final ScheduledExecutorService streamExecutor = Executors.newScheduledThreadPool(8, Util.tf);
+    private final int NUMBER_OF_PARALLEL_REQUESTS = 1;
+    private final int NUMBER_OF_BURST_REQUESTS = 4;
+    private final int NUMBER_OF_STREAM_REQUESTS = 8;
+
+    private final Semaphore singleSemaphore = new Semaphore(NUMBER_OF_PARALLEL_REQUESTS);
+    private final Semaphore burstSemaphore = new Semaphore(NUMBER_OF_BURST_REQUESTS);
+    private final Semaphore streamSemaphore = new Semaphore(NUMBER_OF_STREAM_REQUESTS);
+    private final AtomicLong previousRequestTS = new AtomicLong();
+    private final AtomicBoolean throttle429 = new AtomicBoolean();
+    private final Lock throttleLock = new ReentrantLock();
 
     private final HttpClient httpClient = HttpClient.newBuilder()
         .version(Version.HTTP_2)
@@ -95,10 +107,9 @@ public class InternalClient {
 
         var httpRequest = builder.build();
 
-        var executor = request.stream() ? streamExecutor : requestExecutor;
         HttpResponse<Stream<String>> httpResponse;
         try {
-            httpResponse = sendWithRetry(executor, httpRequest, BodyHandlers.ofLines());
+            httpResponse = sendWithRetry(request.stream(), httpRequest, BodyHandlers.ofLines());
         } catch(Exception e) {
             config.logging().request().log(Level.SEVERE, "%s".formatted(httpRequest), e);
             return new InternalResult.Error<>(e.getMessage());
@@ -144,46 +155,90 @@ public class InternalClient {
         }
     }
 
-    private <T> HttpResponse<T> sendWithRetry(ScheduledExecutorService executor, HttpRequest httpRequest, BodyHandler<T> bodyHandler) throws Exception {
-        var response = sendRequest(executor, httpRequest, bodyHandler, Optional.empty());
+    private <T> HttpResponse<T> sendWithRetry(boolean stream, HttpRequest httpRequest, BodyHandler<T> bodyHandler) throws Exception {
+
+        var response = sendRequest(stream, httpRequest, bodyHandler);
 
         if (response.statusCode() == 429) {
+
             // Perform a retry in a minute...
+            throttle429.set(true);
+
             config.logging().request().warning(() -> "%s".formatted(response));
 
             var builder = HttpRequest.newBuilder(httpRequest, (n, v) -> true);
-            httpRequest.timeout().ifPresent(t ->
-                    builder.timeout(t.plusSeconds(retrySeconds)));
+            httpRequest.timeout().ifPresent(t -> builder.timeout(t.plusMillis(retryMillis)));
             var retryHttpRequest = builder.build();
 
-            return sendRequest(executor, retryHttpRequest, bodyHandler, Optional.of(retrySeconds));
+            return sendRequest(stream, retryHttpRequest, bodyHandler);
         }
 
         return response;
     }
 
-    private <T> HttpResponse<T> sendRequest(ScheduledExecutorService executor, HttpRequest httpRequest, BodyHandler<T> bodyHandler, Optional<Integer> delaySeconds) throws Exception {
-        var future = delaySeconds.isEmpty() ?
-            executor.submit(() -> {
-                config.logging().request().fine(() -> "%s".formatted(httpRequest));
-                return httpClient.send(httpRequest, bodyHandler);
-            })
-            :
-            executor.schedule(() -> {
-                config.logging().request().fine(() -> "Retry - %s".formatted(httpRequest));
-                return httpClient.send(httpRequest, bodyHandler);
-            }, delaySeconds.get(), TimeUnit.SECONDS);
-
-        return future.get();
+    private void sleep(long millis) {
+        try{Thread.sleep(millis);}catch(InterruptedException ie){}
     }
 
+    private <T> HttpResponse<T> sendRequest(
+            boolean stream,
+            HttpRequest httpRequest,
+            BodyHandler<T> bodyHandler) throws Exception {
 
-    // Hmm, there should be a layer where "spacing"/throttling is implemented...
-    // There's an "in-the-moment"-implementation of a single retry logic above,
-    // on 429.
-    // But maybe error codes should be modelled and exposed from this layer,
-    // and the calling layer can make the retry and spacing decisions...?
-    // Yah - design decisions... "Will fix that later"
+        throttleLock.lock();
+        try {
+            if (throttle429.get()) {
+                long elapsedSince429 = System.currentTimeMillis() - previousRequestTS.get();
+                long wait = retryMillis - elapsedSince429;
+                if (wait > 0) {
+                    sleep(wait);
+                }
+                throttle429.set(false);
+            }
+        } finally {
+            throttleLock.unlock();
+        }
+
+        Semaphore semaphore = stream ? streamSemaphore : singleSemaphore;
+
+        boolean burst = false;
+        if ( ! stream ) {
+            burst = burstSemaphore.tryAcquire();
+        }
+
+        if ( ! burst ) {
+            try {
+                semaphore.acquire();
+            } catch(InterruptedException ie) {
+                config.logging().request().warning(() -> ie.getMessage());
+            }
+
+            long elapsedSincePreviousRequest = System.currentTimeMillis() - previousRequestTS.get();
+
+            if (! stream) {
+                if (elapsedSincePreviousRequest > burstRefillAfterInactivityMillis) {
+                    burstSemaphore.release(NUMBER_OF_BURST_REQUESTS);
+                }
+            }
+
+            if (elapsedSincePreviousRequest < requestSpacingMillis) {
+                long wait = requestSpacingMillis - elapsedSincePreviousRequest;
+                sleep(wait);
+            }
+        }
+
+
+        config.logging().request().fine(() -> "%s".formatted(httpRequest));
+
+        var response = httpClient.send(httpRequest, bodyHandler);
+
+        previousRequestTS.set(System.currentTimeMillis());
+
+        if ( ! burst ) semaphore.release();
+
+        return response;
+    }
+
     public synchronized Set<Scope> fetchScopes(String endpointPath, Supplier<char[]> tokenSupplier) {
         String host = config.servers().api().get();
         var uri = URI.create(host + endpointPath);
@@ -197,7 +252,7 @@ public class InternalClient {
 
         HttpResponse<Void> response;
         try {
-            response = sendWithRetry(requestExecutor, httpRequest, BodyHandlers.discarding());
+            response = sendWithRetry(false, httpRequest, BodyHandlers.discarding());
         } catch (Exception e) {
             config.logging().request().log(Level.SEVERE, "%s".formatted(httpRequest), e);
             return Set.of();
@@ -229,8 +284,6 @@ public class InternalClient {
     }
 
     public void shutdown() {
-        requestExecutor.shutdownNow();
-        streamExecutor.shutdownNow();
     }
 
 }
