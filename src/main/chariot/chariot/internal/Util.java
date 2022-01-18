@@ -12,8 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Spliterator;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -27,16 +25,6 @@ public class Util {
     public static final String javaVersion = _javaVersion();
     public static final String clientVersion = _clientVersion();
     public static final Predicate<String> notNullNotEmpty = not(String::isEmpty).and(Objects::nonNull);
-
-    public static final ThreadFactory tf = new ThreadFactory() {
-        @Override
-        public Thread newThread(Runnable runnable) {
-            var thread = Executors.defaultThreadFactory().newThread(runnable);
-            // Help users who forget to shutdown client
-            thread.setDaemon(true);
-            return thread;
-        }
-    };
 
     public static String orEmpty(String s) {
         return s == null ? "" : s;
@@ -104,7 +92,6 @@ public class Util {
         Page<T> page;
         Function<Integer, Page<T>> search;
 
-        long previousSearchTime = System.currentTimeMillis();
         int currentElementIndex = 0;
 
         public PageSpliterator(Page<T> page, Function<Integer, Page<T>> search) {
@@ -129,13 +116,7 @@ public class Util {
                         return false;
                     }
                     currentElementIndex = 0;
-
-                    long elapsedMillis = Math.min(System.currentTimeMillis() - previousSearchTime, 1000);
-                    if (elapsedMillis < delayBetweenPageSearches) {
-                        try {Thread.sleep(delayBetweenPageSearches-elapsedMillis);} catch (InterruptedException ie) {}
-                    }
                     page = search.apply(page.nextPage());
-                    previousSearchTime = System.currentTimeMillis();
                     return tryAdvance(action);
                 }
 
@@ -160,8 +141,6 @@ public class Util {
         public int characteristics() {
             return ORDERED | SIZED;
         }
-
-
     }
 }
 
