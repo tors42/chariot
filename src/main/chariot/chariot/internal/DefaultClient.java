@@ -109,10 +109,6 @@ public class DefaultClient {
         return users;
     }
 
-    public void shutdown() {
-        client.shutdown();
-    }
-
     public Config getConfig() {
         return config;
     }
