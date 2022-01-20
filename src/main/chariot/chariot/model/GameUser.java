@@ -22,6 +22,22 @@ public sealed interface GameUser {
             }
         }
 
+        // /api/tournament/ARENAID/games (will have "berserk" flag with value 'true', if user has berserked - otherwise not present)
+        // vs
+        // /game/export/GAMEID (won't have "berserk" flag present)
+        record BerserkUser(
+                LightUser user,
+                boolean berserk,
+                Integer rating,
+                Integer ratingDiff,
+                boolean provisional,
+                Analysis analysis) implements GameUser {
+            public BerserkUser {
+                analysis = analysis == null ? Analysis.none : analysis;
+            }
+        }
+
+
         record Computer(Integer aiLevel) implements GameUser {}
 
         sealed interface Analysis permits Analysis.None, Analysis.Values {
