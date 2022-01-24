@@ -16,6 +16,7 @@ public sealed interface GameUser {
                 Integer rating,
                 Integer ratingDiff,
                 boolean provisional,
+                Optional<Boolean> berserk,
                 Analysis analysis) implements GameUser {
             public User {
                 analysis = analysis == null ? Analysis.none : analysis;
