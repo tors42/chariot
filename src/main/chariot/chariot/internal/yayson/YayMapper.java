@@ -6,6 +6,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.RecordComponent;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -187,6 +188,22 @@ public class YayMapper {
         if (cls.isRecord()) {
             T r = fromYayTree(node, cls);
             return r;
+        } else if (cls.equals(Optional.class)) {
+            if (node != null) {
+                ParameterizedType pt = parameterizedType.get();
+                Type typeArgument = pt.getActualTypeArguments()[0];
+                if (typeArgument instanceof Class) {
+                    Class<?> typeClass = (Class<?>) typeArgument;
+                    var value = buildFromClass(node, typeClass, Optional.empty());
+                    @SuppressWarnings("unchecked")
+                    T t = (T) Optional.ofNullable(value);
+                    return t;
+                }
+            }
+
+            @SuppressWarnings("unchecked")
+            T t = (T) Optional.empty();
+            return t;
         } else if (cls.isArray()) {
             Class<?> componentClass = cls.componentType();
             if (parameterizedType.isPresent()) {
