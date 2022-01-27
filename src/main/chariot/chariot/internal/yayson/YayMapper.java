@@ -192,8 +192,7 @@ public class YayMapper {
             if (node != null) {
                 ParameterizedType pt = parameterizedType.get();
                 Type typeArgument = pt.getActualTypeArguments()[0];
-                if (typeArgument instanceof Class) {
-                    Class<?> typeClass = (Class<?>) typeArgument;
+                if (typeArgument instanceof Class<?> typeClass) {
                     var value = buildFromClass(node, typeClass, Optional.empty());
                     @SuppressWarnings("unchecked")
                     T t = (T) Optional.ofNullable(value);
