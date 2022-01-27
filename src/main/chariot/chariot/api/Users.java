@@ -85,8 +85,11 @@ public interface Users {
      * Read the `online`, `playing` and `streaming` flags of several users.<br/>
      * This API is very fast and cheap on lichess side,
      * so you can call it quite often (like once every 5 seconds).<br>
-     * Use it to track players and know when they're connected on lichess and playing games.
-     * @param userIds Up to 100 IDs
+     * Use it to track players and know when they're connected on lichess and playing games.<br>
+     * Implementation Note, if the set of user ids is larger than 100 user ids,<br>
+     * the user ids will be split into groups of 100s and separate requests will be made for each group.<br>
+     *
+     * @param userIds
      */
     default Result<UserStatus> statusByIds(Set<String> userIds) {
         return statusByIds(userIds, false);

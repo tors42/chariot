@@ -1,10 +1,12 @@
 package chariot.internal.impl;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import chariot.internal.Base;
 import chariot.internal.Endpoint;
@@ -78,8 +80,10 @@ public class UsersImpl extends Base implements Internal.Users {
 
     @Override
     public Result<UserStatus> statusByIds(Set<String> userIds, boolean withGameIds) {
-        if (userIds.size() > 100) {
-            return Result.fail("Max 100 user ids");
+        int batchSize = 100;
+
+        if (userIds.size() > batchSize) {
+            return autoSplittingStatusByIds(userIds, withGameIds, batchSize);
         }
 
         var ids = userIds.stream()
@@ -89,6 +93,31 @@ public class UsersImpl extends Base implements Internal.Users {
             .query(Map.of("ids", ids, "withGameIds", withGameIds))
             .build();
         return fetchArr(request);
+    }
+
+    private Result<UserStatus> autoSplittingStatusByIds(Set<String> userIds, boolean withGameIds, int batchSize) {
+        String[] arr = userIds.toArray(new String[0]);
+        int batches = (int) Math.ceil(arr.length / (float)batchSize);
+        Stream<UserStatus> userStatus = Stream.iterate(0, batch -> batch + 1)
+            .limit(batches)
+            .map(batch -> {
+                if (batch == batches) {
+                    return Arrays.stream(arr, batch * batchSize, batch * batchSize + arr.length % batchSize);
+                } else {
+                    return Arrays.stream(arr, batch * batchSize, batch * batchSize + batchSize);
+                }
+            }
+            )
+            .map(stream -> stream.collect(Collectors.joining(",")))
+            .flatMap(ids -> {
+                var request = Endpoint.userStatusByIds.newRequest()
+                    .query(Map.of("ids", ids, "withGameIds", withGameIds))
+                    .build();
+                var result = fetchArr(request);
+                return result.stream();
+            });
+
+        return Result.many(userStatus);
     }
 
     @Override
