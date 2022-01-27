@@ -13,10 +13,9 @@ Make sure to use at least Java 17. A JDK archive can be downloaded and unpacked 
     $ export PATH=$JAVA_HOME/bin:$PATH
 
     $ java -version
-    openjdk version "17.0.1" 2021-10-19
-    OpenJDK Runtime Environment (build 17.0.1+12-39)
-    OpenJDK 64-Bit Server VM (build 17.0.1+12-39, mixed mode, sharing)
-
+    openjdk version "17.0.2" 2022-01-18
+    OpenJDK Runtime Environment (build 17.0.2+8-86)
+    OpenJDK 64-Bit Server VM (build 17.0.2+8-86, mixed mode, sharing)
 
     $ java build/Build.java
 
@@ -25,7 +24,7 @@ Make sure to use at least Java 17. A JDK archive can be downloaded and unpacked 
 The JDK includes a tool called JShell. It can be used to run Java code and is suitable for exploring Java libraries.
 
     $ jshell --module-path out/modules --add-module chariot
-    |  Welcome to JShell -- Version 17
+    |  Welcome to JShell -- Version 17.0.2
     |  For an introduction type: /help intro
     jshell> var client = chariot.Client.basic()
     client ==> chariot.internal.BasicClient@1184ab05
