@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Spliterator;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -88,7 +87,6 @@ public class Util {
 
 
     public static class PageSpliterator<T> implements Spliterator<T> {
-        final long delayBetweenPageSearches = TimeUnit.SECONDS.toMillis(1);
         Page<T> page;
         Function<Integer, Page<T>> search;
 
