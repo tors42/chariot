@@ -1,5 +1,6 @@
 package chariot.api;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -91,25 +92,25 @@ public interface Users {
      *
      * @param userIds
      */
-    default Result<UserStatus> statusByIds(Set<String> userIds) {
+    default Result<UserStatus> statusByIds(Collection<String> userIds) {
         return statusByIds(userIds, false);
     }
 
     /**
-     * {@link #statusByIds(Set)}
+     * {@link #statusByIds(Collection)}
      * @param withGameIds If set to true, the id of the game the users are playing, if any, will be included. Default: false
      */
-    Result<UserStatus> statusByIds(Set<String> userIds, boolean withGameIds);
+    Result<UserStatus> statusByIds(Collection<String> userIds, boolean withGameIds);
 
     /**
-     * {@link #statusByIds(Set)}
+     * {@link #statusByIds(Collection)}
      */
     default Result<UserStatus> statusByIds(boolean withGameIds, String... userIds) {
         return statusByIds(Set.of(userIds), withGameIds);
     }
 
     /**
-     * {@link #statusByIds(Set)}
+     * {@link #statusByIds(Collection)}
      */
     default Result<UserStatus> statusByIds(String... userIds) {
         return statusByIds(Set.of(userIds));

@@ -1,10 +1,10 @@
 package chariot.internal.impl;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -79,7 +79,7 @@ public class UsersImpl extends Base implements Internal.Users {
     }
 
     @Override
-    public Result<UserStatus> statusByIds(Set<String> userIds, boolean withGameIds) {
+    public Result<UserStatus> statusByIds(Collection<String> userIds, boolean withGameIds) {
         int batchSize = 100;
 
         if (userIds.size() > batchSize) {
@@ -95,7 +95,7 @@ public class UsersImpl extends Base implements Internal.Users {
         return fetchArr(request);
     }
 
-    private Result<UserStatus> autoSplittingStatusByIds(Set<String> userIds, boolean withGameIds, int batchSize) {
+    private Result<UserStatus> autoSplittingStatusByIds(Collection<String> userIds, boolean withGameIds, int batchSize) {
         String[] arr = userIds.toArray(new String[0]);
         int batches = (int) Math.ceil(arr.length / (float)batchSize);
         Stream<UserStatus> userStatus = Stream.iterate(0, batch -> batch + 1)
