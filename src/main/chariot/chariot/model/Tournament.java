@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 import chariot.model.Enums.TournamentState;
 import chariot.internal.Util;
 
-// Lighter than Arean (Arena holds duels and standings etc)
+// Lighter than Arena (Arena holds duels and standings etc)
 public sealed interface Tournament extends Model {
 
     String id();
