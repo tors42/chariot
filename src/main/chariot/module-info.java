@@ -11,7 +11,7 @@ module chariot {
     requires transitive java.prefs;
     requires java.net.http;
 
-    requires jdk.crypto.cryptoki; //https
+    requires jdk.crypto.ec;  //https
     requires jdk.random;     //OAuth PKCE
     requires jdk.httpserver; //OAuth PKCE
 
