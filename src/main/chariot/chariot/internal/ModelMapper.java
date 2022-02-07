@@ -266,7 +266,12 @@ public class ModelMapper {
                         var map = new HashMap<String, TokenBulkResult.TokenInfo>();
                         yo.value().keySet().stream()
                             .forEach(token -> {
-                                var val = yo.value().get(token) instanceof YayObject tokenInfo ?  new TokenBulkResult.TokenInfo(tokenInfo.getString("userId"), tokenInfo.getString("scopes")) : null;
+                                var val = yo.value().get(token) instanceof YayObject tokenInfo ?
+                                    new TokenBulkResult.TokenInfo(
+                                            tokenInfo.getString("userId"),
+                                            tokenInfo.getString("scopes"),
+                                            Util.fromLong(tokenInfo.getLong("expires"))
+                                            ) : null;
                                 map.put(token, val);
                             });
                         return new TokenBulkResult(map);

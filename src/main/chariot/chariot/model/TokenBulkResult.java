@@ -6,10 +6,12 @@ import java.util.Map;
 import java.util.Optional;
 import static java.util.Objects.requireNonNull;
 
+import java.time.ZonedDateTime;
+
 import chariot.Client.Scope;
 
 public record TokenBulkResult(Map<String, TokenInfo> map) implements Model {
-    public record TokenInfo(String userId, List<Scope> scopes) {
+    public record TokenInfo(String userId, List<Scope> scopes, ZonedDateTime expires) {
 
         public TokenInfo {
             requireNonNull(userId);
@@ -17,8 +19,8 @@ public record TokenBulkResult(Map<String, TokenInfo> map) implements Model {
             scopes = List.copyOf(scopes);
         }
 
-        public TokenInfo(String userId, String scopesString) {
-            this(userId, Arrays.stream(scopesString.split(",")).map(Scope::fromString).filter(Optional::isPresent).map(Optional::get).toList());
+        public TokenInfo(String userId, String scopesString, ZonedDateTime expires) {
+            this(userId, Arrays.stream(scopesString.split(",")).map(Scope::fromString).filter(Optional::isPresent).map(Optional::get).toList(), expires);
         }
     }
 }
