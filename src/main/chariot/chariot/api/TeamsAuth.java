@@ -22,4 +22,18 @@ public interface TeamsAuth extends Teams {
      */
     Result<TeamRequest> requests(String teamId);
 
+    /**
+     * Accept a join request to a team from a user
+     * @param teamId
+     * @param userId
+     */
+    Result<Ack> requestAccept(String teamId, String userId);
+
+    /**
+     * Decline a join request to a team from a user
+     * @param teamId
+     * @param userId
+     */
+    Result<Ack> requestDecline(String teamId, String userId);
+
 }

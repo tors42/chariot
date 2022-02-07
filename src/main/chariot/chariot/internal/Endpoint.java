@@ -131,6 +131,12 @@ public record Endpoint<T> (
     public static Endpoint<TeamRequest[]> teamRequests =
      Endpoint.ofArr("/api/team/%s/requests", TeamRequest.class).scope(Scope.team_read).build();
 
+    public static Endpoint<Ack> teamAcceptJoin =
+        Endpoint.of("/api/team/%s/request/%s/accept", Ack.class).scope(Scope.team_write).build();
+
+    public static Endpoint<Ack> teamDeclineJoin =
+        Endpoint.of("/api/team/%s/request/%s/decline", Ack.class).scope(Scope.team_write).build();
+
     public static Endpoint<GameImport> gameImport =
         Endpoint.of("/api/import", GameImport.class).content(wwwform).build();
 

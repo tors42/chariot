@@ -70,4 +70,24 @@ public class TeamsAuthImpl extends TeamsImpl implements Internal.TeamsAuth {
             .build();
         return fetchArr(request);
     }
+
+    @Override
+    public Result<Ack> requestAccept(String teamId, String userId) {
+        var request = Endpoint.teamAcceptJoin.newRequest()
+            .path(teamId, userId)
+            .post()
+            .build();
+
+        return fetchOne(request);
+     }
+
+    @Override
+    public Result<Ack> requestDecline(String teamId, String userId) {
+        var request = Endpoint.teamDeclineJoin.newRequest()
+            .path(teamId, userId)
+            .post()
+            .build();
+
+        return fetchOne(request);
+     }
 }
