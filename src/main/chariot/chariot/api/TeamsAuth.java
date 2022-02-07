@@ -2,6 +2,7 @@ package chariot.api;
 
 import chariot.model.Ack;
 import chariot.model.Result;
+import chariot.model.TeamRequest;
 
 public interface TeamsAuth extends Teams {
 
@@ -15,5 +16,10 @@ public interface TeamsAuth extends Teams {
     Result<Ack> kickFromTeam(String teamId, String userId);
 
     Result<Ack> messageTeam(String teamId, String message);
+
+    /**
+     * Get pending join requests of your team
+     */
+    Result<TeamRequest> requests(String teamId);
 
 }

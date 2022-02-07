@@ -128,6 +128,9 @@ public record Endpoint<T> (
     public static Endpoint<Ack> teamMessage =
         Endpoint.of("/team/%s/pm-all", Ack.class).content(wwwform).scope(Scope.team_write).build();
 
+    public static Endpoint<TeamRequest[]> teamRequests =
+     Endpoint.ofArr("/api/team/%s/requests", TeamRequest.class).scope(Scope.team_read).build();
+
     public static Endpoint<GameImport> gameImport =
         Endpoint.of("/api/import", GameImport.class).content(wwwform).build();
 

@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 import chariot.model.Ack;
 import chariot.model.Result;
+import chariot.model.TeamRequest;
 import chariot.internal.Endpoint;
 import chariot.internal.InternalClient;
 
@@ -60,5 +61,13 @@ public class TeamsAuthImpl extends TeamsImpl implements Internal.TeamsAuth {
             .post("message=" + URLEncoder.encode(message, StandardCharsets.UTF_8))
             .build();
         return fetchOne(request);
+    }
+
+    @Override
+    public Result<TeamRequest> requests(String teamId) {
+        var request = Endpoint.teamRequests.newRequest()
+            .path(teamId)
+            .build();
+        return fetchArr(request);
     }
 }

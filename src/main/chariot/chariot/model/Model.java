@@ -42,6 +42,7 @@ public sealed interface Model permits
     TablebaseResult,
     Team,
     TeamBattleResults,
+    TeamRequest,
     TokenBulkResult,
     TokenResult,
     Tournament,
