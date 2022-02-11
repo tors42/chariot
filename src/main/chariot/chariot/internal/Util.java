@@ -2,15 +2,20 @@ package chariot.internal;
 
 import static java.util.function.Predicate.not;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -139,6 +144,27 @@ public class Util {
         public int characteristics() {
             return ORDERED | SIZED;
         }
+    }
+
+    public static Map<String, String> generateUserEntryCodes(String tournamentEntryCode, Set<String> userIds) {
+        var map = new HashMap<String, String>(userIds.size());
+        try {
+            byte[] sbytes = tournamentEntryCode.getBytes("UTF8");
+            var key = new javax.crypto.spec.SecretKeySpec(sbytes, "HmacSHA256");
+            var mac = javax.crypto.Mac.getInstance("HmacSHA256");
+            mac.init(key);
+
+            for (String userId : userIds) {
+                byte[] dbytes = userId.toLowerCase().getBytes("UTF8");
+                mac.update(dbytes);
+                byte[] bytes = mac.doFinal();
+                String hex = java.util.HexFormat.of().formatHex(bytes);
+                map.put(userId, hex);
+            }
+        } catch(UnsupportedEncodingException | NoSuchAlgorithmException | InvalidKeyException ex) {
+            throw new RuntimeException(ex);
+        }
+        return map;
     }
 }
 

@@ -242,8 +242,8 @@ public interface Internal {
         default Result<Arena> updateTeamBattle(String id, int nbLeaders, String... teamIds) { return updateTeamBattle(id, nbLeaders, Set.of(teamIds)); }
 
         sealed interface ArenaParameters {
-            record Parameters(Map<String,Object> params) implements ArenaParameters { }
-            public static ArenaParameters of(Function<ArenaBBuilder, ArenaBuilder> function) {
+                record Parameters(Map<String,Object> params) implements ArenaParameters { }
+                public static ArenaParameters of(Function<ArenaBBuilder, ArenaBuilder> function) {
 
                 var arenabbuilder = new ArenaBBuilder() {
                     MapBuilder builder = new MapBuilder();
@@ -273,6 +273,7 @@ public interface Internal {
                         builder.addCustomHandler("conditionMinRating", (args, map) -> { map.put("conditions.minRating.rating", args[0]); });
                         builder.addCustomHandler("conditionMaxRating", (args, map) -> { map.put("conditions.maxRating.rating", args[0]); });
                         builder.addCustomHandler("conditionMinRatedGames", (args, map) -> { map.put("conditions.nbRatedGames.nb", args[0]); });
+                        builder.addCustomHandler("entryCode", (args, map) -> { map.put("password", args[0]); });
 
                         var map = builder.getMap();
                         var proxy = builder.of(ArenaBuilder.class);

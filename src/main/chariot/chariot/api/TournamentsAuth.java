@@ -1,9 +1,11 @@
 package chariot.api;
 
 import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import chariot.internal.Util;
 import chariot.model.Ack;
 import chariot.model.Arena;
 import chariot.model.Enums.*;
@@ -48,6 +50,31 @@ public interface TournamentsAuth extends Tournaments {
 
     Result<Ack>   joinSwiss(String id);
     Result<Ack>   joinSwiss(String id, String password);
+
+
+    /**
+     * Generate user entry codes based on a tournament entry code, for a set of user ids.<br>
+     * This way you can share the user specific entry codes without needing to share the tournament entry code.
+     *
+     * @param tournamentEntryCode, The tournament entry code.
+     * @param userIds A set of user ids for whom you want to generate specific entry codes for.
+     * @return A map with user ids mapped to user entry codes.
+     */
+    default Map<String, String> generateUserEntryCodes(String tournamentEntryCode, Set<String> userIds) {
+        return Util.generateUserEntryCodes(tournamentEntryCode, userIds);
+    }
+
+    /**
+     * Generate a user entry code based on a tournament entry code.<br>
+     * This way you can share the user specific entry codes without needing to share the tournament entry code.
+     *
+     * @param tournamentEntryCode The tournament entry code.
+     * @param userId The user id for whom you want to generate a specific entry code.
+     * @return A user specific entry code.
+     */
+    default String generateUserEntryCode(String tournamentEntryCode, String userId) {
+        return Util.generateUserEntryCodes(tournamentEntryCode, Set.of(userId)).get(userId);
+    }
 
     interface ArenaBBuilder {
         /**
@@ -111,9 +138,15 @@ public interface TournamentsAuth extends Tournaments {
         ArenaBuilder description(String description);
 
         /**
-         * @param password Make the tournament private, and restrict access with a password
+         * Make the tournament private, and restrict access with a entry code.<br>
+         * You can either share this entry code directly with the users who should be able to join,<br>
+         * or you could use it to create user-specific entry codes which you can share - see {@link TournamentsAuth#generateUserEntryCodes(String, Set)}.<br>
+         * @param entryCode
          */
-        ArenaBuilder password(String password);
+        ArenaBuilder entryCode(String entryCode);
+
+        @Deprecated
+        default ArenaBuilder password(String entryCode) { return entryCode(entryCode); }
 
         /**
          * @param teamBattleByTeam Set the ID of a team you lead to create a team battle. The other teams can be added using the team battle edit endpoint.
