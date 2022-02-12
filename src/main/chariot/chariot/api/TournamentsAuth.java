@@ -245,6 +245,14 @@ public interface TournamentsAuth extends Tournaments {
         SwissBuilder description(String description);
 
         /**
+         * Make the tournament restricted with a entry code.
+         * You can either share this entry code directly with the users who should be able to join,<br>
+         * or you could use it to create user-specific entry codes which you can share - see {@link TournamentsAuth#generateUserEntryCodes(String, Set)}.<br>
+         * @param entryCode
+         */
+        SwissBuilder entryCode(String entryCode);
+
+        /**
          * Who can read and write in the chat.
          * Default only team members.
          */

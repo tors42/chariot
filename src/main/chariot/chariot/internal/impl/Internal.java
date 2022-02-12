@@ -332,6 +332,7 @@ public interface Internal {
                             Objects.requireNonNull(chatFor);
                             map.put("chatFor", chatFor.id);
                         });
+                        builder.addCustomHandler("entryCode", (args, map) -> { map.put("password", args[0]); });
 
                         var map = builder.getMap();
                         map.put("nbRounds", 9);
