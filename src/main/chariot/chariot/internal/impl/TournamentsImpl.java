@@ -10,6 +10,7 @@ import chariot.model.Tournament;
 import chariot.model.TournamentStatus;
 import chariot.model.Game;
 import chariot.model.Result;
+import chariot.model.Swiss;
 import chariot.model.SwissResult;
 import chariot.model.TeamBattleResults;
 import chariot.model.Enums.TournamentState;
@@ -80,6 +81,17 @@ public class TournamentsImpl extends Base implements Internal.Tournaments {
             .build();
         return fetchMany(request);
     }
+
+    @Override
+    public Result<Swiss> swissById(String swissId) {
+
+        var request = Endpoint.tournamentSwissById.newRequest()
+            .path(swissId)
+            .build();
+
+        return fetchOne(request);
+    }
+
 
     @Override
     public Result<SwissResult> resultsBySwissId(String swissId, Optional<Integer> nb) {

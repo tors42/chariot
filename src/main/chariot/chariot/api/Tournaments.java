@@ -4,6 +4,7 @@ import chariot.model.ArenaResult;
 import chariot.model.Arena;
 import chariot.model.Game;
 import chariot.model.Result;
+import chariot.model.Swiss;
 import chariot.model.SwissResult;
 import chariot.model.TeamBattleResults;
 import chariot.model.Tournament;
@@ -35,6 +36,10 @@ public interface Tournaments {
      */
     Result<Arena> arenaById(String arenaId);
     /**
+     * Get info about a Swiss tournament.
+     */
+    Result<Swiss> swissById(String swissId);
+     /**
      * Get tournaments created by a given user of specified status.<br>
      * Tournaments are sorted by reverse chronological order of start date (last starting first).
      */
