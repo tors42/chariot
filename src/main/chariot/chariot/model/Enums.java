@@ -333,4 +333,26 @@ public interface Enums {
         public static Provider provider() {return new Provider(){};}
      }
 
+     enum PerfTypeWithFromPos {
+        antichess, atomic, blitz, bullet, chess960, classical, correspondence, crazyhouse, horde, kingOfTheHill, racingKings, rapid, threeCheck, ultraBullet, fromPosition;
+
+        public interface Provider {
+            default PerfTypeWithFromPos atomic()         { return atomic; }
+            default PerfTypeWithFromPos antichess()      { return antichess; }
+            default PerfTypeWithFromPos blitz()          { return blitz; }
+            default PerfTypeWithFromPos bullet()         { return bullet; }
+            default PerfTypeWithFromPos chess960()       { return chess960; }
+            default PerfTypeWithFromPos classical()      { return classical; }
+            default PerfTypeWithFromPos correspondence() { return correspondence; }
+            default PerfTypeWithFromPos crazyhouse()     { return crazyhouse; }
+            default PerfTypeWithFromPos horde()          { return horde; }
+            default PerfTypeWithFromPos kingOfTheHill()  { return kingOfTheHill; }
+            default PerfTypeWithFromPos racingKings()    { return racingKings; }
+            default PerfTypeWithFromPos rapid()          { return rapid; }
+            default PerfTypeWithFromPos threeCheck()     { return threeCheck; }
+            default PerfTypeWithFromPos ultraBullet()    { return ultraBullet; }
+        }
+        public static Provider provider() {return new Provider(){};}
+    }
+
 }

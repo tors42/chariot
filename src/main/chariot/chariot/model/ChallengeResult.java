@@ -4,6 +4,8 @@ import chariot.model.Enums.*;
 import chariot.internal.Util;
 import static chariot.internal.Util.orEmpty;
 
+import java.util.Optional;
+
 public sealed interface ChallengeResult extends Model
     permits ChallengeResult.ChallengeInfo, ChallengeResult.ChallengeAI, ChallengeResult.ChallengeOpenEnded, ChallengeResult.OpponentDecision  {
 
@@ -18,6 +20,7 @@ public sealed interface ChallengeResult extends Model
             Direction direction,
             TimeControl timeControl,
             ColorPref color,
+            Color finalColor,
             Variant variant,
             Player challenger,
             Player destUser,
@@ -32,39 +35,29 @@ public sealed interface ChallengeResult extends Model
 
     public record ChallengeAI(
             String id,
-            String moves,
             String speed,
             String perf,
             String source,
-            String status,
             boolean rated,
+            int turns,
+            int startedAtTurn,
             Long createdTime,
-            Long lastMoveTime,
-            VariantName variant,
-            Players players,
-            Opening opening,
-            Clock clock
+            Status status,
+            Variant variant,
+            Color player,
+            Optional<String> initialFen
             ) implements ChallengeResult {
 
             public ChallengeAI {
-                moves = orEmpty(moves);
                 source = orEmpty(source);
-                status = orEmpty(status);
             }
 
             public java.time.ZonedDateTime createdAt() {
                 return Util.fromLong(createdTime());
             }
 
-            public java.time.ZonedDateTime lastMoveAt() {
-                return Util.fromLong(lastMoveTime());
-            }
-
-            public record Players(Player white, Player black) {
-                public record Player(LightUser user, int rating, int ratingDiff) {}
-            }
-
-            public record Clock(int initial, int increment, int totalTime) {}
+            public record Variant(GameVariant key, String name, String shortname) {}
+            public record Status(int id, String name) {}
     }
 
     public record ChallengeOpenEnded(
