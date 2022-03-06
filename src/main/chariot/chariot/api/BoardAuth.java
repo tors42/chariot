@@ -1,9 +1,11 @@
 package chariot.api;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import chariot.model.Enums.*;
-
+import chariot.api.Builders.Clock;
+import chariot.api.Builders.ClockCorrespondence;
 import chariot.model.Ack;
 import chariot.model.ChatMessage;
 import chariot.model.Result;
@@ -49,7 +51,7 @@ public interface BoardAuth extends ChallengesAuthCommon {
      * Specify the days per turn value. The response is not streamed, it immediately completes with the seek ID.<br/>
      * The seek remains active on the server until it is joined by someone.<br/>
      */
-    Result<Ack> seek(Function<SeekBBuilder, SeekBuilder> params);
+    Result<Ack> seek(Consumer<SeekBuilder> params);
 
     /**
      * Stream the state of a game being played with the Board API
@@ -139,8 +141,8 @@ public interface BoardAuth extends ChallengesAuthCommon {
     /**
      * See {@link chariot.api.BoardAuth#seek}
      */
-     default Result<Ack> seek(DaysPerTurn daysPerTurn) {
-        return seek(params -> params.clock(daysPerTurn));
+     default Result<Ack> seek(int daysPerTurn) {
+        return seek(params -> params.daysPerTurn(daysPerTurn));
     }
 
     /**
@@ -173,55 +175,22 @@ public interface BoardAuth extends ChallengesAuthCommon {
 
 
 
-    interface SeekBBuilder {
-        /**
-         * Correspondence seek
-         * @param d
-         * <pre>
-         * ...
-         *      import chariot.model.Enums.DaysPerTurn;
-         *
-         *      var seek = client.board().seek(params -> params.clock(DaysPerTurn._1));
-         * ...
-         * </pre>
-         */
-        SeekBuilder clock(DaysPerTurn d);
+    interface SeekBuilder extends Clock<SeekParams>, ClockCorrespondence<SeekParams> {}
 
-        /**
-         * Correspondence seek
-         * @param d
-         * <pre>
-         * ...
-         *      var seek = client.board().seek(params -> params.clock(d -> d.one()));
-         * ...
-         * </pre>
-         */
-        default SeekBuilder clock(Function<DaysPerTurn.Provider, DaysPerTurn> d) { return clock(d.apply(DaysPerTurn.provider())); }
-
-
-        /**
-         * Real-time seek
-         * @param clockInitial Clock initial time in minutes [ 0 .. 180 ]
-         * @param clockIncrement Clock increment in seconds [ 0 .. 180 ]
-         */
-        SeekBuilder clock(int clockInitial, int clockIncrement);
-    }
-
-    interface SeekBuilder {
+    interface SeekParams {
         /**
          * @param color Which color you get to play,
          */
-        SeekBuilder color(ColorPref color);
-        default SeekBuilder color(Function<ColorPref.Provider, ColorPref> color) { return color(color.apply(ColorPref.provider())); }
+        SeekParams color(ColorPref color);
+        default SeekParams color(Function<ColorPref.Provider, ColorPref> color) { return color(color.apply(ColorPref.provider())); }
 
-        SeekBuilder variant(VariantName variant);
-        default SeekBuilder variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
-        SeekBuilder rated(boolean rated);
+        SeekParams variant(VariantName variant);
+        default SeekParams variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
+        SeekParams rated(boolean rated);
         /**
          * The rating range of potential opponents. Better left empty. Example: 1500-1800
          */
-        SeekBuilder ratingRange(String ratingRange);
-
+        SeekParams ratingRange(String ratingRange);
     }
 
 }

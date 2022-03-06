@@ -235,37 +235,30 @@ public interface Internal {
         default Result<Ack> joinArena(String id, String password) { return joinArena(id, Optional.of(password), Optional.empty()); }
         default Result<Ack> joinArenaForTeam(String id, String team) { return joinArena(id, Optional.empty(), Optional.of(team)); }
         default Result<Ack> joinArenaForTeam(String id, String team, String password) { return joinArena(id, Optional.of(password), Optional.of(team)); }
-        default Result<Arena> createArena(Function<chariot.api.TournamentsAuth.ArenaBBuilder, chariot.api.TournamentsAuth.ArenaBuilder> params) { return createArena(ArenaParameters.of(params)); }
-        default Result<Arena> updateArena(String id, Function<chariot.api.TournamentsAuth.ArenaBBuilder, chariot.api.TournamentsAuth.ArenaBuilder> params) { return updateArena(id, ArenaParameters.of(params)); }
-        default Result<Swiss> createSwiss(String teamId, Function<chariot.api.TournamentsAuth.SwissBBuilder, chariot.api.TournamentsAuth.SwissBuilder> params) { return createSwiss(teamId, SwissParameters.of(params)); }
-        default Result<Swiss> updateSwiss(String id, Function<chariot.api.TournamentsAuth.SwissBBuilder, chariot.api.TournamentsAuth.SwissBuilder> params) { return updateSwiss(id, SwissParameters.of(params)); }
+        default Result<Arena> createArena(Consumer<chariot.api.TournamentsAuth.ArenaBuilder> params) { return createArena(ArenaParameters.of(params)); }
+        default Result<Arena> updateArena(String id, Consumer<chariot.api.TournamentsAuth.ArenaBuilder> params) { return updateArena(id, ArenaParameters.of(params)); }
+        default Result<Swiss> createSwiss(String teamId, Consumer<chariot.api.TournamentsAuth.SwissBuilder> params) { return createSwiss(teamId, SwissParameters.of(params)); }
+        default Result<Swiss> updateSwiss(String id, Consumer<chariot.api.TournamentsAuth.SwissBuilder> params) { return updateSwiss(id, SwissParameters.of(params)); }
         default Result<Arena> updateTeamBattle(String id, int nbLeaders, String... teamIds) { return updateTeamBattle(id, nbLeaders, Set.of(teamIds)); }
 
         sealed interface ArenaParameters {
                 record Parameters(Map<String,Object> params) implements ArenaParameters { }
-                public static ArenaParameters of(Function<ArenaBBuilder, ArenaBuilder> function) {
+                public static ArenaParameters of(Consumer<ArenaBuilder> consumer) {
 
-                var arenabbuilder = new ArenaBBuilder() {
+                var arenaBuilder = new ArenaBuilder() {
                     MapBuilder builder = new MapBuilder();
-                    public ArenaBuilder clock(ClockInitial clockInitial, int clockIncrement, int arenaMinutes) {
 
-                        Objects.requireNonNull(clockInitial);
-                        if (clockIncrement < 0 || clockIncrement > 180) {
-                            throw new IllegalArgumentException("clock.increment [" + clockIncrement + "] not allowed. Must be [ 0 .. 180 ]");
-                        }
-                        if (clockInitial == ClockInitial._0 && clockIncrement == 0) {
-                            throw new IllegalArgumentException("clock.initial and clock.increment can't both be 0");
-                        }
-                        if (arenaMinutes < 0 || arenaMinutes > 360) throw new RuntimeException("minutes [%d] must be between [ 0 .. 360 ]".formatted(arenaMinutes));
+                    @Override
+                    public ArenaParams clock(int initial, int increment) {
 
                         builder.addCustomHandler("startTime", (args, map) -> {
                             @SuppressWarnings("unchecked")
-                            var startTime = (Function<ArenaBuilder.StartTime.Provider, ArenaBuilder.StartTime>) args[0];
+                            var startTime = (Function<ArenaParams.StartTime.Provider, ArenaParams.StartTime>) args[0];
 
-                            var time = startTime.apply(ArenaBuilder.StartTime.provider());
-                            if (time instanceof ArenaBuilder.StartTime.InMinutes m) {
+                            var time = startTime.apply(ArenaParams.StartTime.provider());
+                            if (time instanceof ArenaParams.StartTime.InMinutes m) {
                                 map.put("waitMinutes", m.waitMinutes());
-                            } else if (time instanceof ArenaBuilder.StartTime.AtDate d) {
+                            } else if (time instanceof ArenaParams.StartTime.AtDate d) {
                                 map.put("startDate", d.startDate());
                             }
                         });
@@ -276,21 +269,20 @@ public interface Internal {
                         builder.addCustomHandler("entryCode", (args, map) -> { map.put("password", args[0]); });
 
                         var map = builder.getMap();
-                        var proxy = builder.of(ArenaBuilder.class);
+                        var proxy = builder.of(ArenaParams.class);
 
-                        map.put("clockTime", clockInitial.minutes);
-                        map.put("clockIncrement", clockIncrement);
-                        map.put("minutes", arenaMinutes);
+                        map.put("clockTime", initial * 60);
+                        map.put("clockIncrement", increment);
+                        // Default duration
+                        map.put("minutes", 60 + 40);
 
                         return proxy;
-
                     }
                 };
 
-                @SuppressWarnings("unused")
-                var builder = function.apply(arenabbuilder);
+                consumer.accept(arenaBuilder);
 
-                return new Parameters(arenabbuilder.builder.getMap());
+                return new Parameters(arenaBuilder.builder.getMap());
             }
         }
 
@@ -302,52 +294,47 @@ public interface Internal {
                 else
                     return Map.of();
             }
-            public static SwissParameters of(Function<SwissBBuilder, SwissBuilder> function) {
-                var swissbbuilder = new SwissBBuilder() {
-                    MapBuilder builder = new MapBuilder();
+            public static SwissParameters of(Consumer<SwissBuilder> consumer) {
+                var swissBuilder = new SwissBuilder() {
+                    MapBuilder mapBuilder = new MapBuilder();
 
-                    public SwissBuilder clock(int clockInitial, int clockIncrement) {
-                        if (clockInitial < 0 || clockInitial > 3600)
-                            throw new IllegalArgumentException("clockInitial [" + clockInitial + "] not allowed. Must be [ 0 .. 3600 ]");
-                        if (clockIncrement < 0 || clockIncrement > 600)
-                            throw new IllegalArgumentException("clockIncrement [" + clockIncrement + "] not allowed. Must be [ 0 .. 600 ]");
-                        if (clockInitial == 0 && clockIncrement == 0)
-                            throw new IllegalArgumentException("clockInitial and clockIncrement can't both be 0");
+                    @Override
+                    public SwissParams clock(int initial, int increment) {
 
-                        builder.addCustomHandler("nbRounds", (args, map) -> {
+                        mapBuilder.addCustomHandler("nbRounds", (args, map) -> {
                             int nbRounds = (int) args[0];
                             if (nbRounds < 3 || nbRounds > 100)
                                 throw new IllegalArgumentException("nbRounds [" + nbRounds + "] not allowed. Must be [ 3 .. 100 ]");
                             map.put("nbRounds", nbRounds);
                         });
-                        builder.addCustomHandler("roundInterval", (args, map) -> {
+                        mapBuilder.addCustomHandler("roundInterval", (args, map) -> {
                             int roundInterval = (int) args[0];
                             if (roundInterval < 0 || roundInterval > 86400)
                                 if (roundInterval != 99999999)
                                     throw new IllegalArgumentException("roundInterval [" + roundInterval + "] not allowed. Must be [ 0 .. 86400 ] or 99999999");
                             map.put("roundInterval", roundInterval);
                         });
-                        builder.addCustomHandler("chatFor", (args, map) -> {
+                        mapBuilder.addCustomHandler("chatFor", (args, map) -> {
                             var chatFor = (ChatFor) args[0];
                             Objects.requireNonNull(chatFor);
                             map.put("chatFor", chatFor.id);
                         });
-                        builder.addCustomHandler("entryCode", (args, map) -> { map.put("password", args[0]); });
+                        mapBuilder.addCustomHandler("entryCode", (args, map) -> { map.put("password", args[0]); });
 
-                        var map = builder.getMap();
+                        var map = mapBuilder.getMap();
+                        map.put("clock.limit", initial);
+                        map.put("clock.increment", increment);
+                        // Default rounds
                         map.put("nbRounds", 9);
-                        map.put("clock.limit", clockInitial);
-                        map.put("clock.increment", clockIncrement);
 
-                        var swissBuilder = builder.of(SwissBuilder.class);
+                        var swissBuilder = mapBuilder.of(SwissParams.class);
                         return swissBuilder;
                     }
                 };
 
-                @SuppressWarnings("unused")
-                var builder = function.apply(swissbbuilder);
+                consumer.accept(swissBuilder);
 
-                return new Parameters(swissbbuilder.builder.getMap());
+                return new Parameters(swissBuilder.mapBuilder.getMap());
             }
         }
     }
@@ -356,10 +343,9 @@ public interface Internal {
 
         Result<ChallengeOpenEnded> challengeOpenEnded(ChallengeOpenEndedParameters parameters);
 
-        default Result<ChallengeOpenEnded> challengeOpenEnded(Function<OpenEndedBBuilder, OpenEndedBuilder> params) {
-            return challengeOpenEnded(ChallengeOpenEndedParameters.of(params));
+        default Result<ChallengeOpenEnded> challengeOpenEnded(Consumer<OpenEndedBuilder> consumer) {
+            return challengeOpenEnded(ChallengeOpenEndedParameters.of(consumer));
         }
-
 
         sealed interface ChallengeOpenEndedParameters {
             record Parameters(Map<String, Object> params) implements ChallengeOpenEndedParameters { }
@@ -374,38 +360,29 @@ public interface Internal {
                     return Map.of();
             }
 
-            public static ChallengeOpenEndedParameters of(Function<OpenEndedBBuilder, OpenEndedBuilder> params) {
-                var builder = params.apply(BBuilder.builder());
-                if (builder instanceof Builder b) return b.build(); else return new Parameters(Map.of());
-            }
+            public static ChallengeOpenEndedParameters of(Consumer<OpenEndedBuilder> consumer) {
 
-            public class BBuilder implements OpenEndedBBuilder {
-                private BBuilder() {}
-                private static BBuilder builder() { return new BBuilder(); }
-                public Builder clock(int clockInitial, int clockIncrement) { return new Builder(clockInitial, clockIncrement); }
-            }
+                var bbuilder = new OpenEndedBuilder() {
+                    MapBuilder builder = new MapBuilder();
+                    @Override
+                    public OpenEndedParams clock(int initial, int increment) {
+                        var map = builder.getMap();
+                        var proxy = builder.of(OpenEndedParams.class);
+                        map.put("clock.limit", initial);
+                        map.put("clock.increment", increment);
+                        return proxy;
+                    }
 
-            public class Builder implements OpenEndedBuilder{
-                private Map<String, Object> map = new HashMap<>();
-                private Builder(int clockInitial, int clockIncrement) {
-                    if (clockInitial < 0 || clockInitial > 10800) {
-                        throw new IllegalArgumentException("clock.initial [" + clockInitial + "] not allowed. Must be [ 0 .. 10800 ]");
+                    @Override
+                    public OpenEndedParams daysPerTurn(int daysPerTurn) {
+                        var map = builder.getMap();
+                        var proxy = builder.of(OpenEndedParams.class);
+                        map.put("days", daysPerTurn);
+                        return proxy;
                     }
-                    if (clockIncrement < 0 || clockIncrement > 60) {
-                        throw new IllegalArgumentException("clock.increment [" + clockIncrement + "] not allowed. Must be [ 0 .. 60 ]");
-                    }
-                    if (clockInitial == 0 && clockIncrement == 0) {
-                        throw new IllegalArgumentException("clock.initial and clock.increment can't both be 0");
-                    }
-                    map.put("clock.limit", clockInitial);
-                    map.put("clock.increment", clockIncrement);
-                }
-                private ChallengeOpenEndedParameters build() { return new Parameters(map); }
-                public Builder rated(boolean rated) { map.put("rated", rated); return this; }
-                public Builder variant(VariantName variant) { Objects.requireNonNull(variant); map.put("variant", variant); return this; }
-                public Builder variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
-                public Builder fen(String fen) { Objects.requireNonNull(fen); map.put("fen", fen); return this; }
-                public Builder name(String name) { Objects.requireNonNull(name); map.put("name", name); return this; }
+                };
+                consumer.accept(bbuilder);
+                return new Parameters(bbuilder.builder.getMap());
             }
         }
     }
@@ -502,12 +479,12 @@ public interface Internal {
 
 
         // "Implementation" of ChallengesAuthCommon
-        default Result<Challenge> challenge(String userId, Function<ChallengeBBuilder, ChallengeBuilder> params) {
+        default Result<Challenge> challenge(String userId, Consumer<ChallengeBuilder> params) {
             return challenge(userId, InternalChallengeParameters.of(params));
         }
 
-        default Result<ChallengeAI> challengeAI(Function<ChallengeAIBBuilder, ChallengeAIBuilder> params) {
-            return challengeAI(InternalChallengeAIParameters.of(params));
+        default Result<ChallengeAI> challengeAI(Consumer<ChallengeAIBuilder> consumer) {
+            return challengeAI(InternalChallengeAIParameters.of(consumer));
         }
 
         default Result<Ack> cancelChallenge(String challengeId) {
@@ -540,57 +517,41 @@ public interface Internal {
                     return Map.of();
             }
 
-            public static InternalChallengeParameters of(Function<ChallengeBBuilder, ChallengeBuilder> params) {
-                var builder = params.apply(BBuilder.builder());
-                if (builder instanceof Builder b) return b.build(); else return new Parameters(Map.of());
-            }
+            public static InternalChallengeParameters of(Consumer<ChallengeBuilder> consumer) {
+                var bbuilder = new ChallengeBuilder() {
+                    MapBuilder builder = new MapBuilder();
 
-            public class BBuilder implements ChallengeBBuilder {
-                private BBuilder() {}
-                private static BBuilder builder() { return new BBuilder(); }
-                public Builder clock(DaysPerTurn d) { return new Builder(d); }
-                public Builder clock(int clockInitial, int clockIncrement) { return new Builder(clockInitial, clockIncrement); }
-            }
-
-            public class Builder implements ChallengeBuilder {
-
-                private Map<String, Object> map = new HashMap<>();
-
-                private Builder(DaysPerTurn daysPerTurn) {
-                    Objects.requireNonNull(daysPerTurn);
-                    map.put("days", daysPerTurn.days);
-                }
-
-                private Builder(int clockInitial, int clockIncrement) {
-                    if (clockInitial < 0 || clockInitial > 10800) {
-                        throw new IllegalArgumentException("clock.initial [" + clockInitial + "] not allowed. Must be [ 0 .. 10800 ]");
+                    private void init() {
+                        builder.addCustomHandler("acceptByToken", (args, map) -> {
+                            map.put("acceptByToken", args[0]);
+                            if (args.length == 2) {
+                                map.put("message", args[1]);
+                            }
+                        });
                     }
-                    if (clockIncrement < 0 || clockIncrement > 60) {
-                        throw new IllegalArgumentException("clock.increment [" + clockIncrement + "] not allowed. Must be [ 0 .. 60 ]");
+
+                    @Override
+                    public ChallengeParams clock(int initial, int increment) {
+                        init();
+                        var map = builder.getMap();
+                        var proxy = builder.of(ChallengeParams.class);
+                        map.put("clock.limit", initial);
+                        map.put("clock.increment", increment);
+                        return proxy;
                     }
-                    if (clockInitial == 0 && clockIncrement == 0) {
-                        throw new IllegalArgumentException("clock.initial and clock.increment can't both be 0");
+
+                    @Override
+                    public ChallengeParams daysPerTurn(int daysPerTurn) {
+                        init();
+                        var map = builder.getMap();
+                        var proxy = builder.of(ChallengeParams.class);
+                        map.put("days", daysPerTurn);
+                        return proxy;
                     }
-                    map.put("clock.limit", clockInitial);
-                    map.put("clock.increment", clockIncrement);
-                }
-                private InternalChallengeParameters build() { return new Parameters(map); }
-                public Builder rated(boolean rated) { map.put("rated", rated); return this; }
-                public Builder color(ColorPref color) { Objects.requireNonNull(color); map.put("color", color); return this; }
-                public Builder variant(VariantName variant) { Objects.requireNonNull(variant); map.put("variant", variant); return this; }
-                public Builder fen(String fen) { Objects.requireNonNull(fen); map.put("fen", fen); return this; }
-                public Builder keepAliveStream(boolean keepAliveStream) { map.put("keepAliveStream", keepAliveStream); return this; }
-                public Builder acceptByToken(String acceptByToken) { Objects.requireNonNull(acceptByToken); map.put("acceptByToken", acceptByToken); return this; }
-                public Builder acceptByToken(String acceptByToken, String message) {
-                    Objects.requireNonNull(acceptByToken);
-                    Objects.requireNonNull(message);
-                    if (! message.contains("{game}")) {
-                        throw new IllegalArgumentException("message must conntain {game}");
-                    }
-                    map.put("acceptByToken", acceptByToken);
-                    map.put("message", message);
-                    return this;
-                }
+                };
+
+                consumer.accept(bbuilder);
+                return new Parameters(bbuilder.builder.getMap());
             }
         }
 
@@ -604,45 +565,31 @@ public interface Internal {
                 else
                     return Map.of();
             }
-            public static InternalChallengeAIParameters of(Function<ChallengeAIBBuilder, ChallengeAIBuilder> params) {
-                var builder = params.apply(BBuilder.builder());
-                if (builder instanceof Builder b) return b.build(); else return new Parameters(Map.of());
-            }
-            public class BBuilder implements ChallengeAIBBuilder {
-                private BBuilder() {}
-                private static BBuilder builder() { return new BBuilder(); }
-                public Builder clock(DaysPerTurn d) { return new Builder(Level._1, d); }
-                public Builder clock(int clockInitial, int clockIncrement) { return new Builder(Level._1, clockInitial, clockIncrement); }
-            }
+            public static InternalChallengeAIParameters of(Consumer<ChallengeAIBuilder> consumer) {
+                var bbuilder = new ChallengeAIBuilder() {
+                    MapBuilder builder = new MapBuilder();
 
-            public class Builder implements ChallengeAIBuilder {
-                private Map<String, Object> map = new HashMap<>();
-                private Builder(Level level, DaysPerTurn daysPerTurn) {
-                    Objects.requireNonNull(level);
-                    Objects.requireNonNull(daysPerTurn);
-                    map.put("level", level.level);
-                    map.put("days", daysPerTurn.days);
-                }
-                private Builder(Level level, int clockInitial, int clockIncrement) {
-                    Objects.requireNonNull(level);
-                    if (clockInitial < 0 || clockInitial > 10800) {
-                        throw new IllegalArgumentException("clock.initial [" + clockInitial + "] not allowed. Must be [ 0 .. 10800 ]");
+                    @Override
+                    public ChallengeAIParams clock(int initial, int increment) {
+                        var map = builder.getMap();
+                        var proxy = builder.of(ChallengeAIParams.class);
+                        map.put("clock.limit", initial);
+                        map.put("clock.increment", increment);
+                        map.put("level", 1);
+                        return proxy;
                     }
-                    if (clockIncrement < 0 || clockIncrement > 60) {
-                        throw new IllegalArgumentException("clock.increment [" + clockIncrement + "] not allowed. Must be [ 0 .. 60 ]");
+
+                    @Override
+                    public ChallengeAIParams daysPerTurn(int daysPerTurn) {
+                        var map = builder.getMap();
+                        var proxy = builder.of(ChallengeAIParams.class);
+                        map.put("days", daysPerTurn);
+                        map.put("level", 1);
+                        return proxy;
                     }
-                    if (clockInitial == 0 && clockIncrement == 0) {
-                        throw new IllegalArgumentException("clock.initial and clock.increment can't both be 0");
-                    }
-                    map.put("level", level.level);
-                    map.put("clock.limit", clockInitial);
-                    map.put("clock.increment", clockIncrement);
-                }
-                private InternalChallengeAIParameters build() { return new Parameters(map); }
-                public Builder level(Level level) { Objects.requireNonNull(level); map.put("level", level.level); return this; }
-                public Builder color(ColorPref color) { Objects.requireNonNull(color); map.put("color", color); return this; }
-                public Builder variant(VariantName variant) { Objects.requireNonNull(variant); map.put("variant", variant); return this; }
-                public Builder fen(String fen) { Objects.requireNonNull(fen); map.put("fen", fen); return this; }
+                };
+                consumer.accept(bbuilder);
+                return new Parameters(bbuilder.builder.getMap());
             }
         }
     }
@@ -671,18 +618,9 @@ public interface Internal {
         Result<Ack> seek(SeekParameters params);
         Result<Ack> move(String gameId, String move, Optional<Boolean> drawOffer);
 
-        default Result<Ack> move(String gameId, String move) {
-            return move(gameId, move, Optional.empty());
-        }
-
-        default Result<Ack> move(String gameId, String move, boolean drawOffer) {
-            return move(gameId, move, Optional.of(drawOffer));
-        }
-
-
-        default Result<Ack> seek(Function<SeekBBuilder, SeekBuilder> params) {
-            return seek(SeekParameters.of(params));
-        }
+        default Result<Ack> move(String gameId, String move) { return move(gameId, move, Optional.empty()); }
+        default Result<Ack> move(String gameId, String move, boolean drawOffer) { return move(gameId, move, Optional.of(drawOffer)); }
+        default Result<Ack> seek(Consumer<SeekBuilder> consumer) { return seek(SeekParameters.of(consumer)); }
 
         sealed interface SeekParameters {
             public record Parameters(Map<String, Object> params) implements SeekParameters { }
@@ -693,42 +631,28 @@ public interface Internal {
                     return Map.of();
             }
 
-            public static SeekParameters of(Function<SeekBBuilder, SeekBuilder> params) {
-                var builder = params.apply(BBuilder.builder());
-                if (builder instanceof Builder b) return b.build(); else return new Parameters(Map.of());
-            }
+            public static SeekParameters of(Consumer<SeekBuilder> consumer) {
+                var bbuilder = new SeekBuilder() {
+                    MapBuilder builder = new MapBuilder();
+                    @Override
+                    public SeekParams clock(int initial, int increment) {
+                        var map = builder.getMap();
+                        var proxy = builder.of(SeekParams.class);
+                        map.put("time", initial);
+                        map.put("increment", increment);
+                        return proxy;
+                    }
 
-            public class BBuilder implements SeekBBuilder {
-                private BBuilder() {}
-                private static BBuilder builder() { return new BBuilder(); }
-                public Builder clock(DaysPerTurn d) { return new Builder(d); }
-                public Builder clock(int clockInitial, int clockIncrement) { return new Builder(clockInitial, clockIncrement); }
-            }
-
-            public class Builder implements SeekBuilder {
-                private Map<String, Object> map = new HashMap<>();
-                private Builder(DaysPerTurn daysPerTurn) {
-                    Objects.requireNonNull(daysPerTurn);
-                    map.put("days", daysPerTurn.days);
-                }
-                private Builder(int clockInitial, int clockIncrement) {
-                    if (clockInitial < 0 || clockInitial > 180) {
-                        throw new IllegalArgumentException("clock.initial [" + clockInitial + "] not allowed. Must be [ 0 .. 180 ]");
+                    @Override
+                    public SeekParams daysPerTurn(int daysPerTurn) {
+                        var map = builder.getMap();
+                        var proxy = builder.of(SeekParams.class);
+                        map.put("days", daysPerTurn);
+                        return proxy;
                     }
-                    if (clockIncrement < 0 || clockIncrement > 180) {
-                        throw new IllegalArgumentException("clock.increment [" + clockIncrement + "] not allowed. Must be [ 0 .. 180 ]");
-                    }
-                    if (clockInitial == 0 && clockIncrement == 0) {
-                        throw new IllegalArgumentException("clock.initial and clock.increment can't both be 0");
-                    }
-                    map.put("time", clockInitial);
-                    map.put("increment", clockIncrement);
-                }
-                private SeekParameters build() { return new Parameters(map); }
-                public Builder color(ColorPref color) { Objects.requireNonNull(color); map.put("color", color); return this; }
-                public Builder variant(VariantName variant) { Objects.requireNonNull(variant); map.put("variant", variant); return this; }
-                public Builder rated(boolean rated) { map.put("rated", rated); return this; }
-                public Builder ratingRange(String ratingRange) { map.put("ratingRange", ratingRange); return this; }
+                };
+                consumer.accept(bbuilder);
+                return new Parameters(bbuilder.builder.getMap());
             }
         }
     }

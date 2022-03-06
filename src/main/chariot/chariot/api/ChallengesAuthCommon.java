@@ -1,9 +1,12 @@
 package chariot.api;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import chariot.model.Enums.*;
+import chariot.api.Builders.Clock;
+import chariot.api.Builders.ClockCorrespondence;
 import chariot.model.Ack;
 import chariot.model.ChallengeResult.ChallengeAI;
 import chariot.model.ChallengeResult.Challenge;
@@ -13,8 +16,8 @@ import chariot.model.StreamEvent;
 public interface ChallengesAuthCommon {
 
     Result<StreamEvent> streamEvents();
-    Result<Challenge>   challenge(String userId, Function<ChallengeBBuilder, ChallengeBuilder> params);
-    Result<ChallengeAI> challengeAI(Function<ChallengeAIBBuilder, ChallengeAIBuilder> params);
+    Result<Challenge>   challenge(String userId, Consumer<ChallengeBuilder> params);
+    Result<ChallengeAI> challengeAI(Consumer<ChallengeAIBuilder> params);
     Result<Ack>         cancelChallenge(String challengeId);
     Result<Ack>         cancelChallenge(String challengeId, Supplier<char[]> opponentToken);
     Result<Ack>         acceptChallenge(String challengeId);
@@ -25,38 +28,22 @@ public interface ChallengesAuthCommon {
         return declineChallenge(challengeId, reason.apply(DeclineReason.provider()));
     }
 
-    interface ChallengeBBuilder {
-        /**
-         * Correspondence challenge
-         * @param d
-         */
-        ChallengeBuilder clock(DaysPerTurn d);
+    interface ChallengeBuilder extends Clock<ChallengeParams>, ClockCorrespondence<ChallengeParams> {}
 
-        /**
-         * Real-time challenge
-         * @param clockInitial Clock initial time in seconds [ 0 .. 10800 ]
-         * @param clockIncrement Clock increment in seconds [ 0 .. 60 ]
-         */
-        ChallengeBuilder clock(int clockInitial, int clockIncrement);
+    interface ChallengeParams {
 
-
-        default ChallengeBuilder clock(Function<DaysPerTurn.Provider, DaysPerTurn> d) { return clock(d.apply(DaysPerTurn.provider())); }
-    }
-
-    interface ChallengeBuilder {
-
-        ChallengeBuilder rated(boolean rated);
+        ChallengeParams rated(boolean rated);
 
         /**
          * @param color Which color you get to play,
          * if the challenge is accepted.
          */
-        ChallengeBuilder color(ColorPref color);
+        ChallengeParams color(ColorPref color);
 
         /**
          * @param variant The variant to use in games
          */
-        ChallengeBuilder variant(VariantName variant);
+        ChallengeParams variant(VariantName variant);
 
         /**
          * @param fen Custom initial position (in FEN).
@@ -64,7 +51,7 @@ public interface ChallengesAuthCommon {
          * Variant must be standard, and the game cannot be rated.<br/>
          * Castling moves will use UCI_Chess960 notation, for example <code>e1h1</code> instead of <code>e1g1</code>.<br/>
          */
-        ChallengeBuilder fen(String fen);
+        ChallengeParams fen(String fen);
 
         /**
          * @param keepAliveStream If set, the response is streamed. The challenge is kept alive
@@ -75,7 +62,7 @@ public interface ChallengesAuthCommon {
          * a message of the form {"done":"accepted"} is sent, then the connection is closed by the server -
          * but this info will be silently dropped - you will still receive this info at {@link #streamEvents()}
          */
-        ChallengeBuilder keepAliveStream(boolean keepAliveStream);
+        ChallengeParams keepAliveStream(boolean keepAliveStream);
 
         /**
          * Immediately accept the challenge and create the game.
@@ -83,7 +70,7 @@ public interface ChallengesAuthCommon {
          * <p>On success, the response will contain a game field instead of a challenge field.<br/>
          * Alternatively, consider the bulk pairing API.
          */
-        ChallengeBuilder acceptByToken(String acceptByToken);
+        ChallengeParams acceptByToken(String acceptByToken);
 
         /**
          * Immediately accept the challenge and create the game.
@@ -99,48 +86,31 @@ public interface ChallengesAuthCommon {
          * You can omit this field to send the default message - see <code>acceptByToken(String acceptByToken)</code>,
          * but if you set your own message, it must at least contain the {game} placeholder.
          */
-        ChallengeBuilder acceptByToken(String acceptByToken, String message);
+        ChallengeParams acceptByToken(String acceptByToken, String message);
 
 
-        default ChallengeBuilder color(Function<ColorPref.Provider, ColorPref> color) { return color(color.apply(ColorPref.provider())); }
-        default ChallengeBuilder variant(Function<VariantName.Provider, VariantName> variant) {return variant(variant.apply(VariantName.provider())); }
+        default ChallengeParams color(Function<ColorPref.Provider, ColorPref> color) { return color(color.apply(ColorPref.provider())); }
+        default ChallengeParams variant(Function<VariantName.Provider, VariantName> variant) {return variant(variant.apply(VariantName.provider())); }
     }
 
 
-    interface ChallengeAIBBuilder {
-        /**
-         * Correspondence challenge
-         * @param d
-         */
-        ChallengeAIBuilder clock(DaysPerTurn d);
+    interface ChallengeAIBuilder extends Clock<ChallengeAIParams>, ClockCorrespondence<ChallengeAIParams> {}
 
-        /**
-         * Real-time challenge
-         * @param clockInitial Clock initial time in seconds [ 0 .. 10800 ]
-         * @param clockIncrement Clock increment in seconds [ 0 .. 60 ]
-         */
-        ChallengeAIBuilder clock(int clockInitial, int clockIncrement);
-
-
-        default ChallengeAIBuilder clock(Function<DaysPerTurn.Provider, DaysPerTurn> d) { return clock(d.apply(DaysPerTurn.provider())); }
-
-    }
-
-    interface ChallengeAIBuilder {
+    interface ChallengeAIParams {
 
         /**
          * @param level AI strength
          */
-        ChallengeAIBuilder level(Level level);
+        ChallengeAIParams level(Level level);
 
         /**
          * @param color Which color you get to play,
          * if the challenge is accepted.
          */
-        ChallengeAIBuilder color(ColorPref color);
+        ChallengeAIParams color(ColorPref color);
 
 
-        ChallengeAIBuilder variant(VariantName variant);
+        ChallengeAIParams variant(VariantName variant);
 
         /**
          * @param fen Custom initial position (in FEN).
@@ -148,12 +118,12 @@ public interface ChallengesAuthCommon {
          * Variant must be standard, and the game cannot be rated.<br/>
          * Castling moves will use UCI_Chess960 notation, for example <code>e1h1</code> instead of <code>e1g1</code>.<br/>
          */
-        ChallengeAIBuilder fen(String fen);
+        ChallengeAIParams fen(String fen);
 
 
-        default ChallengeAIBuilder level(Function<Level.Provider, Level> level) { return level(level.apply(Level.provider())); }
-        default ChallengeAIBuilder color(Function<ColorPref.Provider, ColorPref> color) { return color(color.apply(ColorPref.provider())); }
-        default ChallengeAIBuilder variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); };
+        default ChallengeAIParams level(Function<Level.Provider, Level> level) { return level(level.apply(Level.provider())); }
+        default ChallengeAIParams color(Function<ColorPref.Provider, ColorPref> color) { return color(color.apply(ColorPref.provider())); }
+        default ChallengeAIParams variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); };
     }
 
 }

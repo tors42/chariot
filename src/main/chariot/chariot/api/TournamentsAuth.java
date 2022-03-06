@@ -3,8 +3,10 @@ package chariot.api;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
+import chariot.api.Builders.Clock;
 import chariot.internal.Util;
 import chariot.model.Ack;
 import chariot.model.Arena;
@@ -14,12 +16,12 @@ import chariot.model.Swiss;
 
 public interface TournamentsAuth extends Tournaments {
 
-    Result<Arena> createArena(Function<ArenaBBuilder, ArenaBuilder> params);
-    Result<Arena> updateArena(String id, Function<ArenaBBuilder, ArenaBuilder> params);
+    Result<Arena> createArena(Consumer<ArenaBuilder> params);
+    Result<Arena> updateArena(String id, Consumer<ArenaBuilder> params);
     Result<Arena> updateTeamBattle(String id, int nbLeaders, String... teamIds);
     Result<Arena> updateTeamBattle(String id, int nbLeaders, Set<String> teamIds);
     Result<Ack>   terminateArena(String id);
-    Result<Swiss> createSwiss(String teamId, Function<SwissBBuilder, SwissBuilder> params);
+    Result<Swiss> createSwiss(String teamId, Consumer<SwissBuilder> params);
     /**
      * Update a Swiss tournament.<br>
      * Be mindful not to make important changes to ongoing tournaments.
@@ -33,7 +35,7 @@ public interface TournamentsAuth extends Tournaments {
      * }</pre>
      *
      */
-    Result<Swiss> updateSwiss(String id, Function<SwissBBuilder, SwissBuilder> params);
+    Result<Swiss> updateSwiss(String id, Consumer<SwissBuilder> params);
     Result<Ack>   terminateSwiss(String swissId);
 
     Result<Ack>   joinArena(String id);
@@ -76,66 +78,59 @@ public interface TournamentsAuth extends Tournaments {
         return Util.generateUserEntryCodes(tournamentEntryCode, Set.of(userId)).get(userId);
     }
 
-    interface ArenaBBuilder {
-        /**
-         * @param clockInitial Clock initial time in minutes
-         * @param clockIncrement Clock increment in seconds [ 0 .. 60 ]
-         * @param arenaMinutes How long the tournament lasts, in minutes [ 0 .. 360 ]
-         */
-        ArenaBuilder clock(ClockInitial clockInitial, int clockIncrement, int arenaMinutes);
+    interface ArenaBuilder extends Clock<ArenaParams> {}
 
-        /**
-         * {@link chariot.api.TournamentsAuth.ArenaBBuilder#clock}
-         */
-        default ArenaBuilder clock(Function<ClockInitial.Provider, ClockInitial> clockInitial, int clockIncrement, int arenaMinutes) { return clock(clockInitial.apply(ClockInitial.provider()), clockIncrement, arenaMinutes); }
-    }
-
-    interface ArenaBuilder {
+    interface ArenaParams {
 
         /**
          * @param name The tournament name. Leave empty to get a random Grandmaster name
          */
-        ArenaBuilder name(String name);
+        ArenaParams name(String name);
+
+        /**
+         * @param minutes How long the tournament lasts, in minutes [ 0 .. 360 ] Default: 100 minutes
+         */
+        ArenaParams minutes(int minutes);
 
         /**
          * @param startTime When the tournament starts. Skipping this parameter defaults to in 5 minutes.
          */
-        ArenaBuilder startTime(Function<StartTime.Provider, StartTime> startTime);
+        ArenaParams startTime(Function<StartTime.Provider, StartTime> startTime);
 
         /**
          * @param variant The variant to use in tournament games
          */
-        ArenaBuilder variant(VariantName variant);
+        ArenaParams variant(VariantName variant);
 
         /**
          * @param rated Games are rated and impact players ratings
          */
-        ArenaBuilder rated(boolean rated);
+        ArenaParams rated(boolean rated);
 
         /**
          * @param position Custom initial position (in FEN) for all games of the tournament. Must be a legal chess position. Only works with standard chess, not variants (except Chess960).
          */
-        ArenaBuilder position(String position);
+        ArenaParams position(String position);
 
         /**
          * @param berserkable  Whether the players can use berserk
          */
-        ArenaBuilder berserkable(boolean berserkable);
+        ArenaParams berserkable(boolean berserkable);
 
         /**
          * @param streakable After 2 wins, consecutive wins grant 4 points instead of 2.
          */
-        ArenaBuilder streakable(boolean streakable);
+        ArenaParams streakable(boolean streakable);
 
         /**
          * @param hasChat Whether the players can discuss in a chat
          */
-        ArenaBuilder hasChat(boolean hasChat);
+        ArenaParams hasChat(boolean hasChat);
 
         /**
          * @param description Anything you want to tell players about the tournament
          */
-        ArenaBuilder description(String description);
+        ArenaParams description(String description);
 
         /**
          * Make the tournament private, and restrict access with a entry code.<br>
@@ -143,35 +138,35 @@ public interface TournamentsAuth extends Tournaments {
          * or you could use it to create user-specific entry codes which you can share - see {@link TournamentsAuth#generateUserEntryCodes(String, Set)}.<br>
          * @param entryCode
          */
-        ArenaBuilder entryCode(String entryCode);
+        ArenaParams entryCode(String entryCode);
 
         @Deprecated
-        default ArenaBuilder password(String entryCode) { return entryCode(entryCode); }
+        default ArenaParams password(String entryCode) { return entryCode(entryCode); }
 
         /**
          * @param teamBattleByTeam Set the ID of a team you lead to create a team battle. The other teams can be added using the team battle edit endpoint.
          */
-        ArenaBuilder teamBattleByTeam(String teamBattleByTeam);
+        ArenaParams teamBattleByTeam(String teamBattleByTeam);
 
         /**
          * @param conditionTeam Restrict entry to members of a team. The teamId is the last part of a team URL, e.g. https://lichess.org/team/coders has teamId = coders.
          */
-        ArenaBuilder conditionTeam(String conditionTeam);
+        ArenaParams conditionTeam(String conditionTeam);
 
         /**
          * @param conditionMinRating Minimum rating to join.
          */
-        ArenaBuilder conditionMinRating(int conditionMinRating);
+        ArenaParams conditionMinRating(int conditionMinRating);
 
         /**
          * @param conditionMaxRating Maximum rating to join. Based on best rating reached in the last 7 days.
          */
-        ArenaBuilder conditionMaxRating(int conditionMaxRating);
+        ArenaParams conditionMaxRating(int conditionMaxRating);
 
         /**
          * @param conditionMinRatedGames Minimum number of rated games required to join.
          */
-        ArenaBuilder conditionMinRatedGames(int conditionMinRatedGames);
+        ArenaParams conditionMinRatedGames(int conditionMinRatedGames);
 
 
         sealed interface StartTime {
@@ -201,33 +196,27 @@ public interface TournamentsAuth extends Tournaments {
         }
     }
 
-    interface SwissBBuilder {
-        /**
-         * @param clockInitial Clock initial time in seconds [ 0 .. 3600 ]
-         * @param clockIncrement Clock increment in seconds [ 0 .. 600 ]
-         */
-        SwissBuilder clock(int clockInitial, int clockIncrement);
-    }
+    interface SwissBuilder extends Clock<SwissParams> {}
 
-    interface SwissBuilder {
+    interface SwissParams {
 
         /**
          * @param nbRounds Maximum number of rounds to play [ 3 .. 100 ]
          */
-        SwissBuilder nbRounds(int nbRounds);
+        SwissParams nbRounds(int nbRounds);
 
         /**
          * @param name The tournament name. Leave empty to get a random Grandmaster name.
          */
-        SwissBuilder name(String name);
+        SwissParams name(String name);
 
-        SwissBuilder rated(boolean rated);
+        SwissParams rated(boolean rated);
 
         /**
          * Timestamp in milliseconds to start the tournament at a given date and time.
          * By default, it starts 10 minutes after creation.
          */
-        SwissBuilder startsAt(long startsAt);
+        SwissParams startsAt(long startsAt);
 
         /**
          * How long to wait between each round, in seconds.
@@ -235,29 +224,29 @@ public interface TournamentsAuth extends Tournaments {
          * [ 0 .. 86400 ]
          * Set to 99999999 to manually schedule each round from the tournament UI.
          */
-        SwissBuilder roundInterval(int roundInterval);
+        SwissParams roundInterval(int roundInterval);
 
-        SwissBuilder variant(VariantName variant);
+        SwissParams variant(VariantName variant);
 
         /*
          * Anything you want to tell players about the tournament
          */
-        SwissBuilder description(String description);
+        SwissParams description(String description);
 
         /**
          * Make the tournament restricted with a entry code.
          * @param entryCode
          */
-        SwissBuilder entryCode(String entryCode);
+        SwissParams entryCode(String entryCode);
 
         /**
          * Who can read and write in the chat.
          * Default only team members.
          */
-        SwissBuilder chatFor(ChatFor chatFor);
+        SwissParams chatFor(ChatFor chatFor);
 
-        default SwissBuilder chatFor(Function<ChatFor.Provider, ChatFor> chatFor) { return chatFor(chatFor.apply(ChatFor.provider())); };
-        default SwissBuilder variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
+        default SwissParams chatFor(Function<ChatFor.Provider, ChatFor> chatFor) { return chatFor(chatFor.apply(ChatFor.provider())); };
+        default SwissParams variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
     }
 
 }

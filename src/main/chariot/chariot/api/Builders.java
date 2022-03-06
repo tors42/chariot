@@ -2,6 +2,7 @@ package chariot.api;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -9,6 +10,33 @@ import chariot.Client.Scope;
 import chariot.internal.Config;
 
 public interface Builders {
+
+    interface Clock<T> {
+        /**
+         * @param initial Initial time on clock, in seconds
+         * @param increment Increment added to clock after each move, in seconds
+         */
+        T clock(int initial, int increment);
+
+        default T clockBullet1m0s()      { return clock((int) TimeUnit.MINUTES.toSeconds(1),   0); }
+        default T clockBullet2m1s()      { return clock((int) TimeUnit.MINUTES.toSeconds(2),   1); }
+        default T clockBlitz3m1s()       { return clock((int) TimeUnit.MINUTES.toSeconds(3),   1); }
+        default T clockBlitz3m2s()       { return clock((int) TimeUnit.MINUTES.toSeconds(3),   2); }
+        default T clockBlitz5m0s()       { return clock((int) TimeUnit.MINUTES.toSeconds(5),   0); }
+        default T clockBlitz5m3s()       { return clock((int) TimeUnit.MINUTES.toSeconds(5),   3); }
+        default T clockRapid10m0s()      { return clock((int) TimeUnit.MINUTES.toSeconds(10),  0); }
+        default T clockRapid10m5s()      { return clock((int) TimeUnit.MINUTES.toSeconds(10),  5); }
+        default T clockRapid15m10s()     { return clock((int) TimeUnit.MINUTES.toSeconds(15), 10); }
+        default T clockClassical30m0s()  { return clock((int) TimeUnit.MINUTES.toSeconds(30),  0); }
+        default T clockClassical30m20s() { return clock((int) TimeUnit.MINUTES.toSeconds(30), 20); }
+    }
+
+    interface ClockCorrespondence<T> {
+        /**
+         * @param daysPerTurn Number of days for each move. [ 1, 3, 5, 7, 10, 14 ]
+         */
+        T daysPerTurn(int daysPerTurn);
+    }
 
     interface TokenBuilder extends Builder, AuthBuilder {
 

@@ -2,42 +2,6 @@ package chariot.model;
 
 public interface Enums {
 
-    enum DaysPerTurn {
-        _1(1), _3(3), _5(5), _7(7), _10(10), _14(14);
-        public final int days;
-        DaysPerTurn(int days) { this.days = days; }
-
-        // No need for user to import the enum class,
-        // if they can Lambda invoke a method instead...
-        //
-        //      interface Foo {
-        //          void bar(FooEnum e);
-        //          void baz(Function<FooEnum.Provider, FooEnum> e);
-        //      }
-        //
-        // Instead of:
-        //
-        // 1     import FooEnum;
-        // 2
-        // 3     Foo foo = ...;
-        // 4     foo.bar(FooEnum.CAR);
-        //
-        // One can do:
-        //
-        // 1     Foo foo = ...;
-        // 2     foo.baz(e -> e.car());
-        //
-        public interface Provider {
-            default DaysPerTurn one()      { return _1; }
-            default DaysPerTurn three()    { return _3; }
-            default DaysPerTurn five()     { return _5; }
-            default DaysPerTurn seven()    { return _7; }
-            default DaysPerTurn ten()      { return _10; }
-            default DaysPerTurn fourteen() { return _14; }
-        }
-        public static Provider provider() {return new Provider(){};}
-    }
-
     enum Level {
         _1(1), _2(2), _3(3), _4(4), _5(5), _6(6), _7(7), _8(8);
         public final int level;
@@ -253,37 +217,6 @@ public interface Enums {
         }
         public static Provider provider() {return new Provider(){};}
     }
-
-    /**
-     * Starting time on the clock, in minutes.
-     */
-     enum ClockInitial { _0(0f), _0_25(0.25f), _0_5(0.5f), _0_75(0.75f), _1(1), _1_5(1.5f), _2(2), _3(3), _4(4), _5(5), _6(6), _7(7), _10(10), _15(15), _20(20), _25(25), _30(30), _40(40), _50(50), _60(60);
-        public final float minutes;
-        ClockInitial(float minutes) { this.minutes = minutes; }
-        public interface Provider {
-            default ClockInitial _0m() { return _0; }
-            default ClockInitial _0_25m() { return _0_25; }
-            default ClockInitial _0_5m() { return _0_5; }
-            default ClockInitial _0_75m() { return _0_75; }
-            default ClockInitial _1m() { return _1; }
-            default ClockInitial _1_5m() { return _1_5; }
-            default ClockInitial _2m() { return _2; }
-            default ClockInitial _3m() { return _3; }
-            default ClockInitial _4m() { return _4; }
-            default ClockInitial _5m() { return _5; }
-            default ClockInitial _6m() { return _6; }
-            default ClockInitial _7m() { return _7; }
-            default ClockInitial _10m() { return _10; }
-            default ClockInitial _15m() { return _15; }
-            default ClockInitial _20m() { return _20; }
-            default ClockInitial _25m() { return _25; }
-            default ClockInitial _30m() { return _30; }
-            default ClockInitial _40m() { return _40; }
-            default ClockInitial _50m() { return _50; }
-            default ClockInitial _60m() { return _60; }
-        }
-        public static Provider provider() {return new Provider(){};}
-     }
 
     /**
      * The possible performance types
