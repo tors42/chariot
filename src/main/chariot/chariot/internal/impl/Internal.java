@@ -321,6 +321,22 @@ public interface Internal {
                         });
                         mapBuilder.addCustomHandler("entryCode", (args, map) -> { map.put("password", args[0]); });
 
+                        mapBuilder.addCustomHandler("forbiddenPairings", (args, map) -> {
+                            @SuppressWarnings("unchecked")
+                            var pairings = (Collection<SwissParams.ForbiddenPairing>) args[0];
+
+                            String forbiddenPairings = pairings.stream()
+                                .map(pairing -> String.join(" ", pairing.player1(), pairing.player2()))
+                                .collect(Collectors.joining("\n"));
+
+                            var existingPairings = (String) map.get("forbiddenPairings");
+
+                            if (existingPairings != null) {
+                                forbiddenPairings = String.join("\n", existingPairings, forbiddenPairings);
+                            }
+                            map.put("forbiddenPairings", forbiddenPairings);
+                        });
+
                         var map = mapBuilder.getMap();
                         map.put("clock.limit", initial);
                         map.put("clock.increment", increment);

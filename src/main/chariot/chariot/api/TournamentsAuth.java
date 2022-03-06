@@ -1,6 +1,7 @@
 package chariot.api;
 
 import java.time.ZonedDateTime;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -245,8 +246,25 @@ public interface TournamentsAuth extends Tournaments {
          */
         SwissParams chatFor(ChatFor chatFor);
 
+        /**
+         * Usernames of two players that must not play together.
+         */
+        default SwissParams addForbiddenPairing(String player1, String player2) { return addForbiddenPairings(Set.of(new ForbiddenPairing(player1, player2))); }
+
+        /**
+         * Usernames of two players that must not play together.
+         */
+        default SwissParams addForbiddenPairing(ForbiddenPairing forbiddenPairing) { return addForbiddenPairings(Set.of(forbiddenPairing)); }
+
+        /**
+         * Set of usernames of players that must not play together.
+         */
+        SwissParams addForbiddenPairings(Collection<ForbiddenPairing> forbiddenPairings);
+
         default SwissParams chatFor(Function<ChatFor.Provider, ChatFor> chatFor) { return chatFor(chatFor.apply(ChatFor.provider())); };
         default SwissParams variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
+
+        record ForbiddenPairing(String player1, String player2) {}
     }
 
 }
