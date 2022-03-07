@@ -249,7 +249,7 @@ public interface Internal {
                     MapBuilder builder = new MapBuilder();
 
                     @Override
-                    public ArenaParams clock(int initial, int increment) {
+                    public ArenaParams clock(float initial, int increment) {
 
                         builder.addCustomHandler("startTime", (args, map) -> {
                             @SuppressWarnings("unchecked")
@@ -271,7 +271,7 @@ public interface Internal {
                         var map = builder.getMap();
                         var proxy = builder.of(ArenaParams.class);
 
-                        map.put("clockTime", initial * 60);
+                        map.put("clockTime", initial);
                         map.put("clockIncrement", increment);
                         // Default duration
                         map.put("minutes", 60 + 40);

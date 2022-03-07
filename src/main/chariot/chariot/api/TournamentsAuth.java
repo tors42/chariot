@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import chariot.api.Builders.Clock;
+import chariot.api.Builders.ClockMinute;
 import chariot.internal.Util;
 import chariot.model.Ack;
 import chariot.model.Arena;
@@ -79,7 +80,7 @@ public interface TournamentsAuth extends Tournaments {
         return Util.generateUserEntryCodes(tournamentEntryCode, Set.of(userId)).get(userId);
     }
 
-    interface ArenaBuilder extends Clock<ArenaParams> {}
+    interface ArenaBuilder extends ClockMinute<ArenaParams> {}
 
     interface ArenaParams {
 

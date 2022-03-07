@@ -38,6 +38,28 @@ public interface Builders {
         T daysPerTurn(int daysPerTurn);
     }
 
+    interface ClockMinute<T> {
+        /**
+         * @param initial Initial time on clock, in minutes [ 0.0, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 40.0, 50.0, 60.0 ]
+         * @param increment Increment added to clock after each move, in seconds
+         */
+        T clock(float initial, int increment);
+
+        default T clockBullet1m0s()      { return clock(1.0f,   0); }
+        default T clockBullet2m1s()      { return clock(2.0f,   1); }
+        default T clockBlitz3m1s()       { return clock(3.0f,   1); }
+        default T clockBlitz3m2s()       { return clock(3.0f,   2); }
+        default T clockBlitz5m0s()       { return clock(5.0f,   0); }
+        default T clockBlitz5m3s()       { return clock(5.0f,   3); }
+        default T clockRapid10m0s()      { return clock(10.0f,  0); }
+        default T clockRapid10m5s()      { return clock(10.0f,  5); }
+        default T clockRapid15m10s()     { return clock(15.0f, 10); }
+        default T clockClassical30m0s()  { return clock(30.0f,  0); }
+        default T clockClassical30m20s() { return clock(30.0f, 20); }
+    }
+
+
+
     interface TokenBuilder extends Builder, AuthBuilder {
 
         /**
