@@ -189,7 +189,7 @@ public record Endpoint<T> (
         Endpoint.of("/game/export/%s", Game.class).build();
 
     public static Endpoint<Game> gamesByIds =
-        Endpoint.of("/games/export/_ids", Game.class).accept(jsonstream).content(plain).build();
+        Endpoint.of("/api/games/export/_ids", Game.class).accept(jsonstream).content(plain).build();
 
     public static Endpoint<ExploreResult> exploreMasters =
         Endpoint.of("/masters", ExploreResult.class).target(ServerType.explorer).build();
