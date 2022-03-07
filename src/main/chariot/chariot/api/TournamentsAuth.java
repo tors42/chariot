@@ -181,7 +181,7 @@ public interface TournamentsAuth extends Tournaments {
                 /**
                  * @param startDate Timestamp to start the tournament at a given date and time. Overrides the waitMinutes setting
                  */
-                default StartTime atDate(ZonedDateTime startDate) { return new AtDate(startDate.toEpochSecond()); }
+                default StartTime atDate(ZonedDateTime startDate) { return new AtDate(startDate.toEpochSecond() * 1000); }
                 /**
                  * @param startDate Timestamp to start the tournament at a given date and time. Overrides the waitMinutes setting
                  */
