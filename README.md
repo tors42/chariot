@@ -39,6 +39,14 @@ The JDK includes a tool called JShell. It can be used to run Java code and is su
 ## Run Example (non-project, single-file application)
 
     $ java --module-path out/modules --add-modules chariot build/Example.java
+    Lichess Swiss has 195037 members!
+
+## Run Example using JBang
+
+Get JBang at https://www.jbang.dev/download/
+
+    $ jbang build/Example.java
+    Lichess Swiss has 195037 members!
 
 ## Use as dependency
 
@@ -53,6 +61,10 @@ The coordinates are `io.github.tors42:chariot:0.0.26`, so in a Maven project the
     ...
 
 Here's a mini [example Maven application](https://github.com/tors42/chariot-example)
+
+## JBang example
+
+https://github.com/tors42/jbang-chariot
 
 # Applications
 
