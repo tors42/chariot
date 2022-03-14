@@ -45,8 +45,19 @@ The JDK includes a tool called JShell. It can be used to run Java code and is su
 
 Get JBang at https://www.jbang.dev/download/
 
-    $ jbang build/Example.java
-    Lichess Swiss has 195037 members!
+### example.jsh
+
+```java
+//DEPS io.github.tors42:chariot:0.0.26
+import chariot.Client;
+
+var client = Client.basic();
+var team = client.teams().byTeamId("lichess-swiss").get();
+System.out.printf("Team %s has %d members!%n", team.name(), team.nbMembers());
+```
+
+    $ jbang example.jsh
+    Team Lichess Swiss has 196523 members!
 
 ## Use as dependency
 
