@@ -123,13 +123,7 @@ public sealed interface Arena extends Model {
         public record Stats ( Integer games, Integer moves, Integer whiteWins, Integer blackWins, Integer draws, Integer berserks, Integer averageRating)  {}
     }
 
-
-    public record Sheet (List<Score> scores, Integer total, boolean fire) {
-        public sealed interface Score permits Score.P, Score.S {
-            public record P(Integer n1, Integer n2) implements Arena.Sheet.Score {}
-            public record S(Integer n) implements Arena.Sheet.Score {}
-        }
-    }
+    public record Sheet (String scores, boolean fire) {}
 
     public record Duel (String id, List<P> p) {
         public record P (String n, Integer r, Integer k) {}

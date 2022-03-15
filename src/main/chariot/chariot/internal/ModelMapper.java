@@ -3,7 +3,6 @@ package chariot.internal;
 import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -125,33 +124,6 @@ public class ModelMapper {
         mapper.setMappings(Broadcast.Round.class,             ModelMapperUtil.startsAtMapping());
         mapper.setMappings(ChallengeResult.ChallengeAI.class, ModelMapperUtil.createdAtAndLastMoveAtMapping());
 
-
-        // Helper for Sheet model
-        Function<YayNode, Arena.Sheet> sheetMapper = (node) -> {
-            if (node instanceof YayObject yo) {
-                var scores = new ArrayList<Arena.Sheet.Score>();
-                if (yo.value().get("scores") instanceof YayArray ya) {
-                    ya.value().stream().forEach( s -> {
-                        if (s instanceof YayArray innerArr) {
-                            scores.add(new Arena.Sheet.Score.P(
-                                        ((YayNumber)innerArr.value().get(0)).value().intValue(),
-                                        ((YayNumber)innerArr.value().get(1)).value().intValue()
-                                        ));
-                        } else if (s instanceof YayNumber n) {
-                            scores.add(new Arena.Sheet.Score.S(n.value().intValue()));
-                        }
-                    });
-                }
-                var total = yo.getNumber("total").intValue();
-                var fire = yo.getBool("fire");
-
-                // Sheet model
-                return new Arena.Sheet(scores, total, fire);
-            }
-            return null;
-        };
-
-        mapper.setCustomMapper(Arena.Sheet.class, sheetMapper);
 
         // "Exotic" JSON model...
         mappings.put(Crosstable.class,
