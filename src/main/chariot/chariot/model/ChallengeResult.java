@@ -25,7 +25,8 @@ public sealed interface ChallengeResult extends Model
             Player challenger,
             Player destUser,
             Perf perf,
-            Optional<String> declineReason) {
+            Optional<String> declineReason,
+            Optional<String> rematchOf) {
 
             public Challenge {
                 status = orEmpty(status);
