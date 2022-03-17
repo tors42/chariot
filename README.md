@@ -83,4 +83,7 @@ A list of notable applications using Chariot,
 
 [Team Check](https://github.com/tors42/teamcheck) _Visualize team members_
 
+# Contact
+
+For any questions and/or feedback, feel free to open an issue in this project. Another means of contact could be through the [Lichess Discord server](https://discord.gg/lichess), look for the `#api-bots-boards` channel.
 
