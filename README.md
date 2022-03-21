@@ -49,6 +49,7 @@ Get JBang at https://www.jbang.dev/download/
 
 ```java
 //DEPS io.github.tors42:chariot:0.0.28
+//JAVA 17
 import chariot.Client;
 
 var client = Client.basic();
