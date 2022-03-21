@@ -181,7 +181,7 @@ public interface TournamentsAuth extends Tournaments {
                 /**
                  * @param startDate Timestamp to start the tournament at a given date and time. Overrides the waitMinutes setting
                  */
-                default StartTime atDate(ZonedDateTime startDate) { return new AtDate(startDate.toEpochSecond() * 1000); }
+                default StartTime atDate(ZonedDateTime startDate) { return new AtDate(startDate.toInstant().toEpochMilli()); }
                 /**
                  * @param startDate Timestamp to start the tournament at a given date and time. Overrides the waitMinutes setting
                  */
@@ -219,6 +219,11 @@ public interface TournamentsAuth extends Tournaments {
          * By default, it starts 10 minutes after creation.
          */
         SwissParams startsAt(long startsAt);
+
+        /**
+         * @param zonedDateTime Timestamp to start the tournament at a given date and time.
+         */
+        default SwissParams startsAt(ZonedDateTime zonedDateTime) { return startsAt(zonedDateTime.toInstant().toEpochMilli()); }
 
         /**
          * How long to wait between each round, in seconds.
