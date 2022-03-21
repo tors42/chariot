@@ -56,6 +56,11 @@ public interface AccountAuth extends Account {
     Result<User> following();
 
     /**
+     * Read which scopes are available with current token
+     */
+    Set<Scope> scopes();
+
+    /**
      * Read which scopes are available with a token
      * @param token 
      */

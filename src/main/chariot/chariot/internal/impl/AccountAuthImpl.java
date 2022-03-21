@@ -69,6 +69,12 @@ public class AccountAuthImpl extends AccountImpl implements chariot.api.AccountA
 
 
     @Override
+    public Set<Scope> scopes() {
+        var scopes = client.fetchScopes(Endpoint.accountProfile.endpoint());
+        return scopes;
+    }
+
+    @Override
     public Set<Scope> scopes(Supplier<char[]> token) {
         var scopes = client.fetchScopes(Endpoint.accountProfile.endpoint(), token);
         return scopes;

@@ -237,6 +237,14 @@ public class InternalClient {
         }
     }
 
+    public synchronized Set<Scope> fetchScopes(String endpointPath) {
+        return config instanceof Config.Auth auth ?
+            auth.type().getToken(Scope.any)
+            .map(supplier -> fetchScopes(endpointPath, supplier))
+            .orElse(Set.of()) :
+            Set.of();
+    }
+
     public synchronized Set<Scope> fetchScopes(String endpointPath, Supplier<char[]> tokenSupplier) {
         String host = config.servers().api().get();
         var uri = URI.create(host + endpointPath);
