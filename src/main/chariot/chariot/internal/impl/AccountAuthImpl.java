@@ -1,7 +1,6 @@
 package chariot.internal.impl;
 
 import java.util.Set;
-import java.util.function.Supplier;
 
 import chariot.Client.Scope;
 import chariot.internal.Endpoint;
@@ -71,12 +70,6 @@ public class AccountAuthImpl extends AccountImpl implements chariot.api.AccountA
     @Override
     public Set<Scope> scopes() {
         var scopes = client.fetchScopes(Endpoint.accountProfile.endpoint());
-        return scopes;
-    }
-
-    @Override
-    public Set<Scope> scopes(Supplier<char[]> token) {
-        var scopes = client.fetchScopes(Endpoint.accountProfile.endpoint(), token);
         return scopes;
     }
 

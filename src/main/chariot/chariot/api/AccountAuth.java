@@ -60,18 +60,4 @@ public interface AccountAuth extends Account {
      */
     Set<Scope> scopes();
 
-    /**
-     * Read which scopes are available with a token
-     * @param token 
-     */
-    Set<Scope> scopes(Supplier<char[]> token);
-
-    /**
-     * See {@link chariot.api.AccountAuth#scopes(Supplier)}
-     */
-     default Set<Scope> scopes(String token) {
-        return scopes(() -> token.toCharArray());
-    }
-
-
 }

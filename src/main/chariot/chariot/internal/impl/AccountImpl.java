@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import chariot.Client.Scope;
@@ -74,6 +75,13 @@ public class AccountImpl extends Base implements chariot.api.Account {
             return new TokenResult.Error("Unknown Error", "Unknonw");
         }
     }
+
+    @Override
+    public Set<Scope> scopes(Supplier<char[]> token) {
+        var scopes = client.fetchScopes(Endpoint.accountProfile.endpoint(), token);
+        return scopes;
+    }
+
 
     @Override
     public Result<TokenBulkResult> testTokens(Set<String> tokens) {

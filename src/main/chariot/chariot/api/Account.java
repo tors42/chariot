@@ -120,4 +120,18 @@ public interface Account {
     default Result<TokenBulkResult> testTokens(String... tokens) {
         return testTokens(Set.of(tokens));
     }
+
+    /**
+     * Read which scopes are available with a token
+     * @param token
+     */
+    Set<Scope> scopes(Supplier<char[]> token);
+
+    /**
+     * See {@link chariot.api.Account#scopes(Supplier)}
+     */
+     default Set<Scope> scopes(String token) {
+        return scopes(() -> token.toCharArray());
+    }
+
 }
