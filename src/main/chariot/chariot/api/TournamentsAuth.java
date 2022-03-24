@@ -90,7 +90,9 @@ public interface TournamentsAuth extends Tournaments {
         ArenaParams name(String name);
 
         /**
-         * @param minutes How long the tournament lasts, in minutes [ 0 .. 360 ] Default: 100 minutes
+         * @param minutes How long the tournament lasts, in minutes.<br>
+         * [ 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80, 90, 100, 110, 120, 150, 180, 210, 240, 270, 300, 330, 360, 420, 480, 540, 600, 720 ]<br>
+         * Default: 100 minutes
          */
         ArenaParams minutes(int minutes);
 
@@ -98,6 +100,11 @@ public interface TournamentsAuth extends Tournaments {
          * @param startTime When the tournament starts. Skipping this parameter defaults to in 5 minutes.
          */
         ArenaParams startTime(Function<StartTime.Provider, StartTime> startTime);
+
+        /**
+         * @param startTime When the tournament starts. Skipping this parameter defaults to in 5 minutes.
+         */
+        default ArenaParams startTime(ZonedDateTime startTime) { return startTime(s -> s.atDate(startTime)); }
 
         /**
          * @param variant The variant to use in tournament games
@@ -174,7 +181,8 @@ public interface TournamentsAuth extends Tournaments {
         sealed interface StartTime {
             interface Provider {
                 /**
-                 * @param waitMinutes How long to wait before starting the tournament, from now, in minutes [ 0 .. 360 ]
+                 * @param waitMinutes How long to wait before starting the tournament, from now, in minutes<br>
+                 * [ 1, 2, 3, 5, 10, 15, 20, 30, 45, 60 ]
                  */
                 default StartTime inMinutes(int waitMinutes) { return new InMinutes(waitMinutes); }
 
@@ -189,11 +197,7 @@ public interface TournamentsAuth extends Tournaments {
              }
 
             static Provider provider() { return new Provider() {}; }
-            record InMinutes(int waitMinutes) implements StartTime {
-                public InMinutes {
-                    if (waitMinutes < 0 || waitMinutes > 360) throw new RuntimeException("waitMinutes [%d] must be between [ 0 .. 360 ]".formatted(waitMinutes));
-                }
-            }
+            record InMinutes(int waitMinutes) implements StartTime {}
             record AtDate(long startDate) implements StartTime {}
         }
     }
