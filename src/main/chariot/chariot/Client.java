@@ -21,14 +21,14 @@ import chariot.internal.Config;
  * <p>
  * For accessing non-authenticated parts of the <a href="https://lichess.org/api">Lichess API</a>:
  *
- * <pre>{@code
+ * {@snippet :
  *     Client client = Client.basic();
  *
  *     // Tada!
  *
  *     // And then use it...
  *     var user = client.users().byId("lichess");
- * }</pre>
+ * }
  *
  * <p>
  * For accessing authenticated parts of the <a href="https://lichess.org/api">Lichess API</a>:<br>
@@ -40,12 +40,12 @@ import chariot.internal.Config;
  * chariot.api.Account} for more information.
  * </i>
  *
- * <pre>{@code
+ * {@snippet :
  *     var token = ... // Token with scope email:read
  *     ClientAuth client = Client.auth(token);
  *
  *     var email = client.account().emailAddress();
- * }</pre>
+ * }
  *
  * <p>
  * The responses from the APIs are modelled with a {@link chariot.model.Result}{@literal <T>} "container".<br>
@@ -56,8 +56,8 @@ import chariot.internal.Config;
  * An additional way of creating a client is via the
  * {@link #load(Preferences) load(prefs)}/{@link #store(Preferences) store(prefs)} methods, keeping
  * the configuration in {@link java.util.prefs.Preferences},
- * <pre>{@code
- *     Preferences prefs = Preferences.userPrefs("myprefs");
+ * {@snippet :
+ *     Preferences prefs = Preferences.userRoot().node("myprefs");
  *     Client client = Client.load(prefs);
  *     if (client instanceof ClientAuth clientAuth) {
  *         // We've managed to restore our previously stored configuration,
@@ -67,7 +67,7 @@ import chariot.internal.Config;
  *         // It seems this was the first time we ran this program,
  *         // we have yet to store its configuration.
  *         // Let's perform the heavy-lifting now.
- *         var urlToken = client.account().oauthPKCE(Scope.preferences_write);
+ *         var urlToken = client.account().oauthPKCE(Scope.preference_write);
  *         System.out.println("Please grant this application access at Lichess: " + urlToken.url());
  *
  *         // Wait for the user to go to Lichess and click Grant. (They wouldn't click Deny, right?)
@@ -81,16 +81,16 @@ import chariot.internal.Config;
  *         // Oh yeah, and...
  *         clientAuth.account().setKidModeStatus(true); // lol
  *     }
- * }</pre>
+ * }
  *
  * <p>
  * There are also customizable variants,
- * <pre>{@code
+ * {@snippet :
  *     // http://localhost:9663
  *     var client = Client.basic(c -> c.local());
  *
  *     var clientAuth = Client.auth(c -> c.api("https://lichess.dev").auth("mytoken"));
- * }</pre>
+ * }
  */
 public sealed interface Client permits ClientAuth, Client.Basic {
 
