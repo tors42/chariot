@@ -34,16 +34,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install strip-nondeterminism
 
-      - name: Download OpenJDK 17.0.2
+      - name: Download OpenJDK 18
         run: |
-          download_url="https://download.java.net/java/GA/jdk17.0.2/dfd4a8d0985749f896bed50d7138ee7f/8/GPL/openjdk-17.0.2_linux-x64_bin.tar.gz"
+          download_url="https://download.java.net/java/GA/jdk18/43f95e8614114aeaa8e8a5fcf20a682d/36/GPL/openjdk-18_linux-x64_bin.tar.gz"
           wget -O $RUNNER_TEMP/java_package.tar.gz $download_url
 
       - uses: actions/setup-java@v2
         with:
           distribution: 'jdkfile'
           jdkFile: ${{ runner.temp }}/java_package.tar.gz
-          java-version: '17.0.2'
+          java-version: '18'
           architecture: x64
 
       - name: Check java version
