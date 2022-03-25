@@ -10,54 +10,69 @@ import java.util.stream.Stream;
  * <p>Examples of how to access a response value:
  * {@snippet :
  *      Client client = Client.basic();
- *
  *      Result<User> result = client.users().byId("lichess");
  *
  *      // 1: Not accessing the value directly, but printing the "raw" container (with value if inside)
  *      System.out.println(result.toString());
+ * }
  *
+ * {@snippet :
  *      // 2: Yolo get! Trying to access the value without knowing if it is present... (use with caution, might throw NoSuchElementException)!
  *      User user = result.get();
+ * }
  *
+ * {@snippet :
  *      // 3: Use if-statement to check if value is present
  *      if (result.isPresent()) {
  *          User user = result.get();
- *          System.out.println("Online: " + user.online());
+ *          System.out.println("Patron: " + user.patron());
  *      }
+ * }
  *
+ * {@snippet :
  *      // 4: Use a lambda if value is present
- *      result.ifPresent(user -> System.out.println("Online: " + user.online()));
+ *      result.ifPresent(user -> System.out.println("Patron: " + user.patron()));
+ * }
  *
+ * {@snippet :
  *      // 5: Use a lambda if value is present, or else another lambda
- *      result.ifPresentOrElse(user -> System.out.println("Online: " + user.online()), () -> System.out.println("Couldn't find user lichess!"));
+ *      result.ifPresentOrElse(user -> System.out.println("Patron: " + user.patron()), () -> System.out.println("Couldn't find user lichess!"));
+ * }
  *
+ * {@snippet :
  *      // 6: Stream the value
- *      result.stream().forEach(user -> System.out.println(user.id() + " Online: " + user.online()));
+ *      result.stream().forEach(user -> System.out.println(user.id() + " Patron: " + user.patron()));
+ * }
  *
+ * {@snippet :
  *      // 7: instanceof pattern match
  *      if (result instanceof Result.One<User> one) {
  *          User user = one.entry();
- *          System.out.println("Online: " + user.online());
+ *          System.out.println("Patron: " + user.patron());
  *      } else if (result instanceof Result.Many<User> many) {
  *          Stream<User> users = many.entries();
- *          users.forEach(user -> System.out.println(user.id() + " Online: " + user.online()));
+ *          users.forEach(user -> System.out.println(user.id() + " Patron: " + user.patron()));
  *      }
+ * }
  *
- *      // 8: switch pattern match (JEP 406, Java 17 preview feature, --enable-preview)
+ * {@snippet :
+ *      // 8: JEP 420: Pattern Matching for switch (Second Preview) / --enable-preview
  *      String message = switch(result) {
- *          case Result.One<User>  one  -> "Online: " + one.entry().online();
- *          case Result.Many<User> many -> many.entries().map(user -> user.id() + " Online: " + user.online()).collect(Collectors.joining("\n"));
- *          case Result.Zero<User>      -> "No user found";
- *          case Result.Fail<User> f    -> f.message();
+ *          case Result.One<User>  one  -> "Patron: " + one.entry().patron();
+ *          case Result.Many<User> many -> many.entries().map(user -> user.id() + " Patron: " + user.patron()).collect(Collectors.joining("\n"));
+ *          case Result.Zero<User> zero -> "No user found";
+ *          case Result.Fail<User> fail -> fail.message();
  *      };
  *      System.out.println(message);
+ * }
  *
- *      // 9: switch with record pattern match (JEP 405, Java 18 preview feature (?))
+ * {@snippet :
+ *      // 9: Deconstruction patterns, "Future work" in JEP 420
  *      String message = switch(result) {
- *          case Result.One<User>(user)     -> "Online: " + user.online();
- *          case Result.Many<User>(users)   -> users.map(user -> user.id() + " Online: " + user.online()).collect(Collectors.joining("\n"));
- *          case Result.Zero<User>          -> "No user found";
- *          case Result.Fail<User>(message) -> message;
+ *          case Result.One<User>(var user)     -> "Patron: " + user.patron();
+ *          case Result.Many<User>(var users)   -> users.map(user -> user.id() + " Patron: " + user.patron()).collect(Collectors.joining("\n"));
+ *          case Result.Zero<User>()        -> "No user found";
+ *          case Result.Fail<User>(var message) -> message;
  *      };
  *      System.out.println(message);
  * }
