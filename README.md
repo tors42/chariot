@@ -7,17 +7,16 @@ Checkout the [JavaDoc](https://tors42.github.io/chariot/chariot/chariot/Client.h
 
 ## Build
 
-Make sure to use at least Java 17. A JDK archive can be downloaded and unpacked from https://jdk.java.net/17/
-
-    $ export JAVA_HOME=<path to jdk>
-    $ export PATH=$JAVA_HOME/bin:$PATH
+Make sure to use at least Java 18. A JDK archive can be downloaded and unpacked from https://jdk.java.net/18/
 
     $ java -version
-    openjdk version "17.0.2" 2022-01-18
-    OpenJDK Runtime Environment (build 17.0.2+8-86)
-    OpenJDK 64-Bit Server VM (build 17.0.2+8-86, mixed mode, sharing)
+    openjdk version "18" 2022-03-22
+    OpenJDK Runtime Environment (build 18+36-2087)
+    OpenJDK 64-Bit Server VM (build 18+36-2087, mixed mode, sharing)
 
     $ java build/Build.java
+
+The resulting artifact, `out/modules/chariot-0.0.1-SNAPSHOT.jar`, will be compatible with Java release 17
 
 ## Explore Chariot (without writing an application)
 
