@@ -9,13 +9,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 
 import com.sun.net.httpserver.HttpServer;
@@ -181,7 +181,7 @@ public class PKCE {
 
     static byte[] randomBytes(int num) {
         var bytes = new byte[num];
-        RandomGenerator.getDefault().nextBytes(bytes);
+        new Random().nextBytes(bytes);
         return bytes;
     }
 
