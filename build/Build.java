@@ -42,7 +42,7 @@ class Build {
                 """.formatted(module, version, Runtime.version()));
 
         run(javac,
-                "-encoding", "UTF-8",
+                "--release", "17",
                 "--module-source-path", moduleSrc.toString(),
                 "--module", module,
                 "-d", classes.toString()
@@ -58,7 +58,8 @@ class Build {
            );
 
         run(javadoc,
-                "-encoding", "UTF-8",
+                "--release", "17",
+                "-notimestamp",
                 "--module-source-path", moduleSrc.toString(),
                 "--module", module,
                 "-d", out.resolve("javadoc").toString()
