@@ -47,7 +47,7 @@ Get JBang at https://www.jbang.dev/download/
 ### example.jsh
 
 ```java
-//DEPS io.github.tors42:chariot:0.0.28
+//DEPS io.github.tors42:chariot:0.0.29
 //JAVA 17+
 import chariot.Client;
 
@@ -61,13 +61,13 @@ System.out.printf("Team %s has %d members!%n", team.name(), team.nbMembers());
 
 ## Use as dependency
 
-The coordinates are `io.github.tors42:chariot:0.0.28`, so in a Maven project the following dependency can be added to the `pom.xml`:
+The coordinates are `io.github.tors42:chariot:0.0.29`, so in a Maven project the following dependency can be added to the `pom.xml`:
 
     ...
     <dependency>
       <groupId>io.github.tors42</groupId>
       <artifactId>chariot</artifactId>
-      <version>0.0.28</version>
+      <version>0.0.29</version>
     </dependency>
     ...
 
