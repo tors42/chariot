@@ -31,11 +31,11 @@ public interface Account {
      * <p>An example usage, where an application used for creating tournaments
      * would request a token for {@link Client.Scope#tournament_write}, could
      * look like this,
-     * <pre>{@code
+     * {@snippet :
      *    Client client = Client.basic();
      *    var urlAndToken = client.account().oauthPKCE(Scope.tournament_write);
      *    ...
-     *}</pre>
+     * }
      * <p>The response contains an URL which can be used to ask the user to grant
      * access. Web applications typically just redirects from the application
      * page to the Lichess page - but for non-browser applications it is a bit
@@ -52,14 +52,14 @@ public interface Account {
      * Otherwise they need to login and will then be forwarded to the grant/deny
      * page - all taking place without the application needing to know that the
      * user authenticates with Lichess.
-     * <pre>{@code
+     * {@snippet :
      *    URI lichessUrl = urlAndToken.url();
      *
      *    // Launch the user's system browser (i.e Firefox or similar),
      *    // and direct them to the Lichess
      *    Desktop.getDesktop().browse(lichessUrl);
      *    ...
-     *}</pre>
+     * }
      *
      * <p>After the user has finished the grant process, Lichess will redirect
      * the user's browser to a URL which was provided as a parameter in the
@@ -70,7 +70,7 @@ public interface Account {
      * this, the application can now retrieve the token from the {@code
      * urlAndToken} and load a ClientAuth client with the token which permits
      * creating tournaments.
-     * <pre>{@code
+     * {@snippet :
      *    // Blocks until user has finished grant process
      *    Supplier<char[]> token = urlAndToken.token().get();
      *
@@ -79,7 +79,7 @@ public interface Account {
      *
      *    // When we are done, we can delete the token (making it no longer valid)
      *    authClient.account().revokeToken();
-     *}</pre>
+     * }
      *
      * @param scopes The scopes that the authorization token must be valid for
      * @return The {@code UriAndToken} contains the URL to use for front channel
@@ -92,7 +92,7 @@ public interface Account {
      * Helper method for creating <a href="https://lichess.org/account/oauth/token">Personal Access Tokens</a>
      * <p>Note, a user must create the token manually.
      * <p>See also {@link #oauthPKCE oauthPKCE(scopes)}
-     * <pre>{@code
+     * {@snippet :
      *     Client client = Client.basic();
      *     var url = client.account().personalAccessTokenForm("Token for reading preferences", Scope.preferences_read);
      *
@@ -104,7 +104,7 @@ public interface Account {
      *
      *     ClientAuth clientAuth = Client.auth(token);
      *     var email = clientAuth.account().emailAddress();
-     * }</pre>
+     * }
      * @param description A description for the intended use of the token, so the user can easier recognize the token when browsing their security information.
      * @param scopes The pre-selected scopes for the token
      * @return A URL where user can create a token, in order to then copy the token and use as input to an application.<br>

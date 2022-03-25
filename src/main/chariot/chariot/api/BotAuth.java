@@ -27,7 +27,7 @@ import chariot.model.StreamGameEvent;
  * <li>Bots cannot play UltraBullet (¼+0) because it requires making too many requests. But 0+1 and ½+0 are allowed.
  * </ul>
  * Example:
- * <pre>{@code
+ * {@snippet :
  *      ClientAuth client = Client.auth("my-bot-token");
  *
  *      // Connect the bot to Lichess, becoming challengeable
@@ -73,7 +73,7 @@ import chariot.model.StreamGameEvent;
  *                  ...
  *              }
  *          });
- * }</pre>
+ * }
  */
 public interface BotAuth extends ChallengesAuthCommon, Bot {
 

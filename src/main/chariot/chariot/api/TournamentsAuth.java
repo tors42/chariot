@@ -29,12 +29,12 @@ public interface TournamentsAuth extends Tournaments {
      * Be mindful not to make important changes to ongoing tournaments.
      * @param id The tournament ID. Example: hL7vMrFQ
      * @param params Parameters of the tournament
-     * <pre>{@code
+     * {@snippet :
      *   String token = "..."; // token with scope tournament:write
      *   String swissId = "hL7vMrFQ";
      *   var client = Client.auth(token);
      *   client.tournaments().updateSwiss(swissId, params -> params.clock(300, 30).description("Another description"));
-     * }</pre>
+     * }
      *
      */
     Result<Swiss> updateSwiss(String id, Consumer<SwissBuilder> params);

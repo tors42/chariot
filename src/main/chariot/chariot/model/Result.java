@@ -8,7 +8,7 @@ import java.util.stream.Stream;
  * A "container" for responses, which can be of the types {@link One}, {@link Many}, {@link Zero} or {@link Fail}.
  *
  * <p>Examples of how to access a response value:
- * <pre>{@code
+ * {@snippet :
  *      Client client = Client.basic();
  *
  *      Result<User> result = client.users().byId("lichess");
@@ -60,7 +60,7 @@ import java.util.stream.Stream;
  *          case Result.Fail<User>(message) -> message;
  *      };
  *      System.out.println(message);
-  *}</pre>
+ * }
  */
 public sealed interface Result<T> {
     /**
