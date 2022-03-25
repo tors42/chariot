@@ -73,10 +73,6 @@ The coordinates are `io.github.tors42:chariot:0.0.29`, so in a Maven project the
 
 Here's a mini [example Maven application](https://github.com/tors42/chariot-example)
 
-## JBang example
-
-https://github.com/tors42/jbang-chariot
-
 # Applications
 
 A list of notable applications using Chariot,
