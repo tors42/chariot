@@ -1,6 +1,8 @@
 package chariot;
 
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.prefs.Preferences;
@@ -230,6 +232,72 @@ public sealed interface Client permits ClientAuth, Client.Basic {
      */
     static ClientAuth load(Preferences prefs, Consumer<AuthBuilder> token) {
         return auth(Config.load(prefs, token));
+    }
+
+    /**
+     * Helper method for initializing and storing an authorized client
+     * configuration.<br>
+     * If the provided Preferences node already contains the token for the
+     * needed scopes, the authorized client will be returned immediately. If it
+     * doesn't contain such a token, the Lichess URL for a page to authorize
+     * the scopes will be written to standard output, for the user to grant
+     * access. If access is granted, the authorized client configuration will
+     * be stored in the Preferences node, and the authorized client is
+     * returned.<br>
+     * The implementation of this helper method does this:
+     * {@snippet :
+     *   var client = Client.load(prefs);
+     *   if (client instanceof ClientAuth auth &&
+     *       auth.account().scopes().containsAll(Set.of(scopes)))
+     *       return auth;
+     *
+     *   var oauth = client.account().oauthPKCE(scopes);
+     *   System.out.println("\n\nGrant access at URL:\n" + oauth.url() + "\n");
+     *   var clientAuth = Client.load(prefs, auth -> auth.auth(oauth.token().get()));
+     *   clientAuth.store(prefs);
+     *
+     *   return clientAuth;
+     * }
+     *
+     * @param params a functional interface with configuration, i.e {@code Client.reuseOrInitialize(p -> p.preferences("my-prefs").scopes(Scope.team_read))}
+     * @return a client authorized for the requested scope/s
+     */
+    static ClientAuth reuseOrInitialize(Consumer<OAuthHelper> params) {
+        var helper = new OAuthHelper() {
+            Preferences preferences = null;
+            Scope[] scopes = null;
+            @Override
+            public OAuthHelper prefs(Preferences preferences) {
+                this.preferences = preferences;
+                return this;
+            }
+            @Override
+            public OAuthHelper scopes(Scope... scopes) {
+                Objects.requireNonNull(scopes);
+                this.scopes = scopes;
+                return this;
+            }
+        };
+        params.accept(helper);
+        Objects.requireNonNull(helper.preferences);
+        return reuseOrInitialize(helper.preferences, helper.scopes);
+    }
+
+    /**
+     * See {@link Client#reuseOrInitialize(Consumer)}
+     */
+    static ClientAuth reuseOrInitialize(Preferences prefs, Scope... scopes) {
+        var client = Client.load(prefs);
+        if (client instanceof ClientAuth auth &&
+            auth.account().scopes().containsAll(Set.of(scopes)))
+            return auth;
+
+        var oauth = client.account().oauthPKCE(scopes);
+        System.out.println("\n\nGrant access at URL:\n" + oauth.url() + "\n");
+        var clientAuth = Client.load(prefs, auth -> auth.auth(oauth.token().get()));
+        clientAuth.store(prefs);
+
+        return clientAuth;
     }
 
     /**
