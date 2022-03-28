@@ -109,7 +109,7 @@ public class DefaultClient {
         return users;
     }
 
-    public Config getConfig() {
+    public Config config() {
         return config;
     }
 

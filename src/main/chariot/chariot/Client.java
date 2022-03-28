@@ -242,8 +242,9 @@ public sealed interface Client permits ClientAuth, Client.Basic {
     /**
      * Configure logging levels
      */
-    default void levels(Consumer<LogSetter> params) {
-        var builder = new Config.LBuilderImpl(false);
+    default void logging(Consumer<LogSetter> params) {
+        var logging = ((chariot.internal.DefaultClient) this).config().logging();
+        var builder = new Config.LBuilderImpl(logging);
         params.accept(builder);
     }
 

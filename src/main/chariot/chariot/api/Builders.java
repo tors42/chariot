@@ -98,7 +98,7 @@ public interface Builders {
         /**
          * {@inheritDoc}
          */
-        TokenBuilder levels(Consumer<LogSetter> params);
+        TokenBuilder logging(Consumer<LogSetter> params);
 
         /**
          * {@inheritDoc}
@@ -172,7 +172,7 @@ public interface Builders {
         /**
          * Log levels
          */
-        Builder levels(Consumer<LogSetter> params);
+        Builder logging(Consumer<LogSetter> params);
     }
 
     interface ExtServBuilder {

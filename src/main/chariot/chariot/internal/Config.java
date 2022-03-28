@@ -116,7 +116,7 @@ public sealed interface Config {
                 .servers(s -> s
                     .explorer(prefs.get("explorer", explorer))
                     .tablebase(prefs.get("tablebase", tablebase)))
-                .levels(l -> l.request().warning()
+                .logging(l -> l.request().warning()
                     .response().warning()
                     .auth().off()
                     ));
@@ -374,7 +374,7 @@ public sealed interface Config {
 
         @Override public Builder api(String api) { this.api = Server.of(api); return this; }
         @Override public Builder servers(Consumer<ExtServBuilder> params) { params.accept(sbuilder); return this; }
-        @Override public Builder levels(Consumer<LogSetter> params) { params.accept(lbuilder); return this; }
+        @Override public Builder logging(Consumer<LogSetter> params) { params.accept(lbuilder); return this; }
 
         Config.Basic build() {
             return new Config.Basic(sbuilder.build(api), lbuilder.build());
@@ -389,25 +389,35 @@ public sealed interface Config {
     }
 
     class LBuilderImpl implements LogSetter {
-        Logger request         = Logger.getLogger("chariot.request");
-        Logger responsebodyraw = Logger.getLogger("chariot.response-body-raw");
-        Logger auth            = Logger.getLogger("chariot.auth");
-        LBuilderImpl() { this(true); }
-        public LBuilderImpl(boolean updateAll) { if (updateAll) { request.setLevel(Level.WARNING); responsebodyraw.setLevel(Level.WARNING); auth.setLevel(Level.OFF); } }
+        private static int num = 0;
 
-        Logging build() { return new Logging(request, responsebodyraw, auth); }
+        final Logging logging;
+
+        LBuilderImpl() {
+            this(new Logging(Logger.getLogger("chariot.request." + num), Logger.getLogger("chariot.response-body-raw." + num), Logger.getLogger("chariot.auth." + num)));
+            num++;
+            logging.request().setLevel(Level.WARNING);
+            logging.responsebodyraw().setLevel(Level.WARNING);
+            logging.auth().setLevel(Level.OFF);
+        }
+
+        public LBuilderImpl(Logging logging) {
+            this.logging = logging;
+        }
+
+        Logging build() { return logging; }
 
         @Override
         public LogLevel request() {
-            return new LogLevelImpl(this, request);
+            return new LogLevelImpl(this, logging.request());
         }
         @Override
         public LogLevel response() {
-            return new LogLevelImpl(this, responsebodyraw);
+            return new LogLevelImpl(this, logging.responsebodyraw());
         }
         @Override
         public LogLevel auth() {
-            return new LogLevelImpl(this, auth);
+            return new LogLevelImpl(this, logging.auth());
         }
     }
 
@@ -475,7 +485,7 @@ public sealed interface Config {
 
         @Override public TokenBuilder api(String api) { super.api(api); return this; }
         @Override public TokenBuilder servers(Consumer<ExtServBuilder> params) { super.servers(params); return this; }
-        @Override public TokenBuilder levels(Consumer<LogSetter> params) { super.levels(params); return this; }
+        @Override public TokenBuilder logging(Consumer<LogSetter> params) { super.logging(params); return this; }
 
         @Override public TokenBuilder auth(Supplier<char[]> token) { this.token = token; return this; }
         @Override public TokenBuilder auth(Set<Supplier<char[]>> tokens) { this.tokens = tokens; return this; }
