@@ -92,6 +92,18 @@ Make sure to use at least Java 18. A JDK archive can be downloaded and unpacked 
 
 The resulting artifact, `out/modules/chariot-0.0.1-SNAPSHOT.jar`, will be compatible with Java release 17
 
+### Serve JavaDoc
+
+A simple way to check the generated JavaDoc is by serving it locally using the Java 18 included Simple Web Server tool `jwebserver`,
+
+    $ cd out/javadoc/
+    $ jwebserver
+    Binding to loopback by default. For all interfaces use "-b 0.0.0.0" or "-b ::".
+    Serving /tmp/chariot/out/javadoc and subdirectories on 127.0.0.1 port 8000
+    URL http://127.0.0.1:8000/
+
+And then visting http://127.0.0.1:8000/ with a Web Browser
+
 ### Explore Chariot (without writing an application)
 
 The JDK includes a tool called JShell. It can be used to run Java code and is suitable for exploring Java libraries.
