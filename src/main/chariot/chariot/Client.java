@@ -57,7 +57,7 @@ import chariot.internal.Config;
  * <p>
  * An additional way of creating a client is via the
  * {@link #load(Preferences) load(prefs)}/{@link #store(Preferences) store(prefs)} methods, keeping
- * the configuration in {@link java.util.prefs.Preferences},
+ * the configuration in {@link Preferences},
  * {@snippet :
  *     Preferences prefs = Preferences.userRoot().node("myprefs");
  *     Client client = Client.load(prefs);
@@ -237,7 +237,7 @@ public sealed interface Client permits ClientAuth, Client.Basic {
     /**
      * Helper method for initializing and storing an authorized client
      * configuration.<br>
-     * If the provided Preferences node already contains the token for the
+     * If the provided {@link Preferences} node already contains the token for the
      * needed scopes, the authorized client will be returned immediately. If it
      * doesn't contain such a token, the Lichess URL for a page to authorize
      * the scopes will be written to standard output, for the user to grant
@@ -246,7 +246,8 @@ public sealed interface Client permits ClientAuth, Client.Basic {
      * returned.<br>
      * The implementation of this helper method does this:
      * {@snippet :
-     *   var client = Client.load(prefs);
+     *   Preferences prefsNode = Preferences.userRoot().node(prefs);
+     *   var client = Client.load(prefsNode);
      *   if (client instanceof ClientAuth auth &&
      *       auth.account().scopes().containsAll(Set.of(scopes)))
      *       return auth;
@@ -259,7 +260,7 @@ public sealed interface Client permits ClientAuth, Client.Basic {
      *   return clientAuth;
      * }
      *
-     * @param params a functional interface with configuration, i.e {@code Client.reuseOrInitialize(p -> p.preferences("my-prefs").scopes(Scope.team_read))}
+     * @param params a functional interface with configuration, i.e {@code Client.reuseOrInitialize(p -> p.prefs("my-prefs").scopes(Scope.team_read))}
      * @return a client authorized for the requested scope/s
      */
     static ClientAuth reuseOrInitialize(Consumer<OAuthHelper> params) {
