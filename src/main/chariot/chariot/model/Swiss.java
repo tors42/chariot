@@ -1,5 +1,7 @@
 package chariot.model;
 
+import java.util.Optional;
+
 import chariot.model.Enums.VariantName;
 
 public record Swiss (
@@ -8,20 +10,23 @@ public record Swiss (
         String createdBy,
         String startsAt,
         String status,
-        Integer nbOngoing,
-        Integer nbPlayers,
-        Integer nbRounds,
-        Integer round,
+        int nbOngoing,
+        int nbPlayers,
+        int nbRounds,
+        int round,
         boolean rated,
+        boolean isRecentlyFinished,
         VariantName variant,
         Clock clock,
-        GreatPlayer greatPlayer,
-        NextRound nextRound,
-        Quote quote
+        Optional<GreatPlayer> greatPlayer,
+        Optional<NextRound> nextRound,
+        Optional<Quote> quote,
+        Optional<Stats> stats
         ) implements Model {
 
     public record Clock (Integer limit, Integer increment) {}
     public record GreatPlayer (String name, String url) {}
     public record NextRound (String at, Integer in) {}
     public record Quote (String text, String author) {}
+    public record Stats ( int games, int whiteWins, int blackWins, int draws, int byes, int absences, int averageRating)  {}
 }
