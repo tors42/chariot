@@ -5,9 +5,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collectors;
-import java.time.ZonedDateTime;
 
-import chariot.internal.Crypt;
 import chariot.api.Games.*;
 import chariot.model.*;
 import chariot.model.Broadcast.Round;
@@ -406,7 +404,7 @@ public interface Internal {
     interface ChallengeAuth extends chariot.api.ChallengesAuth, ChallengeAuthCommon {
         Result<BulkPairing> createBulk(InternalBulkParameters params);
 
-        default Result<BulkPairing> createBulk(Function<BulkBBuilder, BulkBuilder> params) {
+        default Result<BulkPairing> createBulk(Consumer<BulkBuilder> params) {
             return createBulk(InternalBulkParameters.of(params));
         }
 
@@ -420,16 +418,34 @@ public interface Internal {
                     return Map.of();
             }
             public static InternalBulkParameters empty() { return new Empty(); }
-            public static InternalBulkParameters of(Function<BulkBBuilder, BulkBuilder> params) {
-                var builder = params.apply(BBuilder.builder());
-                if (builder instanceof Builder b) return b.build(); else return new Parameters(Map.of());
+            public static InternalBulkParameters of(Consumer<BulkBuilder> params) {
+
+                var bulkBuilder = new BulkBuilder() {
+                    MapBuilder mapBuilder = new MapBuilder();
+                    List<BulkParams.Pairing> pairings = new ArrayList<>();
+
+                    @Override
+                    public BulkParams clock(int initial, int increment) {
+                        mapBuilder.addCustomHandler("addPairing", (args, map) -> {
+                            pairings.add(BulkParams.Pairing.class.cast(args[0]));
+                        });
+
+                        var map = mapBuilder.getMap();
+                        map.put("clock.limit", initial);
+                        map.put("clock.increment", increment);
+                        var bulkParams = mapBuilder.of(BulkParams.class);
+                        return bulkParams;
+                    }
+                };
+
+                params.accept(bulkBuilder);
+                var map = bulkBuilder.mapBuilder.getMap();
+                map.putIfAbsent("rated", false);
+                map.put("players", new Pairings(bulkBuilder.pairings));
+                return new Parameters(map);
             }
-            public class BBuilder implements BulkBBuilder {
-                private BBuilder() {}
-                private static BBuilder builder() { return new BBuilder(); }
-                public Builder clock(int clockInitial, int clockIncrement) { return new Builder(false, clockInitial, clockIncrement); }
-            }
-            record Pairings(List<BulkBuilder.Pairing> pairings) {
+
+            record Pairings(List<BulkParams.Pairing> pairings) {
                 @Override
                 public String toString() {
                     return pairings.stream()
@@ -437,53 +453,7 @@ public interface Internal {
                         .collect(Collectors.joining(","));
                 }
             }
-
-            public class Builder implements BulkBuilder {
-                private Map<String, Object> map = new HashMap<>();
-                private List<Pairing> pairings = new ArrayList<>();
-                private Builder(boolean rated, int clockInitial, int clockIncrement) {
-                    if (clockInitial < 0 || clockInitial > 10800)
-                        throw new IllegalArgumentException("clock.initial [" + clockInitial + "] not allowed. Must be [ 0 .. 10800 ]");
-                    if (clockIncrement < 0 || clockIncrement > 60)
-                        throw new IllegalArgumentException("clock.increment [" + clockIncrement + "] not allowed. Must be [ 0 .. 60 ]");
-                    if (clockInitial == 0 && clockIncrement == 0)
-                        throw new IllegalArgumentException("clock.initial and clock.increment can't both be 0");
-                    map.put("rated", rated);
-                    map.put("clock.limit", clockInitial);
-                    map.put("clock.increment", clockIncrement);
-                }
-                public InternalBulkParameters build() {
-                    // Validation...
-                    if (pairings.isEmpty())
-                        throw new RuntimeException("You must add pairings in order to create pairings!");
-
-                    map.put("players", new Pairings(pairings));
-                    return new Parameters(map);
-                }
-                public Builder addPairing(String tokenWhite, String tokenBlack) {
-                    // User is supplying plain text tokens.
-                    // Let's make an effort, albeit small, and obfuscate the tokens
-                    // so we don't keep them in memory in plain text.
-                    var encWhite = Crypt.encrypt(tokenWhite.toCharArray());
-                    var encBlack = Crypt.encrypt(tokenBlack.toCharArray());
-
-                    addPairing(new Pairing(
-                                () -> Crypt.decrypt(encWhite.data(), encWhite.key()),
-                                () -> Crypt.decrypt(encBlack.data(), encBlack.key()))
-                            );
-                    return this;
-                }
-                public Builder addPairing(Supplier<char[]> tokenWhite, Supplier<char[]> tokenBlack) { addPairing(new Pairing(tokenWhite, tokenBlack)); return this; }
-                public Builder rated(boolean rated) { map.put("rated", rated); return this; }
-                public Builder addPairing(Pairing pairing) { pairings.add(pairing); return this; }
-                public Builder pairAt(ZonedDateTime pairAt) { map.put("pairAt", pairAt); return this; }
-                public Builder startClocksAt(ZonedDateTime startClocksAt) { map.put("startClocksAt", startClocksAt); return this; }
-                public Builder variant(VariantName variant) { map.put("variant", variant); return this; }
-                public Builder variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
-                public Builder message(String message) { map.put("message", message); return this; }
-            }
         }
-
     }
 
     interface ChallengeAuthCommon extends chariot.api.ChallengesAuthCommon {

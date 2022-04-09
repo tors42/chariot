@@ -1,10 +1,13 @@
 package chariot.api;
 
 import java.time.ZonedDateTime;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import chariot.model.Enums.*;
+import chariot.api.Builders.Clock;
+import chariot.internal.Crypt;
 import chariot.model.Ack;
 import chariot.model.BulkPairing;
 import chariot.model.PendingChallenges;
@@ -52,46 +55,59 @@ public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
      * A successful bulk creation returns the created bulk.<br>
      * Its ID can be used for further operations.
      */
-    Result<BulkPairing> createBulk(Function<BulkBBuilder, BulkBuilder> params);
+    Result<BulkPairing> createBulk(Consumer<BulkBuilder> params);
     Result<Ack>         startBulk(String bulkId);
     Result<Ack>         cancelBulk(String bulkId);
 
 
 
-    interface BulkBBuilder {
+    interface BulkBuilder extends Clock<BulkParams> {}
 
-        /**
-         * @param clockInitial Clock initial time in seconds [ 0 .. 10800 ]
-         * @param clockIncrement Clock increment in seconds [ 0 .. 60 ]
-         */
-        public BulkBuilder clock(int clockInitial, int clockIncrement);
+    interface BulkParams {
 
-    }
-
-    interface BulkBuilder {
-        record Pairing(Supplier<char[]> tokenWhite, Supplier<char[]> tokenBlack) {}
+        BulkParams rated(boolean rated);
 
         /**
          * @param tokenWhite
          * @param tokenBlack
          */
-        BulkBuilder addPairing(String tokenWhite, String tokenBlack);
+        default BulkParams addPairing(String tokenWhite, String tokenBlack) {
+            // User is supplying plain text tokens.
+            // Let's make an effort, albeit small, and obfuscate the tokens
+            // so we don't keep them in memory in plain text.
+            var encWhite = Crypt.encrypt(tokenWhite.toCharArray());
+            var encBlack = Crypt.encrypt(tokenBlack.toCharArray());
+            return addPairing(new Pairing(
+                        () -> Crypt.decrypt(encWhite.data(), encWhite.key()),
+                        () -> Crypt.decrypt(encBlack.data(), encBlack.key())
+                        )
+                    );
+        }
 
         /**
          * @param tokenWhite
          * @param tokenBlack
          */
-        BulkBuilder addPairing(Supplier<char[]> tokenWhite, Supplier<char[]> tokenBlack);
+        default BulkParams addPairing(Supplier<char[]> tokenWhite, Supplier<char[]> tokenBlack) {
+            return addPairing(new Pairing(tokenWhite, tokenBlack));
+        }
 
-        BulkBuilder rated(boolean rated);
-        BulkBuilder addPairing(Pairing pairing);
+
+        BulkParams addPairing(Pairing pairing);
 
         /**
          * @param pairAt Date at which the games will be created.<br>
          *               Up to 24h in the future.<br>
          *               Omit, or set to current date and time, to start the games immediately.
          */
-        BulkBuilder pairAt(ZonedDateTime pairAt);
+        BulkParams pairAt(long pairAt);
+
+        /**
+         * @param pairAt Date at which the games will be created.<br>
+         *               Up to 24h in the future.<br>
+         *               Omit, or set to current date and time, to start the games immediately.
+         */
+         default BulkParams pairAt(ZonedDateTime pairAt) { return pairAt(pairAt.toInstant().toEpochMilli()); }
 
         /**
          * @param startClocksAt Date at which the clocks will be automatically started.<br>
@@ -99,23 +115,33 @@ public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
          *                      Note that the clocks can start earlier than specified, if players start making moves in the game.<br>
          *                      If omitted, the clocks will not start automatically.
          */
-        BulkBuilder startClocksAt(ZonedDateTime startClocksAt);
+        BulkParams startClocksAt(long startClocksAt);
+
+        /**
+         * @param startClocksAt Date at which the clocks will be automatically started.<br>
+         *                      Up to 24h in the future.<br>
+         *                      Note that the clocks can start earlier than specified, if players start making moves in the game.<br>
+         *                      If omitted, the clocks will not start automatically.
+         */
+        default BulkParams startClocksAt(ZonedDateTime startClocksAt) { return startClocksAt(startClocksAt.toInstant().toEpochMilli()); }
 
         /**
          * @param variant The variant to use in games
          */
-        BulkBuilder variant(VariantName variant);
+        BulkParams variant(VariantName variant);
 
         /**
          * @param variant The variant to use in games
          */
-        BulkBuilder variant(Function<VariantName.Provider, VariantName> variant);
+        default BulkParams variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
 
         /**
          * @param message Message that will be sent to each player, when the game is created.<br>
          *                It is sent from your user account.<br>
          *                Default: "Your game with {opponent} is ready: {game}."
          */
-        BulkBuilder message(String message);
+        BulkParams message(String message);
+
+        record Pairing(Supplier<char[]> tokenWhite, Supplier<char[]> tokenBlack) {}
     }
 }
