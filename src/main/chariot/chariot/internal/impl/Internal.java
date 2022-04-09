@@ -803,7 +803,7 @@ public interface Internal {
         Result<Broadcast> create(InternalBroadcastParameters parameters);
         Result<Round>     createRound(String tourId, InternalRoundParameters parameters);
         Result<Ack>       update(String tourId, InternalBroadcastParameters parameters);
-        Result<Ack>       updateRound(String roundId, InternalRoundParameters parameters);
+        Result<Round>     updateRound(String roundId, InternalRoundParameters parameters);
 
         default Result<Broadcast> create(Function<BroadcastBBuilder, BroadcastBuilder> params) {
             return create(InternalBroadcastParameters.of(params));
@@ -814,7 +814,7 @@ public interface Internal {
         default Result<Ack> update(String tourId, Function<BroadcastBBuilder, BroadcastBuilder> params) {
             return update(tourId, InternalBroadcastParameters.of(params));
         }
-        default Result<Ack> updateRound(String roundId, Function<RoundBBuilder, RoundBuilder> params) {
+        default Result<Round> updateRound(String roundId, Function<RoundBBuilder, RoundBuilder> params) {
             return updateRound(roundId, InternalRoundParameters.of(params));
         }
 

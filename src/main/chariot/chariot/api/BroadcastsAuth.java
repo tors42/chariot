@@ -14,7 +14,7 @@ public interface BroadcastsAuth extends Broadcasts {
     Result<Ack>       update(String tourId, Function<BroadcastBBuilder, BroadcastBuilder> params);
 
     Result<Round>     createRound(String tourId, Function<RoundBBuilder, RoundBuilder> params);
-    Result<Ack>       updateRound(String roundId, Function<RoundBBuilder, RoundBuilder> params);
+    Result<Round>     updateRound(String roundId, Function<RoundBBuilder, RoundBuilder> params);
 
     Result<Broadcast> broadcastById(String tourId);
     Result<Round>     roundById(String roundId);

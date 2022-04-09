@@ -335,8 +335,8 @@ public record Endpoint<T> (
     public static Endpoint<Ack> updateBroadcast =
         Endpoint.of("/broadcast/%s/edit", Ack.class).content(wwwform).scope(Scope.study_write).build();
 
-    public static Endpoint<Ack> updateRound =
-        Endpoint.of("/broadcast/round/%s/edit", Ack.class).content(wwwform).scope(Scope.study_write).build();
+    public static Endpoint<Broadcast.Round> updateRound =
+        Endpoint.of("/broadcast/round/%s/edit", Broadcast.Round.class).content(wwwform).scope(Scope.study_write).build();
 
     public static Endpoint<Ack> pushPGNbyRoundId =
         Endpoint.of("/broadcast/round/%s/push", Ack.class).content(plain).scope(Scope.study_write).build();

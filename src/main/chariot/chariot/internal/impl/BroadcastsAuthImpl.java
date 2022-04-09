@@ -65,7 +65,7 @@ public class BroadcastsAuthImpl extends BroadcastsImpl implements Internal.Broad
     }
 
     @Override
-    public Result<Ack> updateRound(String roundId, InternalRoundParameters params) {
+    public Result<Broadcast.Round> updateRound(String roundId, InternalRoundParameters params) {
         var postData = Util.urlEncode(params.toMap());
         var request = Endpoint.updateRound.newRequest()
             .path(roundId)
