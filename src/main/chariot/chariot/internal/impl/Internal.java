@@ -771,39 +771,39 @@ public interface Internal {
 
     interface BroadcastsAuth extends chariot.api.BroadcastsAuth {
         Result<Broadcast> create(InternalBroadcastParameters parameters);
-        Result<Round>     createRound(String tourId, InternalRoundParameters parameters);
         Result<Ack>       update(String tourId, InternalBroadcastParameters parameters);
+        Result<Round>     createRound(String tourId, InternalRoundParameters parameters);
         Result<Round>     updateRound(String roundId, InternalRoundParameters parameters);
 
         default Result<Broadcast> create(Consumer<BroadcastBuilder> params) {
-            return create(InternalBroadcastParameters.of(params, /* create */ true));
+            return create(new InternalBroadcastParameters(true).of(BroadcastBuilder.class, params));
         }
         default Result<Round> createRound(String tourId, Consumer<RoundBuilder> params) {
-            return createRound(tourId, InternalRoundParameters.of(params));
+            return createRound(tourId, new InternalRoundParameters().of(RoundBuilder.class, params));
         }
         default Result<Ack> update(String tourId, Consumer<BroadcastBuilder> params) {
-            return update(tourId, InternalBroadcastParameters.of(params, /* create */ false));
+            return update(tourId, new InternalBroadcastParameters(false).of(BroadcastBuilder.class, params));
         }
         default Result<Round> updateRound(String roundId, Consumer<RoundBuilder> params) {
-            return updateRound(roundId, InternalRoundParameters.of(params));
+            return updateRound(roundId, new InternalRoundParameters().of(RoundBuilder.class, params));
         }
 
-        sealed interface InternalBroadcastParameters {
-            record Parameters(Map<String, Object> params) implements InternalBroadcastParameters { }
-            default public Map<String, Object> toMap() {
-                if (this instanceof Parameters p)
-                    return p.params();
-                else
-                    return Map.of();
+        class InternalBroadcastParameters extends Base<InternalBroadcastParameters, BroadcastBuilder> {
+            private boolean create = false;
+            InternalBroadcastParameters(boolean create) {
+                super();
+                this.create = create;
             }
-            public static InternalBroadcastParameters of(Consumer<BroadcastBuilder> params, boolean create) {
-                MapBuilder builder = new MapBuilder();
+
+            @Override
+            public MapBuilder addOverrides(MapBuilder builder) {
                 builder.addCustomHandler("shortDescription", (args, map) -> { map.put("description", args[0]); });
                 builder.addCustomHandler("longDescription", (args, map) -> { map.put("markup", args[0]); });
-                var map = builder.getMap();
-                var proxy = builder.of(BroadcastBuilder.class);
-                params.accept(proxy);
+                return builder;
+            }
 
+            @Override
+            public InternalBroadcastParameters toParams(Map<String,Object> map) {
                 if (create) {
                     // We can provide default values for a new broadcast,
                     // but for an update - we don't want to overwrite the existing values.
@@ -811,25 +811,10 @@ public interface Internal {
                     map.putIfAbsent("name", "No name");
                     map.putIfAbsent("description", "No description");
                 }
-                return new Parameters(map);
+                return super.toParams(map);
             }
         }
 
-        sealed interface InternalRoundParameters {
-            record Parameters(Map<String, Object> params) implements InternalRoundParameters {}
-            default public Map<String, Object> toMap() {
-                if (this instanceof Parameters p)
-                    return p.params();
-                else
-                    return Map.of();
-            }
-            public static InternalRoundParameters of(Consumer<RoundBuilder> params) {
-                MapBuilder builder = new MapBuilder();
-                var map = builder.getMap();
-                var proxy = builder.of(RoundBuilder.class);
-                params.accept(proxy);
-                return new Parameters(map);
-            }
-        }
+        class InternalRoundParameters extends Base<InternalRoundParameters, RoundBuilder> {}
     }
 }
