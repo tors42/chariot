@@ -805,16 +805,16 @@ public interface Internal {
         Result<Ack>       update(String tourId, InternalBroadcastParameters parameters);
         Result<Round>     updateRound(String roundId, InternalRoundParameters parameters);
 
-        default Result<Broadcast> create(Function<BroadcastBBuilder, BroadcastBuilder> params) {
-            return create(InternalBroadcastParameters.of(params));
+        default Result<Broadcast> create(Consumer<BroadcastBuilder> params) {
+            return create(InternalBroadcastParameters.of(params, /* create */ true));
         }
-        default Result<Round> createRound(String tourId, Function<RoundBBuilder, RoundBuilder> params) {
+        default Result<Round> createRound(String tourId, Consumer<RoundBuilder> params) {
             return createRound(tourId, InternalRoundParameters.of(params));
         }
-        default Result<Ack> update(String tourId, Function<BroadcastBBuilder, BroadcastBuilder> params) {
-            return update(tourId, InternalBroadcastParameters.of(params));
+        default Result<Ack> update(String tourId, Consumer<BroadcastBuilder> params) {
+            return update(tourId, InternalBroadcastParameters.of(params, /* create */ false));
         }
-        default Result<Round> updateRound(String roundId, Function<RoundBBuilder, RoundBuilder> params) {
+        default Result<Round> updateRound(String roundId, Consumer<RoundBuilder> params) {
             return updateRound(roundId, InternalRoundParameters.of(params));
         }
 
@@ -826,26 +826,22 @@ public interface Internal {
                 else
                     return Map.of();
             }
-            public static InternalBroadcastParameters of(Function<BroadcastBBuilder, BroadcastBuilder> params) {
-                var builder = params.apply(BBuilder.builder());
-                if (builder instanceof Builder b) return b.build(); else return new Parameters(Map.of());
-            }
-            public class BBuilder implements BroadcastBBuilder {
-                private BBuilder() {}
-                private static BBuilder builder() { return new BBuilder(); }
-                public Builder info(String name, String description) { return new Builder(name, description); }
-            }
-            public class Builder implements BroadcastBuilder {
-                private Map<String, Object> map = new HashMap<>();
-                public Builder(String name, String description) {
-                    Objects.requireNonNull(name);
-                    Objects.requireNonNull(description);
-                    map.put("name", name);
-                    map.put("description", description);
+            public static InternalBroadcastParameters of(Consumer<BroadcastBuilder> params, boolean create) {
+                MapBuilder builder = new MapBuilder();
+                builder.addCustomHandler("shortDescription", (args, map) -> { map.put("description", args[0]); });
+                builder.addCustomHandler("longDescription", (args, map) -> { map.put("markup", args[0]); });
+                var map = builder.getMap();
+                var proxy = builder.of(BroadcastBuilder.class);
+                params.accept(proxy);
+
+                if (create) {
+                    // We can provide default values for a new broadcast,
+                    // but for an update - we don't want to overwrite the existing values.
+                    // Currently an error is sent back from Lichess if these parameters are missing...
+                    map.putIfAbsent("name", "No name");
+                    map.putIfAbsent("description", "No description");
                 }
-                public InternalBroadcastParameters build() { return new Parameters(map); }
-                public Builder markup(String markup) { Objects.requireNonNull(markup); map.put("markup", markup); return this; }
-                public Builder official(boolean official) { map.put("official", official); return this; }
+                return new Parameters(map);
             }
         }
 
@@ -857,24 +853,12 @@ public interface Internal {
                 else
                     return Map.of();
             }
-            public static InternalRoundParameters of(Function<RoundBBuilder, RoundBuilder> params) {
-                var builder = params.apply(BBuilder.builder());
-                if (builder instanceof Builder b) return b.build(); else return new Parameters(Map.of());
-            }
-
-            public class BBuilder implements RoundBBuilder {
-                private BBuilder() {}
-                private static BBuilder builder() { return new BBuilder(); }
-                public Builder info(String name) { return new Builder(name); }
-            }
-
-            public class Builder implements RoundBuilder {
-                private Map<String, Object> map = new HashMap<>();
-                public Builder(String name) { Objects.requireNonNull(name); map.put("name", name); }
-                public InternalRoundParameters build() { return new Parameters(map); }
-                public Builder syncUrl(String syncUrl) { Objects.requireNonNull(syncUrl); map.put("syncUrl", syncUrl); return this; }
-                public Builder startsAt(ZonedDateTime startsAt) { Objects.requireNonNull(startsAt); map.put("startsAt", startsAt.toInstant().toEpochMilli()); return this; }
-                public Builder startsAt(long startsAt) { map.put("startsAt", startsAt); return this; }
+            public static InternalRoundParameters of(Consumer<RoundBuilder> params) {
+                MapBuilder builder = new MapBuilder();
+                var map = builder.getMap();
+                var proxy = builder.of(RoundBuilder.class);
+                params.accept(proxy);
+                return new Parameters(map);
             }
         }
     }
