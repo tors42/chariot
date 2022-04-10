@@ -412,6 +412,12 @@ public interface Games {
          */
         SearchFilter sortAscending(boolean ascending);
 
+        /**
+         * Insert textual annotations in the PGN about the opening, analysis variations, mistakes, and game termination.<br>
+         * Default `false`
+         */
+        SearchFilter literate(boolean literate);
+
         private static long zdtToMillis(ZonedDateTime zdt) { return zdt.toInstant().getEpochSecond() * 1000; }
     }
 
