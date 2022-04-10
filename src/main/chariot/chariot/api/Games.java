@@ -223,77 +223,55 @@ public interface Games {
         return openingExplorerPlayer(userId, __ -> {});
     }
 
-
-    interface Filter {
-        /**
-         * Only games of a particular player. Leave empty to fetch games of all players.
-         */
-        Filter player(String userId);
+    interface CommonGameParameters<T> {
         /**
          * Include the PGN moves.<br>
          * Default `true`
          */
-        Filter moves(boolean moves);
+        T moves(boolean moves);
         /**
          * Include the full PGN within the JSON response, in a pgn field.<br>
          * Default `false`
          */
-        Filter pgnInJson(boolean pgnInJson);
+        T pgnInJson(boolean pgnInJson);
         /**
          * Include the PGN tags.<br>
          * Default `true
          */
-        Filter tags(boolean tags);
+        T tags(boolean tags);
         /**
          * Include clock comments in the PGN moves, when available.<br>
          * Default `true`
          */
-        Filter clocks(boolean clocks);
+        T clocks(boolean clocks);
         /**
          * Include the opening name.<br>
          * Default `true`
          */
-        Filter opening(boolean opening);
+        T opening(boolean opening);
     }
 
-    interface GameParams {
-        /**
-         * Include the PGN moves.<br>
-         * Default `true`
-         */
-        GameParams moves(boolean moves);
-        /**
-         * Include the full PGN within the JSON response, in a pgn field.<br>
-         * Default `false`
-         */
-        GameParams pgnInJson(boolean pgnInJson);
-        /**
-         * Include the PGN tags.<br>
-         * Default `true
-         */
-        GameParams tags(boolean tags);
-        /**
-         * Include clock comments in the PGN moves, when available.<br>
-         * Default `true`
-         */
-        GameParams clocks(boolean clocks);
-        /**
-         * Include the opening name.<br>
-         * Default `true`
-         */
-        GameParams opening(boolean opening);
-
+    interface EvalsAndPlayers<T> {
         /**
          * Include analysis evaluation comments in the PGN, when available.<br>
          * Default `true`
          */
-        GameParams evals(boolean evals);
+        T evals(boolean evals);
         /**
          * URL of a text file containing real names and ratings, to replace Lichess usernames and ratings in the PGN.<br>
          * Example: https://gist.githubusercontent.com/ornicar/6bfa91eb61a2dcae7bcd14cce1b2a4eb/raw/768b9f6cc8a8471d2555e47ba40fb0095e5fba37/gistfile1.txt
          */
-        GameParams players(URL urlToTextFile);
+        T players(URL urlToTextFile);
+    }
 
+    interface Filter extends CommonGameParameters<Filter> {
+        /**
+         * Only games of a particular player. Leave empty to fetch games of all players.
+         */
+        Filter player(String userId);
+    }
+
+    interface GameParams extends CommonGameParameters<GameParams>, EvalsAndPlayers<GameParams> {
         /**
          * Insert textual annotations in the PGN about the opening, analysis variations, mistakes, and game termination.<br>
          * Default `false`
@@ -301,44 +279,7 @@ public interface Games {
         GameParams literate(boolean literate);
     }
 
-    interface SearchFilter {
-        /**
-         * Include the PGN moves.<br>
-         * Default `true`
-         */
-        SearchFilter moves(boolean moves);
-        /**
-         * Include the full PGN within the JSON response, in a pgn field.<br>
-         * Default `false`
-         */
-        SearchFilter pgnInJson(boolean pgnInJson);
-        /**
-         * Include the PGN tags.<br>
-         * Default `true
-         */
-        SearchFilter tags(boolean tags);
-        /**
-         * Include clock comments in the PGN moves, when available.<br>
-         * Default `true`
-         */
-        SearchFilter clocks(boolean clocks);
-        /**
-         * Include the opening name.<br>
-         * Default `true`
-         */
-        SearchFilter opening(boolean opening);
-
-        /**
-         * Include analysis evaluation comments in the PGN, when available.<br>
-         * Default `true`
-         */
-        SearchFilter evals(boolean evals);
-        /**
-         * URL of a text file containing real names and ratings, to replace Lichess usernames and ratings in the PGN.<br>
-         * Example: https://gist.githubusercontent.com/ornicar/6bfa91eb61a2dcae7bcd14cce1b2a4eb/raw/768b9f6cc8a8471d2555e47ba40fb0095e5fba37/gistfile1.txt
-         */
-        SearchFilter players(URL urlToTextFile);
-
+    interface SearchFilter extends CommonGameParameters<SearchFilter>, EvalsAndPlayers<SearchFilter> {
         /**
          * Download games played since this timestamp.<br>
          * Default: Account creation date
@@ -422,33 +363,7 @@ public interface Games {
     }
 
 
-    interface ChannelFilter {
-        /**
-         * Include the PGN moves.<br>
-         * Default `true`
-         */
-        ChannelFilter moves(boolean moves);
-        /**
-         * Include the full PGN within the JSON response, in a pgn field.<br>
-         * Default `false`
-         */
-        ChannelFilter pgnInJson(boolean pgnInJson);
-        /**
-         * Include the PGN tags.<br>
-         * Default `true
-         */
-        ChannelFilter tags(boolean tags);
-        /**
-         * Include clock comments in the PGN moves, when available.<br>
-         * Default `true`
-         */
-        ChannelFilter clocks(boolean clocks);
-        /**
-         * Include the opening name.<br>
-         * Default `true`
-         */
-        ChannelFilter opening(boolean opening);
-
+    interface ChannelFilter extends CommonGameParameters<ChannelFilter> {
         /**
          * Number of games to fetch.<br>
          * Default 10
@@ -456,18 +371,64 @@ public interface Games {
         ChannelFilter nb(int nb);
     }
 
-    interface MastersBuilder {
+
+    interface CommonOpeningExplorer<T> {
         /**
          * @param fen FEN of the root position
          *            Example: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
          */
-        MastersBuilder fen(String fen);
+        T fen(String fen);
         /**
          * Comma separated sequence of legal moves in UCI notation. Play additional moves starting from {@code fen}.<br>
          * Required to find an opening name, if  {@code fen} is not an exact match for a named position.<br>
          * Example: "e2e4,e7e5,c2c4,c7c6,c4e5"
          */
-        MastersBuilder play(String play);
+        T play(String play);
+        /**
+         * Number of most common moves to display<br>
+         * Default 12
+         */
+        T moves(int moves);
+    }
+
+    interface CommonLichessOpeningExplorer<T> {
+        /**
+         * Include only games from this month or later<br>
+         * Default "0000-01"
+         */
+        T since(String since);
+        /**
+         * Include only games from this month or earlier<br>
+         * Default "3000-12"
+         */
+        T until(String until);
+        /**
+         * Number of recent games to display {@code <= 8}<br>
+         * Default 4
+         */
+        T recentGames(int recentGames);
+        /**
+         * Variant
+         */
+        T variant(VariantName variant);
+
+        /**
+         * One or more game speeds to look for
+         */
+        T speeds(Set<Speed> speeds);
+
+        /**
+         * Variant
+         */
+        default T variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
+
+        /**
+         * One or more game speeds to look for
+         */
+        default T speeds(Speed... speeds) { return speeds(Set.of(speeds)); }
+    }
+
+    interface MastersBuilder extends CommonGameParameters<MastersBuilder> {
         /**
          * Include only games from this year or later<br>
          * Default 1952
@@ -478,73 +439,24 @@ public interface Games {
          */
         MastersBuilder until(int until);
         /**
-         * Number of most common moves to display<br>
-         * Default 12
-         */
-        MastersBuilder moves(int moves);
-        /**
          * Number of top games to display, {@code <= 15}<br>
          * Default 15
          */
         MastersBuilder topGames(int topGames);
     }
 
-
-    interface LichessBuilder {
-        /**
-         * @param fen FEN of the root position
-         *            Example: "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"
-         */
-        LichessBuilder fen(String fen);
-        /**
-         * Comma separated sequence of legal moves in UCI notation. Play additional moves starting from {@code fen}.<br>
-         * Required to find an opening name, if  {@code fen} is not an exact match for a named position.<br>
-         * Example: "e2e4,e7e5,c2c4,c7c6,c4e5"
-         */
-        LichessBuilder play(String play);
-        /**
-         * Number of most common moves to display<br>
-         * Default 12
-         */
-        LichessBuilder moves(int moves);
+    interface LichessBuilder extends CommonOpeningExplorer<LichessBuilder>, CommonLichessOpeningExplorer<LichessBuilder> {
         /**
          * Number of top games to display {@code <= 8}<br>
          * Default 4
          */
         LichessBuilder topGames(int games);
-        /**
-         * Number of recent games to display {@code <= 8}<br>
-         * Default 4
-         */
-        LichessBuilder recentGames(int recentGames);
-        /**
-         * Variant
-         */
-        LichessBuilder variant(VariantName variant);
-        /**
-         * Include only games from this month or later<br>
-         * Default "0000-01"
-         */
-        LichessBuilder since(String since);
-        /**
-         * Include only games from this month or earlier<br>
-         * Default "3000-12"
-         */
-        LichessBuilder until(String until);
-
-        /**
-         * One or more game speeds to look for
-         */
-        LichessBuilder speeds(Set<Speed> speeds);
-        default LichessBuilder speeds(Speed... speeds) { return speeds(Set.of(speeds)); }
 
         /**
          * One or more rating groups, ranging from their value to the next higher group
          */
         LichessBuilder ratings(Set<RatingGroup> ratings);
         default LichessBuilder ratings(RatingGroup... ratings) { return ratings(Set.of(ratings)); }
-
-        default LichessBuilder variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
 
         /**
          *  Specifies a rating group, which includes ratings up to next rating group.<br/>
@@ -581,53 +493,12 @@ public interface Games {
         }
     }
 
-    interface PlayerBuilder {
-        /**
-         * @param fen FEN of the root position
-         *            Example: "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2"
-         */
-        PlayerBuilder fen(String fen);
-        /**
-         * Comma separated sequence of legal moves in UCI notation. Play additional moves starting from {@code fen}.<br>
-         * Required to find an opening name, if  {@code fen} is not an exact match for a named position.<br>
-         * Example: "e2e4,e7e5,c2c4,c7c6,c4e5"
-         */
-        PlayerBuilder play(String play);
-        /**
-         * Number of most common moves to display<br>
-         */
-        PlayerBuilder moves(int moves);
-        /**
-         * Number of recent games to display {@code <= 8}<br>
-         * Default 4
-         */
-        PlayerBuilder recentGames(int recentGames);
-        /**
-         * Variant
-         */
-        PlayerBuilder variant(VariantName variant);
-        /**
-         * Include only games from this month or later<br>
-         * Default "0000-01"
-         */
-        PlayerBuilder since(String since);
-        /**
-         * Include only games from this month or earlier<br>
-         * Default "3000-12"
-         */
-        PlayerBuilder until(String until);
-
+    interface PlayerBuilder extends CommonOpeningExplorer<PlayerBuilder>, CommonLichessOpeningExplorer<PlayerBuilder> {
         /**
          * Specify for which color to explore games.<br>
          * Default: white
          */
         PlayerBuilder color(Color color);
-
-
-        /**
-         * One or more game speeds to look for
-         */
-        PlayerBuilder speeds(Set<Speed> speeds);
 
         /**
          * The game modes to include
@@ -639,8 +510,6 @@ public interface Games {
         @SuppressWarnings("unchecked")
         default PlayerBuilder modes(Function<Mode.Provider, Mode>... modes) { return modes(Stream.of(modes).map(f -> f.apply(Mode.provider())).collect(Collectors.toSet())); }
         default PlayerBuilder color(Function<Color.Provider, Color> color) { return color(color.apply(Color.provider())); }
-        default PlayerBuilder speeds(Speed... speeds) { return speeds(Set.of(speeds)); }
-        default PlayerBuilder variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
 
         public enum Mode {
             casual, rated;
