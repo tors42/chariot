@@ -128,7 +128,7 @@ public class GamesImpl extends Base implements Internal.Games {
     }
 
     @Override
-    public Result<ExploreResult> openingExplorerMasters(MastersParameters mastersParameters) {
+    public Result<ExploreResult.OpeningDB> openingExplorerMasters(MastersParameters mastersParameters) {
         var request = Endpoint.exploreMasters.newRequest()
             .query(mastersParameters.toMap())
             .build();
@@ -137,7 +137,7 @@ public class GamesImpl extends Base implements Internal.Games {
     }
 
     @Override
-    public Result<ExploreResult> openingExplorerLichess(LichessParameters lichessParameters) {
+    public Result<ExploreResult.OpeningDB> openingExplorerLichess(LichessParameters lichessParameters) {
         var request = Endpoint.exploreLichess.newRequest()
             .query(lichessParameters.toMap())
             .build();
@@ -146,7 +146,7 @@ public class GamesImpl extends Base implements Internal.Games {
      }
 
     @Override
-    public Result<ExploreResult> openingExplorerPlayer(PlayerParameters playerParameters) {
+    public Result<ExploreResult.OpeningPlayer> openingExplorerPlayer(PlayerParameters playerParameters) {
         var request = Endpoint.explorePlayers.newRequest()
             .query(playerParameters.toMap())
             .build();

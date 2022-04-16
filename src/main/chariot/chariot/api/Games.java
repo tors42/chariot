@@ -70,16 +70,16 @@ public interface Games {
     /**
      * Find Masters games from Opening Explorer
      */
-    Result<ExploreResult>   openingExplorerMasters(Consumer<MastersBuilder> params);
+    Result<ExploreResult.OpeningDB>   openingExplorerMasters(Consumer<MastersBuilder> params);
     /**
      * Find Lichess games from Opening Explorer
      */
-    Result<ExploreResult>   openingExplorerLichess(Consumer<LichessBuilder> params);
+    Result<ExploreResult.OpeningDB>   openingExplorerLichess(Consumer<LichessBuilder> params);
     /**
      * Find Player games from Opening Explorer<br>
      *
      */
-    Result<ExploreResult>   openingExplorerPlayer(String userId, Consumer<PlayerBuilder> params);
+    Result<ExploreResult.OpeningPlayer>   openingExplorerPlayer(String userId, Consumer<PlayerBuilder> params);
      /**
      * Lookup positions from the Lichess tablebase server.
      */
@@ -205,21 +205,21 @@ public interface Games {
     /**
      * {@link #openingExplorerMasters(Consumer)}
      */
-    default Result<ExploreResult> openingExplorerMasters() {
+    default Result<ExploreResult.OpeningDB> openingExplorerMasters() {
         return openingExplorerMasters(__ -> {});
     }
 
     /**
      * {@link #openingExplorerLichess(Consumer)}
      */
-    default Result<ExploreResult> openingExplorerLichess() {
+    default Result<ExploreResult.OpeningDB> openingExplorerLichess() {
         return openingExplorerLichess(__ -> {});
     }
 
     /**
      * {@link #openingExplorerPlayer(String, Consumer)}
      */
-    default Result<ExploreResult> openingExplorerPlayer(String userId) {
+    default Result<ExploreResult.OpeningPlayer> openingExplorerPlayer(String userId) {
         return openingExplorerPlayer(userId, __ -> {});
     }
 

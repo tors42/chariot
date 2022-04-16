@@ -101,9 +101,9 @@ public interface Internal {
         Result<Game> currentByUserId(String userId, InternalGameParams params);
         Result<Game> byChannel(Channel channel, ChannelParameters params);
         Result<Game> byGameIds(Set<String> gameIds, InternalGameParams params);
-        Result<ExploreResult> openingExplorerMasters(MastersParameters params);
-        Result<ExploreResult> openingExplorerLichess(LichessParameters params);
-        Result<ExploreResult> openingExplorerPlayer(PlayerParameters params);
+        Result<ExploreResult.OpeningDB> openingExplorerMasters(MastersParameters params);
+        Result<ExploreResult.OpeningDB> openingExplorerLichess(LichessParameters params);
+        Result<ExploreResult.OpeningPlayer> openingExplorerPlayer(PlayerParameters params);
         default Result<StreamGame> streamGamesByUserIds(Set<String> userIds) { return streamGamesByUserIds(true, userIds); }
         default Result<Game> byGameId(String gameId, Consumer<GameParams> params) { return byGameId(gameId, new InternalGameParams().of(GameParams.class, params)); }
         default Result<Game> byUserId(String userId, Consumer<SearchFilter> params) { return byUserId(userId, new InternalSearchFilter().of(SearchFilter.class, params)); }
@@ -111,9 +111,9 @@ public interface Internal {
         default Result<Game> byChannel(Channel channel, Consumer<ChannelFilter> params) { return byChannel(channel, new ChannelParameters().of(ChannelFilter.class, params)); }
         default Result<Game> byChannel(Function<Channel.Provider, Channel> channel, Consumer<ChannelFilter> params) { return byChannel(channel.apply(Channel.provider()), new ChannelParameters().of(ChannelFilter.class, params)); }
         default Result<Game> byGameIds(Set<String> gameIds, Consumer<GameParams> params) { return byGameIds(gameIds, new InternalGameParams().of(GameParams.class, params)); }
-        default Result<ExploreResult> openingExplorerMasters(Consumer<MastersBuilder> params) { return openingExplorerMasters(new MastersParameters().of(MastersBuilder.class, params)); }
-        default Result<ExploreResult> openingExplorerLichess(Consumer<LichessBuilder> params) { return openingExplorerLichess(new LichessParameters().of(LichessBuilder.class, params)); }
-        default Result<ExploreResult> openingExplorerPlayer(String userId, Consumer<PlayerBuilder> params) { return openingExplorerPlayer(new PlayerParameters(userId).of(PlayerBuilder.class, params)); }
+        default Result<ExploreResult.OpeningDB> openingExplorerMasters(Consumer<MastersBuilder> params) { return openingExplorerMasters(new MastersParameters().of(MastersBuilder.class, params)); }
+        default Result<ExploreResult.OpeningDB> openingExplorerLichess(Consumer<LichessBuilder> params) { return openingExplorerLichess(new LichessParameters().of(LichessBuilder.class, params)); }
+        default Result<ExploreResult.OpeningPlayer> openingExplorerPlayer(String userId, Consumer<PlayerBuilder> params) { return openingExplorerPlayer(new PlayerParameters(userId).of(PlayerBuilder.class, params)); }
 
         class InternalGameParams extends Base<InternalGameParams, GameParams> {}
         class ChannelParameters extends Base<ChannelParameters, ChannelFilter> {}

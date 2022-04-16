@@ -191,14 +191,14 @@ public record Endpoint<T> (
     public static Endpoint<Game> gamesByIds =
         Endpoint.of("/api/games/export/_ids", Game.class).accept(jsonstream).content(plain).build();
 
-    public static Endpoint<ExploreResult> exploreMasters =
-        Endpoint.of("/masters", ExploreResult.class).target(ServerType.explorer).build();
+    public static Endpoint<ExploreResult.OpeningDB> exploreMasters =
+        Endpoint.of("/masters", ExploreResult.OpeningDB.class).target(ServerType.explorer).build();
 
-    public static Endpoint<ExploreResult> exploreLichess =
-        Endpoint.of("/lichess", ExploreResult.class).target(ServerType.explorer).build();
+    public static Endpoint<ExploreResult.OpeningDB> exploreLichess =
+        Endpoint.of("/lichess", ExploreResult.OpeningDB.class).target(ServerType.explorer).build();
 
-    public static Endpoint<ExploreResult> explorePlayers =
-        Endpoint.of("/player", ExploreResult.class).target(ServerType.explorer).build();
+    public static Endpoint<ExploreResult.OpeningPlayer> explorePlayers =
+        Endpoint.of("/player", ExploreResult.OpeningPlayer.class).target(ServerType.explorer).build();
 
     public static Endpoint<String> exploreMasterOTB =
         Endpoint.of("/master/pgn/%s", Function.identity()).accept(chesspgn).target(ServerType.explorer).build();

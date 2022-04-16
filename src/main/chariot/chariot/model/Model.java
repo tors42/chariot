@@ -20,6 +20,8 @@ public sealed interface Model permits
     Crosstable,
     Err,
     ExploreResult,
+    ExploreResult.OpeningDB,
+    ExploreResult.OpeningPlayer,
     Game,
     GameImport,
     Leaderboard,
