@@ -84,9 +84,9 @@ Here is a link to a simple example Maven project application https://github.com/
 Make sure to use at least Java 18. A JDK archive can be downloaded and unpacked from https://jdk.java.net/18/
 
     $ java -version
-    openjdk version "18" 2022-03-22
-    OpenJDK Runtime Environment (build 18+36-2087)
-    OpenJDK 64-Bit Server VM (build 18+36-2087, mixed mode, sharing)
+    openjdk version "18.0.1" 2022-04-19
+    OpenJDK Runtime Environment (build 18.0.1+10-24)
+    OpenJDK 64-Bit Server VM (build 18.0.1+10-24, mixed mode, sharing)
 
     $ java build/Build.java
 
@@ -109,7 +109,7 @@ And then visting http://127.0.0.1:8000/ with a Web Browser
 The JDK includes a tool called JShell. It can be used to run Java code and is suitable for exploring Java libraries.
 
     $ jshell --module-path out/modules --add-module chariot
-    |  Welcome to JShell -- Version 17.0.2
+    |  Welcome to JShell -- Version 18.0.1
     |  For an introduction type: /help intro
     jshell> var client = chariot.Client.basic()
     client ==> chariot.internal.BasicClient@1184ab05
