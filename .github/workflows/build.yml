@@ -36,14 +36,14 @@ jobs:
 
       - name: Download OpenJDK 18
         run: |
-          download_url="https://download.java.net/java/GA/jdk18/43f95e8614114aeaa8e8a5fcf20a682d/36/GPL/openjdk-18_linux-x64_bin.tar.gz"
+          download_url="https://download.java.net/java/GA/jdk18.0.1/3f48cabb83014f9fab465e280ccf630b/10/GPL/openjdk-18.0.1_linux-x64_bin.tar.gz"
           wget -O $RUNNER_TEMP/java_package.tar.gz $download_url
 
       - uses: actions/setup-java@v2
         with:
           distribution: 'jdkfile'
           jdkFile: ${{ runner.temp }}/java_package.tar.gz
-          java-version: '18'
+          java-version: '18.0.1'
           architecture: x64
 
       - name: Check java version
