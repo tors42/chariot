@@ -7,20 +7,17 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.spi.ToolProvider;
-import java.util.stream.Collectors;
 
 class Build {
 
     public static void main(String... args) throws Exception {
-        var props = Arrays.stream(args).map(s -> s.split("=")).collect(Collectors.toMap( kv -> kv[0], kv -> kv[1]));
-        var module = props.getOrDefault("module", "chariot");
-        var version = props.getOrDefault("version", "0.0.1-SNAPSHOT");
+        String module = "chariot";
+        String version = args.length > 0 ? args[0] : "0.0.1-SNAPSHOT";
+        String filenamePrefix = module + "-" + version;
 
-        var javac = ToolProvider.findFirst("javac").orElseThrow(() -> new RuntimeException("Missing javac tool"));
-        var jar = ToolProvider.findFirst("jar").orElseThrow(() -> new RuntimeException("Missing jar tool"));
-        var javadoc = ToolProvider.findFirst("javadoc").orElseThrow(() -> new RuntimeException("Missing javadoc tool"));
-
-        String prefix = module + "-" + version;
+        var javac = ToolProvider.findFirst("javac").orElseThrow();
+        var jar = ToolProvider.findFirst("jar").orElseThrow();
+        var javadoc = ToolProvider.findFirst("javadoc").orElseThrow();
 
         Path out = Path.of("out");
         del(out);
@@ -43,42 +40,42 @@ class Build {
 
         run(javac,
                 "--release", "17",
-                "--module-source-path", moduleSrc.toString(),
+                "--module-source-path", moduleSrc,
                 "--module", module,
-                "-d", classes.toString()
+                "-d", classes
            );
 
         run(jar,
                 "--create",
-                "--manifest", manifest.toString(),
+                "--manifest", manifest,
                 "--module-version", version,
-                "--file", moduleOut.resolve(prefix + ".jar").toString(),
-                "-C", out.toString(), "META-INF",
-                "-C", classes.resolve(module).toString(), "."
+                "--file", moduleOut.resolve(filenamePrefix + ".jar"),
+                "-C", out, "META-INF",
+                "-C", classes.resolve(module), "."
            );
 
         run(javadoc,
                 "--release", "17",
                 "-notimestamp",
-                "--module-source-path", moduleSrc.toString(),
+                "--module-source-path", moduleSrc,
                 "--module", module,
-                "-d", out.resolve("javadoc").toString()
+                "-d", out.resolve("javadoc")
            );
 
         run(jar,
                 "--create",
-                "--manifest", manifest.toString(),
-                "--file", out.resolve(prefix + "-javadoc.jar").toString(),
-                "-C", out.toString(), "META-INF",
-                "-C", out.resolve("javadoc").toString(), "."
+                "--manifest", manifest,
+                "--file", out.resolve(filenamePrefix + "-javadoc.jar"),
+                "-C", out, "META-INF",
+                "-C", out.resolve("javadoc"), "."
            );
 
         run(jar,
                 "--create",
-                "--manifest", manifest.toString(),
-                "--file", out.resolve(prefix + "-sources.jar").toString(),
-                "-C", out.toString(), "META-INF",
-                "-C", moduleSrc.toString(), "."
+                "--manifest", manifest,
+                "--file", out.resolve(filenamePrefix + "-sources.jar"),
+                "-C", out, "META-INF",
+                "-C", moduleSrc, "."
            );
     }
 
@@ -90,11 +87,12 @@ class Build {
         }
     }
 
-    static void run(ToolProvider tool, String... args) {
+    static void run(ToolProvider tool, Object... args) {
+        String[] stringArgs = Arrays.stream(args).map(Object::toString).toArray(String[]::new);
         var out = new StringWriter();
         var err = new StringWriter();
 
-        int exitCode = tool.run(new PrintWriter(out), new PrintWriter(err), args);
+        int exitCode = tool.run(new PrintWriter(out), new PrintWriter(err), stringArgs);
 
         if (exitCode != 0) {
             out.flush();
@@ -104,8 +102,8 @@ class Build {
                     args:   %s
                     stdout: %s
                     stderr: %s%n""",
-                    tool, exitCode, Arrays.stream(args).collect(Collectors.joining(" ")),
-                    out.toString(), err.toString());
+                    tool, exitCode, String.join(" ", stringArgs),
+                    out, err);
             System.exit(exitCode);
         }
     }
