@@ -23,7 +23,7 @@ echo "modifier:  [$modifier]"
 echo "unixstamp: [$unixtstamp]"
 
 java -Xinternalversion
-java build/Build.java module=chariot version="$version$modifier"
+java build/Build.java "$version$modifier"
 
 cd -
 
