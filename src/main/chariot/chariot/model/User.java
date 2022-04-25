@@ -14,9 +14,7 @@ import java.util.function.Consumer;
 public record User(
         String id,
         String username,
-        String title,
         String url,
-        String playing,
         boolean disabled,
         boolean closed,
         boolean tosViolation,
@@ -28,21 +26,20 @@ public record User(
         boolean blocking,
         boolean followsYou,
         boolean verified,
+        Optional<String> title,
+        Optional<String> playing,
+        Optional<Profile> profile,
         List<Trophy> trophies,
         Integer completionRate,
         Long createdAt,
         Long seenAt,
-        Profile profile,
         PlayTime playTime,
         Count count,
         Perfs perfs
         ) implements Model {
 
     public User {
-        title = orEmpty(title);
         url = orEmpty(url);
-        playing = orEmpty(playing);
-        profile = profile == null ? Profile.missing : profile;
         trophies = trophies == null ? List.of() : trophies;
     }
 
@@ -65,8 +62,6 @@ public record User(
             Integer uscfRating,
             Integer ecfRating
             ) {
-
-        static Profile missing = new Profile("", "", "", "", "", "", 0, 0, 0);
 
         public Profile {
             country = orEmpty(country);
