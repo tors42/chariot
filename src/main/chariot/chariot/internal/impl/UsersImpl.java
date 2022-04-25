@@ -30,13 +30,16 @@ public class UsersImpl extends Base implements Internal.Users {
     }
 
     @Override
-    public Result<User> byId(String userId) {
+    public Result<User> byId(String userId, boolean withTrophies) {
         if (userId == null || userId.isEmpty()) {
             return Result.zero();
         }
-        var request = Endpoint.userById.newRequest()
-            .path(userId)
-            .build();
+        var requestBuilder = Endpoint.userById.newRequest()
+            .path(userId);
+
+        if (withTrophies) requestBuilder.query(Map.of("trophies", 1));
+
+        var request = requestBuilder.build();
         return fetchOne(request);
     }
 

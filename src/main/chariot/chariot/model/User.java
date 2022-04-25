@@ -3,6 +3,7 @@ package chariot.model;
 import chariot.internal.Util;
 import static chariot.internal.Util.orEmpty;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -27,6 +28,7 @@ public record User(
         boolean blocking,
         boolean followsYou,
         boolean verified,
+        List<Trophy> trophies,
         Integer completionRate,
         Long createdAt,
         Long seenAt,
@@ -41,6 +43,7 @@ public record User(
         url = orEmpty(url);
         playing = orEmpty(playing);
         profile = profile == null ? Profile.missing : profile;
+        trophies = trophies == null ? List.of() : trophies;
     }
 
     public java.time.ZonedDateTime createdTime() {

@@ -48,6 +48,7 @@ public sealed interface Model permits
     TokenBulkResult,
     TokenResult,
     Tournament,
+    Trophy,
     TVChannels,
     TVFeed,
     UserPerformance,

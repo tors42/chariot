@@ -26,7 +26,15 @@ public interface Users {
      *
      * @param userId
      */
-    Result<User> byId(String userId);
+    default Result<User> byId(String userId) { return byId(userId, false); }
+
+    /**
+     * Get public user data
+     *
+     * @param userId
+     * @param withTrophies
+     */
+    Result<User> byId(String userId, boolean withTrophies);
 
     /**
      * Get public user data
