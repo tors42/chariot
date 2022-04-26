@@ -691,7 +691,12 @@ public interface Internal {
     }
 
     interface Users extends chariot.api.Users {
+
+        Result<User> byId(String userId, InternalUserParams params);
+
         Result<Crosstable> crosstable(String userId1, String userId2, Optional<Boolean> matchup);
+
+        default Result<User> byId(String userId, Consumer<UserParams> params) { return byId(userId, new InternalUserParams().of(UserParams.class, params)); }
 
         default Result<Crosstable> crosstable(String userId1, String userId2) {
             return crosstable(userId1, userId2, Optional.empty());
@@ -699,6 +704,8 @@ public interface Internal {
         default Result<Crosstable> crosstable(String userId1, String userId2, boolean matchup) {
             return crosstable(userId1, userId2, Optional.of(matchup));
         }
+
+        class InternalUserParams extends Base<InternalUserParams, UserParams> {}
     }
 
     interface Puzzles extends chariot.api.Puzzles {

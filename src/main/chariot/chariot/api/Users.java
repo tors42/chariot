@@ -3,6 +3,7 @@ package chariot.api;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import chariot.model.Activity;
 import chariot.model.Crosstable;
@@ -26,7 +27,7 @@ public interface Users {
      *
      * @param userId
      */
-    default Result<User> byId(String userId) { return byId(userId, false); }
+    default Result<User> byId(String userId) { return byId(userId, p -> p.withTrophies(false)); }
 
     /**
      * Get public user data
@@ -34,7 +35,16 @@ public interface Users {
      * @param userId
      * @param withTrophies
      */
-    Result<User> byId(String userId, boolean withTrophies);
+    @Deprecated
+    default Result<User> byId(String userId, boolean withTrophies) { return byId(userId, p -> p.withTrophies(withTrophies)); }
+
+    /**
+     * Get public user data
+     *
+     * @param userId
+     * @param params
+     */
+    Result<User> byId(String userId, Consumer<UserParams> params);
 
     /**
      * Get public user data
@@ -130,5 +140,15 @@ public interface Users {
      * So you can call it quite often (like once every 5 seconds).
      */
     Result<UserStatus> liveStreamers();
+
+
+    interface UserParams {
+        /**
+         * Whether or not to include any trophies in the result
+         */
+        UserParams withTrophies(boolean withTrophies);
+
+        default UserParams withTrophies() { return withTrophies(true); }
+    }
 
 }
