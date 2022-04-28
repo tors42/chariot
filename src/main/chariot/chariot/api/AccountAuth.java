@@ -1,7 +1,6 @@
 package chariot.api;
 
 import java.util.Set;
-import java.util.function.Supplier;
 
 import chariot.Client.Scope;
 import chariot.model.AccountEmail;
