@@ -672,22 +672,9 @@ public interface Internal {
     }
 
     interface TeamsAuth extends chariot.api.TeamsAuth {
-
-        Result<Ack> joinTeam(String teamId, Optional<String> message, Optional<String> password);
-
-        default Result<Ack> joinTeam(String teamId) {
-            return joinTeam(teamId, Optional.empty(), Optional.empty());
-        }
-        default Result<Ack> joinTeam(String teamId, String message) {
-            return joinTeam(teamId, Optional.of(message), Optional.empty());
-        }
-
-        default Result<Ack> joinTeamPW(String teamId, String password) {
-            return joinTeam(teamId, Optional.empty(), Optional.of(password));
-        }
-        default Result<Ack> joinTeamPW(String teamId, String password, String message) {
-            return joinTeam(teamId, Optional.of(message), Optional.of(password));
-        }
+        Result<Ack> joinTeam(String teamId, InternalJoinParams params);
+        default Result<Ack> joinTeam(String teamId, Consumer<JoinParams> params) { return joinTeam(teamId, new InternalJoinParams().of(JoinParams.class, params)); }
+        class InternalJoinParams extends Base<InternalJoinParams, JoinParams> {}
     }
 
     interface Users extends chariot.api.Users {

@@ -11,6 +11,7 @@ import chariot.model.Result;
 import chariot.model.TeamRequest;
 import chariot.internal.Endpoint;
 import chariot.internal.InternalClient;
+import chariot.internal.Util;
 
 public class TeamsAuthImpl extends TeamsImpl implements Internal.TeamsAuth {
     public TeamsAuthImpl(InternalClient client) {
@@ -18,20 +19,11 @@ public class TeamsAuthImpl extends TeamsImpl implements Internal.TeamsAuth {
     }
 
     @Override
-    public Result<Ack> joinTeam(String teamId, Optional<String> message, Optional<String> password) {
-        var requestBuilder = Endpoint.teamJoin.newRequest()
-            .path(teamId);
-
-        record KeyValue(String key, Optional<String> opt) {}
-        var postData = Stream.of(new KeyValue("message", message), new KeyValue("password", password))
-            .filter(e -> e.opt().isPresent())
-            .map(e -> e.key() + "=" + URLEncoder.encode(e.opt().get(), StandardCharsets.UTF_8))
-            .collect(Collectors.joining("&"));
-
-        requestBuilder.post(postData);
-
-        var request = requestBuilder.build();
-
+    public Result<Ack> joinTeam(String teamId, InternalJoinParams params) {
+        var request = Endpoint.teamJoin.newRequest()
+            .post(params.toMap())
+            .path(teamId)
+            .build();
         return fetchOne(request);
     }
 

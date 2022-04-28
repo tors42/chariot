@@ -65,6 +65,10 @@ public record Request<T>(
             this.postData = postData;
             return this;
         }
+        public Builder<T> post(Map<String, ?> postMap) {
+            this.postData = Util.urlEncode(postMap);
+            return this;
+        }
         public Builder<T> post() {
             this.postData = "";
             return this;
