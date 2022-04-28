@@ -111,30 +111,22 @@ public class TournamentsAuthImpl extends TournamentsImpl implements Internal.Tou
     }
 
     @Override
-    public Result<Swiss> createSwiss(String teamId, SwissParameters parameters) {
-        var parametersString = Util.urlEncode(parameters.toMap());
-
+    public Result<Swiss> createSwiss(String teamId, SwissParameters params) {
         var request = Endpoint.createSwiss.newRequest()
             .path(teamId)
-            .post(parametersString)
+            .post(params.toMap())
             .build();
 
         return fetchOne(request);
     }
 
     @Override
-    public Result<Swiss> updateSwiss(String id, SwissParameters parameters) {
-        var requestBuilder = Endpoint.updateSwissTournament.newRequest()
-            .path(id);
+    public Result<Swiss> updateSwiss(String id, SwissParameters params) {
+        var request = Endpoint.updateSwissTournament.newRequest()
+            .post(params.toMap())
+            .path(id)
+            .build();
 
-        if (parameters instanceof SwissParameters.Parameters p) {
-            var postData = p.params().entrySet().stream()
-                .map(e -> e.getKey() + "=" + URLEncoder.encode(String.valueOf(e.getValue()), StandardCharsets.UTF_8))
-                .collect(Collectors.joining("&"));
-            requestBuilder.post(postData);
-        }
-
-        var request = requestBuilder.build();
         return fetchOne(request);
     }
 

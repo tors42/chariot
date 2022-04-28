@@ -2,7 +2,6 @@ package chariot.internal.impl;
 
 import chariot.internal.Base;
 import chariot.internal.Endpoint;
-import chariot.internal.Util;
 import chariot.internal.InternalClient;
 import chariot.model.ChallengeResult;
 import chariot.model.ChallengeResult.ChallengeOpenEnded;
@@ -15,11 +14,9 @@ public class ChallengesImpl extends Base implements Internal.ChallengesInternal 
     }
 
     @Override
-    public Result<ChallengeOpenEnded> challengeOpenEnded(ChallengeOpenEndedParameters parameters) {
-        var parameterString = Util.urlEncode(parameters.toMap());
-
+    public Result<ChallengeOpenEnded> challengeOpenEnded(ChallengeOpenEndedParameters params) {
         var request = Endpoint.challengeOpenEnded.newRequest()
-            .post(parameterString)
+            .post(params.toMap())
             .build();
 
         var result = fetchOne(request);

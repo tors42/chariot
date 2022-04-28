@@ -7,7 +7,6 @@ import java.util.function.Supplier;
 import chariot.Client.Scope;
 import chariot.model.Enums.*;
 import chariot.internal.Endpoint;
-import chariot.internal.Util;
 import chariot.internal.InternalClient;
 import chariot.model.Ack;
 import chariot.model.ChallengeResult;
@@ -68,12 +67,10 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Internal
         var map = parameters.toMap();
         boolean stream = (Boolean) map.getOrDefault("keepAliveStream", Boolean.FALSE);
 
-        var parametersString = Util.urlEncode(map);
-
         var builder = Endpoint.challengeCreate.newRequest()
             .scope(scope)
             .path(userId)
-            .post(parametersString);
+            .post(map);
 
         if (stream) builder.stream();
 
@@ -112,12 +109,10 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Internal
         }
     }
 
-    private Result<ChallengeAI> challengeAI(Scope scope, InternalChallengeAIParameters parameters) {
-        var parametersString = Util.urlEncode(parameters.toMap());
-
+    private Result<ChallengeAI> challengeAI(Scope scope, InternalChallengeAIParameters params) {
         var request = Endpoint.challengeAI.newRequest()
             .scope(scope)
-            .post(parametersString)
+            .post(params.toMap())
             .build();
 
         var result = fetchOne(request);

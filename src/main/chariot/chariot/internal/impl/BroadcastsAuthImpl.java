@@ -1,7 +1,6 @@
 package chariot.internal.impl;
 
 import chariot.internal.Endpoint;
-import chariot.internal.Util;
 import chariot.internal.InternalClient;
 import chariot.model.Ack;
 import chariot.model.Broadcast;
@@ -25,9 +24,8 @@ public class BroadcastsAuthImpl extends BroadcastsImpl implements Internal.Broad
 
     @Override
     public Result<Broadcast> create(InternalBroadcastParameters params) {
-        var data = Util.urlEncode(params.toMap());
         var request = Endpoint.createBroadcast.newRequest()
-            .post(data)
+            .post(params.toMap())
             .build();
 
         return fetchOne(request);
@@ -35,10 +33,9 @@ public class BroadcastsAuthImpl extends BroadcastsImpl implements Internal.Broad
 
     @Override
     public Result<Ack> update(String tourId, InternalBroadcastParameters params) {
-        var postData = Util.urlEncode(params.toMap());
         var request = Endpoint.updateBroadcast.newRequest()
             .path(tourId)
-            .post(postData)
+            .post(params.toMap())
             .build();
 
         return fetchOne(request);
@@ -55,10 +52,9 @@ public class BroadcastsAuthImpl extends BroadcastsImpl implements Internal.Broad
 
     @Override
     public Result<Broadcast.Round> createRound(String tourId, InternalRoundParameters params) {
-        var postData = Util.urlEncode(params.toMap());
         var request = Endpoint.createRound.newRequest()
             .path(tourId)
-            .post(postData)
+            .post(params.toMap())
             .build();
 
         return fetchOne(request);
@@ -66,10 +62,9 @@ public class BroadcastsAuthImpl extends BroadcastsImpl implements Internal.Broad
 
     @Override
     public Result<Broadcast.Round> updateRound(String roundId, InternalRoundParameters params) {
-        var postData = Util.urlEncode(params.toMap());
         var request = Endpoint.updateRound.newRequest()
             .path(roundId)
-            .post(postData)
+            .post(params.toMap())
             .build();
 
         return fetchOne(request);

@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import chariot.Client.Scope;
 import chariot.internal.Base;
 import chariot.internal.Endpoint;
-import chariot.internal.Util;
 import chariot.internal.InternalClient;
 import chariot.internal.PKCE;
 import chariot.model.Result;
@@ -61,10 +60,8 @@ public class AccountImpl extends Base implements chariot.api.Account {
 
     TokenResult token(Map<String, String> parameters) {
 
-        var parameterString = Util.urlEncode(parameters);
-
         var request = Endpoint.apiToken.newRequest()
-            .post(parameterString)
+            .post(parameters)
             .build();
 
         var res = fetchOne(request);

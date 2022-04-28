@@ -7,7 +7,6 @@ import chariot.Client.Scope;
 import chariot.model.Enums.*;
 import chariot.internal.Endpoint;
 import chariot.internal.InternalClient;
-import chariot.internal.Util;
 import chariot.model.Ack;
 import chariot.model.ChatMessage;
 import chariot.model.Result;
@@ -22,10 +21,9 @@ public class BoardAuthImpl extends ChallengesAuthCommonImpl implements Internal.
     @Override
     public Result<Ack> seek(SeekParameters parameters) {
         var map = parameters.toMap();
-        var postData = Util.urlEncode(map);
 
         var requestBuilder = Endpoint.boardSeek.newRequest()
-            .post(postData);
+            .post(map);
 
         if ( ! map.containsKey("days") ){
             requestBuilder.stream();
@@ -60,13 +58,11 @@ public class BoardAuthImpl extends ChallengesAuthCommonImpl implements Internal.
 
     @Override
     public Result<Ack> chat(String gameId, String text, Room room) {
-
         var map = Map.of("text", text, "room", room.name());
-        var postData = Util.urlEncode(map);
 
         var request = Endpoint.boardChat.newRequest()
             .path(gameId)
-            .post(postData)
+            .post(map)
             .build();
 
         return fetchOne(request);
