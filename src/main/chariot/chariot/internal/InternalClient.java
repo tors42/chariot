@@ -97,13 +97,11 @@ public class InternalClient {
         request.headers().put("user-agent", "%s %s".formatted(Util.javaVersion, Util.clientVersion));
         request.headers().forEach((k,v) -> builder.header(k,v));
 
-        var optScope = Optional.ofNullable(request.scope());
-        optScope.ifPresent(scope -> {
-            if (config instanceof Config.Auth auth) {
-                auth.type().getToken(scope).ifPresent(token ->
-                        builder.header("authorization", "Bearer " + String.valueOf(token.get())));
-            }
-        });
+        if (config instanceof Config.Auth auth) {
+            var scope = request.scope() != null ? request.scope() : Scope.any;
+            auth.type().getToken(scope).ifPresent(token ->
+                    builder.header("authorization", "Bearer " + String.valueOf(token.get())));
+        }
 
         var httpRequest = builder.build();
 
