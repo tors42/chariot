@@ -43,7 +43,7 @@ jobs:
         with:
           distribution: 'jdkfile'
           jdkFile: ${{ runner.temp }}/java_package.tar.gz
-          java-version: '18.0.1.1'
+          java-version: '18'
           architecture: x64
 
       - name: Check java version
