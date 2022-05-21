@@ -1,7 +1,6 @@
 package chariot.model;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public sealed interface GameUser {
 
@@ -19,11 +18,15 @@ public sealed interface GameUser {
             //};
         }
 
-        record Anonymous(Analysis analysis) implements GameUser {
-            public Anonymous {
-                analysis = analysis == null ? new Analysis.None() : analysis;
-            }
+        default Optional<Analysis> analysis() {
+            if (this instanceof User u) return u.analysis();
+            if (this instanceof Anonymous a) return a.analysis();
+            return Optional.empty();
         }
+
+        record Anonymous(Optional<Analysis> analysis) implements GameUser {}
+
+        record Computer(Integer aiLevel) implements GameUser {}
 
         record User(
                 LightUser user,
@@ -31,21 +34,9 @@ public sealed interface GameUser {
                 Integer ratingDiff,
                 boolean provisional,
                 Optional<Boolean> berserk,
-                Analysis analysis) implements GameUser {
-            public User {
-                analysis = analysis == null ? Analysis.none : analysis;
-            }
+                Optional<Analysis> analysis) implements GameUser {
         }
 
-        record Computer(Integer aiLevel) implements GameUser {}
 
-        sealed interface Analysis permits Analysis.None, Analysis.Values {
-            static None none = new None();
-            default Optional<Values> maybe() {
-                return this instanceof Values v ? Optional.of(v) : Optional.empty();
-            }
-            default void ifPresent(Consumer<Values> consumer) { if (this instanceof Values v) consumer.accept(v); }
-            record None() implements Analysis {}
-            record Values(Integer inaccuracy, Integer mistake, Integer blunder, Integer acpl) implements Analysis {}
-        }
+        record Analysis(int inaccuracy, int mistake, int blunder, int acpl) {}
 }
