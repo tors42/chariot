@@ -5,6 +5,20 @@ import java.util.function.Consumer;
 
 public sealed interface GameUser {
 
+        default String name() {
+            if (this instanceof Anonymous) return "Anonymous";
+            if (this instanceof User u) return u.user().name();
+            if (this instanceof Computer c) return "Stockfish level " + c.aiLevel();
+            return "<unknown user>";
+
+            // --enable-preview
+            //return switch(this) {
+            //    case Anonymous a -> "Anonymous";
+            //    case User u -> u.user().name();
+            //    case Computer c -> "Stockfish level " + c.aiLevel();
+            //};
+        }
+
         record Anonymous(Analysis analysis) implements GameUser {
             public Anonymous {
                 analysis = analysis == null ? new Analysis.None() : analysis;
