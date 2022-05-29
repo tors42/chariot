@@ -792,7 +792,7 @@ public interface Internal {
             @Override
             public MapBuilder addOverrides(MapBuilder builder) {
                 builder.addCustomHandler("shortDescription", (args, map) -> { map.put("description", args[0]); });
-                builder.addCustomHandler("longDescription", (args, map) -> { map.put("markup", args[0]); });
+                builder.addCustomHandler("longDescription", (args, map) -> { map.put("markdown", args[0]); });
                 return builder;
             }
 
