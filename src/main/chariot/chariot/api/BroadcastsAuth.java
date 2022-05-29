@@ -46,9 +46,9 @@ public interface BroadcastsAuth extends Broadcasts {
         BroadcastBuilder longDescription(String markup);
 
         /**
-         * @param official For Lichess internal usage only.
+         * @param tier For Lichess internal usage only. [3 4 5]
          */
-        BroadcastBuilder official(boolean official);
+        BroadcastBuilder tier(int tier);
     }
 
     interface RoundBuilder {
