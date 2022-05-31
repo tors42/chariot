@@ -155,9 +155,12 @@ public class Util {
 
         List<String> readGroup(Iterator<String> iterator) {
             var list = new ArrayList<String>();
+            boolean inComment = false;
             while (iterator.hasNext()) {
                 String line = iterator.next();
-                if (! line.isBlank()) {
+                if (! inComment) inComment = line.contains("{");
+                if (inComment) if (line.contains("}")) inComment = false;
+                if (! line.isBlank() && inComment == false) {
                     list.add(line);
                     continue;
                 }
