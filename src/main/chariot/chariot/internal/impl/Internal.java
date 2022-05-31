@@ -709,23 +709,23 @@ public interface Internal {
 
     interface Studies extends chariot.api.Studies {
 
-        Result<String> exportChapterByStudyAndChapterId(String studyId, String chapterId, Map<String,Object> params);
-        Result<String> exportChaptersByStudyId(String studyId, Map<String,Object> params);
-        Result<String> exportStudiesByUserId(String userId, Map<String,Object> params);
+        Result<Pgn> exportChapterByStudyAndChapterId(String studyId, String chapterId, Map<String,Object> params);
+        Result<Pgn> exportChaptersByStudyId(String studyId, Map<String,Object> params);
+        Result<Pgn> exportStudiesByUserId(String userId, Map<String,Object> params);
 
-        default Result<String> exportChapterByStudyAndChapterId(String studyId, String chapterId, Consumer<Params> params) {
+        default Result<Pgn> exportChapterByStudyAndChapterId(String studyId, String chapterId, Consumer<Params> params) {
             var builder = new Builder();
             params.accept(builder);
             return exportChapterByStudyAndChapterId(studyId, chapterId, Map.copyOf(builder.map));
         }
 
-        default Result<String> exportChaptersByStudyId(String studyId, Consumer<Params> params) {
+        default Result<Pgn> exportChaptersByStudyId(String studyId, Consumer<Params> params) {
             var builder = new Builder();
             params.accept(builder);
             return exportChaptersByStudyId(studyId, Map.copyOf(builder.map));
         }
 
-        default Result<String> exportStudiesByUserId(String userId, Consumer<Params> params) {
+        default Result<Pgn> exportStudiesByUserId(String userId, Consumer<Params> params) {
             var builder = new Builder();
             params.accept(builder);
             return exportStudiesByUserId(userId, Map.copyOf(builder.map));

@@ -1,24 +1,12 @@
 package chariot.internal.impl;
 
 import java.time.Duration;
-import java.util.Set;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import chariot.internal.*;
+import chariot.model.*;
 import chariot.model.Enums.Channel;
-import chariot.model.Err;
-import chariot.model.ExploreResult;
-import chariot.model.Game;
-import chariot.model.GameImport;
-import chariot.model.Result;
-import chariot.model.StreamGame;
-import chariot.model.StreamMove;
-import chariot.model.TVChannels;
-import chariot.model.TVFeed;
-import chariot.model.TablebaseResult;
-import chariot.internal.Base;
-import chariot.internal.Endpoint;
-import chariot.internal.InternalClient;
 
 public class GamesImpl extends Base implements Internal.Games {
 
@@ -156,19 +144,14 @@ public class GamesImpl extends Base implements Internal.Games {
 
 
     @Override
-    public Result<String> openingExplorerMastersOTB(String gameId) {
+    public Result<Pgn> openingExplorerMastersOTB(String gameId) {
         var request = Endpoint.exploreMasterOTB.newRequest()
             .path(gameId)
             .errorMapper(e -> Err.fail(e)) // Not json, so the default ModelMapper-parser would fail
             .build();
 
-        var many = fetchMany(request);
-
-        var one = many.isPresent() ?
-            Result.one(many.stream().collect(Collectors.joining("\n"))) :
-            Result.<String>fail(many.error());
-
-        return one;
+        var result = fetchMany(request);
+        return Util.toPgnResult(result);
     }
 
     @Override

@@ -5,6 +5,8 @@ import java.util.Map;
 import chariot.internal.Base;
 import chariot.internal.Endpoint;
 import chariot.internal.InternalClient;
+import chariot.internal.Util;
+import chariot.model.Pgn;
 import chariot.model.Result;
 
 public class StudiesImpl extends Base implements Internal.Studies {
@@ -14,34 +16,35 @@ public class StudiesImpl extends Base implements Internal.Studies {
     }
 
     @Override
-    public Result<String> exportChapterByStudyAndChapterId(String studyId, String chapterId, Map<String, Object> map) {
+    public Result<Pgn> exportChapterByStudyAndChapterId(String studyId, String chapterId, Map<String, Object> map) {
 
         var request = Endpoint.exportChapter.newRequest()
             .path(studyId, chapterId)
             .query(map)
             .build();
 
-        return fetchMany(request);
+        var result = fetchMany(request);
+        return Util.toPgnResult(result);
     }
 
     @Override
-    public Result<String> exportChaptersByStudyId(String studyId, Map<String, Object> map) {
+    public Result<Pgn> exportChaptersByStudyId(String studyId, Map<String, Object> map) {
         var request = Endpoint.exportChapters.newRequest()
             .path(studyId)
             .query(map)
             .build();
-
-        return fetchMany(request);
+        var result = fetchMany(request);
+        return Util.toPgnResult(result);
      }
 
     @Override
-    public Result<String> exportStudiesByUserId(String userId, Map<String, Object> map) {
+    public Result<Pgn> exportStudiesByUserId(String userId, Map<String, Object> map) {
         var request = Endpoint.exportStudies.newRequest()
             .path(userId)
             .query(map)
             .build();
-
-        return fetchMany(request);
+        var result = fetchMany(request);
+        return Util.toPgnResult(result);
     }
 
 }

@@ -6,7 +6,9 @@ import java.util.Optional;
 import chariot.internal.Base;
 import chariot.internal.Endpoint;
 import chariot.internal.InternalClient;
+import chariot.internal.Util;
 import chariot.model.Broadcast;
+import chariot.model.Pgn;
 import chariot.model.Result;
 
 public class BroadcastsImpl extends Base implements Internal.Broadcasts {
@@ -24,28 +26,31 @@ public class BroadcastsImpl extends Base implements Internal.Broadcasts {
      }
 
     @Override
-    public Result<String> streamBroadcast(String roundId) {
+    public Result<Pgn> streamBroadcast(String roundId) {
         var request = Endpoint.streamBroadcast.newRequest()
             .path(roundId)
             .stream()
             .build();
-        return fetchMany(request);
-    }
+        var result = fetchMany(request);
+        return Util.toPgnResult(result);
+   }
 
     @Override
-    public Result<String> exportOneRoundPgn(String roundId) {
+    public Result<Pgn> exportOneRoundPgn(String roundId) {
         var request = Endpoint.exportBroadcastOneRoundPgn.newRequest()
             .path(roundId)
             .build();
-        return fetchMany(request);
-    }
+        var result = fetchMany(request);
+        return Util.toPgnResult(result);
+     }
 
     @Override
-    public Result<String> exportPgn(String tourId) {
+    public Result<Pgn> exportPgn(String tourId) {
         var request = Endpoint.exportBroadcastAllRoundsPgn.newRequest()
             .path(tourId)
             .build();
-        return fetchMany(request);
+        var result = fetchMany(request);
+        return Util.toPgnResult(result);
     }
 
 }

@@ -29,6 +29,7 @@ public sealed interface Model permits
     PageTeam,
     PendingChallenges,
     PerfStat,
+    Pgn,
     Puzzle,
     PuzzleActivity,
     PuzzleDashboard,

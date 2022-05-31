@@ -5,24 +5,13 @@ import static java.util.function.Predicate.not;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.Spliterator;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.security.*;
+import java.time.*;
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
 
-import chariot.model.Page;
+import chariot.model.*;
 
 public class Util {
 
@@ -146,6 +135,42 @@ public class Util {
         }
     }
 
+    /**
+     * An iterator of Pgn-modelled games.
+     * It lazily reads line after line of PGN data, possibly many games,
+     * and assembles these lines into Pgn models.
+     */
+    public static record PgnSpliterator(Iterator<String> iterator) implements Spliterator<Pgn> {
+        @Override
+        public boolean tryAdvance(Consumer<? super Pgn> action) {
+            List<String> tagList = readGroup(iterator);
+            List<String> moveList = readGroup(iterator);
+            if (tagList.isEmpty() && moveList.isEmpty()) return false;
+
+            var moves = String.join(" ", moveList);
+            var tags = tagList.stream().map(Pgn.Tag::parse).toList();
+            action.accept(Pgn.of(tags, moves));
+            return true;
+        }
+
+        List<String> readGroup(Iterator<String> iterator) {
+            var list = new ArrayList<String>();
+            while (iterator.hasNext()) {
+                String line = iterator.next();
+                if (! line.isBlank()) {
+                    list.add(line);
+                    continue;
+                }
+                if (! list.isEmpty()) break;
+            }
+            return list;
+        }
+
+        @Override public Spliterator<Pgn> trySplit() { return null; }
+        @Override public long estimateSize() { return Long.MAX_VALUE; }
+        @Override public int characteristics() { return ORDERED; }
+    }
+
     public static Map<String, String> generateUserEntryCodes(String tournamentEntryCode, Set<String> userIds) {
         var map = new HashMap<String, String>(userIds.size());
         try {
@@ -165,5 +190,15 @@ public class Util {
             throw new RuntimeException(ex);
         }
         return map;
+    }
+
+    public static Result<Pgn> toPgnResult(Result<String> result) {
+        if (result instanceof Result.Many<String> many) {
+            return Result.many(StreamSupport.stream(new PgnSpliterator(many.stream().iterator()), false));
+        } else if (result instanceof Result.Fail<String> fail) {
+            return Result.fail(fail.message());
+        } else {
+            return Result.many(Stream.of());
+        }
     }
 }

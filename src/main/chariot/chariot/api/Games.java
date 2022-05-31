@@ -12,6 +12,7 @@ import chariot.model.Enums.*;
 import chariot.model.ExploreResult;
 import chariot.model.Game;
 import chariot.model.GameImport;
+import chariot.model.Pgn;
 import chariot.model.Result;
 import chariot.model.StreamGame;
 import chariot.model.StreamMove;
@@ -66,7 +67,7 @@ public interface Games {
      * Fetches the PGN of specified game from Masters OTB database
      * @param gameId Example: "aAbqI4ey"
      */
-    Result<String>          openingExplorerMastersOTB(String gameId);
+    Result<Pgn>          openingExplorerMastersOTB(String gameId);
     /**
      * Find Masters games from Opening Explorer
      */

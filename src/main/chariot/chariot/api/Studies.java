@@ -2,22 +2,23 @@ package chariot.api;
 
 import java.util.function.Consumer;
 
+import chariot.model.Pgn;
 import chariot.model.Result;
 
 public interface Studies {
 
-    Result<String> exportChapterByStudyAndChapterId(String studyId, String chapterId, Consumer<Params> params);
-    default Result<String> exportChapterByStudyAndChapterId(String studyId, String chapterId) {
+    Result<Pgn> exportChapterByStudyAndChapterId(String studyId, String chapterId, Consumer<Params> params);
+    default Result<Pgn> exportChapterByStudyAndChapterId(String studyId, String chapterId) {
         return exportChapterByStudyAndChapterId(studyId, chapterId, __ -> {});
     }
 
-    Result<String> exportChaptersByStudyId(String studyId, Consumer<Params> params);
-    default Result<String> exportChaptersByStudyId(String studyId) {
+    Result<Pgn> exportChaptersByStudyId(String studyId, Consumer<Params> params);
+    default Result<Pgn> exportChaptersByStudyId(String studyId) {
         return exportChaptersByStudyId(studyId, __ -> {});
     }
 
-    Result<String> exportStudiesByUserId(String userId, Consumer<Params> params);
-    default Result<String> exportStudiesByUserId(String userId) {
+    Result<Pgn> exportStudiesByUserId(String userId, Consumer<Params> params);
+    default Result<Pgn> exportStudiesByUserId(String userId) {
         return exportStudiesByUserId(userId, __ -> {});
     }
 
