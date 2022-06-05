@@ -22,6 +22,7 @@ import com.sun.net.httpserver.HttpServer;
 
 import chariot.Client.Scope;
 import chariot.api.Account.UriAndToken;
+import chariot.api.Account.UriAndTokenExchange;
 import chariot.model.TokenResult;
 
 public class PKCE {
@@ -44,12 +45,76 @@ public class PKCE {
         }
     }
 
+    public static UriAndTokenExchange initiateAuthorizationFlowCustom(
+            Set<Scope> scopes,
+            String lichessUri,
+            Function<Map<String,String>, TokenResult> apiTokenLookup,
+            URI redirectUri
+            ) throws Exception {
+
+        var moduleName = System.getProperty("jdk.module.main", Optional.ofNullable(PKCE.class.getModule().getName()).orElse("chariot"));
+        var oauthUri = lichessUri + "/oauth";
+
+        var code_verifier = generateRandomCodeVerifier();
+        var oauthRequest = new Request(
+                generateChallenge(code_verifier),
+                "code",
+                moduleName,
+                redirectUri.toString(),
+                scopes.stream().map(Scope::asString).collect(Collectors.joining(" ")),
+                generateRandomState()
+                );
+
+        var paramString = Util.urlEncode(oauthRequest.toMap());
+        var authUrlWithParameters = oauthUri + "?" + paramString;
+
+        var frontChannelUrl = URI.create(authUrlWithParameters);
+
+
+        var uriAndToken = new UriAndTokenExchange() {
+            public URI url() {
+                return frontChannelUrl;
+            }
+
+            public Supplier<Supplier<char[]>> token(String code, String state) {
+                if ( ! oauthRequest.state().equals(state)) {
+                    throw new RuntimeException("Wrong State!");
+                }
+
+                if (code == null) {
+                    throw new RuntimeException("Authorization Failed");
+                }
+
+                var tokenParameters = Map.of(
+                        "code_verifier", code_verifier.code_verifier(),
+                        "grant_type", "authorization_code",
+                        "code", code,
+                        "redirect_uri", oauthRequest.redirect_uri(),
+                        "client_id", oauthRequest.client_id()
+                        );
+
+                var tokenResult = apiTokenLookup.apply(tokenParameters);
+
+                if (tokenResult instanceof TokenResult.AccessToken apiToken) {
+                    var enc = Crypt.encrypt(apiToken.access_token().toCharArray());
+                    return () -> () -> Crypt.decrypt(enc.data(), enc.key());
+                } else {
+                    var message = "Authorization Failed";
+                    if (tokenResult instanceof TokenResult.Error error) {
+                        message = error.error() + " - " + error.error_description();
+                    }
+                    throw new RuntimeException(message);
+                }
+            }
+        };
+
+        return uriAndToken;
+    }
+
     public static UriAndToken initiateAuthorizationFlow(
             Set<Scope> scopes,
             String lichessUri,
             Function<Map<String,String>, TokenResult> apiTokenLookup) throws Exception {
-
-        var moduleName = System.getProperty("jdk.module.main", Optional.ofNullable(PKCE.class.getModule().getName()).orElse("chariot"));
 
         var loopbackAddress = InetAddress.getLoopbackAddress();
         var local = new InetSocketAddress(loopbackAddress, 0);
@@ -57,26 +122,11 @@ public class PKCE {
         var redirectHost = loopbackAddress.getHostAddress();
         var redirectPort = httpServer.getAddress().getPort();
 
-        var oauthUri = lichessUri + "/oauth";
+        URI redirectUri = URI.create("http://" + redirectHost + ":" + redirectPort + "/");
 
+        record StateAndCode(String state, String code) {}
 
-        var code_verifier = generateRandomCodeVerifier();
-        var oauthRequest = new Request(
-                generateChallenge(code_verifier),
-                "code",
-                moduleName,
-                "http://" + redirectHost + ":" + redirectPort + "/",
-                scopes.stream().map(Scope::asString).collect(Collectors.joining(" ")),
-                generateRandomState()
-                );
-
-        var paramString = Util.urlEncode(oauthRequest.toMap());
-
-        var authUrlWithParameters = oauthUri + "?" + paramString;
-
-        var frontChannelUrl = URI.create(authUrlWithParameters);
-
-        var cf = new CompletableFuture<Supplier<char[]>>();
+        var cf = new CompletableFuture<StateAndCode>();
         httpServer.createContext("/",
                 (exchange) -> {
                     httpServer.removeContext("/");
@@ -91,86 +141,46 @@ public class PKCE {
                     var code = inparams.get("code");
                     var instate = inparams.get("state");
 
-                    if ( ! oauthRequest.state().equals(instate)) {
-                        System.out.format("Wrong state [%s]", instate);
-                        cf.completeExceptionally(new Exception("Authorization Failed"));
+                    if (code == null) {
                         exchange.sendResponseHeaders(503, -1);
                         exchange.close();
+                        httpServer.stop(0);
+                        cf.completeExceptionally(new Exception("Authorization Failed"));
                         return;
-                    } else {
-
-                        if (code != null) {
-                            // This should be configurable/optional/better-default?
-                            var successPage = """
-                            <html>
-                                <body>
-                                    <h1>Success, you may close this page</h1>
-                                    <p>If you later want to revoke this token, you can do so from <a href="%s">Security</a> in Preferences of your Lichess account.</p>
-                                </body>
-                            </html>"""
-                            .formatted(lichessUri + "/account/security");
-
-                            var responseBytes = successPage.getBytes();
-                            exchange.sendResponseHeaders(200, responseBytes.length);
-                            exchange.getResponseBody().write(responseBytes);
-                            exchange.close();
-                        } else {
-                            var failPage = """
-                            <html>
-                                <body>
-                                    <h1>Failure</h1>
-                                    <p>%s</p>
-                                </body>
-                            </html>"""
-                            .formatted(inparams.get("error_description"));
-                            var responseBytes = failPage.getBytes();
-                            exchange.sendResponseHeaders(200, responseBytes.length);
-                            exchange.getResponseBody().write(responseBytes);
-                            exchange.close();
-                            cf.completeExceptionally(new Exception("Error: " + inparams.get("error") + " Description: " + inparams.get("error_description")));
-                            return;
-                        }
                     }
 
-                    var tokenParameters = Map.of(
-                            "code_verifier", code_verifier.code_verifier(),
-                            "grant_type", "authorization_code",
-                            "code", code,
-                            "redirect_uri", oauthRequest.redirect_uri(), // we don't expect any more requests, value used for server side verification
-                            "client_id", oauthRequest.client_id()
-                            );
+                    var successPage = """
+                        <html>
+                        <body>
+                        <h1>Success, you may close this page</h1>
+                        <p>If you later want to revoke the token, you can do so from
+                        <a href="%s">Security</a> in Preferences of your Lichess account.</p>
+                        </body>
+                        </html>"""
+                        .formatted(lichessUri + "/account/security");
 
-                    var tokenResult = apiTokenLookup.apply(tokenParameters);
+                    var responseBytes = successPage.getBytes();
+                    exchange.sendResponseHeaders(200, responseBytes.length);
+                    exchange.getResponseBody().write(responseBytes);
+                    exchange.close();
 
-                    if (tokenResult instanceof TokenResult.AccessToken apiToken) {
-                        var enc = Crypt.encrypt(apiToken.access_token().toCharArray());
-                        cf.complete(() -> Crypt.decrypt(enc.data(), enc.key()));
-                    } else {
-                        var message = "Authorization Failed";
-                        if (tokenResult instanceof TokenResult.Error error) {
-                            message = error.error() + " - " + error.error_description();
-                        }
-                        cf.completeExceptionally(new Exception(message));
-                    }
+                    cf.complete(new StateAndCode(instate, code));
                 });
 
         httpServer.start();
 
-        var result = new UriAndToken(frontChannelUrl, new Supplier<Supplier<char[]>>() {
-            @Override
-            public Supplier<char[]> get() {
-                try {
-                    var supplier = cf.get(2, TimeUnit.MINUTES);
-                    return supplier;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                } finally {
-                    httpServer.stop(0);
-                }
+        var urlAndTokenExchange = initiateAuthorizationFlowCustom(scopes, lichessUri, apiTokenLookup, redirectUri);
+
+        return new UriAndToken(urlAndTokenExchange.url(), () -> {
+            try {
+                var stateAndCode = cf.get(2, TimeUnit.MINUTES);
+                return urlAndTokenExchange.token(stateAndCode.code(), stateAndCode.state()).get();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                httpServer.stop(0);
             }
         });
-
-        return result;
     }
 
     static CodeVerifier generateRandomCodeVerifier() {

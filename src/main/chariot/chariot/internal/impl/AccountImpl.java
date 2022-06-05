@@ -37,6 +37,18 @@ public class AccountImpl extends Base implements chariot.api.Account {
     }
 
     @Override
+    public UriAndTokenExchange oauthPKCEwithCustomRedirect(URI customRedirectUri, Scope... scopes) {
+        try {
+            var uriAndToken = PKCE.initiateAuthorizationFlowCustom(Set.of(scopes), client.config().servers().api().get(), this::token, customRedirectUri);
+            return uriAndToken;
+        } catch (Exception e) {
+            // Hmm... Prolly fail more gracefully
+            throw new RuntimeException(e);
+        }
+     }
+
+
+    @Override
     public URL personalAccessTokenForm(String description, Scope... scopes) {
         // https://lichess.org/account/oauth/token/create?scopes[]=challenge:write&scopes[]=puzzle:read&description=Prefilled+token+example
         var scopesString = Set.of(scopes).stream()
@@ -69,7 +81,7 @@ public class AccountImpl extends Base implements chariot.api.Account {
         if (res.isPresent()) {
             return res.get();
         } else {
-            return new TokenResult.Error("Unknown Error", "Unknonw");
+            return new TokenResult.Error("Unknown Error", "Unknown");
         }
     }
 

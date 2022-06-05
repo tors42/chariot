@@ -88,6 +88,8 @@ public interface Account {
      */
     UriAndToken oauthPKCE(Scope... scopes);
 
+    UriAndTokenExchange oauthPKCEwithCustomRedirect(URI customRedirectUri, Scope... scopes);
+
     /**
      * Helper method for creating <a href="https://lichess.org/account/oauth/token">Personal Access Tokens</a>
      * <p>Note, a user must create the token manually.
@@ -114,6 +116,16 @@ public interface Account {
 
     record UriAndToken(URI url, Supplier<Supplier<char[]>> token) {}
 
+    interface UriAndTokenExchange {
+        URI url();
+        /**
+         * {@see #oauthPKCEwithCustomRedirect}
+         *
+         * @param code the authorization code which was obtained in the redirect from Lichess
+         * @param state the state which was obtained in the redirect from Lichess
+         */
+        Supplier<Supplier<char[]>> token(String code, String state);
+    }
 
     Result<TokenBulkResult> testTokens(Set<String> tokens);
 
