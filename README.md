@@ -130,7 +130,11 @@ The JDK includes a tool called JShell. It can be used to run Java code and is su
 
 A (short) list of notable applications using Chariot,
 
-[Team Check](https://github.com/tors42/teamcheck) _Visualize team members_
+[Lichess Rating Graph](https://github.com/TBestLittleHelper/SimpleGraphApplication) _Visualize rating (JavaFX)_  
+[Lichess Search Engine Bot](https://github.com/jalpp/LichessSearchEngineBot) _Discord Bot for accessing Lichess features (Discord)_  
+[Team Check](https://github.com/tors42/teamcheck) _Visualize team members (Swing)_  
+
+[JBang Examples](https://github.com/tors42/jbang-chariot) _Various example scripts (JBang)_  
 
 # Contact
 
