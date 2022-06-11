@@ -18,6 +18,7 @@ public sealed interface Arena extends Model {
     Perf perf();
     Clock clock();
     VariantName variant();
+    boolean rated();
     boolean berserkable();
     Verdict verdicts();
     Integer nbPlayers();
@@ -25,7 +26,7 @@ public sealed interface Arena extends Model {
     Standing standing();
 
     record Upcoming(
-        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
+        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
 
         Integer secondsToStart,
         GreatPlayer greatPlayer
@@ -34,7 +35,7 @@ public sealed interface Arena extends Model {
 
 
     record Ongoing(
-        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
+        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
 
         boolean isStarted,
         Integer secondsToFinish,
@@ -47,7 +48,7 @@ public sealed interface Arena extends Model {
         }
 
     record Finished(
-        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
+        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
 
         boolean isFinished,
         boolean isRecentlyFinished,
@@ -69,7 +70,7 @@ public sealed interface Arena extends Model {
 
 
     record TeamUpcoming(
-        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
+        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
 
         Integer secondsToStart,
         GreatPlayer greatPlayer,
@@ -82,7 +83,7 @@ public sealed interface Arena extends Model {
 
 
     record TeamOngoing(
-        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
+        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
 
         boolean isStarted,
         Integer secondsToFinish,
@@ -99,7 +100,7 @@ public sealed interface Arena extends Model {
         }
 
     record TeamFinished(
-        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
+        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
 
         boolean isFinished,
         boolean isRecentlyFinished,
