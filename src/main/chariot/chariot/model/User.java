@@ -30,7 +30,6 @@ public record User(
         Optional<String> playing,
         Optional<Profile> profile,
         List<Trophy> trophies,
-        Integer completionRate,
         Long createdAt,
         Long seenAt,
         PlayTime playTime,
