@@ -574,6 +574,7 @@ public interface Internal {
                         return proxy;
                     }
                 };
+                bbuilder.builder.addCustomHandler("level", (args, map) -> { map.put("level", ((Enums.Level) args[0]).level); });
                 consumer.accept(bbuilder);
                 return new Parameters(bbuilder.builder.getMap());
             }
