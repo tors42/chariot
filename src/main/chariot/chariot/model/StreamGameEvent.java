@@ -28,7 +28,7 @@ public sealed interface StreamGameEvent extends Model {
             return Util.fromLong(createdTime());
         }
 
-        public record Clock (Integer limit, Integer increment) {}
+        public record Clock (Integer initial, Integer increment) {}
         public record Perf (String name) {}
 
     }
