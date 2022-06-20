@@ -429,7 +429,7 @@ public interface Games {
         default T speeds(Speed... speeds) { return speeds(Set.of(speeds)); }
     }
 
-    interface MastersBuilder extends CommonGameParameters<MastersBuilder> {
+    interface MastersBuilder extends CommonOpeningExplorer<MastersBuilder> {
         /**
          * Include only games from this year or later<br>
          * Default 1952
