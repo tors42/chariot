@@ -28,6 +28,8 @@ public sealed interface ChallengeResult extends Model
             Optional<String> declineReason,
             Optional<String> rematchOf) {
 
+            public record Variant (GameVariant key, String name) {}
+
             public Challenge {
                 status = orEmpty(status);
             }
