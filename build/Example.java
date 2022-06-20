@@ -1,4 +1,4 @@
-//DEPS io.github.tors42:chariot:0.0.37
+//DEPS io.github.tors42:chariot:0.0.38
 //JAVA 17+
 import chariot.Client;
 import java.util.Arrays;
