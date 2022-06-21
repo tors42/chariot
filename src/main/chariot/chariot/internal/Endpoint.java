@@ -34,8 +34,13 @@ public record Endpoint<T> (
     public static Endpoint<Ack> accountKidStatus =
         Endpoint.of("/api/account/kid", Ack.class).scope(Scope.preference_write).build();
 
-    public static Endpoint<NowPlaying> accountNowPlaying =
+    @SuppressWarnings("deprecation")
+    public static Endpoint<NowPlaying> accountNowPlayingDeprecated =
         Endpoint.of("/api/account/playing", NowPlaying.class).scope(Scope.any).build();
+
+    public static Endpoint<PlayingWrapper> accountNowPlaying =
+        Endpoint.of("/api/account/playing", PlayingWrapper.class).scope(Scope.any).build();
+
 
     public static Endpoint<Ack> accountOAuthToken =
         Endpoint.of("/account/oauth/token", Ack.class).build();

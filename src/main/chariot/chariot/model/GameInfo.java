@@ -1,19 +1,8 @@
 package chariot.model;
 
-import java.util.List;
-
 import chariot.model.Enums.Color;
 
-/**
- * @deprecated See {@link chariot.model.PlayingWrapper}
- */
-@Deprecated
-public record NowPlaying(List<Game> nowPlaying) implements Model {
-    /**
-     * @deprecated See {@link chariot.model.GameInfo}
-     */
-    @Deprecated
-    public record Game(
+public record GameInfo(
             String fullId,
             String gameId,
             String fen,
@@ -27,7 +16,8 @@ public record NowPlaying(List<Game> nowPlaying) implements Model {
             boolean isMyTurn,
             boolean hasMoved,
             Variant variant,
-            Opponent opponent) {}
+            Opponent opponent) implements Model {
     public record Variant(String key, String name) {}
     public record Opponent(String id, String username, Integer rating) {}
 }
+

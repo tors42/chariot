@@ -195,8 +195,11 @@ public interface Internal {
     }
 
     interface GamesAuth extends chariot.api.GamesAuth {
+        @SuppressWarnings("deprecation")
         Result<NowPlaying> ongoingGames(Optional<Integer> nb);
+        @SuppressWarnings("deprecation")
         default Result<NowPlaying> ongoingGames() { return ongoingGames(Optional.empty()); }
+        @SuppressWarnings("deprecation")
         default Result<NowPlaying> ongoingGames(int nb) { return ongoingGames(Optional.of(nb)); }
     }
     interface Tournaments extends chariot.api.Tournaments {
