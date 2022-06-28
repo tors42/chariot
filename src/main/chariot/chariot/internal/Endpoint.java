@@ -97,8 +97,8 @@ public record Endpoint<T> (
     public static Endpoint<User[]> usersByIds =
      Endpoint.ofArr("/api/users", User.class).content(plain).build();
 
-    public static Endpoint<UserStatus[]> liveStreamers =
-     Endpoint.ofArr("/streamer/live", UserStatus.class).build();
+    public static Endpoint<StreamerStatus[]> liveStreamers =
+     Endpoint.ofArr("/streamer/live", StreamerStatus.class).build();
 
     public static Endpoint<Team> teamById =
         Endpoint.of("/api/team/%s", Team.class).build();

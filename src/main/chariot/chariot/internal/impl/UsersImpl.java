@@ -1,27 +1,11 @@
 package chariot.internal.impl;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.*;
+import java.util.stream.*;
 
-import chariot.internal.Base;
-import chariot.internal.Endpoint;
-import chariot.internal.InternalClient;
-import chariot.model.Activity;
-import chariot.model.Crosstable;
-import chariot.model.Leaderboard;
-import chariot.model.PerfStat;
-import chariot.model.Enums.PerfType;
-import chariot.model.Enums.PerfTypeNoCorr;
-import chariot.model.RatingHistory;
-import chariot.model.Result;
-import chariot.model.User;
-import chariot.model.UserStatus;
-import chariot.model.UserTopAll;
+import chariot.internal.*;
+import chariot.model.*;
+import chariot.model.Enums.*;
 
 public class UsersImpl extends Base implements Internal.Users {
 
@@ -124,7 +108,7 @@ public class UsersImpl extends Base implements Internal.Users {
     }
 
     @Override
-    public Result<UserStatus> liveStreamers() {
+    public Result<StreamerStatus> liveStreamers() {
         var request = Endpoint.liveStreamers.newRequest()
             .build();
         return fetchArr(request);

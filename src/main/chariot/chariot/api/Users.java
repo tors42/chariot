@@ -1,21 +1,10 @@
 package chariot.api;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
-import chariot.model.Activity;
-import chariot.model.Crosstable;
-import chariot.model.Enums.PerfType;
-import chariot.model.Enums.PerfTypeNoCorr;
-import chariot.model.Leaderboard;
-import chariot.model.PerfStat;
-import chariot.model.RatingHistory;
-import chariot.model.Result;
-import chariot.model.User;
-import chariot.model.UserStatus;
-import chariot.model.UserTopAll;
+import chariot.model.*;
+import chariot.model.Enums.*;
 
 /**
  * Access registered users on Lichess.
@@ -139,7 +128,7 @@ public interface Users {
      * This API is very fast and cheap on lichess side.<br>
      * So you can call it quite often (like once every 5 seconds).
      */
-    Result<UserStatus> liveStreamers();
+    Result<StreamerStatus> liveStreamers();
 
 
     interface UserParams {

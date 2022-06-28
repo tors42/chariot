@@ -42,6 +42,7 @@ public sealed interface Model permits
     StreamGame,
     StreamGameEvent,
     StreamMove,
+    StreamerStatus,
     Swiss,
     SwissResult,
     TablebaseResult,
