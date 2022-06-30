@@ -121,7 +121,6 @@ public class InternalClient {
 
             var mapped = stream
                 .map(string -> { config.logging().responsebodyraw().info(() -> string); return string; } )
-                .filter(not(String::isEmpty)) // Filter out any keep-alive messages
                 .filter(not("{}"::equals)) // Filter out any keep-alive messages
                 .map(request.mapper())
                 .filter(Objects::nonNull);

@@ -47,7 +47,7 @@ public class ModelMapper {
                     }
                     return array;
                 }
-                return Model.unmapped(json);
+                return null;
             };
 
 
@@ -151,7 +151,7 @@ public class ModelMapper {
                         var crosstable = new Crosstable(total, matchup);
                         return Crosstable.class.cast(crosstable);
                     }
-                    return Model.unmapped(json);
+                    return null;
                 });
 
 
@@ -191,7 +191,7 @@ public class ModelMapper {
                             }
                         }
                     }
-                    return Model.unmapped(json);
+                    return null;
                 });
 
         // Some guidance for the correcte tournament type to be modelled...
@@ -210,7 +210,7 @@ public class ModelMapper {
                             }
                         }
                     }
-                    return Model.unmapped(json);
+                    return null;
                 });
 
         mappings.put(ChallengeTokens.class,
@@ -227,7 +227,7 @@ public class ModelMapper {
                         return new ChallengeTokens(map);
                     }
 
-                    return Model.unmapped(json);
+                    return null;
                 });
 
         mappings.put(TokenBulkResult.class,
@@ -249,7 +249,7 @@ public class ModelMapper {
                         return new TokenBulkResult(map);
                     }
 
-                    return Model.unmapped(json);
+                    return null;
                 });
 
 
@@ -288,7 +288,7 @@ public class ModelMapper {
                                     // RatingHistory model
                                     return new RatingHistory(yo.getString("name"), helper.apply(yo.value().get("points")));
                                 }
-                                return Model.unmapped(json);
+                                return null;
                             })
                         .toList();
 
@@ -298,7 +298,7 @@ public class ModelMapper {
                         }
                         return array;
                     }
-                    return Model.unmapped(json);
+                    return null;
                 });
 
         mappingsArr.put(Activity.class,
@@ -369,8 +369,7 @@ public class ModelMapper {
                                     }
                                     return new Activity(interval, activities);
                                 }
-                                //return null;
-                                return Model.unmapped(json);
+                                return null;
                             }
                         ).toList();
                         var array = Array.newInstance(Activity.class, list.size());
@@ -379,7 +378,7 @@ public class ModelMapper {
                         }
                         return array;
                     }
-                    return Model.unmapped(json);
+                    return null;
                 });
 
 

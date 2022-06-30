@@ -58,8 +58,4 @@ public sealed interface Model permits
     UserPerformance,
     User,
     UserStatus,
-    UserTopAll,
-    Model.Unmapped {
-        record Unmapped(String src) implements Model {}
-        static Unmapped unmapped(String src) { return new Unmapped(src); }
-}
+    UserTopAll {}
