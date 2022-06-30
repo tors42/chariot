@@ -84,8 +84,9 @@ public interface Enums {
         public static Provider provider() {return new Provider(){};}
     }
 
-    public enum Speed { bullet, blitz, rapid, classical, correspondence;
+    public enum Speed { ultraBullet, bullet, blitz, rapid, classical, correspondence;
         public interface Provider {
+            default Speed ultraBullet()     { return ultraBullet; }
             default Speed bullet()    { return bullet; }
             default Speed blitz() { return blitz; }
             default Speed rapid() { return rapid; }
