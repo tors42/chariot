@@ -10,8 +10,10 @@ public record StreamerStatus(
         boolean online,
         boolean playing,
         boolean streaming,
-        boolean patron) implements Model {
+        boolean patron,
+        StreamInfo stream,
+        StreamerInfo streamer) implements Model {
 
-    public record Stream(String service, String status, String lang) {}
-    public record Streamer(String name, String headline, String description, Optional<String> twitch, Optional<String> youTube) {}
+    public record StreamInfo(String service, String status, String lang) {}
+    public record StreamerInfo(String name, String headline, String description, Optional<String> twitch, Optional<String> youTube) {}
 }
