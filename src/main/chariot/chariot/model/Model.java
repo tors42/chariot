@@ -35,6 +35,7 @@ public sealed interface Model permits
     Puzzle,
     PuzzleActivity,
     PuzzleDashboard,
+    PuzzleRace,
     RatingHistory,
     Simuls,
     StormDashboard,

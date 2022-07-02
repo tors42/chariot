@@ -1,13 +1,9 @@
 package chariot.internal.impl;
 
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
-import chariot.model.PuzzleDashboard;
-import chariot.internal.Endpoint;
-import chariot.internal.InternalClient;
-import chariot.model.Result;
-import chariot.model.PuzzleActivity;
+import chariot.internal.*;
+import chariot.model.*;
 
 public class PuzzlesAuthImpl extends PuzzlesImpl implements Internal.PuzzlesAuth {
 
@@ -27,6 +23,14 @@ public class PuzzlesAuthImpl extends PuzzlesImpl implements Internal.PuzzlesAuth
     public Result<PuzzleDashboard> puzzleDashboard(int days) {
         var request = Endpoint.puzzleDashboard.newRequest()
             .path(String.valueOf(days))
+            .build();
+        return fetchOne(request);
+    }
+
+    @Override
+    public Result<PuzzleRace> createAndJoinRace() {
+        var request = Endpoint.puzzleRace.newRequest()
+            .post()
             .build();
         return fetchOne(request);
     }

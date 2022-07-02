@@ -241,6 +241,9 @@ public record Endpoint<T> (
     public static Endpoint<PuzzleDashboard> puzzleDashboard =
         Endpoint.of("/api/puzzle/dashboard/%s", PuzzleDashboard.class).scope(Scope.puzzle_read).build();
 
+    public static Endpoint<PuzzleRace> puzzleRace =
+        Endpoint.of("/api/racer", PuzzleRace.class).scope(Scope.racer_write).build();
+
     public static Endpoint<StormDashboard> stormDashboard =
         Endpoint.of("/api/storm/dashboard/%s", StormDashboard.class).build();
 

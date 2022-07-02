@@ -390,6 +390,11 @@ public sealed interface Client permits ClientAuth, Client.Basic {
         tournament_write,
 
         /**
+         * Create and join puzzle races
+         */
+        racer_write,
+
+        /**
          * Read puzzle activity
          */
         puzzle_read,
