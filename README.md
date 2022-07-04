@@ -13,7 +13,7 @@ Below are a couple of example scripts which makes use of Chariot.
 The first one shows basic usage of fetching a team and showing its current member count.
 
 ```java
-//DEPS io.github.tors42:chariot:0.0.41
+//DEPS io.github.tors42:chariot:0.0.42
 //JAVA 17+
 import chariot.Client;
 
@@ -33,7 +33,7 @@ JBang can be found at https://www.jbang.dev/download/
 The second script makes use of an operation which needs authorization - it creates a Swiss tournament.
 
 ```java
-//DEPS io.github.tors42:chariot:0.0.41
+//DEPS io.github.tors42:chariot:0.0.42
 //JAVA 17+
 import chariot.Client;
 import java.time.*;
@@ -67,13 +67,13 @@ Consecutive runs the script will run without need for interaction:
 
 ## Use as dependency
 
-The coordinates are `io.github.tors42:chariot:0.0.41`, so in a Maven project the following dependency can be added to the `pom.xml`:
+The coordinates are `io.github.tors42:chariot:0.0.42`, so in a Maven project the following dependency can be added to the `pom.xml`:
 
     ...
     <dependency>
       <groupId>io.github.tors42</groupId>
       <artifactId>chariot</artifactId>
-      <version>0.0.41</version>
+      <version>0.0.42</version>
     </dependency>
     ...
 
