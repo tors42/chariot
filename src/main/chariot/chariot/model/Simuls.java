@@ -1,6 +1,10 @@
 package chariot.model;
 
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
+
+import chariot.internal.Util;
 
 import static chariot.internal.Util.orEmpty;
 
@@ -19,6 +23,9 @@ public record Simuls(
             boolean isRunning,
             int nbApplicants,
             int nbPairings,
+            Optional<Long> estimatedStartAt,
+            Optional<Long> startedAt,
+            Optional<Long> finishedAt,
             Host host,
             List<Variant> variants) {
             public Simul {
@@ -26,6 +33,10 @@ public record Simuls(
                 fullname = orEmpty(fullname);
                 text = orEmpty(text);
             }
+
+            public Optional<ZonedDateTime> estimatedStartTime() { return estimatedStartAt.map(Util::fromLong); }
+            public Optional<ZonedDateTime> startedAtTime() { return startedAt.map(Util::fromLong); }
+            public Optional<ZonedDateTime> finishedAtTime() { return finishedAt.map(Util::fromLong); }
 
         public record Host(String id, String name, int rating, String title) {
             public Host {
