@@ -1,7 +1,7 @@
 package chariot.model;
 
 import java.util.NoSuchElementException;
-import java.util.function.Consumer;
+import java.util.function.*;
 import java.util.stream.Stream;
 
 /**
@@ -184,6 +184,21 @@ public sealed interface Result<T> {
             return t;
         }
     }
+
+    /**
+     * If a value is present, applies the given function to the value.
+     * If multiple values are present, applies the given function to the first value.
+     * If no value is present, an empty result is returned.
+     * See {@link java.util.Optional#map(Function)}
+     */
+     default <R> Result<R> map(Function<? super T, ? extends R> mapper) {
+        if (this instanceof One<T> o) {
+            return Result.one(mapper.apply(o.entry()));
+        } else if (this instanceof Many<T> m) {
+            return Result.many(m.entries().map(mapper));
+        }
+        return Result.zero();
+     }
 
     /**
      * Returns a error message, in case the result is Fail.
