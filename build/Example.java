@@ -13,14 +13,16 @@ class Example {
 
         var client = Client.basic();
 
-        client.teams().byTeamId(teamId).ifPresentOrElse(
-                team -> System.out.format("%s has %d members%n", team.name(), team.nbMembers()),
-                () -> System.out.format("""
-                    Couldn't find the team with team id "%s"
-                    Note, a team id should be all lowercase and instead of
-                    whitespace there are dashes. The team "Lichess Swiss" for
-                    instance, has the team id "lichess-swiss".
-                    """, teamId));
+        String message = client.teams().byTeamId(teamId)
+            .map(team -> "%s has %d members".formatted(team.name(), team.nbMembers()))
+            .getOrElse("""
+                Couldn't find the team with team id "%s"
+                Note, a team id should be all lowercase and instead of
+                whitespace there are dashes. The team "Lichess Swiss" for
+                instance, has the team id "lichess-swiss".
+                """.formatted(teamId));
+
+        System.out.println(message);
 
         List<String> members = client.teams().usersByTeamId(teamId).stream()
             .limit(3)
