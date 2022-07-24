@@ -26,7 +26,7 @@ The script can be run by using a tool called JBang, which has support to downloa
 JBang can be found at https://www.jbang.dev/download/
 
     $ jbang basic.jsh
-    Team Lichess Swiss has 242514 members!
+    Team Lichess Swiss has 242569 members!
 
 ### tournament.jsh
 
@@ -124,12 +124,12 @@ The JDK includes a tool called JShell. It can be used to run Java code and is su
 ### Run Example (non-project, single-file application)
 
     $ java --module-path out/modules --add-modules chariot build/Example.java
-    Lichess Swiss has 242514 members
-
+    Lichess Swiss has 242569 members
+    
     Some members in the team:
-    J2001596676
-    bismoAutismo
-    CBTnguyenminhanh2015
+    bulat1611
+    Daryana_Budaeva2011
+    aduboy
 
 # Applications
 
