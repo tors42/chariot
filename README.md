@@ -20,7 +20,7 @@ import chariot.Client;
 var client = Client.basic();
 System.out.println(client.teams().byTeamId("lichess-swiss")
     .map(team -> "Team %s has %d members!".formatted(team.name(), team.nbMembers()))
-    .getOrElse("Couldnt' find team!"));
+    .getOrElse("Couldn't find team!"));
 ```
 
 The script can be run by using a tool called JBang, which has support to download both Java and the Chariot client.
