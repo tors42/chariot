@@ -425,6 +425,11 @@ public sealed interface Client permits ClientAuth, Client.Basic {
         bot_play,
 
         /**
+         * Read followed players
+         */
+        follow_read,
+
+        /**
          * Follow and Unfollow players
          */
         follow_write,

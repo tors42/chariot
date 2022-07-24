@@ -80,7 +80,7 @@ public record Endpoint<T> (
         Endpoint.of("/api/user/%s/current-game", Game.class).build();
 
     public static Endpoint<User> relFollowing =
-        Endpoint.of("/api/rel/following", User.class).scope(Scope.any).accept(jsonstream).build();
+        Endpoint.of("/api/rel/following", User.class).scope(Scope.follow_read).accept(jsonstream).build();
 
     public static Endpoint<Ack> followUser =
         Endpoint.of("/api/rel/follow/%s", Ack.class).scope(Scope.follow_write).build();
