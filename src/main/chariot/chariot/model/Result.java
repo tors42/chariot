@@ -175,7 +175,22 @@ public sealed interface Result<T> {
         }
     }
 
+    /**
+     * Use {@link #orElse(Object)} instead.
+     * @deprecated
+     */
+    @Deprecated
     default T getOrElse(T t) {
+        return orElse(t);
+    }
+
+    /**
+     * If a value is present, it is returned.
+     * If multiple values are present, the first value is returned.
+     * If no value is present, the provided value is returned.
+     * See {@link java.util.Optional#orElse(Object)}
+     */
+     default T orElse(T t) {
         if (this instanceof One<T> o) {
             return o.entry();
         } else if (this instanceof Many<T> m) {
