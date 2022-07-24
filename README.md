@@ -26,7 +26,7 @@ The script can be run by using a tool called JBang, which has support to downloa
 JBang can be found at https://www.jbang.dev/download/
 
     $ jbang basic.jsh
-    Team Lichess Swiss has 201672 members!
+    Team Lichess Swiss has 242514 members!
 
 ### tournament.jsh
 
@@ -84,9 +84,9 @@ Here is a link to a simple example Maven project application https://github.com/
 Make sure to use at least Java 18. A JDK archive can be downloaded and unpacked from https://jdk.java.net/18/
 
     $ java -version
-    openjdk version "18.0.1.1" 2022-04-22
-    OpenJDK Runtime Environment (build 18.0.1.1+2-6)
-    OpenJDK 64-Bit Server VM (build 18.0.1.1+2-6, mixed mode, sharing)
+    openjdk version "18.0.2" 2022-07-19
+    OpenJDK Runtime Environment (build 18.0.2+9-61)
+    OpenJDK 64-Bit Server VM (build 18.0.2+9-61, mixed mode, sharing)
 
     $ java build/Build.java
 
@@ -109,7 +109,7 @@ And then visting http://127.0.0.1:8000/ with a Web Browser
 The JDK includes a tool called JShell. It can be used to run Java code and is suitable for exploring Java libraries.
 
     $ jshell --module-path out/modules --add-module chariot
-    |  Welcome to JShell -- Version 18.0.1.1
+    |  Welcome to JShell -- Version 18.0.2
     |  For an introduction type: /help intro
     jshell> var client = chariot.Client.basic()
     client ==> chariot.internal.BasicClient@1184ab05
@@ -124,7 +124,12 @@ The JDK includes a tool called JShell. It can be used to run Java code and is su
 ### Run Example (non-project, single-file application)
 
     $ java --module-path out/modules --add-modules chariot build/Example.java
-    Lichess Swiss has 217049 members!
+    Lichess Swiss has 242514 members
+
+    Some members in the team:
+    J2001596676
+    bismoAutismo
+    CBTnguyenminhanh2015
 
 # Applications
 
