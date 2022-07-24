@@ -18,8 +18,9 @@ The first one shows basic usage of fetching a team and showing its current membe
 import chariot.Client;
 
 var client = Client.basic();
-var team = client.teams().byTeamId("lichess-swiss").get();
-System.out.printf("Team %s has %d members!%n", team.name(), team.nbMembers());
+System.out.println(client.teams().byTeamId("lichess-swiss")
+    .map(team -> "Team %s has %d members!".formatted(team.name(), team.nbMembers()))
+    .getOrElse("Couldnt' find team!"));
 ```
 
 The script can be run by using a tool called JBang, which has support to download both Java and the Chariot client.
