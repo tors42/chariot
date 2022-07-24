@@ -1,4 +1,4 @@
-//DEPS io.github.tors42:chariot:0.0.43
+//DEPS io.github.tors42:chariot:0.0.44
 //JAVA 17+
 import chariot.Client;
 import java.util.*;
@@ -15,7 +15,7 @@ class Example {
 
         String message = client.teams().byTeamId(teamId)
             .map(team -> "%s has %d members".formatted(team.name(), team.nbMembers()))
-            .getOrElse("""
+            .orElse("""
                 Couldn't find the team with team id "%s"
                 Note, a team id should be all lowercase and instead of
                 whitespace there are dashes. The team "Lichess Swiss" for
