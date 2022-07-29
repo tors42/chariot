@@ -7,7 +7,7 @@ import chariot.model.Enums.TournamentState;
 import chariot.internal.Util;
 
 // Lighter than Arena (Arena holds duels and standings etc)
-public sealed interface Tournament extends Model {
+public sealed interface Tournament {
 
     String id();
     String createdBy();

@@ -8,4 +8,4 @@ public record PageTeam (
         Integer previousPage,
         Integer nextPage,
         Integer nbPages
-        ) implements Page<Team>, Model {}
+        ) implements Page<Team> {}

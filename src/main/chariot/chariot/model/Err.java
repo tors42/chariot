@@ -1,10 +1,9 @@
 package chariot.model;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public sealed interface Err extends Model {
+public sealed interface Err {
 
     default String text() {
         if (this instanceof Error e) {

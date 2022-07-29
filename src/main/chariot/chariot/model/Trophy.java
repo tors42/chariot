@@ -8,7 +8,7 @@ public record Trophy(
         long date,
         String icon,
         String url
-        ) implements Model {
+        )  {
 
     public java.time.ZonedDateTime dateAt() {
         return Util.fromLong(date());

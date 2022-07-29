@@ -9,7 +9,7 @@ public record ArenaResult(
         String username,
         String title,
         Integer performance,
-        String team) implements Model {
+        String team)  {
 
     public ArenaResult {
         title = orEmpty(title);

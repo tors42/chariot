@@ -4,7 +4,7 @@ import java.util.List;
 
 import static chariot.internal.Util.orEmpty;
 
-public record PerfStat(Perf perf, Integer rank, Float percentile, Stat stat) implements Model {
+public record PerfStat(Perf perf, Integer rank, Float percentile, Stat stat)  {
     public record Perf(Glicko glicko, Integer nb, Integer progress) {
         public record Glicko(Float rating, Float deviation, boolean provisional) {}
     }

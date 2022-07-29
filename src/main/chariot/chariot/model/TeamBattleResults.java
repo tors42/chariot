@@ -5,7 +5,7 @@ import java.util.List;
 public record TeamBattleResults (
         String id,
         List<Teams> teams
-        ) implements Model {
+        )  {
 
     public record Teams (Integer rank, String id, Integer score, List<Player> players) {
         public record Player (User user, String id, Integer score) {

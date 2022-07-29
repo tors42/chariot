@@ -462,13 +462,13 @@ public record Endpoint<T> (
         this(builder.endpoint, builder.mapper, builder.accept, builder.content, builder.scope, builder.target);
     }
 
-    public static <T extends Model> EndpointBuilder<T> of(
+    public static <T> EndpointBuilder<T> of(
             String endpoint,
             Class<T> clazz) {
         return new EndpointBuilder<>(endpoint, ModelMapper.mapper(clazz));
     }
 
-    public static <T extends Model> EndpointBuilder<T[]> ofArr(
+    public static <T> EndpointBuilder<T[]> ofArr(
             String endpoint,
             Class<T> clazz) {
         return new EndpointBuilder<>(endpoint, ModelMapper.mapperArr(clazz));

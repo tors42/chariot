@@ -6,8 +6,8 @@ import static chariot.internal.Util.orEmpty;
 
 import java.util.Optional;
 
-public sealed interface ChallengeResult extends Model
-    permits ChallengeResult.ChallengeInfo, ChallengeResult.ChallengeAI, ChallengeResult.ChallengeOpenEnded, ChallengeResult.OpponentDecision  {
+public sealed interface ChallengeResult permits
+    ChallengeResult.ChallengeInfo, ChallengeResult.ChallengeAI, ChallengeResult.ChallengeOpenEnded, ChallengeResult.OpponentDecision {
 
     public record ChallengeInfo(Challenge challenge) implements ChallengeResult {}
 

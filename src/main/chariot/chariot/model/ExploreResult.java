@@ -1,13 +1,11 @@
 package chariot.model;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import chariot.model.Enums.Color;
 
-public sealed interface ExploreResult extends Model {
+public sealed interface ExploreResult {
 
-    @SuppressWarnings("unused") // needs to explicitly implements Model
     record OpeningDB (
             int white,
             int draws,
@@ -15,9 +13,8 @@ public sealed interface ExploreResult extends Model {
             List<DBMove> moves,
             List<DBGame> topGames,
             List<DBGame> recentGames,
-            Optional<EROpening> opening) implements ExploreResult, Model {}
+            Optional<EROpening> opening) implements ExploreResult {}
 
-    @SuppressWarnings("unused") // needs to explicitly implements Model
     record OpeningPlayer(
             int white,
             int draws,
@@ -25,7 +22,7 @@ public sealed interface ExploreResult extends Model {
             List<PlayerMove> moves,
             List<PlayerGame> topGames,
             List<PlayerGame> recentGames,
-            Optional<EROpening> opening) implements ExploreResult, Model {}
+            Optional<EROpening> opening) implements ExploreResult {}
 
     public record DBMove(
             String uci,

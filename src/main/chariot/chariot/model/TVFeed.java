@@ -4,7 +4,7 @@ import java.util.List;
 
 import chariot.model.Enums.Color;
 
-public record TVFeed (String t, Data d) implements Model {
+public record TVFeed (String t, Data d)  {
 
     public sealed interface Data permits Featured, Fen {}
 

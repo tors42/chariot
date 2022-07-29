@@ -4,7 +4,7 @@ import java.time.ZonedDateTime;
 
 import chariot.internal.Util;
 
-public record TeamRequest(Request request, User user) implements Model {
+public record TeamRequest(Request request, User user)  {
 
     public record Request(Long date, String message, String teamId, String userId) {
         public ZonedDateTime dateTime() {

@@ -11,7 +11,7 @@ import static chariot.internal.Util.orEmpty;
 public record Simuls(
         List<Simul> pending,
         List<Simul> created,
-        List<Simul> started) implements Model {
+        List<Simul> started)  {
 
     public record Simul (
             String id,

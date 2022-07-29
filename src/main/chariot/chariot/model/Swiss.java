@@ -22,7 +22,7 @@ public record Swiss (
         Optional<NextRound> nextRound,
         Optional<Quote> quote,
         Optional<Stats> stats
-        ) implements Model {
+        )  {
 
     public record Clock (Integer limit, Integer increment) {}
     public record GreatPlayer (String name, String url) {}

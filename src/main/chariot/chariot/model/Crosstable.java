@@ -3,7 +3,7 @@ package chariot.model;
 import java.util.Optional;
 import java.util.Set;
 
-public record Crosstable(Results total, java.util.Optional<Results> matchup) implements Model {
+public record Crosstable(Results total, java.util.Optional<Results> matchup)  {
 
     public record Results(Set<Result> users, Integer nbGames) {
         public record Result(String user, Double points) {}

@@ -13,7 +13,7 @@ public record StreamGame (
      Long createdTime,
      Clock clock,
      Players players
-     ) implements Model {
+     )  {
 
     public java.time.ZonedDateTime createdAt() {
         return Util.fromLong(createdTime());

@@ -7,4 +7,4 @@ public record SwissResult(
         float tieBreak,
         int rating,
         int performance,
-        boolean absent) implements Model {}
+        boolean absent)  {}

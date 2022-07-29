@@ -17,7 +17,7 @@ public record TVChannels (
         TVChannel chess960,
         TVChannel kingOfTheHill,
         TVChannel topRated
-        ) implements Model {
+        )  {
 
     public record TVChannel(LightUser user, Integer rating, String gameId) {}
 }

@@ -12,7 +12,7 @@ public record StreamerStatus(
         boolean streaming,
         boolean patron,
         StreamInfo stream,
-        StreamerInfo streamer) implements Model {
+        StreamerInfo streamer)  {
 
     public record StreamInfo(String service, String status, String lang) {}
     public record StreamerInfo(String name, String headline, String description, Optional<String> twitch, Optional<String> youTube) {}

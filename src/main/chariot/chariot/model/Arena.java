@@ -7,7 +7,7 @@ import chariot.model.Enums.Color;
 import chariot.model.Enums.VariantName;
 import static chariot.internal.Util.orEmpty;
 
-public sealed interface Arena extends Model {
+public sealed interface Arena {
 
     String id();
     String createdBy();

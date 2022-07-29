@@ -1,3 +1,3 @@
 package chariot.model;
 
-public record Leaderboard (java.util.List<UserPerformance> users) implements Model {}
+public record Leaderboard (java.util.List<UserPerformance> users)  {}

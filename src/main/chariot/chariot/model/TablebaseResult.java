@@ -12,7 +12,7 @@ public record TablebaseResult(
         boolean variant_win,
         boolean variant_loss,
         String category,
-        List<Move> moves) implements Model {
+        List<Move> moves)  {
 
     public record Move(
             String uci,

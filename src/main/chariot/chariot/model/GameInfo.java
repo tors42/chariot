@@ -16,7 +16,7 @@ public record GameInfo(
             boolean isMyTurn,
             boolean hasMoved,
             Variant variant,
-            Opponent opponent) implements Model {
+            Opponent opponent)  {
     public record Variant(String key, String name) {}
     public record Opponent(String id, String username, Integer rating) {}
 }

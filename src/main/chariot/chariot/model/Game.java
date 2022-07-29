@@ -28,7 +28,7 @@ public record Game (
     Opening opening,
     Clock clock,
     List<Entry> analysis
-    ) implements Model {
+    )  {
 
     public Game {
         moves = orEmpty(moves);

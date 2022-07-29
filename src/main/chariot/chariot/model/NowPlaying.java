@@ -8,7 +8,7 @@ import chariot.model.Enums.Color;
  * @deprecated See {@link chariot.model.PlayingWrapper}
  */
 @Deprecated
-public record NowPlaying(List<Game> nowPlaying) implements Model {
+public record NowPlaying(List<Game> nowPlaying)  {
     /**
      * @deprecated See {@link chariot.model.GameInfo}
      */

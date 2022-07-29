@@ -4,7 +4,7 @@ import chariot.internal.Util;
 import chariot.model.Enums.Color;
 import static chariot.internal.Util.orEmpty;
 
-public sealed interface StreamMove extends Model {
+public sealed interface StreamMove {
 
     public record Info(
             String id,

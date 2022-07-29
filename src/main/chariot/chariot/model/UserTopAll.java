@@ -14,4 +14,4 @@ public record UserTopAll (
     java.util.List<UserPerformance> kingOfTheHill,
     java.util.List<UserPerformance> racingKings,
     java.util.List<UserPerformance> threeCheck
-    ) implements Model {}
+    )  {}

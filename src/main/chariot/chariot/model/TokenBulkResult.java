@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 
 import chariot.Client.Scope;
 
-public record TokenBulkResult(Map<String, TokenInfo> map) implements Model {
+public record TokenBulkResult(Map<String, TokenInfo> map)  {
     public record TokenInfo(String userId, List<Scope> scopes, ZonedDateTime expires) {
 
         public TokenInfo {

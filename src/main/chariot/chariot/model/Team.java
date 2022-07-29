@@ -8,4 +8,4 @@ public record Team (
         LightUser leader,
         java.util.List<LightUser> leaders,
         Integer nbMembers
-        ) implements Model {}
+        )  {}

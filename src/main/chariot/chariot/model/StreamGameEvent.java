@@ -3,7 +3,7 @@ package chariot.model;
 import chariot.model.Enums.Room;
 import chariot.internal.Util;
 
-public sealed interface StreamGameEvent extends Model {
+public sealed interface StreamGameEvent {
 
     enum Type { gameFull, gameState, chatLine }
 

@@ -22,104 +22,43 @@ import chariot.model.*;
 public class ModelMapper {
 
     private static final YayMapper mapper = YayMapper.mapper();
-    private static final Map<Class<? extends Model>, Function<String, ?>> mappings;
-    private static final Map<Class<? extends Model>, Function<String, ?>> mappingsArr;
+    private static final Map<Class<?>, Function<String, ?>> mappings = new HashMap<>();
+    private static final Map<Class<?>, Function<String, ?>> mappingsArr = new HashMap<>();
 
-    public static <T extends Model> Function<String, T> mapper(final Class<T> clazz) {
-        return (Function<String, T>) mappings.get(clazz);
+    public static <T> Function<String, T> mapper(final Class<T> clazz) {
+        return (Function<String, T>) mappings.computeIfAbsent(clazz, c -> json -> mapper.fromString(json, c));
     }
 
-    public static <T extends Model> Function<String, T[]> mapperArr(final Class<T> clazz) {
-        return (Function<String, T[]>) mappingsArr.get(clazz);
-    }
-
-
-    static Function<Class<? extends Model>, Function<String, ?>> arr =
-            (cls) -> (json) -> {
-                var root = Parser.fromString(json);
-                if (root instanceof YayArray ya) {
-                    var list = ya.value().stream()
-                        .map(e -> mapper.fromYayTree(e, cls))
-                        .toList();
-                    var array = Array.newInstance(cls, list.size());
-                    for (int i = 0; i < list.size(); i++) {
-                        Array.set(array, i, list.get(i));
-                    }
-                    return array;
+    public static <T> Function<String, T[]> mapperArr(final Class<T> clazz) {
+        return (Function<String, T[]>) mappingsArr.computeIfAbsent(clazz, c -> json -> {
+            var root = Parser.fromString(json);
+            if (root instanceof YayArray ya) {
+                var list = ya.value().stream()
+                    .map(e -> mapper.fromYayTree(e, c))
+                    .toList();
+                Object array = Array.newInstance(c, list.size());
+                for (int i = 0; i < list.size(); i++) {
+                    Array.set(array, i, list.get(i));
                 }
-                return null;
-            };
-
-
+                return array;
+            }
+            return null;
+        });
+    }
 
     static {
+        // Add custom mapping of some model classes,
+        // where automatic transformation of json model to java model isn't straightforward.
 
-        // Populate the Model mappings with the generic json-to-java mapper
-        mappings = Arrays.stream(Model.class.getPermittedSubclasses())
-            .map(c -> (Class<? extends Model>) c)
-            .collect(
-                    Collectors.toMap(
-                        c -> c,
-                        c -> (json) -> mapper.fromString(json, c)
-                        )
-                    );
-
-        mappingsArr = Arrays.stream(Model.class.getPermittedSubclasses())
-            .map(c -> (Class<? extends Model>) c)
-            .collect(
-                    Collectors.toMap(
-                        c -> c,
-                        c -> arr.apply(c)
-                        )
-                    );
-
-
-        // And that should be it,
-        // the Mapper is finished! Neat!
-
-
-
-
-
-
-
-
-
-
-
-        // ...
-        // Uhm, what are you doing?
-        // ...
-        // Why are you continuing reading the source code?
-        // It's finished.
-        //
-
-
-
-
-
-
-
-
-
-
-        // Ok ok ok,
-        // you got me!
-        // Some of the JSON models will be customly fitted into the Java model...
-
-        // Some especially troublesome models needs handling...
-        // (I'm looking at you Crosstable, RatingHistory and Activity - yeah...)
-        //
         // Specify Java model <-> JSON model field name mappings,
         // where JSON model contains Java keywords,
         // so another name must be used in the Java model.
-        //mapper.setMappings(Tournament.class,                  ModelMapperUtil.privateMapping());
         mapper.setMappings(PerfStat.Stat.DateResult.class,    ModelMapperUtil.intMapping());
         mapper.setMappings(Game.class,                        ModelMapperUtil.createdAtAndLastMoveAtMapping());
         mapper.setMappings(StreamMove.Info.class,             ModelMapperUtil.createdAtMapping());
         mapper.setMappings(StreamGameEvent.Full.class,        ModelMapperUtil.createdAtMapping());
         mapper.setMappings(TVChannels.class,                  ModelMapperUtil.tvChannelsMapping());
-        mapper.setMappings(User.Count.class,           ModelMapperUtil.importMapping());
+        mapper.setMappings(User.Count.class,                  ModelMapperUtil.importMapping());
         mapper.setMappings(Variant.class,                     ModelMapperUtil.shortMapping());
         mapper.setMappings(Broadcast.Round.class,             ModelMapperUtil.startsAtMapping());
         mapper.setMappings(ChallengeResult.ChallengeAI.class, ModelMapperUtil.createdAtAndLastMoveAtMapping());

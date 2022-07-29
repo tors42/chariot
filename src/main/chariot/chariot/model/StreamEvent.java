@@ -2,14 +2,9 @@ package chariot.model;
 
 import java.util.Optional;
 
-import chariot.model.Enums.Color;
-import chariot.model.Enums.GameVariant;
-import chariot.model.Enums.PerfType;
-import chariot.model.Enums.PerfTypeWithFromPos;
-import chariot.model.Enums.Speed;
-import chariot.model.Enums.VariantName;
+import chariot.model.Enums.*;
 
-public sealed interface StreamEvent extends Model {
+public sealed interface StreamEvent {
 
     enum Type { gameStart, gameFinish, challenge, challengeCanceled, challengeDeclined }
 

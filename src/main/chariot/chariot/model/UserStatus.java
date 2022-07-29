@@ -10,5 +10,5 @@ public record UserStatus(
         boolean online,
         boolean playing,
         boolean streaming,
-        boolean patron) implements Model {
+        boolean patron)  {
 }

@@ -35,7 +35,7 @@ public record User(
         PlayTime playTime,
         Count count,
         Perfs perfs
-        ) implements Model {
+        )  {
 
     public User {
         url = orEmpty(url);

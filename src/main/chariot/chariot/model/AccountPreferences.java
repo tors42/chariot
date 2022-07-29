@@ -1,6 +1,6 @@
 package chariot.model;
 
-public record AccountPreferences(Prefs prefs) implements Model {
+public record AccountPreferences(Prefs prefs)  {
     public record Prefs(
         boolean dark,
         boolean transp,

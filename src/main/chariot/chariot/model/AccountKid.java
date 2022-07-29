@@ -1,3 +1,3 @@
 package chariot.model;
 
-public record AccountKid (boolean kid) implements Model {}
+public record AccountKid (boolean kid)  {}

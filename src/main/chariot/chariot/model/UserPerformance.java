@@ -10,7 +10,7 @@ public record UserPerformance (
         boolean online,
         boolean patron,
         Perfs perfs
-        ) implements Model {
+        )  {
 
     public UserPerformance {
         title = orEmpty(title);

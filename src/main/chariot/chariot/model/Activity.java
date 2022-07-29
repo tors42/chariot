@@ -9,7 +9,7 @@ import static chariot.internal.Util.orEmpty;
 
 import java.time.ZonedDateTime;
 
-public record Activity(Interval interval, Set<Activity.Type> activities) implements Model {
+public record Activity(Interval interval, Set<Activity.Type> activities)  {
 
     public record Interval(ZonedDateTime start, ZonedDateTime end) {};
 
