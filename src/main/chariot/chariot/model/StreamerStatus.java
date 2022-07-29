@@ -9,7 +9,6 @@ public record StreamerStatus(
         Optional<String> playingId,
         boolean online,
         boolean playing,
-        boolean streaming,
         boolean patron,
         StreamInfo stream,
         StreamerInfo streamer)  {
