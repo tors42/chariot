@@ -1,18 +1,19 @@
 package build;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.spi.ToolProvider;
+import java.io.*;
+import java.nio.file.*;
+import java.time.*;
+import java.time.format.*;
+import java.util.*;
+import java.util.spi.*;
 
 class Build {
 
     public static void main(String... args) throws Exception {
         String module = "chariot";
         String version = args.length > 0 ? args[0] : "0.0.1-SNAPSHOT";
+        String timestamp = args.length > 1 ? args[1] : ZonedDateTime.now()
+            .withNano(0).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         String filenamePrefix = module + "-" + version;
 
         var javac = ToolProvider.findFirst("javac").orElseThrow();
@@ -47,6 +48,7 @@ class Build {
 
         run(jar,
                 "--create",
+                "--date", timestamp,
                 "--manifest", manifest,
                 "--module-version", version,
                 "--file", moduleOut.resolve(filenamePrefix + ".jar"),
@@ -64,6 +66,7 @@ class Build {
 
         run(jar,
                 "--create",
+                "--date", timestamp,
                 "--manifest", manifest,
                 "--file", out.resolve(filenamePrefix + "-javadoc.jar"),
                 "-C", out, "META-INF",
@@ -72,6 +75,7 @@ class Build {
 
         run(jar,
                 "--create",
+                "--date", timestamp,
                 "--manifest", manifest,
                 "--file", out.resolve(filenamePrefix + "-sources.jar"),
                 "-C", out, "META-INF",
