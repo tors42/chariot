@@ -20,30 +20,16 @@ jobs:
           ref: main
           path: chariot
 
-      # We create jar files, which use the zip format - which contains timestamps
-      # :facepalm: I.e the generated data will differ depending on when it is built.
-      # In order to get a "Reproducible Build", we will use a tool to fix the jars,
-      # after they have been created.
-      # The tool is called "strip-nondeterminism" and can be used to set a specific
-      # timestamp (instead of "now".)
-      # We'll use the timestamp of the commit we are about to release.
-      # (In addition to the timestamp, I think the order of the files in the jar files
-      # can be random too - but also this will be taken care of by "strip-nondeterminism")
-      - name: Install strip-nondeterminism tool
+      - name: Download OpenJDK 19
         run: |
-          sudo apt-get update
-          sudo apt-get install strip-nondeterminism
-
-      - name: Download OpenJDK 18
-        run: |
-          download_url="https://download.java.net/java/GA/jdk18.0.2.1/db379da656dc47308e138f21b33976fa/1/GPL/openjdk-18.0.2.1_linux-x64_bin.tar.gz"
+          download_url="https://download.java.net/java/GA/jdk19/877d6127e982470ba2a7faa31cc93d04/36/GPL/openjdk-19_linux-x64_bin.tar.gz"
           wget -O $RUNNER_TEMP/java_package.tar.gz $download_url
 
       - uses: actions/setup-java@v2
         with:
           distribution: 'jdkfile'
           jdkFile: ${{ runner.temp }}/java_package.tar.gz
-          java-version: '18'
+          java-version: '19'
           architecture: x64
 
       - name: Check java version

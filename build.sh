@@ -15,15 +15,15 @@ else
 fi
 version=${version#"v"}
 rev=$(git rev-parse --short HEAD)
-unixtstamp=$(git log -1 --format=%at)
+tstamp=$(git log -1 --format=%aI)
 
 echo "rev:       [$rev]"
 echo "version:   [$version]"
 echo "modifier:  [$modifier]"
-echo "unixstamp: [$unixtstamp]"
+echo "tstamp:    [$tstamp]"
 
 java -Xinternalversion
-java build/Build.java "$version$modifier"
+java build/Build.java "$version$modifier" "$tstamp"
 
 cd -
 
@@ -40,17 +40,8 @@ for file in $files; do
 done
 sed "s/TEMPLATEVERSION/$version$modifier/g" pom.template.xml > bundle/$pom
 
-# Run "strip-nondeterminism" on the jar files, which will rewrite the jars
-# with the goal to making it possible to create exactly the same binaries
-# across different build environments.
-for file in $files; do
-    indir=bundle/$(basename $file)
-    strip-nondeterminism -t jar -T $unixtstamp $indir
-done
-
 # Show sha256 digest of final artifacts
 sha256sum bundle/*
-
 
 # Will look into signing the files using GitHub Actions later...
 #tosign=$(ls bundle)
