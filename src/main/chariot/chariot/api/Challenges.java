@@ -3,6 +3,7 @@ package chariot.api;
 import java.util.function.*;
 
 import chariot.model.ChallengeOpenEnded;
+import chariot.model.One;
 import chariot.model.Enums.VariantName;
 import chariot.api.Builders.*;
 

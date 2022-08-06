@@ -1,6 +1,6 @@
 package chariot.api;
 
-import chariot.model.User;
+import chariot.model.*;
 
 public interface Bot {
     Many<User> botsOnline();

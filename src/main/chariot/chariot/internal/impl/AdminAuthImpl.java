@@ -8,6 +8,7 @@ import chariot.api.*;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.ChallengeTokens;
+import chariot.model.One;
 
 public class AdminAuthImpl extends Base implements AdminAuth {
     public AdminAuthImpl(InternalClient client) {

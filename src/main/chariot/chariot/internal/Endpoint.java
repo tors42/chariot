@@ -8,9 +8,6 @@ import java.util.function.*;
 import java.util.stream.*;
 
 import chariot.Client.Scope;
-import chariot.api.Many;
-import chariot.api.One;
-import chariot.api.Err;
 import chariot.internal.Config.ServerType;
 import chariot.internal.RequestParameters.*;
 import chariot.model.*;

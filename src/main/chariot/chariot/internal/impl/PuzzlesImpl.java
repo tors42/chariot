@@ -2,14 +2,10 @@ package chariot.internal.impl;
 
 import java.util.function.Consumer;
 
-import chariot.api.One;
 import chariot.api.Puzzles;
-import chariot.internal.Base;
-import chariot.internal.Endpoint;
-import chariot.internal.InternalClient;
+import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
-import chariot.model.Puzzle;
-import chariot.model.StormDashboard;
+import chariot.model.*;
 
 public class PuzzlesImpl extends Base implements Puzzles {
 

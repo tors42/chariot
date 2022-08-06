@@ -3,8 +3,7 @@ package chariot.api;
 import java.time.ZonedDateTime;
 import java.util.function.Consumer;
 
-import chariot.model.Ack;
-import chariot.model.Broadcast;
+import chariot.model.*;
 import chariot.model.Broadcast.Round;
 
 public interface BroadcastsAuth extends Broadcasts {

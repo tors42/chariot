@@ -2,7 +2,7 @@ package chariot.api;
 
 import java.util.function.Consumer;
 
-import chariot.model.Pgn;
+import chariot.model.*;
 
 public interface Studies {
 

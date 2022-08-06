@@ -1,7 +1,6 @@
 package chariot.api;
 
-import chariot.model.Broadcast;
-import chariot.model.Pgn;
+import chariot.model.*;
 
 public interface Broadcasts {
 

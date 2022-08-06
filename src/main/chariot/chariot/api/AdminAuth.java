@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import chariot.model.ChallengeTokens;
+import chariot.model.One;
 
 public interface AdminAuth {
     /**

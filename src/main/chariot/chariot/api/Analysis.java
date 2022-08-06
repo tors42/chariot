@@ -2,6 +2,7 @@ package chariot.api;
 
 import java.util.function.*;
 
+import chariot.model.One;
 import chariot.model.Enums.VariantName;
 
 public interface Analysis {

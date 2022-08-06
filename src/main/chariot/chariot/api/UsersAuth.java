@@ -1,6 +1,6 @@
 package chariot.api;
 
-import chariot.model.Ack;
+import chariot.model.*;
 
 public interface UsersAuth extends Users {
 

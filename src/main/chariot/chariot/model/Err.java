@@ -1,4 +1,4 @@
-package chariot.api;
+package chariot.model;
 
 public sealed interface Err {
     public record Empty()                          implements Err {}

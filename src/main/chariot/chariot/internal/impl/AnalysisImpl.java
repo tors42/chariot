@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import chariot.api.*;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
+import chariot.model.One;
 
 public class AnalysisImpl extends Base implements Analysis {
 

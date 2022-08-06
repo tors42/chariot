@@ -3,10 +3,7 @@ package chariot.api;
 import java.util.Set;
 
 import chariot.Client.Scope;
-import chariot.model.AccountEmail;
-import chariot.model.AccountPreferences;
-import chariot.model.Ack;
-import chariot.model.User;
+import chariot.model.*;
 
 /**
  * Read and write account information and preferences.

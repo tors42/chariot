@@ -4,8 +4,7 @@ import java.util.Map;
 
 import chariot.api.*;
 import chariot.internal.*;
-import chariot.model.Broadcast;
-import chariot.model.Pgn;
+import chariot.model.*;
 
 public class BroadcastsImpl extends Base implements Broadcasts {
 

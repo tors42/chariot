@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 import chariot.Client;
 import chariot.Client.Scope;
+import chariot.model.One;
 import chariot.model.TokenBulkResult;
 
 /**

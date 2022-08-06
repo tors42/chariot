@@ -1,4 +1,4 @@
-package chariot.api;
+package chariot.model;
 
 import java.util.Optional;
 import java.util.function.*;

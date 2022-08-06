@@ -2,8 +2,7 @@ package chariot.api;
 
 import java.util.function.Consumer;
 
-import chariot.model.Puzzle;
-import chariot.model.StormDashboard;
+import chariot.model.*;
 
 public interface Puzzles {
 

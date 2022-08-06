@@ -7,8 +7,8 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import chariot.Client.Scope;
-import chariot.api.Many;
-import chariot.api.One;
+import chariot.model.Many;
+import chariot.model.One;
 import chariot.internal.Config.ServerType;
 
 public sealed interface RequestParameters {

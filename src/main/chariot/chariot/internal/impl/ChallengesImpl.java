@@ -7,6 +7,7 @@ import chariot.api.*;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.ChallengeOpenEnded;
+import chariot.model.One;
 
 public class ChallengesImpl extends Base implements Challenges {
 

@@ -2,10 +2,10 @@ package chariot.internal.impl;
 
 import java.util.function.Consumer;
 
-import chariot.api.*;
+import chariot.api.Studies;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
-import chariot.model.Pgn;
+import chariot.model.*;
 
 public class StudiesImpl extends Base implements Studies {
 
