@@ -1,26 +1,21 @@
 package chariot.api;
 
 import java.time.ZonedDateTime;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 import chariot.model.Enums.*;
 import chariot.api.Builders.Clock;
 import chariot.internal.Crypt;
-import chariot.model.Ack;
-import chariot.model.BulkPairing;
-import chariot.model.PendingChallenges;
-import chariot.model.Result;
+import chariot.model.*;
 
 /**
  * Send and receive challenges and manage bulk challenges.
  */
 public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
 
-    Result<PendingChallenges> challenges();
-    Result<Ack>               startClocksOfGame(String gameId, String token1, String token2);
-    Result<Ack>               addTimeToGame(String gameId, int seconds);
+    One<PendingChallenges> challenges();
+    One<Ack>               startClocksOfGame(String gameId, String token1, String token2);
+    One<Ack>               addTimeToGame(String gameId, int seconds);
 
     /**
      * Get a list of upcoming bulk pairings you created.<br>
@@ -28,7 +23,7 @@ public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
      * Bulk pairings are deleted from the server after the pairings are done and the clocks have started.
      *
      */
-    Result<BulkPairing> bulks();
+    Many<BulkPairing> bulks();
 
     /**
      * Schedule many games at once, up to 24h in advance.<br>
@@ -55,10 +50,9 @@ public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
      * A successful bulk creation returns the created bulk.<br>
      * Its ID can be used for further operations.
      */
-    Result<BulkPairing> createBulk(Consumer<BulkBuilder> params);
-    Result<Ack>         startBulk(String bulkId);
-    Result<Ack>         cancelBulk(String bulkId);
-
+    One<BulkPairing> createBulk(Consumer<BulkBuilder> params);
+    One<Ack>         startBulk(String bulkId);
+    One<Ack>         cancelBulk(String bulkId);
 
 
     interface BulkBuilder extends Clock<BulkParams> {}
@@ -66,6 +60,7 @@ public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
     interface BulkParams {
 
         BulkParams rated(boolean rated);
+        default BulkParams rated() { return rated(true); }
 
         /**
          * @param tokenWhite

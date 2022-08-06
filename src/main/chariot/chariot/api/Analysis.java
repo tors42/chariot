@@ -1,15 +1,13 @@
 package chariot.api;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.*;
 
 import chariot.model.Enums.VariantName;
-import chariot.model.Result;
 
 public interface Analysis {
 
-    Result<chariot.model.Analysis> cloudEval(String fen, Consumer<Params> params);
-    default Result<chariot.model.Analysis> cloudEval(String fen) {
+    One<chariot.model.Analysis> cloudEval(String fen, Consumer<Params> params);
+    default One<chariot.model.Analysis> cloudEval(String fen) {
         return cloudEval(fen, __ -> {});
     }
 

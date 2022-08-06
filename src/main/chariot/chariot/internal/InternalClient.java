@@ -1,29 +1,18 @@
 package chariot.internal;
 
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpClient.Redirect;
-import java.net.http.HttpClient.Version;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandler;
-import java.net.http.HttpResponse.BodyHandlers;
+import java.net.http.*;
+import java.net.http.HttpClient.*;
+import java.net.http.HttpRequest.*;
+import java.net.http.HttpResponse.*;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Supplier;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
+import java.util.concurrent.locks.*;
+import java.util.function.*;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import static java.util.function.Predicate.not;
+import java.util.stream.*;
 
 import chariot.Client.Scope;
 
@@ -59,7 +48,7 @@ public class InternalClient {
         return config;
     }
 
-    public synchronized <T> InternalResult<T> fetch(Request<T> request) {
+    public RequestResult request(RequestParameters request) {
 
         String host = switch(request.target()) {
             case api -> config.servers().api().get();
@@ -67,32 +56,20 @@ public class InternalClient {
             case tablebase -> config.servers().tablebase().get();
         };
 
-        // :  <-- comment to fix treesitter syntax highlighter, not supporting switch-expressions
-
         var uri = URI.create(host + request.path());
 
         var builder = HttpRequest.newBuilder()
             .uri(uri);
 
         String postData = request.postData();
+        if (postData == null) {
+            if (request.delete()) builder.DELETE();
+        } else
+            builder.POST(postData.isEmpty() ?
+                    BodyPublishers.noBody() :
+                    BodyPublishers.ofString(postData));
 
-        var bodyPublisher = postData == null ?
-            null :
-            postData.isEmpty() ?
-                BodyPublishers.noBody() :
-                BodyPublishers.ofString(postData);
 
-        // todo,
-        // find nicer way to specify HTTP Method...
-        if (bodyPublisher == null) {
-            if (request.delete()) {
-                builder.DELETE();
-            } else {
-                builder.GET();
-            }
-        } else {
-            builder.POST(bodyPublisher);
-        }
 
         request.headers().put("user-agent", "%s %s".formatted(Util.javaVersion, Util.clientVersion));
         request.headers().forEach((k,v) -> builder.header(k,v));
@@ -105,41 +82,33 @@ public class InternalClient {
 
         var httpRequest = builder.build();
 
+        config.logging().request().info(() -> "### Request: %s%nBody:%n%s".formatted(uri, postData));
+
         HttpResponse<Stream<String>> httpResponse;
         try {
             httpResponse = sendWithRetry(request.stream(), httpRequest, BodyHandlers.ofLines());
         } catch(Exception e) {
             config.logging().request().log(Level.SEVERE, "%s".formatted(httpRequest), e);
-            return new InternalResult.Error<>(e.getMessage());
+            return new RequestResult.Failure(-1, e.getMessage());
         }
 
         var statusCode = httpResponse.statusCode();
         if (statusCode >= 200 && statusCode <= 299) {
             config.logging().request().info(() -> "%s".formatted(httpResponse));
 
-            var stream = httpResponse.body();
+            var stream = httpResponse.body()
+                .peek(string -> config.logging().responsebodyraw().info(() -> string))
+                .filter(Predicate.not("{}"::equals)); // Filter out any keep-alive messages
 
-            var mapped = stream
-                .map(string -> { config.logging().responsebodyraw().info(() -> string); return string; } )
-                .filter(not("{}"::equals)) // Filter out any keep-alive messages
-                .map(request.mapper())
-                .filter(Objects::nonNull);
-
-            var streamWithCloseHandler = mapped.onClose(() -> config.logging().request().fine(() -> "Closing body stream for %s%n".formatted(httpResponse.request().uri())));
-            return new InternalResult.Success<T>(streamWithCloseHandler);
-
+            return new RequestResult.Success(stream);
         } else {
-
             var body = httpResponse.body().collect(Collectors.joining());
 
             Supplier<String> msg = () -> {
                 var headers = httpResponse.headers().map().entrySet().stream().map(e -> "[%s] [%s]".formatted(e.getKey(), e.getValue())).collect(Collectors.joining("\n"));
-                return "### %s%nBody:%n%s%nHeaders:%n%s".formatted(httpResponse, body.isEmpty() ? "<no body>" : body, headers);
+                return "### Response: %s%nBody:%n%s%nHeaders:%n%s".formatted(httpResponse, body.isEmpty() ? "<no body>" : body, headers);
             };
 
-            // Which status codes to log...?
-            // 404 is ok? Not worth logging? At least not as warning?
-            // Maybe only 5xx as warning?
             if (statusCode >= 500)
                 config.logging().request().warning(msg);
             else
@@ -147,9 +116,7 @@ public class InternalClient {
 
             config.logging().responsebodyraw().info(() -> body);
 
-            var mappedError = request.errorMapper().apply(body);
-
-            return new InternalResult.Failure<>(statusCode, mappedError);
+            return new RequestResult.Failure(statusCode, body);
         }
     }
 
@@ -235,7 +202,7 @@ public class InternalClient {
         }
     }
 
-    public synchronized Set<Scope> fetchScopes(String endpointPath) {
+    public Set<Scope> fetchScopes(String endpointPath) {
         return config instanceof Config.Auth auth ?
             auth.type().getToken(Scope.any)
             .map(supplier -> fetchScopes(endpointPath, supplier))
@@ -243,7 +210,7 @@ public class InternalClient {
             Set.of();
     }
 
-    public synchronized Set<Scope> fetchScopes(String endpointPath, Supplier<char[]> tokenSupplier) {
+    public Set<Scope> fetchScopes(String endpointPath, Supplier<char[]> tokenSupplier) {
         String host = config.servers().api().get();
         var uri = URI.create(host + endpointPath);
         var builder = HttpRequest.newBuilder()

@@ -1,50 +1,40 @@
 package chariot.internal.impl;
 
-import java.util.Map;
+import java.util.function.Consumer;
 
-import chariot.internal.Base;
-import chariot.internal.Endpoint;
-import chariot.internal.InternalClient;
-import chariot.internal.Util;
+import chariot.api.*;
+import chariot.internal.*;
+import chariot.internal.Util.MapBuilder;
 import chariot.model.Pgn;
-import chariot.model.Result;
 
-public class StudiesImpl extends Base implements Internal.Studies {
+public class StudiesImpl extends Base implements Studies {
 
     public StudiesImpl(InternalClient client) {
         super(client);
     }
 
     @Override
-    public Result<Pgn> exportChapterByStudyAndChapterId(String studyId, String chapterId, Map<String, Object> map) {
-
-        var request = Endpoint.exportChapter.newRequest()
-            .path(studyId, chapterId)
-            .query(map)
-            .build();
-
-        var result = fetchMany(request);
-        return Util.toPgnResult(result);
+    public Many<Pgn> exportChapterByStudyAndChapterId(String studyId, String chapterId, Consumer<Params> params) {
+        return Endpoint.exportChapter.newRequest(request -> request
+                .path(studyId, chapterId)
+                .query(MapBuilder.of(Params.class).toMap(params)))
+            .process(this);
     }
 
     @Override
-    public Result<Pgn> exportChaptersByStudyId(String studyId, Map<String, Object> map) {
-        var request = Endpoint.exportChapters.newRequest()
-            .path(studyId)
-            .query(map)
-            .build();
-        var result = fetchMany(request);
-        return Util.toPgnResult(result);
+    public Many<Pgn> exportChaptersByStudyId(String studyId, Consumer<Params> params) {
+        return Endpoint.exportChapters.newRequest(request -> request
+                .path(studyId)
+                .query(MapBuilder.of(Params.class).toMap(params)))
+            .process(this);
      }
 
     @Override
-    public Result<Pgn> exportStudiesByUserId(String userId, Map<String, Object> map) {
-        var request = Endpoint.exportStudies.newRequest()
-            .path(userId)
-            .query(map)
-            .build();
-        var result = fetchMany(request);
-        return Util.toPgnResult(result);
+    public Many<Pgn> exportStudiesByUserId(String userId, Consumer<Params> params) {
+        return Endpoint.exportStudies.newRequest(request -> request
+                .path(userId)
+                .query(MapBuilder.of(Params.class).toMap(params)))
+            .process(this);
     }
 
 }

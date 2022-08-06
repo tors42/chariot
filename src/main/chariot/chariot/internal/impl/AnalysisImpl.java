@@ -1,25 +1,22 @@
 package chariot.internal.impl;
 
-import java.util.Map;
+import java.util.function.Consumer;
 
-import chariot.internal.Base;
-import chariot.internal.Endpoint;
-import chariot.internal.InternalClient;
-import chariot.model.Result;
+import chariot.api.*;
+import chariot.internal.*;
+import chariot.internal.Util.MapBuilder;
 
-public class AnalysisImpl extends Base implements Internal.Analysis {
+public class AnalysisImpl extends Base implements Analysis {
 
     public AnalysisImpl(InternalClient client) {
         super(client);
     }
 
     @Override
-    public Result<chariot.model.Analysis> cloudEval(Map<String, Object> map) {
-        var request = Endpoint.cloudEval.newRequest()
-            .query(map)
-            .build();
-
-        return fetchOne(request);
+    public One<chariot.model.Analysis> cloudEval(String fen, Consumer<Params> consumer) {
+        return Endpoint.cloudEval.newRequest(request -> request
+                .query(MapBuilder.of(Params.class).add("fen", fen).toMap(consumer)))
+            .process(this);
     }
 
 }

@@ -3,6 +3,13 @@ package chariot.internal;
 import static java.util.function.Predicate.not;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
@@ -11,6 +18,7 @@ import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
 
+import chariot.api.Many;
 import chariot.model.*;
 
 public class Util {
@@ -26,6 +34,10 @@ public class Util {
     public static ZonedDateTime fromLong(Long time) {
         if (time == null) time = 0l;
         return ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
+    }
+
+    public static String urlEncode(String string) {
+        return URLEncoder.encode(string, StandardCharsets.UTF_8);
     }
 
     public static String urlEncode(Map<String, ?> map) {
@@ -195,13 +207,92 @@ public class Util {
         return map;
     }
 
-    public static Result<Pgn> toPgnResult(Result<String> result) {
-        if (result instanceof Result.Many<String> many) {
-            return Result.many(StreamSupport.stream(new PgnSpliterator(many.stream().iterator()), false));
-        } else if (result instanceof Result.Fail<String> fail) {
-            return Result.fail(fail.message());
-        } else {
-            return Result.many(Stream.of());
+    public static Stream<Pgn> toPgnStream(Stream<String> stream) {
+        return StreamSupport.stream(new PgnSpliterator(stream.iterator()), false);
+    }
+
+    public static class MapBuilder<T> {
+        final T forInterface;
+        final Map<String, Object> map;
+        final InvocationHandler basicHandler;
+        final Map<String, InvocationHandler> customHandlers;
+
+        public MapBuilder(T forInterface, Map<String,Object> map, InvocationHandler basicHandler, Map<String, InvocationHandler> customHandlers) {
+            this.forInterface = forInterface;
+            this.map = map;
+            this.basicHandler = basicHandler;
+            this.customHandlers = customHandlers;
+        }
+
+        public MapBuilder<T> addCustomHandler(String methodName, BiConsumer<Object[], Map<String,Object>> argsConsumer) {
+            customHandlers.put(methodName, (proxy, method, args) -> {;
+                argsConsumer.accept(args, map);
+                return proxy;
+            });
+            return this;
+        }
+
+        public MapBuilder<T> rename(String from, String to) {
+            return addCustomHandler(from, (a, m) -> m.put(to, a[0]));
+        }
+
+        public static <T> MapBuilder<T> of(Class<T> interfaceClazz) {
+            final Map<String, Object> map = new HashMap<>();
+            final Map<String, InvocationHandler> customHandlers = new HashMap<>();
+            final InvocationHandler basicHandler = (proxy, method, args) -> {
+                map.put(method.getName(), args[0]);
+                return proxy;
+            };
+            Object proxyInstance = Proxy.newProxyInstance(
+                    interfaceClazz.getClassLoader(),
+                    new Class<?>[] { interfaceClazz },
+                    (proxy, method, args) -> {
+
+                        if (method.isDefault()) {
+
+                            Class<?> declaringClass = method.getDeclaringClass();
+                            MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(declaringClass, MethodHandles.lookup());
+                            MethodType methodType = MethodType.methodType(method.getReturnType(), method.getParameterTypes());
+                            MethodHandle handle = Modifier.isStatic(method.getModifiers()) ?
+                                lookup.findStatic(declaringClass, method.getName(), methodType) :
+                                lookup.findSpecial(declaringClass, method.getName(), methodType, declaringClass);
+
+                            Object result = handle.bindTo(proxy).invokeWithArguments(args);
+                            return result;
+                        }
+
+                        var handler = customHandlers.getOrDefault(method.getName(), basicHandler);
+                        try {
+                            var result = handler.invoke(proxy, method, args);
+                            return result;
+                        } catch (InvocationTargetException ex) {
+                            throw ex.getCause();
+                        }
+                    });
+
+            @SuppressWarnings("unchecked")
+            T forInterface = (T) proxyInstance;
+            return new MapBuilder<T>(forInterface, map, basicHandler, customHandlers);
+        }
+
+        public MapBuilder<T> add(String key, Object value) {
+            map.put(key, value);
+            return this;
+        }
+
+        public Map<String, Object> toMap(Consumer<T> consumer) {
+            consumer.accept(forInterface);
+            return map;
+        }
+
+        public Map<String, Object> toMap() {
+            return map;
+        }
+
+        public T proxy() {
+            return forInterface;
         }
     }
+
+
 }

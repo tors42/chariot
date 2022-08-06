@@ -1,13 +1,11 @@
 package chariot.api;
 
-import java.net.URI;
-import java.net.URL;
+import java.net.*;
 import java.util.Set;
 import java.util.function.Supplier;
 
 import chariot.Client;
 import chariot.Client.Scope;
-import chariot.model.Result;
 import chariot.model.TokenBulkResult;
 
 /**
@@ -127,9 +125,9 @@ public interface Account {
         Supplier<Supplier<char[]>> token(String code, String state);
     }
 
-    Result<TokenBulkResult> testTokens(Set<String> tokens);
+    One<TokenBulkResult> testTokens(Set<String> tokens);
 
-    default Result<TokenBulkResult> testTokens(String... tokens) {
+    default One<TokenBulkResult> testTokens(String... tokens) {
         return testTokens(Set.of(tokens));
     }
 

@@ -1,14 +1,6 @@
 package chariot.api;
 
-import chariot.model.ArenaResult;
-import chariot.model.Arena;
-import chariot.model.Game;
-import chariot.model.Result;
-import chariot.model.Swiss;
-import chariot.model.SwissResult;
-import chariot.model.TeamBattleResults;
-import chariot.model.Tournament;
-import chariot.model.TournamentStatus;
+import chariot.model.*;
 import chariot.model.Enums.TournamentState;
 
 import java.util.Set;
@@ -24,71 +16,59 @@ public interface Tournaments {
      * Get recently finished, ongoing, and upcoming tournaments.
      * This API is used to display the Lichess tournament schedule.
      */
-    Result<TournamentStatus>  currentTournaments();
+    One<TournamentStatus>  currentTournaments();
+
     /**
      * Get detailed info about recently finished, current, or upcoming tournament's duels, player standings, and other info.
-     * @param page Specify which page of player standings to view. [ 1 .. 200 ]<br>
-     *             Default: 1
+     * @param page Specify which page of player standings to view. [ 1 .. 200 ] Default: 1
      */
-    Result<Arena> arenaById(String arenaId, int page);
+    One<Arena> arenaById(String arenaId, int page);
+
     /**
      * Get detailed info about recently finished, current, or upcoming tournament's duels, player standings, and other info.
      */
-    Result<Arena> arenaById(String arenaId);
+    One<Arena> arenaById(String arenaId);
+
+    /**
+     * Players of an Arena tournament, with their score and performance, sorted by rank (best first).<br>
+     * If called on an ongoing tournament, results can be inconsistent due to ranking changes while the players are being streamed.<br>
+     * Use on finished tournaments for guaranteed consistency.
+     * @param nb Max number of players to fetch
+     */
+    Many<ArenaResult> resultsByArenaId(String arenaId, int nb);
+    /**
+     * Players of an Arena tournament, with their score and performance, sorted by rank (best first).<br>
+     * If called on an ongoing tournament, results can be inconsistent due to ranking changes while the players are being streamed.<br>
+     * Use on finished tournaments for guaranteed consistency.
+     */
+    Many<ArenaResult> resultsByArenaId(String arenaId);
+
+
+    /**
+     * Get tournaments created by a given user.
+     * Tournaments are sorted by reverse chronological order of start date (last starting first).
+     * @param specificStatus Optional filtering to only include tournaments of specified tournament status
+     */
+    Many<Tournament> arenasCreatedByUserId(String userId, Set<TournamentState> specificStatus);
+    default Many<Tournament> arenasCreatedByUserId(String userId, TournamentState... specificStatus) { return arenasCreatedByUserId(userId, Set.of(specificStatus)); }
+    default Many<Tournament> arenasCreatedByUserId(String userId) { return arenasCreatedByUserId(userId, Set.of()); }
+
+    /**
+     * Teams of a team battle tournament, with top players, sorted by rank (best first).
+     */
+    One<TeamBattleResults> teamBattleResultsById(String tournamentId);
+
+    /**
+     * Download games of a arena tournament.<br>
+     * Games are sorted by reverse chronological order (most recent first)
+     */
+    Many<Game> gamesByArenaId(String arenaId, Consumer<Games.Filter> params);
+    default Many<Game> gamesByArenaId(String arenaId) { return gamesByArenaId(arenaId, __ -> {}); }
+
     /**
      * Get info about a Swiss tournament.
      */
-    Result<Swiss> swissById(String swissId);
-     /**
-     * Get tournaments created by a given user of specified status.<br>
-     * Tournaments are sorted by reverse chronological order of start date (last starting first).
-     */
-    Result<Tournament> arenasCreatedByUserId(String userId, Set<TournamentState> specificStatus);
-    /**
-     * Get all tournaments created by a given user.<br>
-     * Tournaments are sorted by reverse chronological order of start date (last starting first).
-     */
-    Result<Tournament> arenasCreatedByUserId(String userId);
-    /**
-     * {@link #arenasCreatedByUserId(String, Set)}
-     */
-    default Result<Tournament> arenasCreatedByUserId(String userId, TournamentState... specificStatus) {
-        return arenasCreatedByUserId(userId, Set.of(specificStatus));
-    }
-
-    /**
-     * Download games of a arena tournament.<br>
-     * Games are sorted by reverse chronological order (most recent first)
-     */
-    Result<Game> gamesByArenaId(String arenaId, Consumer<Games.Filter> params);
-    /**
-     * Download games of a arena tournament.<br>
-     * Games are sorted by reverse chronological order (most recent first)
-     */
-    Result<Game> gamesByArenaId(String arenaId);
-    /**
-     * Download games of a swiss tournament.<br>
-     * ames are sorted by reverse chronological order (last round first)
-     */
-    Result<Game> gamesBySwissId(String swissId, Consumer<Games.Filter> params);
-    /**
-     * Download games of a swiss tournament.<br>
-     * ames are sorted by reverse chronological order (last round first)
-     */
-    Result<Game> gamesBySwissId(String swissId);
-    /**
-     * Players of an Arena tournament, with their score and performance, sorted by rank (best first).<br>
-     * If called on an ongoing tournament, results can be inconsistent due to ranking changes while the players are being streamed.<br>
-     * Use on finished tournaments for guaranteed consistency.
-     * @param nb Max number of players to fetch
-     */
-    Result<ArenaResult>       resultsByArenaId(String arenaId, int nb);
-    /**
-     * Players of an Arena tournament, with their score and performance, sorted by rank (best first).<br>
-     * If called on an ongoing tournament, results can be inconsistent due to ranking changes while the players are being streamed.<br>
-     * Use on finished tournaments for guaranteed consistency.
-     */
-    Result<ArenaResult>       resultsByArenaId(String arenaId);
+    One<Swiss> swissById(String swissId);
 
     /**
      * Players of a swiss tournament, with their score and performance, sorted by rank (best first).<br>
@@ -96,25 +76,27 @@ public interface Tournaments {
      * Use on finished tournaments for guaranteed consistency.
      * @param nb Max number of players to fetch
      */
-    Result<SwissResult>       resultsBySwissId(String swissId, int nb);
+    Many<SwissResult> resultsBySwissId(String swissId, int nb);
+
     /**
      * Players of a swiss tournament, with their score and performance, sorted by rank (best first).<br>
      * If called on an ongoing tournament, results can be inconsistent due to ranking changes while the players are being streamed.<br>
      * Use on finished tournaments for guaranteed consistency.
      */
-    Result<SwissResult>       resultsBySwissId(String swissId);
-
+    Many<SwissResult> resultsBySwissId(String swissId);
 
     /**
      * Download a tournament in the Tournament Report File format, the FIDE standard.<br>
      * Documentation: <a href="https://www.fide.com/FIDE/handbook/C04Annex2_TRF16.pdf">PDF</a><br>
      * Example: <a href="https://lichess.org/swiss/j8rtJ5GL.trf">TRF</a>
      */
-    Result<String>            swissTRF(String swissId);
+    Many<String> swissTRF(String swissId);
 
     /**
-     * Teams of a team battle tournament, with top players, sorted by rank (best first).
+     * Download games of a swiss tournament.<br>
+     * ames are sorted by reverse chronological order (last round first)
      */
-    Result<TeamBattleResults> teamBattleResultsById(String tournamentId);
+    Many<Game> gamesBySwissId(String swissId, Consumer<Games.Filter> params);
+    default Many<Game> gamesBySwissId(String swissId) { return gamesBySwissId(swissId, __ -> {}); }
 
 }

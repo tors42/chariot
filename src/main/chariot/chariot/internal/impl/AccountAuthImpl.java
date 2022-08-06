@@ -3,83 +3,67 @@ package chariot.internal.impl;
 import java.util.Set;
 
 import chariot.Client.Scope;
+import chariot.api.*;
 import chariot.internal.Endpoint;
 import chariot.internal.InternalClient;
-import chariot.model.AccountEmail;
-import chariot.model.AccountKid;
-import chariot.model.AccountPreferences;
-import chariot.model.Ack;
-import chariot.model.Result;
-import chariot.model.User;
+import chariot.model.*;
 
-public class AccountAuthImpl extends AccountImpl implements chariot.api.AccountAuth {
+public class AccountAuthImpl extends AccountImpl implements AccountAuth {
     public AccountAuthImpl(InternalClient client) {
         super(client);
     }
 
     @Override
-    public Result<User> profile() {
-        var request = Endpoint.accountProfile.newRequest()
-            .build();
-        return fetchOne(request);
+    public One<User> profile() {
+        return Endpoint.accountProfile.newRequest(request -> {})
+            .process(this);
     }
 
     @Override
-    public Result<AccountEmail> emailAddress() {
-        var request = Endpoint.accountEmail.newRequest()
-            .build();
-        return fetchOne(request);
+    public One<AccountEmail> emailAddress() {
+        return Endpoint.accountEmail.newRequest(request -> {})
+            .process(this);
     }
 
     @Override
-    public Result<Boolean> getKidModeStatus() {
-        var request = Endpoint.accountKid.newRequest()
-            .build();
-        var kid = fetchOne(request);
-        if (kid instanceof Result.One<AccountKid> k) {
-            return Result.one(Boolean.valueOf(k.entry().kid()));
-        } else {
-            return Result.fail(kid.error());
-        }
+    public One<Boolean> getKidModeStatus() {
+        var res = Endpoint.accountKid.newRequest(request -> {})
+            .process(this);
+
+        return res instanceof Entry<AccountKid> ak ?
+            One.entry(ak.entry().kid()) : One.fail(-1, Err.from(res.toString()));
     }
 
     @Override
-    public Result<Ack> setKidModeStatus(boolean value) {
-        var request = Endpoint.accountKidStatus.newRequest()
-            .query(java.util.Map.of("v", value))
-            .post()
-            .build();
-        return fetchOne(request);
+    public One<Ack> setKidModeStatus(boolean value) {
+        return Endpoint.accountKidStatus.newRequest(request -> request
+                .query(java.util.Map.of("v", value))
+                .post())
+            .process(this);
     }
 
     @Override
-    public Result<AccountPreferences> preferences() {
-        var request = Endpoint.accountPreferences.newRequest()
-            .build();
-        return fetchOne(request);
+    public One<AccountPreferences> preferences() {
+        return Endpoint.accountPreferences.newRequest(request -> {})
+            .process(this);
     }
 
     @Override
-    public Result<User> following() {
-        var request = Endpoint.relFollowing.newRequest()
-            .build();
-        return fetchMany(request);
+    public Many<User> following() {
+        return Endpoint.relFollowing.newRequest(request -> {})
+            .process(this);
     }
-
 
     @Override
     public Set<Scope> scopes() {
-        var scopes = client.fetchScopes(Endpoint.accountProfile.endpoint());
-        return scopes;
+        return client.fetchScopes(Endpoint.accountProfile.endpoint());
     }
 
     @Override
-    public Result<Ack> revokeToken() {
-        var request = Endpoint.apiTokenRevoke.newRequest()
-            .delete()
-            .build();
-        return fetchOne(request);
+    public One<Ack> revokeToken() {
+        return Endpoint.apiTokenRevoke.newRequest(request -> request
+                .delete())
+            .process(this);
     }
-
 }
 

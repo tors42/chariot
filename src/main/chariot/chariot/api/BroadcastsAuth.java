@@ -5,22 +5,19 @@ import java.util.function.Consumer;
 
 import chariot.model.Ack;
 import chariot.model.Broadcast;
-import chariot.model.Result;
 import chariot.model.Broadcast.Round;
 
 public interface BroadcastsAuth extends Broadcasts {
 
-    Result<Broadcast> create(Consumer<BroadcastBuilder> params);
-    Result<Ack>       update(String tourId, Consumer<BroadcastBuilder> params);
+    One<Broadcast> create(Consumer<BroadcastBuilder> params);
+    One<Ack>       update(String tourId, Consumer<BroadcastBuilder> params);
 
-    Result<Round>     createRound(String tourId, Consumer<RoundBuilder> params);
-    Result<Round>     updateRound(String roundId, Consumer<RoundBuilder> params);
+    One<Round>     createRound(String tourId, Consumer<RoundBuilder> params);
+    One<Round>     updateRound(String roundId, Consumer<RoundBuilder> params);
 
-    Result<Broadcast> broadcastById(String tourId);
-    Result<Round>     roundById(String roundId);
-    Result<Ack>       pushPgnByRoundId(String roundId, String pgn);
-
-
+    One<Broadcast> broadcastById(String tourId);
+    One<Round>     roundById(String roundId);
+    One<Ack>       pushPgnByRoundId(String roundId, String pgn);
 
     interface BroadcastBuilder {
 
@@ -80,5 +77,4 @@ public interface BroadcastsAuth extends Broadcasts {
         default RoundBuilder startsAt(ZonedDateTime startsAt) { return startsAt(startsAt.toInstant().toEpochMilli()); }
 
     }
-
 }

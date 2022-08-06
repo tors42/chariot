@@ -3,22 +3,11 @@ package chariot.api;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.function.*;
+import java.util.stream.*;
 
 import chariot.model.Enums.*;
-import chariot.model.ExploreResult;
-import chariot.model.Game;
-import chariot.model.GameImport;
-import chariot.model.Pgn;
-import chariot.model.Result;
-import chariot.model.StreamGame;
-import chariot.model.StreamMove;
-import chariot.model.TVChannels;
-import chariot.model.TVFeed;
-import chariot.model.TablebaseResult;
+import chariot.model.*;
 
 /**
  * Access games played on Lichess.
@@ -29,12 +18,17 @@ public interface Games {
      * Download one game.<br>
      * Ongoing games have their last 3 moves omitted, after move 5.
      */
-    Result<Game>            byGameId(String gameId, Consumer<GameParams> params);
+    One<Game> byGameId(String gameId, Consumer<GameParams> params);
+    default One<Game> byGameId(String gameId) { return byGameId(gameId, __ -> {}); }
+
     /**
      * Download the ongoing game, or the last game played, of a user.<br>
      * If the game is ongoing, the 3 last moves are omitted.
      */
-    Result<Game>            currentByUserId(String userId, Consumer<GameParams> params);
+    One<Game> currentByUserId(String userId, Consumer<GameParams> params);
+    default One<Game> currentByUserId(String userId) { return currentByUserId(userId, __ -> {}); }
+
+
     /**
      * Download all games of any user<br>
      * Games are sorted by reverse chronological order (most recent first)<br>
@@ -46,7 +40,9 @@ public interface Games {
      * </ul>
      * See {@link GamesAuth#currentByUserId(String, Consumer)} for authenticated access.
      */
-    Result<Game>            byUserId(String userId, Consumer<SearchFilter> params);
+    Many<Game> byUserId(String userId, Consumer<SearchFilter> params);
+    default Many<Game> byUserId(String userId) { return byUserId(userId, __ -> {}); }
+
 
     /**
      * Download games by IDs.<br>
@@ -54,7 +50,11 @@ public interface Games {
      * 300 IDs can be submitted.<br>
      * Ongoing games have their last 3 moves omitted, after move 5.
      */
-    Result<Game>            byGameIds(Set<String> gameIds, Consumer<GameParams> params);
+    Many<Game> byGameIds(Set<String> gameIds, Consumer<GameParams> params);
+
+    default Many<Game> byGameIds(Consumer<GameParams> params, String ... gameIds) { return byGameIds(Set.of(gameIds), params); }
+    default Many<Game> byGameIds(String... gameIds) { return byGameIds(Set.of(gameIds)); }
+    default Many<Game> byGameIds(Set<String> gameIds) { return byGameIds(gameIds, __ -> {}); }
 
     /**
      * Import a game from PGN.<br>
@@ -62,51 +62,62 @@ public interface Games {
      * See {@link GamesAuth#importGame} for authenticated access.<br>
      * To broadcast ongoing games, consider pushing to a broadcast instead. See {@link BroadcastsAuth#pushPgnByRoundId}
      */
-    Result<GameImport>      importGame(String pgn);
+    One<GameImport> importGame(String pgn);
+
     /**
      * Fetches the PGN of specified game from Masters OTB database
      * @param gameId Example: "aAbqI4ey"
      */
-    Result<Pgn>          openingExplorerMastersOTB(String gameId);
+    One<Pgn> openingExplorerMastersOTB(String gameId);
+
     /**
      * Find Masters games from Opening Explorer
      */
-    Result<ExploreResult.OpeningDB>   openingExplorerMasters(Consumer<MastersBuilder> params);
+    One<ExploreResult.OpeningDB> openingExplorerMasters(Consumer<MastersBuilder> params);
+    default One<ExploreResult.OpeningDB> openingExplorerMasters() { return openingExplorerMasters(__ -> {}); }
+
     /**
      * Find Lichess games from Opening Explorer
      */
-    Result<ExploreResult.OpeningDB>   openingExplorerLichess(Consumer<LichessBuilder> params);
+    One<ExploreResult.OpeningDB> openingExplorerLichess(Consumer<LichessBuilder> params);
+    default One<ExploreResult.OpeningDB> openingExplorerLichess() { return openingExplorerLichess(__ -> {}); }
+
     /**
      * Find Player games from Opening Explorer<br>
-     *
      */
-    Result<ExploreResult.OpeningPlayer>   openingExplorerPlayer(String userId, Consumer<PlayerBuilder> params);
-     /**
+    One<ExploreResult.OpeningPlayer> openingExplorerPlayer(String userId, Consumer<PlayerBuilder> params);
+    default One<ExploreResult.OpeningPlayer> openingExplorerPlayer(String userId) { return openingExplorerPlayer(userId, __ -> {}); }
+
+    /**
      * Lookup positions from the Lichess tablebase server.
      */
-    Result<TablebaseResult> lookupTablebase(String fen);
+    One<TablebaseResult> lookupTablebase(String fen);
     /**
      * Lookup Atomic positions from the Lichess tablebase server.
      */
-    Result<TablebaseResult> lookupTablebaseAtomic(String fen);
+    One<TablebaseResult> lookupTablebaseAtomic(String fen);
     /**
      * Lookup Antichess positions from the Lichess tablebase server.
      */
-    Result<TablebaseResult> lookupTablebaseAntichess(String fen);
+    One<TablebaseResult> lookupTablebaseAntichess(String fen);
+
     /**
      * Get a list of ongoing games for a given TV channel.
      */
-    Result<Game>            byChannel(Channel channel, Consumer<ChannelFilter> params);
+    Many<Game> byChannel(Channel channel, Consumer<ChannelFilter> params);
+    default Many<Game> byChannel(Channel channel) { return byChannel(channel, __ -> {}); }
+    default Many<Game> byChannel(Function<Channel.Provider, Channel> channel) { return byChannel(channel.apply(Channel.provider())); }
+    default Many<Game> byChannel(Function<Channel.Provider, Channel> channel, Consumer<ChannelFilter> params) { return byChannel(channel.apply(Channel.provider()), params); }
 
     /**
      * Get basic info about the best games being played for each speed and variant, but also computer games and bot games.
      */
-    Result<TVChannels>      tvChannels();
+    One<TVChannels> tvChannels();
     /**
      * Stream positions and moves of the current TV game.<br>
      * A summary of the game is sent as a first message, and when the featured game changes.
      */
-    Result<TVFeed>          tvFeed();
+    Many<TVFeed> tvFeed();
 
     /**
      * Stream the games played between a list of users, in real time.<br>
@@ -115,26 +126,10 @@ public interface Games {
      * @param withCurrentGames whether to include ongoing games or not. Default: true
      * @param userIds
      */
-    Result<StreamGame> streamGamesByUserIds(boolean withCurrentGames, Set<String> userIds);
-
-    /**
-     * {@link #streamGamesByUserIds(boolean, Set)}
-     */
-    Result<StreamGame> streamGamesByUserIds(Set<String> userIds);
-
-    /**
-     * {@link #streamGamesByUserIds(boolean, Set)}
-     */
-     default Result<StreamGame> streamGamesByUserIds(boolean withCurrentGames, String... userIds) {
-        return streamGamesByUserIds(withCurrentGames, Set.of(userIds));
-    }
-
-    /**
-     * {@link #streamGamesByUserIds(boolean, Set)}
-     */
-    default Result<StreamGame> streamGamesByUserIds(String... userIds) {
-        return streamGamesByUserIds(Set.of(userIds));
-    }
+    Many<StreamGame> streamGamesByUserIds(boolean withCurrentGames, Set<String> userIds);
+    default Many<StreamGame> streamGamesByUserIds(String... userIds) { return streamGamesByUserIds(Set.of(userIds)); }
+    default Many<StreamGame> streamGamesByUserIds(Set<String> userIds) { return streamGamesByUserIds(true, userIds); }
+    default Many<StreamGame> streamGamesByUserIds(boolean withCurrentGames, String... userIds) { return streamGamesByUserIds(withCurrentGames, Set.of(userIds)); }
 
     /**
      * Stream positions and moves of any ongoing game.<br>
@@ -145,84 +140,7 @@ public interface Games {
      * as to prevent cheat bots from using this API.<br>
      * No more than 8 game streams can be opened at the same time from the same IP address.
      */
-    Result<StreamMove>      streamMovesByGameId(String gameId);
-
-    /**
-     * {@link #byGameId(String, Consumer)}
-     */
-    default Result<Game> byGameId(String gameId) {
-        return byGameId(gameId, __ -> {});
-    }
-
-    /**
-     * {@link #byUserId(String, Consumer)}
-     */
-    default Result<Game> byUserId(String userId) {
-        return byUserId(userId, __ -> {});
-    }
-
-    /**
-     * {@link #currentByUserId(String, Consumer)}
-     */
-    default Result<Game> currentByUserId(String userId) {
-        return currentByUserId(userId, __ -> {});
-    }
-
-    /**
-     * {@link #byChannel(Channel, Consumer)}
-     */
-    default Result<Game> byChannel(Channel channel) {
-        return byChannel(channel, __ -> {});
-    }
-
-    /**
-     * {@link #byChannel(Channel, Consumer)}
-     */
-     default Result<Game> byChannel(Function<Channel.Provider, Channel> channel) {
-        return byChannel(channel.apply(Channel.provider()), __ -> {});
-    }
-
-    /**
-     * {@link #byChannel(Channel, Consumer)}
-     */
-     default Result<Game> byChannel(Function<Channel.Provider, Channel> channel, Consumer<ChannelFilter> params) {
-        return byChannel(channel.apply(Channel.provider()), params);
-    }
-
-    /**
-     * {@link #byGameIds(Set, Consumer)}
-     */
-    default Result<Game> byGameIds(String ... gameIds) {
-        return byGameIds(Set.of(gameIds), __ -> {});
-    }
-
-    /**
-     * {@link #byGameIds(Set, Consumer)}
-     */
-    default Result<Game> byGameIds(Set<String> gameIds) {
-        return byGameIds(gameIds, __ -> {});
-    }
-
-    /**
-     * {@link #openingExplorerMasters(Consumer)}
-     */
-    default Result<ExploreResult.OpeningDB> openingExplorerMasters() {
-        return openingExplorerMasters(__ -> {});
-    }
-
-    /**
-     * {@link #openingExplorerLichess(Consumer)}
-     */
-    default Result<ExploreResult.OpeningDB> openingExplorerLichess() {
-        return openingExplorerLichess(__ -> {});
-    }
-
-    /**
-     * {@link #openingExplorerPlayer(String, Consumer)}
-     */
-    default Result<ExploreResult.OpeningPlayer> openingExplorerPlayer(String userId) {
-        return openingExplorerPlayer(userId, __ -> {});
-    }
+    Many<StreamMove> streamMovesByGameId(String gameId);
 
     interface CommonGameParameters<T> {
         /**

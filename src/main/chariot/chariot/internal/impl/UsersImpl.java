@@ -1,91 +1,108 @@
 package chariot.internal.impl;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.*;
 
+import chariot.api.*;
 import chariot.internal.*;
+import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 import chariot.model.Enums.*;
 
-public class UsersImpl extends Base implements Internal.Users {
+public class UsersImpl extends Base implements Users {
 
     public UsersImpl(InternalClient client) {
         super(client);
     }
 
     @Override
-    public Result<User> byId(String userId, InternalUserParams params) {
-        if (userId == null || userId.isEmpty()) {
-            return Result.zero();
-        }
-        var requestBuilder = Endpoint.userById.newRequest()
-            .path(userId);
-
-        if ((Boolean) params.toMap().getOrDefault("withTrophies", false)) requestBuilder.query(Map.of("trophies", 1));
-
-        var request = requestBuilder.build();
-        return fetchOne(request);
+    public One<User> byId(String userId, Consumer<UserParams> consumer) {
+        return Endpoint.userById.newRequest(request -> request
+                .path(userId)
+                .query(MapBuilder.of(UserParams.class)
+                    .addCustomHandler("withTrophies", (args, map) -> {
+                        if (args[0] instanceof Boolean b && b.booleanValue()) map.put("trophies", 1);
+                    }).toMap(consumer))
+                )
+            .process(this);
     }
 
     @Override
-    public Result<User> byIds(List<String> userIds) {
-        if (userIds == null || userIds.isEmpty()) {
-            return Result.zero();
-        }
-
-        var request = Endpoint.usersByIds.newRequest()
-            .post(userIds.stream().collect(Collectors.joining(",")))
-            .build();
-        return fetchArr(request);
+    public Many<User> byIds(List<String> userIds) {
+        return Endpoint.usersByIds.newRequest(request -> request
+                .post(userIds.stream().collect(Collectors.joining(","))))
+            .process(this);
     }
 
     @Override
-    public Result<Crosstable> crosstable(String userId1, String userId2, Optional<Boolean> matchup) {
-        var requestBuilder = Endpoint.crosstableByUserIds.newRequest()
-            .path(userId1, userId2);
-        matchup.ifPresent(v -> requestBuilder.query(Map.of("matchup", v)));
-        var request = requestBuilder.build();
-        return fetchOne(request);
+    public One<Crosstable> crosstable(String userId1, String userId2, Consumer<CrosstableParams> consumer) {
+        return Endpoint.crosstableByUserIds.newRequest(request -> request
+                .path(userId1, userId2)
+                .query(MapBuilder.of(CrosstableParams.class).toMap(consumer)))
+            .process(this);
     }
 
     @Override
-    public Result<Activity[]> activityById(String userId) {
-        var request = Endpoint.activityById.newRequest()
-            .path(userId)
-            .build();
-        var a = fetchOne(request);
-
-        return a;
+    public Many<Activity> activityById(String userId) {
+        return Endpoint.activityById.newRequest(request -> request
+                .path(userId))
+            .process(this);
     }
 
     @Override
-    public Result<UserTopAll> top10() {
-        var request = Endpoint.usersTopAll.newRequest()
-            .build();
-        return fetchOne(request);
+    public One<UserTopAll> top10() {
+        return Endpoint.usersTopAll.newRequest(request -> {})
+                .process(this);
     }
 
     @Override
-    public Result<UserStatus> statusByIds(Collection<String> userIds, boolean withGameIds) {
+    public Many<UserStatus> statusByIds(Collection<String> userIds, Consumer<UserStatusParams> consumer) {
         int batchSize = 100;
 
         if (userIds.size() > batchSize) {
-            return autoSplittingStatusByIds(userIds, withGameIds, batchSize);
+            return autoSplittingStatusByIds(userIds, consumer, batchSize);
         }
 
-        var ids = userIds.stream()
-            .collect(Collectors.joining(","));
-
-        var request = Endpoint.userStatusByIds.newRequest()
-            .query(Map.of("ids", ids, "withGameIds", withGameIds))
-            .build();
-        return fetchArr(request);
+        return Endpoint.userStatusByIds.newRequest(request -> request
+                .query(MapBuilder.of(UserStatusParams.class)
+                    .add("ids", userIds.stream()
+                        .collect(Collectors.joining(",")))
+                    .toMap(consumer)))
+            .process(this);
     }
 
-    private Result<UserStatus> autoSplittingStatusByIds(Collection<String> userIds, boolean withGameIds, int batchSize) {
+    @Override
+    public Many<StreamerStatus> liveStreamers() {
+        return Endpoint.liveStreamers.newRequest(request -> {})
+            .process(this);
+    }
+
+    @Override
+    public One<Leaderboard> leaderboard(int nb, PerfTypeNoCorr perfType) {
+        return Endpoint.usersLeaderboard.newRequest(request -> request
+                .path(nb, perfType.name()))
+            .process(this);
+    }
+
+    @Override
+    public Many<RatingHistory> ratingHistoryById(String userId) {
+        return Endpoint.ratingHistoryById.newRequest(request -> request
+                .path(userId))
+            .process(this);
+    }
+
+    @Override
+    public One<PerfStat> performanceStatisticsByIdAndType(String userId, PerfType type) {
+        return Endpoint.perfStatByIdAndType.newRequest(request -> request
+                .path(userId, type.name()))
+            .process(this);
+    }
+
+    private Many<UserStatus> autoSplittingStatusByIds(Collection<String> userIds, Consumer<UserStatusParams> consumer, int batchSize) {
         String[] arr = userIds.toArray(new String[0]);
         int batches = (int) Math.ceil(arr.length / (float)batchSize);
-        Stream<UserStatus> userStatus = Stream.iterate(0, batch -> batch + 1)
+        Stream<UserStatus> userStatusStream = Stream.iterate(0, batch -> batch + 1)
             .limit(batches)
             .map(batch -> {
                 if (batch == batches) {
@@ -96,46 +113,13 @@ public class UsersImpl extends Base implements Internal.Users {
             }
             )
             .map(stream -> stream.collect(Collectors.joining(",")))
-            .flatMap(ids -> {
-                var request = Endpoint.userStatusByIds.newRequest()
-                    .query(Map.of("ids", ids, "withGameIds", withGameIds))
-                    .build();
-                var result = fetchArr(request);
-                return result.stream();
-            });
-
-        return Result.many(userStatus);
+            .map(ids -> { return Endpoint.userStatusByIds.newRequest(request -> request
+                        .query(MapBuilder.of(UserStatusParams.class)
+                            .add("ids", ids)
+                            .toMap(consumer)
+                            ))
+                    .process(this); })
+            .flatMap(Many::stream);
+        return Many.entries(userStatusStream);
     }
-
-    @Override
-    public Result<StreamerStatus> liveStreamers() {
-        var request = Endpoint.liveStreamers.newRequest()
-            .build();
-        return fetchArr(request);
-    }
-
-    @Override
-    public Result<Leaderboard> leaderboard(int nb, PerfTypeNoCorr perfType) {
-        var request = Endpoint.usersLeaderboard.newRequest()
-            .path(nb, perfType.name())
-            .build();
-        return fetchOne(request);
-    }
-
-    @Override
-    public Result<RatingHistory> ratingHistoryById(String userId) {
-        var request = Endpoint.ratingHistoryById.newRequest()
-            .path(userId)
-            .build();
-        return fetchArr(request);
-    }
-
-    @Override
-    public Result<PerfStat> performanceStatisticsByIdAndType(String userId, PerfType type) {
-        var request = Endpoint.perfStatByIdAndType.newRequest()
-            .path(userId, type.name())
-            .build();
-        return fetchOne(request);
-    }
-
 }

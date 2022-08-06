@@ -1,126 +1,145 @@
 package chariot.internal.impl;
 
 import java.util.Map;
-import java.util.Optional;
+import java.util.function.Consumer;
 
 import chariot.Client.Scope;
+import chariot.api.*;
+import chariot.model.*;
 import chariot.model.Enums.*;
-import chariot.internal.Endpoint;
-import chariot.internal.InternalClient;
-import chariot.model.Ack;
-import chariot.model.ChatMessage;
-import chariot.model.Result;
-import chariot.model.StreamGameEvent;
+import chariot.internal.*;
+import chariot.internal.Util.MapBuilder;
 
-public class BoardAuthImpl extends ChallengesAuthCommonImpl implements Internal.BoardAuth {
+public class BoardAuthImpl extends ChallengesAuthCommonImpl implements BoardAuth {
 
     public BoardAuthImpl(InternalClient client) {
         super(client, Scope.board_play);
     }
 
     @Override
-    public Result<Ack> seek(SeekParameters parameters) {
-        var map = parameters.toMap();
-
-        var requestBuilder = Endpoint.boardSeek.newRequest()
-            .post(map);
-
-        if ( ! map.containsKey("days") ){
-            requestBuilder.stream();
-        }
-
-        var request = requestBuilder.build();
-
-        return fetchOne(request);
+    public Many<String> seekRealTime(Consumer<SeekRealTimeBuilder> consumer) {
+        return Endpoint.boardSeekRealTime.newRequest(request -> request
+                .stream()
+                .post(seekRealTimeBuilderToMap(consumer)))
+            .process(this);
     }
 
     @Override
-    public Result<StreamGameEvent> streamGameState(String gameId) {
-        var request = Endpoint.streamBoardGameEvents.newRequest()
-            .path(gameId)
-            .stream()
-            .build();
-        return fetchMany(request);
+    public One<SeekAck> seekCorrespondence(Consumer<SeekCorrespondenceBuilder> consumer) {
+        return Endpoint.boardSeekCorr.newRequest(request -> request
+                .stream()
+                .post(seekCorrespondenceBuilderToMap(consumer)))
+            .process(this);
     }
 
     @Override
-    public Result<Ack> move(String gameId, String move, Optional<Boolean> drawOffer) {
-
-        var builder = Endpoint.boardMove.newRequest()
-            .path(gameId, move)
-            .post();
-
-        drawOffer.ifPresent(draw -> builder.query(Map.of("offeringDraw", draw)));
-
-        var request = builder.build();
-        return fetchOne(request);
+    public Many<StreamGameEvent> streamGameState(String gameId) {
+        return Endpoint.streamBoardGameEvents.newRequest(request -> request
+                .path(gameId)
+                .stream())
+            .process(this);
     }
 
     @Override
-    public Result<Ack> chat(String gameId, String text, Room room) {
-        var map = Map.of("text", text, "room", room.name());
-
-        var request = Endpoint.boardChat.newRequest()
-            .path(gameId)
-            .post(map)
-            .build();
-
-        return fetchOne(request);
+    public One<Ack> move(String gameId, String move, boolean drawOffer) {
+        return Endpoint.boardMove.newRequest(request -> request
+                .path(gameId, move)
+                .post()
+                .query(Map.of("offeringDraw", drawOffer)))
+            .process(this);
     }
 
     @Override
-    public Result<Ack> abort(String gameId) {
-        var request = Endpoint.boardAbort.newRequest()
-            .path(gameId)
-            .post()
-            .build();
-        return fetchOne(request);
+    public One<Ack> move(String gameId, String move) {
+        return Endpoint.boardMove.newRequest(request -> request
+                .path(gameId, move)
+                .post())
+            .process(this);
+    }
+
+    @Override
+    public One<Ack> chat(String gameId, String text, Room room) {
+        return Endpoint.boardChat.newRequest(request -> request
+                .path(gameId)
+                .post(Map.of("text", text, "room", room.name())))
+            .process(this);
+    }
+
+    @Override
+    public One<Ack> abort(String gameId) {
+        return Endpoint.boardAbort.newRequest(request -> request
+                .path(gameId)
+                .post())
+            .process(this);
      }
 
     @Override
-    public Result<Ack> resign(String gameId) {
-        var request = Endpoint.boardResign.newRequest()
+    public One<Ack> resign(String gameId) {
+        return Endpoint.boardResign.newRequest(request -> request
             .path(gameId)
-            .post()
-            .build();
-        return fetchOne(request);
+            .post())
+            .process(this);
     }
 
     @Override
-    public Result<Ack> handleDrawOffer(String gameId, Offer accept) {
-        var request = Endpoint.boardDraw.newRequest()
-            .path(gameId, accept.name())
-            .post()
-            .build();
-        return fetchOne(request);
-    }
-
-    @Override
-    public Result<Ack> handleTakebackOffer(String gameId, Offer accept) {
-        var request = Endpoint.boardTakeback.newRequest()
-            .path(gameId, accept.name())
-            .post()
-            .build();
-        return fetchOne(request);
+    public Many<ChatMessage> fetchChat(String gameId) {
+        return Endpoint.boardFetchChat.newRequest(request -> request
+                .path(gameId))
+            .process(this);
     }
 
 
     @Override
-    public Result<Ack> claimVictory(String gameId) {
-        var request = Endpoint.boardClaimVictory.newRequest()
-            .path(gameId)
-            .post()
-            .build();
-        return fetchOne(request);
+    public One<Ack> handleDrawOffer(String gameId, Offer accept) {
+        return Endpoint.boardDraw.newRequest(request -> request
+                .path(gameId, accept.name())
+                .post())
+            .process(this);
     }
 
     @Override
-    public Result<ChatMessage> fetchChat(String gameId) {
-        var request = Endpoint.boardFetchChat.newRequest()
-            .path(gameId)
-            .build();
-        return fetchArr(request);
+    public One<Ack> handleTakebackOffer(String gameId, Offer accept) {
+        return Endpoint.boardTakeback.newRequest(request -> request
+                .path(gameId, accept.name())
+                .post())
+            .process(this);
     }
 
+    @Override
+    public One<Ack> claimVictory(String gameId) {
+        return Endpoint.boardClaimVictory.newRequest(request -> request
+                .path(gameId)
+                .post())
+            .process(this);
+    }
 
+    private Map<String, Object> seekRealTimeBuilderToMap(Consumer<SeekRealTimeBuilder> consumer) {
+        var builder = MapBuilder.of(SeekParams.class);
+        var seekBuilder = new SeekRealTimeBuilder() {
+            @Override
+            public SeekParams clock(float initialMinutes, int incrementSeconds) {
+                return builder
+                    .add("time", (int)initialMinutes)
+                    .add("increment", incrementSeconds)
+                    .proxy();
+            }
+        };
+        consumer.accept(seekBuilder);
+        return builder.toMap();
+    }
+
+    private Map<String, Object> seekCorrespondenceBuilderToMap(Consumer<SeekCorrespondenceBuilder> consumer) {
+        var builder = MapBuilder.of(SeekParams.class);
+        var seekBuilder = new SeekCorrespondenceBuilder() {
+            @Override
+            public SeekParams daysPerTurn(int daysPerTurn) {
+                return builder
+                    .add("days", daysPerTurn)
+                    .proxy();
+            }
+
+        };
+        consumer.accept(seekBuilder);
+        return builder.toMap();
+    }
 }

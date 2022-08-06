@@ -1,23 +1,15 @@
 package chariot.internal.impl;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import chariot.Client.Scope;
-import chariot.internal.Base;
-import chariot.internal.Endpoint;
-import chariot.internal.InternalClient;
-import chariot.internal.PKCE;
-import chariot.model.Result;
-import chariot.model.TokenBulkResult;
-import chariot.model.TokenResult;
+import chariot.api.*;
+import chariot.internal.*;
+import chariot.model.*;
 
 public class AccountImpl extends Base implements chariot.api.Account {
 
@@ -47,7 +39,6 @@ public class AccountImpl extends Base implements chariot.api.Account {
         }
      }
 
-
     @Override
     public URL personalAccessTokenForm(String description, Scope... scopes) {
         // https://lichess.org/account/oauth/token/create?scopes[]=challenge:write&scopes[]=puzzle:read&description=Prefilled+token+example
@@ -71,18 +62,10 @@ public class AccountImpl extends Base implements chariot.api.Account {
     }
 
     TokenResult token(Map<String, String> parameters) {
-
-        var request = Endpoint.apiToken.newRequest()
-            .post(parameters)
-            .build();
-
-        var res = fetchOne(request);
-
-        if (res.isPresent()) {
-            return res.get();
-        } else {
-            return new TokenResult.Error("Unknown Error", "Unknown");
-        }
+        return Endpoint.apiToken.newRequest(request -> request
+                .post(parameters))
+            .process(this) instanceof Entry<TokenResult> tr ?
+            tr.entry() : new TokenResult.Error("Unknown Error", "Unknown");
     }
 
     @Override
@@ -91,14 +74,10 @@ public class AccountImpl extends Base implements chariot.api.Account {
         return scopes;
     }
 
-
     @Override
-    public Result<TokenBulkResult> testTokens(Set<String> tokens) {
-
-        var request = Endpoint.apiTokenBulkTest.newRequest()
-            .post(tokens.stream().collect(Collectors.joining(",")))
-            .build();
-
-        return fetchOne(request);
+    public One<TokenBulkResult> testTokens(Set<String> tokens) {
+        return Endpoint.apiTokenBulkTest.newRequest(request -> request
+                .post(tokens.stream().collect(Collectors.joining(","))))
+            .process(this);
     }
 }

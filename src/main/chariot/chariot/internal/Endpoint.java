@@ -2,496 +2,596 @@ package chariot.internal;
 
 import static chariot.internal.Util.MediaType.*;
 
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.time.Duration;
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
 
 import chariot.Client.Scope;
+import chariot.api.Many;
+import chariot.api.One;
+import chariot.api.Err;
 import chariot.internal.Config.ServerType;
+import chariot.internal.RequestParameters.*;
 import chariot.model.*;
+import chariot.model.ChallengeResult.ChallengeInfo;
 
-public record Endpoint<T> (
-        String endpoint,
-        Function<String, T> mapper,
-        String accept,
-        String content,
-        Scope scope,
-        ServerType target) {
+import static chariot.internal.ModelMapper.mapper;
+import static chariot.internal.ModelMapper.mapperArr;
 
-    public static Endpoint<User> accountProfile =
-        Endpoint.of("/api/account", User.class).scope(Scope.any).build();
+public sealed interface Endpoint<T> {
 
-    public static Endpoint<AccountPreferences> accountPreferences =
-        Endpoint.of("/api/account/preferences", AccountPreferences.class).scope(Scope.preference_read).build();
+    public record EPOne<T>(EP ep, Function<Stream<String>, One<T>> mapper) implements Endpoint<T> {
 
-    public static Endpoint<AccountEmail> accountEmail =
-        Endpoint.of("/api/account/email", AccountEmail.class).scope(Scope.email_read).build();
+        public ReqOne<T> newRequest(Consumer<Params> params) {
+            return RequestParameters.one(toBuilder(params), result -> {
+                if (result instanceof RequestResult.Success s) return mapper.apply(s.stream());
+                if (result instanceof RequestResult.Failure f) return One.fail(f.code(), Err.from(f.body()));
+                return mapper.apply(Stream.of());
+            });
+        }
+    }
 
-    public static Endpoint<AccountKid> accountKid =
-        Endpoint.of("/api/account/kid", AccountKid.class).scope(Scope.preference_read).build();
+    public record EPMany<T>(EP ep, Function<Stream<String>, Many<T>> mapper) implements Endpoint<T> {
+        public ReqMany<T> newRequest(Consumer<Params> params) {
+            return RequestParameters.many(toBuilder(params), result -> {
+                if (result instanceof RequestResult.Success s) return mapper.apply(s.stream());
+                if (result instanceof RequestResult.Failure f) return Many.fail(f.code(), Err.from(f.body()));
+                return mapper.apply(Stream.of());
+            });
+        }
+    }
 
-    public static Endpoint<Ack> accountKidStatus =
-        Endpoint.of("/api/account/kid", Ack.class).scope(Scope.preference_write).build();
+    public record EP(
+            String endpoint,
+            String accept,
+            String contentType,
+            Scope scope,
+            ServerType target) {}
 
-    @SuppressWarnings("deprecation")
-    public static Endpoint<NowPlaying> accountNowPlayingDeprecated =
-        Endpoint.of("/api/account/playing", NowPlaying.class).scope(Scope.any).build();
+    EP ep();
+    default String accept()      { return ep().accept(); }
+    default String contentType() { return ep().contentType(); }
+    default String endpoint()    { return ep().endpoint(); }
+    default Scope scope()        { return ep().scope(); }
+    default ServerType target()  { return ep().target(); }
 
-    public static Endpoint<PlayingWrapper> accountNowPlaying =
-        Endpoint.of("/api/account/playing", PlayingWrapper.class).scope(Scope.any).build();
+    public static EPOne<User> accountProfile =
+        Endpoint.of(User.class).endpoint("/api/account").scope(Scope.any).toOne();
 
+    public static EPOne<AccountPreferences> accountPreferences =
+        Endpoint.of(AccountPreferences.class).endpoint("/api/account/preferences").scope(Scope.preference_read).toOne();
 
-    public static Endpoint<Ack> accountOAuthToken =
-        Endpoint.of("/account/oauth/token", Ack.class).build();
+    public static EPOne<AccountEmail> accountEmail =
+        Endpoint.of(AccountEmail.class).endpoint("/api/account/email").scope(Scope.email_read).toOne();
 
-    public static Endpoint<TokenResult> apiToken =
-        Endpoint.of("/api/token", TokenResult.class).content(wwwform).build();
+    public static EPOne<AccountKid> accountKid =
+        Endpoint.of(AccountKid.class).endpoint("/api/account/kid").scope(Scope.preference_read).toOne();
 
-    public static Endpoint<Ack> apiTokenRevoke =
-        Endpoint.of("/api/token", Ack.class).scope(Scope.any).build();
+    public static EPOne<Ack> accountKidStatus =
+        Endpoint.of(Ack.class).endpoint("/api/account/kid").scope(Scope.preference_write).toOne();
 
-    public static Endpoint<TokenBulkResult> apiTokenBulkTest =
-        Endpoint.of("/api/token/test", TokenBulkResult.class).content(plain).build();
+    public static EPMany<GameInfo> accountNowPlaying =
+        Endpoint.of(GameInfo.class).endpoint("/api/account/playing")
+        .streamMapper(stream -> stream.map(mapper(PlayingWrapper.class)).filter(Objects::nonNull).flatMap(pw -> pw.nowPlaying().stream()))
+        .scope(Scope.any).toMany();
 
+    public static EPOne<Ack> accountOAuthToken =
+        Endpoint.of(Ack.class).endpoint("/account/oauth/token").toOne();
 
-    public static Endpoint<ChallengeTokens> apiAdminChallengeTokens =
-        Endpoint.of("/api/token/admin-challenge", ChallengeTokens.class).content(wwwform).scope(Scope.web_mod).build();
+    public static EPOne<TokenResult> apiToken =
+        Endpoint.of(TokenResult.class).endpoint("/api/token").contentType(wwwform).toOne();
 
-    public static Endpoint<Ack> sendMessage =
-        Endpoint.of("/inbox/%s", Ack.class).content(wwwform).scope(Scope.msg_write).build();
+    public static EPOne<Ack> apiTokenRevoke =
+        Endpoint.of(Ack.class).endpoint("/api/token").scope(Scope.any).toOne();
 
-    public static Endpoint<Crosstable> crosstableByUserIds =
-        Endpoint.of("/api/crosstable/%s/%s", Crosstable.class).build();
+    public static EPOne<TokenBulkResult> apiTokenBulkTest =
+        Endpoint.of(TokenBulkResult.class).endpoint("/api/token/test").contentType(plain).toOne();
 
-    public static Endpoint<User> userById =
-        Endpoint.of("/api/user/%s", User.class).build();
+    public static EPOne<ChallengeTokens> apiAdminChallengeTokens =
+        Endpoint.of(ChallengeTokens.class).endpoint("/api/token/admin-challenge").contentType(wwwform).scope(Scope.web_mod).toOne();
 
-    public static Endpoint<RatingHistory[]> ratingHistoryById =
-     Endpoint.ofArr("/api/user/%s/rating-history", RatingHistory.class).build();
+    public static EPOne<Ack> sendMessage =
+        Endpoint.of(Ack.class).endpoint("/inbox/%s").contentType(wwwform).scope(Scope.msg_write).toOne();
 
-    public static Endpoint<PerfStat> perfStatByIdAndType =
-        Endpoint.of("/api/user/%s/perf/%s", PerfStat.class).build();
+    public static EPOne<Crosstable> crosstableByUserIds =
+        Endpoint.of(Crosstable.class).endpoint("/api/crosstable/%s/%s").toOne();
 
-    public static Endpoint<Activity[]> activityById =
-     Endpoint.ofArr("/api/user/%s/activity", Activity.class).build();
+    public static EPOne<User> userById =
+        Endpoint.of(User.class).endpoint("/api/user/%s").toOne();
 
-    public static Endpoint<Game> gameCurrentByUserId =
-        Endpoint.of("/api/user/%s/current-game", Game.class).build();
+    public static EPMany<RatingHistory> ratingHistoryById =
+        Endpoint.ofArr(RatingHistory.class).endpoint("/api/user/%s/rating-history").toMany();
 
-    public static Endpoint<User> relFollowing =
-        Endpoint.of("/api/rel/following", User.class).scope(Scope.follow_read).accept(jsonstream).build();
+    public static EPOne<PerfStat> perfStatByIdAndType =
+        Endpoint.of(PerfStat.class).endpoint("/api/user/%s/perf/%s").toOne();
 
-    public static Endpoint<Ack> followUser =
-        Endpoint.of("/api/rel/follow/%s", Ack.class).scope(Scope.follow_write).build();
+    public static EPMany<Activity> activityById =
+        Endpoint.ofArr(Activity.class).endpoint("/api/user/%s/activity").toMany();
 
-    public static Endpoint<Ack> unfollowUser =
-        Endpoint.of("/api/rel/unfollow/%s", Ack.class).scope(Scope.follow_write).build();
+    public static EPOne<Game> gameCurrentByUserId =
+        Endpoint.of(Game.class).endpoint("/api/user/%s/current-game").toOne();
 
-    public static Endpoint<Tournament> tournamentArenaCreatedByUser =
-        Endpoint.of("/api/user/%s/tournament/created", Tournament.class).accept(jsonstream).build();
+    public static EPMany<User> relFollowing =
+        Endpoint.of(User.class).endpoint("/api/rel/following").scope(Scope.follow_read).accept(jsonstream).toMany();
 
-    public static Endpoint<UserStatus[]> userStatusByIds =
-     Endpoint.ofArr("/api/users/status", UserStatus.class).build();
+    public static EPOne<Ack> followUser =
+        Endpoint.of(Ack.class).endpoint("/api/rel/follow/%s").scope(Scope.follow_write).toOne();
 
-    public static Endpoint<User[]> usersByIds =
-     Endpoint.ofArr("/api/users", User.class).content(plain).build();
+    public static EPOne<Ack> unfollowUser =
+        Endpoint.of(Ack.class).endpoint("/api/rel/unfollow/%s").scope(Scope.follow_write).toOne();
 
-    public static Endpoint<StreamerStatus[]> liveStreamers =
-     Endpoint.ofArr("/streamer/live", StreamerStatus.class).build();
+    public static EPMany<Tournament> tournamentArenaCreatedByUser =
+        Endpoint.of(Tournament.class).endpoint("/api/user/%s/tournament/created").accept(jsonstream).toMany();
 
-    public static Endpoint<Team> teamById =
-        Endpoint.of("/api/team/%s", Team.class).build();
+    public static EPMany<UserStatus> userStatusByIds =
+        Endpoint.ofArr(UserStatus.class).endpoint("/api/users/status").toMany();
 
-    public static Endpoint<Team[]> teamsByUserId =
-     Endpoint.ofArr("/api/team/of/%s", Team.class).build();
+    public static EPMany<User> usersByIds =
+        Endpoint.ofArr(User.class).endpoint("/api/users").contentType(plain).toMany();
 
-    public static Endpoint<User> teamUsersById =
-        Endpoint.of("/api/team/%s/users", User.class).accept(jsonstream).scope(Scope.team_read).build();
+    public static EPMany<StreamerStatus> liveStreamers =
+        Endpoint.ofArr(StreamerStatus.class).endpoint("/streamer/live").toMany();
 
-    public static Endpoint<PageTeam> popularTeamsByPage =
-        Endpoint.of("/api/team/all", PageTeam.class).build();
+    public static EPOne<Team> teamById =
+        Endpoint.of(Team.class).endpoint("/api/team/%s").toOne();
 
-    public static Endpoint<PageTeam> teamsSearch =
-        Endpoint.of("/api/team/search", PageTeam.class).build();
+    public static EPMany<Team> teamsByUserId =
+        Endpoint.ofArr(Team.class).endpoint("/api/team/of/%s").toMany();
 
-    public static Endpoint<Tournament> teamArenaById =
-        Endpoint.of("/api/team/%s/arena", Tournament.class).build();
+    public static EPMany<User> teamUsersById =
+        Endpoint.of(User.class).endpoint("/api/team/%s/users").accept(jsonstream).scope(Scope.team_read).toMany();
 
-    public static Endpoint<Swiss> teamSwissById =
-        Endpoint.of("/api/team/%s/swiss", Swiss.class).build();
+    public static EPOne<PageTeam> popularTeamsByPage =
+        Endpoint.of(PageTeam.class).endpoint("/api/team/all").toOne();
 
-    public static Endpoint<Ack> teamJoin =
-        Endpoint.of("/team/%s/join", Ack.class).content(wwwform).scope(Scope.team_write).build();
+    public static EPOne<PageTeam> teamsSearch =
+        Endpoint.of(PageTeam.class).endpoint("/api/team/search").toOne();
 
-    public static Endpoint<Ack> teamQuit =
-        Endpoint.of("/team/%s/quit", Ack.class).scope(Scope.team_write).build();
+    public static EPMany<Tournament> teamArenaById =
+        Endpoint.of(Tournament.class).endpoint("/api/team/%s/arena").toMany();
 
-    public static Endpoint<Ack> teamKick =
-        Endpoint.of("/team/%s/kick/%s", Ack.class).scope(Scope.team_write).build();
+    public static EPMany<Swiss> teamSwissById =
+        Endpoint.of(Swiss.class).endpoint("/api/team/%s/swiss").toMany();
 
-    public static Endpoint<Ack> teamMessage =
-        Endpoint.of("/team/%s/pm-all", Ack.class).content(wwwform).scope(Scope.team_write).build();
+    public static EPOne<Ack> teamJoin =
+        Endpoint.of(Ack.class).endpoint("/team/%s/join").contentType(wwwform).scope(Scope.team_write).toOne();
 
-    public static Endpoint<TeamRequest[]> teamRequests =
-     Endpoint.ofArr("/api/team/%s/requests", TeamRequest.class).scope(Scope.team_read).build();
+    public static EPOne<Ack> teamQuit =
+        Endpoint.of(Ack.class).endpoint("/team/%s/quit").scope(Scope.team_write).toOne();
 
-    public static Endpoint<Ack> teamAcceptJoin =
-        Endpoint.of("/api/team/%s/request/%s/accept", Ack.class).scope(Scope.team_write).build();
+    public static EPOne<Ack> teamKick =
+        Endpoint.of(Ack.class).endpoint("/team/%s/kick/%s").scope(Scope.team_write).toOne();
 
-    public static Endpoint<Ack> teamDeclineJoin =
-        Endpoint.of("/api/team/%s/request/%s/decline", Ack.class).scope(Scope.team_write).build();
+    public static EPOne<Ack> teamMessage =
+        Endpoint.of(Ack.class).endpoint("/team/%s/pm-all").contentType(wwwform).scope(Scope.team_write).toOne();
 
-    public static Endpoint<GameImport> gameImport =
-        Endpoint.of("/api/import", GameImport.class).content(wwwform).build();
+    public static EPMany<TeamRequest> teamRequests =
+        Endpoint.ofArr(TeamRequest.class).endpoint("/api/team/%s/requests").scope(Scope.team_read).toMany();
 
-    public static Endpoint<StreamGame> streamGamesByUsers =
-        Endpoint.of("/api/stream/games-by-users", StreamGame.class).accept(jsonstream).content(plain).build();
+    public static EPOne<Ack> teamAcceptJoin =
+        Endpoint.of(Ack.class).endpoint("/api/team/%s/request/%s/accept").scope(Scope.team_write).toOne();
 
-    public static Endpoint<StreamMove> streamMoves=
-        Endpoint.of("/api/stream/game/%s", StreamMove.class).accept(jsonstream).build();
+    public static EPOne<Ack> teamDeclineJoin =
+        Endpoint.of(Ack.class).endpoint("/api/team/%s/request/%s/decline").scope(Scope.team_write).toOne();
 
-    public static Endpoint<StreamEvent> streamEvents =
-        Endpoint.of("/api/stream/event", StreamEvent.class).accept(jsonstream).scope(Scope.challenge_read).build();
+    public static EPOne<GameImport> gameImport =
+        Endpoint.of(GameImport.class).endpoint("/api/import").contentType(wwwform).toOne();
 
-    public static Endpoint<Arena> createArenaTournament =
-        Endpoint.of("/api/tournament", Arena.class).content(wwwform).scope(Scope.tournament_write).build();
+    public static EPMany<StreamGame> streamGamesByUsers =
+        Endpoint.of(StreamGame.class).endpoint("/api/stream/games-by-users").accept(jsonstream).contentType(plain).toMany();
 
-    public static Endpoint<Ack> joinArenaTournament =
-        Endpoint.of("/api/tournament/%s/join", Ack.class).content(wwwform).scope(Scope.tournament_write).build();
+    public static EPMany<StreamMove> streamMoves=
+        Endpoint.of(StreamMove.class).endpoint("/api/stream/game/%s").accept(jsonstream).toMany();
 
-    public static Endpoint<Ack> withdrawArenaTournament =
-        Endpoint.of("/api/tournament/%s/withdraw", Ack.class).scope(Scope.tournament_write).build();
+    public static EPMany<StreamEvent> streamEvents =
+        Endpoint.of(StreamEvent.class).endpoint("/api/stream/event").accept(jsonstream).scope(Scope.challenge_read).toMany();
 
-    public static Endpoint<Arena> updateArenaTournament =
-        Endpoint.of("/api/tournament/%s", Arena.class).content(wwwform).scope(Scope.tournament_write).build();
+    public static EPOne<Arena> createArenaTournament =
+        Endpoint.of(Arena.class).endpoint("/api/tournament").contentType(wwwform).scope(Scope.tournament_write).toOne();
 
-    public static Endpoint<Arena> updateTeamBattleTournament =
-        Endpoint.of("/api/tournament/team-battle/%s", Arena.class).content(wwwform).scope(Scope.tournament_write).build();
+    public static EPOne<Ack> joinArenaTournament =
+        Endpoint.of(Ack.class).endpoint("/api/tournament/%s/join").contentType(wwwform).scope(Scope.tournament_write).toOne();
 
-    public static Endpoint<Ack> terminateArenaTournament =
-        Endpoint.of("/api/tournament/%s/terminate", Ack.class).scope(Scope.tournament_write).build();
+    public static EPOne<Ack> withdrawArenaTournament =
+        Endpoint.of(Ack.class).endpoint("/api/tournament/%s/withdraw").scope(Scope.tournament_write).toOne();
 
-    public static Endpoint<Arena> tournamentArenaById =
-        Endpoint.of("/api/tournament/%s", Arena.class).build();
+    public static EPOne<Arena> updateArenaTournament =
+        Endpoint.of(Arena.class).endpoint("/api/tournament/%s").contentType(wwwform).scope(Scope.tournament_write).toOne();
 
-    public static Endpoint<ArenaResult> tournamentArenaResultsById =
-        Endpoint.of("/api/tournament/%s/results", ArenaResult.class).accept(jsonstream).build();
+    public static EPOne<Arena> updateTeamBattleTournament =
+        Endpoint.of(Arena.class).endpoint("/api/tournament/team-battle/%s").contentType(wwwform).scope(Scope.tournament_write).toOne();
 
-    public static Endpoint<TeamBattleResults> tournamentTeamBattleResultsById =
-        Endpoint.of("/api/tournament/%s/teams", TeamBattleResults.class).build();
+    public static EPOne<Ack> terminateArenaTournament =
+        Endpoint.of(Ack.class).endpoint("/api/tournament/%s/terminate").scope(Scope.tournament_write).toOne();
 
-    public static Endpoint<TournamentStatus> tournamentArenas =
-        Endpoint.of("/api/tournament", TournamentStatus.class).build();
+    public static EPOne<Arena> tournamentArenaById =
+        Endpoint.of(Arena.class).endpoint("/api/tournament/%s").toOne();
 
-    public static Endpoint<Game> gamesByArenaId =
-        Endpoint.of("/api/tournament/%s/games", Game.class).accept(jsonstream).build();
+    public static EPMany<ArenaResult> tournamentArenaResultsById =
+        Endpoint.of(ArenaResult.class).endpoint("/api/tournament/%s/results").accept(jsonstream).toMany();
 
-    public static Endpoint<Game> gamesByUserId =
-        Endpoint.of("/api/games/user/%s", Game.class).accept(jsonstream).build();
+    public static EPOne<TeamBattleResults> tournamentTeamBattleResultsById =
+        Endpoint.of(TeamBattleResults.class).endpoint("/api/tournament/%s/teams").toOne();
 
-    public static Endpoint<Game> gameById =
-        Endpoint.of("/game/export/%s", Game.class).build();
+    public static EPOne<TournamentStatus> tournamentArenas =
+        Endpoint.of(TournamentStatus.class).endpoint("/api/tournament").toOne();
 
-    public static Endpoint<Game> gamesByIds =
-        Endpoint.of("/api/games/export/_ids", Game.class).accept(jsonstream).content(plain).build();
+    public static EPMany<Game> gamesByArenaId =
+        Endpoint.of(Game.class).endpoint("/api/tournament/%s/games").accept(jsonstream).toMany();
 
-    public static Endpoint<ExploreResult.OpeningDB> exploreMasters =
-        Endpoint.of("/masters", ExploreResult.OpeningDB.class).target(ServerType.explorer).build();
+    public static EPMany<Game> gamesByUserId =
+        Endpoint.of(Game.class).endpoint("/api/games/user/%s").accept(jsonstream).toMany();
 
-    public static Endpoint<ExploreResult.OpeningDB> exploreLichess =
-        Endpoint.of("/lichess", ExploreResult.OpeningDB.class).target(ServerType.explorer).build();
+    public static EPOne<Game> gameById =
+        Endpoint.of(Game.class).endpoint("/game/export/%s").toOne();
 
-    public static Endpoint<ExploreResult.OpeningPlayer> explorePlayers =
-        Endpoint.of("/player", ExploreResult.OpeningPlayer.class).target(ServerType.explorer).build();
+    public static EPMany<Game> gamesByIds =
+        Endpoint.of(Game.class).endpoint("/api/games/export/_ids").accept(jsonstream).contentType(plain).toMany();
 
-    public static Endpoint<String> exploreMasterOTB =
-        Endpoint.of("/master/pgn/%s", Function.identity()).accept(chesspgn).target(ServerType.explorer).build();
+    public static EPOne<ExploreResult.OpeningDB> exploreMasters =
+        Endpoint.of(ExploreResult.OpeningDB.class).endpoint("/masters").target(ServerType.explorer).toOne();
 
-    public static Endpoint<TablebaseResult> tablebaseLookup =
-        Endpoint.of("/standard", TablebaseResult.class).target(ServerType.tablebase).build();
+    public static EPOne<ExploreResult.OpeningDB> exploreLichess =
+        Endpoint.of(ExploreResult.OpeningDB.class).endpoint("/lichess").target(ServerType.explorer).toOne();
 
-    public static Endpoint<TablebaseResult> tablebaseAtomicLookup =
-        Endpoint.of("/atomic", TablebaseResult.class).target(ServerType.tablebase).build();
+    public static EPOne<ExploreResult.OpeningPlayer> explorePlayers =
+        Endpoint.of(ExploreResult.OpeningPlayer.class).endpoint("/player").target(ServerType.explorer).toOne();
 
-    public static Endpoint<TablebaseResult> tablebaseAntichessLookup =
-        Endpoint.of("/antichess", TablebaseResult.class).target(ServerType.tablebase).build();
+    public static EPOne<Pgn> exploreMasterOTB =
+        Endpoint.of(Pgn.class).endpoint("/master/pgn/%s")
+        .streamMapper(stream -> Util.toPgnStream(stream))
+        .accept(chesspgn).target(ServerType.explorer).toOne();
 
-    public static Endpoint<TVChannels> gameTVChannels =
-        Endpoint.of("/api/tv/channels", TVChannels.class).build();
+    public static EPOne<TablebaseResult> tablebaseLookup =
+        Endpoint.of(TablebaseResult.class).endpoint("/standard").target(ServerType.tablebase).toOne();
 
-    public static Endpoint<TVFeed> gameTVFeed =
-        Endpoint.of("/api/tv/feed", TVFeed.class).accept(jsonstream).build();
+    public static EPOne<TablebaseResult> tablebaseAtomicLookup =
+        Endpoint.of(TablebaseResult.class).endpoint("/atomic").target(ServerType.tablebase).toOne();
 
-    public static Endpoint<Game> gamesTVChannel =
-        Endpoint.of("/api/tv/%s", Game.class).accept(jsonstream).build();
+    public static EPOne<TablebaseResult> tablebaseAntichessLookup =
+        Endpoint.of(TablebaseResult.class).endpoint("/antichess").target(ServerType.tablebase).toOne();
 
-    public static Endpoint<UserTopAll> usersTopAll =
-        Endpoint.of("/player", UserTopAll.class).accept(lichessjson).build();
+    public static EPOne<TVChannels> gameTVChannels =
+        Endpoint.of(TVChannels.class).endpoint("/api/tv/channels").toOne();
 
-    public static Endpoint<Leaderboard> usersLeaderboard =
-        Endpoint.of("/player/top/%s/%s", Leaderboard.class).accept(lichessjson).build();
+    public static EPMany<TVFeed> gameTVFeed =
+        Endpoint.of(TVFeed.class).endpoint("/api/tv/feed").accept(jsonstream).toMany();
 
-    public static Endpoint<Puzzle> dailyPuzzle =
-        Endpoint.of("/api/puzzle/daily", Puzzle.class).build();
+    public static EPMany<Game> gamesTVChannel =
+        Endpoint.of(Game.class).endpoint("/api/tv/%s").accept(jsonstream).toMany();
 
-    public static Endpoint<PuzzleActivity> puzzleActivity =
-        Endpoint.of("/api/puzzle/activity", PuzzleActivity.class).accept(jsonstream).scope(Scope.puzzle_read).build();
+    public static EPOne<UserTopAll> usersTopAll =
+        Endpoint.of(UserTopAll.class).endpoint("/player").accept(lichessjson).toOne();
 
-    public static Endpoint<PuzzleDashboard> puzzleDashboard =
-        Endpoint.of("/api/puzzle/dashboard/%s", PuzzleDashboard.class).scope(Scope.puzzle_read).build();
+    public static EPOne<Leaderboard> usersLeaderboard =
+        Endpoint.of(Leaderboard.class).endpoint("/player/top/%s/%s").accept(lichessjson).toOne();
 
-    public static Endpoint<PuzzleRace> puzzleRace =
-        Endpoint.of("/api/racer", PuzzleRace.class).scope(Scope.racer_write).build();
+    public static EPOne<Puzzle> dailyPuzzle =
+        Endpoint.of(Puzzle.class).endpoint("/api/puzzle/daily").toOne();
 
-    public static Endpoint<StormDashboard> stormDashboard =
-        Endpoint.of("/api/storm/dashboard/%s", StormDashboard.class).build();
+    public static EPMany<PuzzleActivity> puzzleActivity =
+        Endpoint.of(PuzzleActivity.class).endpoint("/api/puzzle/activity").accept(jsonstream).scope(Scope.puzzle_read).toMany();
 
-    public static Endpoint<Simuls> simuls =
-        Endpoint.of("/api/simul", Simuls.class).build();
+    public static EPOne<PuzzleDashboard> puzzleDashboard =
+        Endpoint.of(PuzzleDashboard.class).endpoint("/api/puzzle/dashboard/%s").scope(Scope.puzzle_read).toOne();
 
-    public static Endpoint<Analysis> cloudEval =
-        Endpoint.of("/api/cloud-eval", Analysis.class).build();
+    public static EPOne<PuzzleRace> puzzleRace =
+        Endpoint.of(PuzzleRace.class).endpoint("/api/racer").scope(Scope.racer_write).toOne();
 
-    public static Endpoint<String> exportChapter =
-        Endpoint.of("/study/%s/%s.pgn", Function.identity()).accept(chesspgn).build();
+    public static EPOne<StormDashboard> stormDashboard =
+        Endpoint.of(StormDashboard.class).endpoint("/api/storm/dashboard/%s").toOne();
 
-    public static Endpoint<String> exportChapters =
-        Endpoint.of("/api/study/%s.pgn", Function.identity()).accept(chesspgn).build();
+    public static EPOne<Simuls> simuls =
+        Endpoint.of(Simuls.class).endpoint("/api/simul").toOne();
 
-    public static Endpoint<String> exportStudies =
-        Endpoint.of("/study/by/%s/export.pgn", Function.identity()).accept(chesspgn).scope(Scope.any).build();
+    public static EPOne<Analysis> cloudEval =
+        Endpoint.of(Analysis.class).endpoint("/api/cloud-eval").toOne();
 
-    public static Endpoint<BulkPairings> bulkPairingGet =
-        Endpoint.of("/api/bulk-pairing", BulkPairings.class).scope(Scope.challenge_bulk).build();
+    public static EPMany<Pgn> exportChapter =
+        Endpoint.of(Pgn.class).endpoint("/study/%s/%s.pgn")
+        .streamMapper(stream -> Util.toPgnStream(stream))
+        .accept(chesspgn).toMany();
 
-    public static Endpoint<BulkPairing> bulkPairingCreate =
-        Endpoint.of("/api/bulk-pairing", BulkPairing.class).content(wwwform).scope(Scope.challenge_bulk).build();
+    public static EPMany<Pgn> exportChapters =
+        Endpoint.of(Pgn.class).endpoint("/api/study/%s.pgn")
+        .streamMapper(stream -> Util.toPgnStream(stream))
+        .accept(chesspgn).toMany();
 
-    public static Endpoint<Ack> bulkPairingStart =
-        Endpoint.of("/api/bulk-pairing/%s/start-clocks", Ack.class).scope(Scope.challenge_bulk).build();
+    public static EPMany<Pgn> exportStudies =
+        Endpoint.of(Pgn.class).endpoint("/study/by/%s/export.pgn")
+        .streamMapper(stream -> Util.toPgnStream(stream))
+        .accept(chesspgn).scope(Scope.any).toMany();
 
-    public static Endpoint<Ack> bulkPairingCancel =
-        Endpoint.of("/api/bulk-pairing/%s", Ack.class).scope(Scope.challenge_bulk).build();
+    public static EPMany<BulkPairing> bulkPairingGet =
+        Endpoint.of(BulkPairing.class).endpoint("/api/bulk-pairing")
+        .streamMapper(stream -> stream.map(mapper(BulkPairingWrapper.class)).filter(Objects::nonNull).flatMap(w -> w.bulks().stream()))
+        .scope(Scope.challenge_bulk).toMany();
 
-    public static Endpoint<PendingChallenges> challenges =
-        Endpoint.of("/api/challenge", PendingChallenges.class).scope(Scope.challenge_read).build();
+    public static EPOne<BulkPairing> bulkPairingCreate =
+        Endpoint.of(BulkPairing.class).endpoint("/api/bulk-pairing").contentType(wwwform).scope(Scope.challenge_bulk).toOne();
 
-    public static Endpoint<ChallengeResult> challengeCreate =
-        Endpoint.of("/api/challenge/%s", ChallengeResult.class).content(wwwform).scope(Scope.challenge_write).build();
+    public static EPOne<Ack> bulkPairingStart =
+        Endpoint.of(Ack.class).endpoint("/api/bulk-pairing/%s/start-clocks").scope(Scope.challenge_bulk).toOne();
 
-    public static Endpoint<ChallengeResult> challengeAI =
-        Endpoint.of("/api/challenge/ai", ChallengeResult.class).content(wwwform).scope(Scope.challenge_write).build();
+    public static EPOne<Ack> bulkPairingCancel =
+        Endpoint.of(Ack.class).endpoint("/api/bulk-pairing/%s").scope(Scope.challenge_bulk).toOne();
 
-    public static Endpoint<ChallengeResult> challengeOpenEnded =
-        Endpoint.of("/api/challenge/open", ChallengeResult.class).content(wwwform).scope(Scope.challenge_write).build();
+    public static EPOne<PendingChallenges> challenges =
+        Endpoint.of(PendingChallenges.class).endpoint("/api/challenge").scope(Scope.challenge_read).toOne();
 
-    public static Endpoint<Ack> challengeCancel =
-        Endpoint.of("/api/challenge/%s/cancel", Ack.class).scope(Scope.challenge_write).build();
+    public static EPOne<Challenge> challengeCreate =
+        Endpoint.of(Challenge.class).endpoint("/api/challenge/%s")
+        .streamMapper(stream -> stream.map(mapper(ChallengeResult.class))
+                .filter(ChallengeInfo.class::isInstance)
+                .map(ChallengeInfo.class::cast)
+                .map(ChallengeInfo::challenge))
+        .contentType(wwwform).scope(Scope.challenge_write).toOne();
 
-    public static Endpoint<Ack> challengeAccept =
-        Endpoint.of("/api/challenge/%s/accept", Ack.class).scope(Scope.challenge_write).build();
+    public static EPMany<Challenge> challengeCreateKeepAlive =
+        Endpoint.of(Challenge.class).endpoint("/api/challenge/%s")
+        .streamMapper(stream -> stream.map(mapper(ChallengeResult.class))
+                .filter(ChallengeInfo.class::isInstance)
+                .map(ChallengeInfo.class::cast)
+                .map(ChallengeInfo::challenge))
+         .contentType(wwwform).scope(Scope.challenge_write).toMany();
 
-    public static Endpoint<Ack> challengeDecline =
-        Endpoint.of("/api/challenge/%s/decline", Ack.class).content(wwwform).scope(Scope.challenge_write).build();
+    public static EPOne<ChallengeAI> challengeAI =
+        Endpoint.of(ChallengeAI.class).endpoint("/api/challenge/ai")
+        .streamMapper(stream -> stream.map(mapper(ChallengeResult.class))
+                .filter(ChallengeAI.class::isInstance)
+                .map(ChallengeAI.class::cast))
+        .contentType(wwwform).scope(Scope.challenge_write).toOne();
 
-    public static Endpoint<Ack> startClocksOfGame =
-        Endpoint.of("/api/challenge/%s/start-clocks", Ack.class).scope(Scope.challenge_write).build();
+    public static EPOne<ChallengeOpenEnded> challengeOpenEnded =
+        Endpoint.of(ChallengeOpenEnded.class).endpoint("/api/challenge/open").contentType(wwwform).scope(Scope.challenge_write).toOne();
 
-    public static Endpoint<Ack> addTimeToGame =
-        Endpoint.of("/api/round/%s/add-time/%s", Ack.class).scope(Scope.challenge_write).build();
+    public static EPOne<Ack> challengeCancel =
+        Endpoint.of(Ack.class).endpoint("/api/challenge/%s/cancel").scope(Scope.challenge_write).toOne();
 
-    public static Endpoint<Swiss> createSwiss =
-        Endpoint.of("/api/swiss/new/%s", Swiss.class).content(wwwform).scope(Scope.tournament_write).build();
+    public static EPOne<Ack> challengeAccept =
+        Endpoint.of(Ack.class).endpoint("/api/challenge/%s/accept").scope(Scope.challenge_write).toOne();
 
-    public static Endpoint<Swiss> tournamentSwissById =
-        Endpoint.of("/api/swiss/%s", Swiss.class).build();
+    public static EPOne<Ack> challengeDecline =
+        Endpoint.of(Ack.class).endpoint("/api/challenge/%s/decline").contentType(wwwform).scope(Scope.challenge_write).toOne();
 
-    public static Endpoint<Swiss> updateSwissTournament =
-        Endpoint.of("/api/swiss/%s/edit", Swiss.class).content(wwwform).scope(Scope.tournament_write).build();
+    public static EPOne<Ack> startClocksOfGame =
+        Endpoint.of(Ack.class).endpoint("/api/challenge/%s/start-clocks").scope(Scope.challenge_write).toOne();
 
-    public static Endpoint<Ack> joinSwissTournament =
-        Endpoint.of("/api/swiss/%s/join", Ack.class).content(wwwform).scope(Scope.tournament_write).build();
+    public static EPOne<Ack> addTimeToGame =
+        Endpoint.of(Ack.class).endpoint("/api/round/%s/add-time/%s").scope(Scope.challenge_write).toOne();
 
-    public static Endpoint<Ack> terminateSwiss =
-        Endpoint.of("/api/swiss/%s/terminate", Ack.class).scope(Scope.tournament_write).build();
+    public static EPOne<Swiss> createSwiss =
+        Endpoint.of(Swiss.class).endpoint("/api/swiss/new/%s").contentType(wwwform).scope(Scope.tournament_write).toOne();
 
-    public static Endpoint<SwissResult> swissResults =
-        Endpoint.of("/api/swiss/%s/results", SwissResult.class).accept(jsonstream).build();
+    public static EPOne<Swiss> tournamentSwissById =
+        Endpoint.of(Swiss.class).endpoint("/api/swiss/%s").toOne();
 
-    public static Endpoint<String> swissTRF =
-        Endpoint.of("/swiss/%s.trf", Function.identity()).accept(plain).build();
+    public static EPOne<Swiss> updateSwissTournament =
+        Endpoint.of(Swiss.class).endpoint("/api/swiss/%s/edit").contentType(wwwform).scope(Scope.tournament_write).toOne();
 
-    public static Endpoint<Game> gamesBySwissId =
-        Endpoint.of("/api/swiss/%s/games", Game.class).accept(jsonstream).build();
+    public static EPOne<Ack> joinSwissTournament =
+        Endpoint.of(Ack.class).endpoint("/api/swiss/%s/join").contentType(wwwform).scope(Scope.tournament_write).toOne();
 
-    public static Endpoint<Broadcast> officialBroadcasts =
-        Endpoint.of("/api/broadcast", Broadcast.class).accept(jsonstream).build();
+    public static EPOne<Ack> terminateSwiss =
+        Endpoint.of(Ack.class).endpoint("/api/swiss/%s/terminate").scope(Scope.tournament_write).toOne();
 
-    public static Endpoint<Broadcast> createBroadcast =
-        Endpoint.of("/broadcast/new", Broadcast.class).content(wwwform).scope(Scope.study_write).build();
+    public static EPMany<SwissResult> swissResults =
+        Endpoint.of(SwissResult.class).endpoint("/api/swiss/%s/results").accept(jsonstream).toMany();
 
-    public static Endpoint<Broadcast.Round> createRound =
-        Endpoint.of("/broadcast/%s/new", Broadcast.Round.class).content(wwwform).scope(Scope.study_write).build();
+    public static EPMany<String> swissTRF =
+        Endpoint.of(Function.identity()).endpoint("/swiss/%s.trf").accept(plain).toMany();
 
-    public static Endpoint<Broadcast> broadcastById =
-        Endpoint.of("/broadcast/-/%s", Broadcast.class).scope(Scope.study_read).build();
+    public static EPMany<Game> gamesBySwissId =
+        Endpoint.of(Game.class).endpoint("/api/swiss/%s/games").accept(jsonstream).toMany();
 
-    public static Endpoint<Broadcast.Round> roundById =
-        Endpoint.of("/broadcast/-/-/%s", Broadcast.Round.class).scope(Scope.study_read).build();
+    public static EPMany<Broadcast> officialBroadcasts =
+        Endpoint.of(Broadcast.class).endpoint("/api/broadcast").accept(jsonstream).toMany();
 
-    public static Endpoint<Ack> updateBroadcast =
-        Endpoint.of("/broadcast/%s/edit", Ack.class).content(wwwform).scope(Scope.study_write).build();
+    public static EPOne<Broadcast> createBroadcast =
+        Endpoint.of(Broadcast.class).endpoint("/broadcast/new").contentType(wwwform).scope(Scope.study_write).toOne();
 
-    public static Endpoint<Broadcast.Round> updateRound =
-        Endpoint.of("/broadcast/round/%s/edit", Broadcast.Round.class).content(wwwform).scope(Scope.study_write).build();
+    public static EPOne<Broadcast.Round> createRound =
+        Endpoint.of(Broadcast.Round.class).endpoint("/broadcast/%s/new").contentType(wwwform).scope(Scope.study_write).toOne();
 
-    public static Endpoint<Ack> pushPGNbyRoundId =
-        Endpoint.of("/broadcast/round/%s/push", Ack.class).content(plain).scope(Scope.study_write).build();
+    public static EPOne<Broadcast> broadcastById =
+        Endpoint.of(Broadcast.class).endpoint("/broadcast/-/%s").scope(Scope.study_read).toOne();
 
-    public static Endpoint<String> streamBroadcast =
-        Endpoint.of("/api/stream/broadcast/round/%s.pgn", Function.identity()).accept(jsonstream).build();
+    public static EPOne<Broadcast.Round> roundById =
+        Endpoint.of(Broadcast.Round.class).endpoint("/broadcast/-/-/%s").scope(Scope.study_read).toOne();
 
-    public static Endpoint<String> exportBroadcastOneRoundPgn =
-        Endpoint.of("/api/broadcast/round/%s.pgn", Function.identity()).accept(jsonstream).build();
+    public static EPOne<Ack> updateBroadcast =
+        Endpoint.of(Ack.class).endpoint("/broadcast/%s/edit").contentType(wwwform).scope(Scope.study_write).toOne();
 
-    public static Endpoint<String> exportBroadcastAllRoundsPgn =
-        Endpoint.of("/api/broadcast/%s.pgn", Function.identity()).accept(jsonstream).build();
+    public static EPOne<Broadcast.Round> updateRound =
+        Endpoint.of(Broadcast.Round.class).endpoint("/broadcast/round/%s/edit").contentType(wwwform).scope(Scope.study_write).toOne();
 
-    public static Endpoint<Ack> boardSeek =
-        Endpoint.of("/api/board/seek", Ack.class).content(wwwform).accept(plain).scope(Scope.board_play).build();
+    public static EPOne<Ack> pushPGNbyRoundId =
+        Endpoint.of(Ack.class).endpoint("/broadcast/round/%s/push").contentType(plain).scope(Scope.study_write).toOne();
 
-    public static Endpoint<StreamGameEvent> streamBoardGameEvents =
-        Endpoint.of("/api/board/game/stream/%s", StreamGameEvent.class).accept(jsonstream).scope(Scope.board_play).build();
+    public static EPMany<Pgn> streamBroadcast =
+        Endpoint.of(Pgn.class).endpoint("/api/stream/broadcast/round/%s.pgn")
+        .streamMapper(stream -> Util.toPgnStream(stream))
+        .accept(chesspgn).toMany();
 
-    public static Endpoint<Ack> boardMove =
-        Endpoint.of("/api/board/game/%s/move/%s", Ack.class).scope(Scope.board_play).build();
+    public static EPMany<Pgn> exportBroadcastOneRoundPgn =
+        Endpoint.of(Pgn.class).endpoint("/api/broadcast/round/%s.pgn")
+        .streamMapper(stream -> Util.toPgnStream(stream))
+        .accept(chesspgn).toMany();
 
-    public static Endpoint<Ack> boardChat =
-        Endpoint.of("/api/board/game/%s/chat", Ack.class).content(wwwform).scope(Scope.board_play).build();
+    public static EPMany<Pgn> exportBroadcastAllRoundsPgn =
+        Endpoint.of(Pgn.class).endpoint("/api/broadcast/%s.pgn")
+        .streamMapper(stream -> Util.toPgnStream(stream))
+        .accept(chesspgn).toMany();
 
-    public static Endpoint<Ack> boardAbort =
-        Endpoint.of("/api/board/game/%s/abort", Ack.class).scope(Scope.board_play).build();
+    public static EPMany<String> boardSeekRealTime =
+        Endpoint.of(Function.identity()).endpoint("/api/board/seek").contentType(wwwform).accept(plain).scope(Scope.board_play).toMany();
 
-    public static Endpoint<Ack> boardResign =
-        Endpoint.of("/api/board/game/%s/resign", Ack.class).scope(Scope.board_play).build();
+    public static EPOne<SeekAck> boardSeekCorr =
+        Endpoint.of(SeekAck.class).endpoint("/api/board/seek").contentType(wwwform).accept(plain).scope(Scope.board_play).toOne();
 
-    public static Endpoint<Ack> boardDraw =
-        Endpoint.of("/api/board/game/%s/draw/%s", Ack.class).scope(Scope.board_play).build();
+    public static EPMany<StreamGameEvent> streamBoardGameEvents =
+        Endpoint.of(StreamGameEvent.class).endpoint("/api/board/game/stream/%s").accept(jsonstream).scope(Scope.board_play).toMany();
 
-    public static Endpoint<Ack> boardTakeback =
-        Endpoint.of("/api/board/game/%s/takeback/%s", Ack.class).scope(Scope.board_play).build();
+    public static EPOne<Ack> boardMove =
+        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/move/%s").scope(Scope.board_play).toOne();
 
-    public static Endpoint<Ack> boardClaimVictory =
-        Endpoint.of("/api/board/game/%s/claim-victory", Ack.class).scope(Scope.board_play).build();
+    public static EPOne<Ack> boardChat =
+        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/chat").contentType(wwwform).scope(Scope.board_play).toOne();
 
-    public static Endpoint<ChatMessage[]> boardFetchChat =
-     Endpoint.ofArr("/api/board/game/%s/chat", ChatMessage.class).accept(jsonstream).scope(Scope.board_play).build();
+    public static EPOne<Ack> boardAbort =
+        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/abort").scope(Scope.board_play).toOne();
 
-    public static Endpoint<User> botsOnline =
-        Endpoint.of("/api/bot/online", User.class).accept(jsonstream).build();
+    public static EPOne<Ack> boardResign =
+        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/resign").scope(Scope.board_play).toOne();
 
-    public static Endpoint<Ack> botAccountUpgrade =
-        Endpoint.of("/api/bot/account/upgrade", Ack.class).scope(Scope.bot_play).build();
+    public static EPOne<Ack> boardDraw =
+        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/draw/%s").scope(Scope.board_play).toOne();
 
-    public static Endpoint<StreamGameEvent> streamBotGameEvents =
-        Endpoint.of("/api/bot/game/stream/%s", StreamGameEvent.class).accept(jsonstream).scope(Scope.bot_play).build();
+    public static EPOne<Ack> boardTakeback =
+        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/takeback/%s").scope(Scope.board_play).toOne();
 
-    public static Endpoint<Ack> botMove =
-        Endpoint.of("/api/bot/game/%s/move/%s", Ack.class).scope(Scope.bot_play).build();
+    public static EPOne<Ack> boardClaimVictory =
+        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/claim-victory").scope(Scope.board_play).toOne();
 
-    public static Endpoint<Ack> botChat =
-        Endpoint.of("/api/bot/game/%s/chat", Ack.class).content(wwwform).scope(Scope.bot_play).build();
+    public static EPMany<ChatMessage> boardFetchChat =
+        Endpoint.ofArr(ChatMessage.class).endpoint("/api/board/game/%s/chat").accept(jsonstream).scope(Scope.board_play).toMany();
 
-    public static Endpoint<Ack> botAbort =
-        Endpoint.of("/api/bot/game/%s/abort", Ack.class).scope(Scope.bot_play).build();
+    public static EPMany<User> botsOnline =
+        Endpoint.of(User.class).endpoint("/api/bot/online").accept(jsonstream).toMany();
 
-    public static Endpoint<Ack> botResign =
-        Endpoint.of("/api/bot/game/%s/resign", Ack.class).scope(Scope.bot_play).build();
+    public static EPOne<Ack> botAccountUpgrade =
+        Endpoint.of(Ack.class).endpoint("/api/bot/account/upgrade").scope(Scope.bot_play).toOne();
 
-    public static Endpoint<ChatMessage[]> botFetchChat =
-     Endpoint.ofArr("/api/bot/game/%s/chat", ChatMessage.class).accept(jsonstream).scope(Scope.bot_play).build();
+    public static EPMany<StreamGameEvent> streamBotGameEvents =
+        Endpoint.of(StreamGameEvent.class).endpoint("/api/bot/game/stream/%s").accept(jsonstream).scope(Scope.bot_play).toMany();
 
+    public static EPOne<Ack> botMove =
+        Endpoint.of(Ack.class).endpoint("/api/bot/game/%s/move/%s").scope(Scope.bot_play).toOne();
 
-    public static class EndpointBuilder<T> {
-        private final String endpoint;
-        private final Function<String, T> mapper;
+    public static EPOne<Ack> botChat =
+        Endpoint.of(Ack.class).endpoint("/api/bot/game/%s/chat").contentType(wwwform).scope(Scope.bot_play).toOne();
+
+    public static EPOne<Ack> botAbort =
+        Endpoint.of(Ack.class).endpoint("/api/bot/game/%s/abort").scope(Scope.bot_play).toOne();
+
+    public static EPOne<Ack> botResign =
+        Endpoint.of(Ack.class).endpoint("/api/bot/game/%s/resign").scope(Scope.bot_play).toOne();
+
+    public static EPMany<ChatMessage> botFetchChat =
+        Endpoint.ofArr(ChatMessage.class).endpoint("/api/bot/game/%s/chat").accept(jsonstream).scope(Scope.bot_play).toMany();
+
+    public static class Builder<T> {
+        private String endpoint;
+        Function<Stream<String>, One<T>> mapOne;
+        Function<Stream<String>, Many<T>> mapMany;
 
         private ServerType target = ServerType.api;
         private String accept = json;
-        private String content;
+        private String contentType;
         private Scope scope;
 
-        private EndpointBuilder(String endpoint, Function<String, T> mapper) {
-            Objects.nonNull(endpoint);
-            Objects.nonNull(mapper);
-            this.endpoint = endpoint;
-            this.mapper = mapper;
-         }
-
-        public EndpointBuilder<T> accept(String accept) {
-            Objects.nonNull(accept);
-            this.accept = accept;
+        public Builder<T> elementMapper(Function<String, T> mapper) {
+            Objects.requireNonNull(mapper);
+            this.mapOne = stream -> stream.map(mapper).filter(Objects::nonNull).findFirst().map(One::entry).orElse(One.none());
+            this.mapMany = stream -> Many.entries(stream.map(mapper).filter(Objects::nonNull));
             return this;
         }
 
-        public EndpointBuilder<T> content(String content) {
-            Objects.nonNull(content);
-            this.content = content;
+        public Builder<T> endpoint(String endpoint) {
+            this.endpoint = Objects.requireNonNull(endpoint);
             return this;
         }
 
-        public EndpointBuilder<T> scope(Scope scope) {
-            Objects.nonNull(scope);
-            this.scope = scope;
+        public Builder<T> streamMapper(Function<Stream<String>, Stream<T>> mapper) {
+            Objects.requireNonNull(mapper);
+            this.mapOne = stream -> mapper.apply(stream).findFirst().map(One::entry).orElse(One.none());
+            this.mapMany = stream -> Many.entries(mapper.apply(stream).filter(Objects::nonNull));
             return this;
         }
 
-        public EndpointBuilder<T> target(ServerType target) {
-            Objects.nonNull(target);
-            this.target = target;
+        public Builder<T> accept(String accept) {
+            this.accept = Objects.requireNonNull(accept);
             return this;
         }
 
-        public Endpoint<T> build() {
-            return new Endpoint<>(this);
+        public Builder<T> contentType(String contentType) {
+            this.contentType = Objects.requireNonNull(contentType);
+            return this;
+        }
+
+        public Builder<T> scope(Scope scope) {
+            this.scope = Objects.requireNonNull(scope);
+            return this;
+        }
+
+        public Builder<T> target(ServerType target) {
+            this.target = Objects.requireNonNull(target);
+            return this;
+        }
+
+        public EPOne<T> toOne() {
+            return Endpoint.one(this);
+        }
+
+        public EPMany<T> toMany() {
+            return Endpoint.many(this);
         }
     }
 
-    public Endpoint(EndpointBuilder<T> builder) {
-        this(builder.endpoint, builder.mapper, builder.accept, builder.content, builder.scope, builder.target);
+    static <T> EPOne<T> one(Builder<T> builder) {
+        return new EPOne<>(new EP(builder.endpoint, builder.accept, builder.contentType, builder.scope, builder.target), builder.mapOne);
+    }
+    static <T> EPMany<T> many(Builder<T> builder) {
+        return new EPMany<>(new EP(builder.endpoint, builder.accept, builder.contentType, builder.scope, builder.target), builder.mapMany);
     }
 
-    public static <T> EndpointBuilder<T> of(
-            String endpoint,
-            Class<T> clazz) {
-        return new EndpointBuilder<>(endpoint, ModelMapper.mapper(clazz));
+    public static <T> Builder<T> of(Class<T> clazz) {
+        return of(mapper(clazz));
     }
 
-    public static <T> EndpointBuilder<T[]> ofArr(
-            String endpoint,
-            Class<T> clazz) {
-        return new EndpointBuilder<>(endpoint, ModelMapper.mapperArr(clazz));
+    public static <T> Builder<T> of(Function<String, T> elementMapper) {
+        return new Builder<T>()
+            .elementMapper(elementMapper);
     }
 
-    public static <T> EndpointBuilder<T> of(
-            String endpoint,
-            Function<String, T> mapper) {
-        return new EndpointBuilder<>(endpoint, mapper);
+    public static <T> Builder<T> ofArr(Class<T> clazz) {
+        return ofArr(mapperArr(clazz));
     }
 
-    public Request.Builder<T> newRequest() {
+    public static <T> Builder<T> ofArr(Function<String, T[]> elementMapper) {
+        return new Builder<T>()
+            .streamMapper(stream -> stream.map(elementMapper).flatMap(Arrays::stream));
+    }
+
+    default ParamsBuilder toBuilder(Consumer<Params> consumer) {
         record KeyValue(String key, String value) {}
-        var map = Stream.of(
-                new KeyValue("accept", accept),
-                new KeyValue("content-type", content)
+        var headers = Stream.of(
+                new KeyValue("accept", accept()),
+                new KeyValue("content-type", contentType())
                 )
             .filter(e -> e.value() != null)
             .collect(Collectors.toMap(KeyValue::key, KeyValue::value));
 
-        return new Request.Builder<>(endpoint, mapper)
-            .headers(map)
-            .scope(scope)
-            .serverType(target);
+        var builder = new ParamsBuilder(endpoint())
+            .headers(headers)
+            .scope(scope())
+            .serverType(target());
+
+        var params = new Params() {
+            public Params path(Object... pathParameters)             { builder.path(pathParameters); return this; }
+            public Params query(Map<String, Object> queryParameters) { builder.query(queryParameters); return this;}
+            public Params post(String postData)                      { builder.post(postData); return this; }
+            public Params post(Map<String, ?> postMap)               { builder.post(postMap); return this; }
+            public Params post()                                     { builder.post(); return this; }
+            public Params delete()                                   { builder.delete(); return this; }
+            public Params timeout(Duration timeout)                  { builder.timeout(timeout); return this; }
+            public Params headers(Map<String, String> headers)       { builder.headers(headers); return this; }
+            public Params scope(Scope scope)                         { builder.scope(scope); return this; }
+            public Params serverType(ServerType serverType)          { builder.serverType(serverType); return this; }
+            public Params stream()                                   { builder.stream(); return this; }
+        };
+        consumer.accept(params);
+        return builder;
     }
 }

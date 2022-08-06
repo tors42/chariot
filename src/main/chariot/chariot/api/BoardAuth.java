@@ -1,16 +1,11 @@
 package chariot.api;
 
-import java.util.function.Consumer;
+import java.util.function.*;
 import java.util.function.Function;
 
+import chariot.api.Builders.*;
+import chariot.model.*;
 import chariot.model.Enums.*;
-import chariot.api.Builders.Clock;
-import chariot.api.Builders.ClockCorrespondence;
-import chariot.model.Ack;
-import chariot.model.ChatMessage;
-import chariot.model.Result;
-import chariot.model.StreamGameEvent;
-import chariot.model.Enums.Room;
 
 /**
  * Play on Lichess with physical boards and third-party clients.
@@ -46,12 +41,23 @@ public interface BoardAuth extends ChallengesAuthCommon {
      * Make sure to also have an Event stream open, to be notified when a game starts.<br/>
      * We recommend opening the Event stream first, then the seek stream.<br/>
      * This way, you won't miss the game event if the seek is accepted immediately.<br/>
+     */
+    Many<String> seekRealTime(Consumer<SeekRealTimeBuilder> params);
+    default Many<String> seekRealTime(int initial, int increment) {
+        return seekRealTime(params -> params.clock(initial, increment));
+    }
+
+    /**
+     * Create a public correspondence seek, to start a game with a random player.
      *
      * <p><b>Correspondence seek:</b><br/>
      * Specify the days per turn value. The response is not streamed, it immediately completes with the seek ID.<br/>
      * The seek remains active on the server until it is joined by someone.<br/>
      */
-    Result<Ack> seek(Consumer<SeekBuilder> params);
+    One<SeekAck> seekCorrespondence(Consumer<SeekCorrespondenceBuilder> params);
+    default One<SeekAck> seekCorrespondence(int daysPerTurn) {
+        return seekCorrespondence(params -> params.daysPerTurn(daysPerTurn));
+    }
 
     /**
      * Stream the state of a game being played with the Board API
@@ -65,7 +71,7 @@ public interface BoardAuth extends ChallengesAuthCommon {
      * <p> The first event is always of type gameFull
      *  @param gameId Example: 5IrD6Gzz
      */
-    Result<StreamGameEvent> streamGameState(String gameId);
+    Many<StreamGameEvent> streamGameState(String gameId);
 
     /**
      *  Make a move in a game being played with the Board API.<br/>
@@ -74,7 +80,7 @@ public interface BoardAuth extends ChallengesAuthCommon {
      *  @param move The move to play, in UCI format. Example: e2e4
      *  @param drawOffer Whether to offer (or agree to) a draw
      */
-    Result<Ack> move(String gameId, String move, boolean drawOffer);
+    One<Ack> move(String gameId, String move, boolean drawOffer);
     /**
      *  Make a move in a game being played with the Board API.<br/>
      *  The move can also contain a draw offer/agreement. {@link #move(String, String, boolean) move(..., boolean)}
@@ -82,7 +88,7 @@ public interface BoardAuth extends ChallengesAuthCommon {
      *  @param gameId Example: 5IrD6Gzz
      *  @param move The move to play, in UCI format. Example: e2e4
      */
-     Result<Ack> move(String gameId, String move);
+    One<Ack> move(String gameId, String move);
 
     /**
      * Post a message to the player or spectator chat, in a game being played with the Board API.
@@ -90,19 +96,19 @@ public interface BoardAuth extends ChallengesAuthCommon {
      * @param text
      * @param room
      */
-    Result<Ack> chat(String gameId, String text, Room room);
+    One<Ack> chat(String gameId, String text, Room room);
 
     /**
      * Abort a game being played with the Board API.
      * @param gameId  Example: 5IrD6Gzz
      */
-    Result<Ack> abort(String gameId);
+    One<Ack> abort(String gameId);
 
     /**
      * Resign a game being played with the Board API.
      * @param gameId  Example: 5IrD6Gzz
      */
-    Result<Ack> resign(String gameId);
+    One<Ack> resign(String gameId);
 
     /**
      * Create/accept/decline draw offers.
@@ -112,7 +118,7 @@ public interface BoardAuth extends ChallengesAuthCommon {
      * </ul>
      * @param gameId Example: 5IrD6Gzz
      */
-    Result<Ack> handleDrawOffer(String gameId, Offer accept);
+    One<Ack> handleDrawOffer(String gameId, Offer accept);
 
     /**
      * Create/accept/decline takeback offers.
@@ -122,60 +128,46 @@ public interface BoardAuth extends ChallengesAuthCommon {
      * </ul>
      * @param gameId Example: 5IrD6Gzz
      */
-    Result<Ack> handleTakebackOffer(String gameId, Offer accept);
+    One<Ack> handleTakebackOffer(String gameId, Offer accept);
 
 
     /**
      * Claim victory when the opponent has left the game for a while.
      * @param gameId  Example: 5IrD6Gzz
      */
-    Result<Ack> claimVictory(String gameId);
+    One<Ack> claimVictory(String gameId);
 
     /**
      * Get the messages posted in the game chat.
      * @param gameId  Example: 5IrD6Gzz
      */
-    Result<ChatMessage> fetchChat(String gameId);
+    Many<ChatMessage> fetchChat(String gameId);
 
-
-    /**
-     * See {@link chariot.api.BoardAuth#seek}
-     */
-     default Result<Ack> seek(int daysPerTurn) {
-        return seek(params -> params.daysPerTurn(daysPerTurn));
-    }
-
-    /**
-     * See {@link chariot.api.BoardAuth#seek}
-     */
-     default Result<Ack> seek(int initial, int increment) {
-        return seek(params -> params.clock(initial, increment));
-    }
 
     /**
      * See {@link chariot.api.BoardAuth#chat}
      */
-    default Result<Ack> chat(String gameId, String message) {
+    default One<Ack> chat(String gameId, String message) {
         return chat(gameId, message, Room.player);
     }
 
     /**
      * See {@link chariot.api.BoardAuth#handleDrawOffer}
      */
-    default Result<Ack> handleDrawOffer(String gameId, Function<Offer.Provider, Offer> accept) {
+    default One<Ack> handleDrawOffer(String gameId, Function<Offer.Provider, Offer> accept) {
         return handleDrawOffer(gameId, accept.apply(Offer.provider()));
     }
 
     /**
      * See {@link chariot.api.BoardAuth#handleTakebackOffer}
      */
-    default Result<Ack> handleTakebackOffer(String gameId, Function<Offer.Provider, Offer> accept) {
+    default One<Ack> handleTakebackOffer(String gameId, Function<Offer.Provider, Offer> accept) {
         return handleTakebackOffer(gameId, accept.apply(Offer.provider()));
     }
 
 
-
-    interface SeekBuilder extends Clock<SeekParams>, ClockCorrespondence<SeekParams> {}
+    interface SeekRealTimeBuilder extends ClockMinute<SeekParams> {}
+    interface SeekCorrespondenceBuilder extends ClockCorrespondence<SeekParams> {}
 
     interface SeekParams {
         /**
@@ -192,5 +184,4 @@ public interface BoardAuth extends ChallengesAuthCommon {
          */
         SeekParams ratingRange(String ratingRange);
     }
-
 }

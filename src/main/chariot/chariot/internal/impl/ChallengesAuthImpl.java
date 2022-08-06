@@ -1,106 +1,100 @@
 package chariot.internal.impl;
 
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import chariot.Client.Scope;
-import chariot.internal.Endpoint;
-import chariot.internal.Util;
-import chariot.internal.InternalClient;
-import chariot.model.Ack;
-import chariot.model.BulkPairing;
-import chariot.model.BulkPairings;
-import chariot.model.PendingChallenges;
-import chariot.model.Result;
+import chariot.api.*;
+import chariot.internal.*;
+import chariot.internal.Util.MapBuilder;
+import chariot.model.*;
 
-public class ChallengesAuthImpl extends ChallengesAuthCommonImpl implements Internal.ChallengeAuth {
+public class ChallengesAuthImpl extends ChallengesAuthCommonImpl implements ChallengesAuth {
 
     public ChallengesAuthImpl(InternalClient client) {
         super(client, Scope.challenge_write);
     }
 
     @Override
-    public Result<PendingChallenges> challenges() {
-        var request = Endpoint.challenges.newRequest()
-            .build();
-
-        return fetchOne(request);
+    public One<PendingChallenges> challenges() {
+        return Endpoint.challenges.newRequest(request -> {})
+            .process(this);
     }
 
     @Override
-    public Result<Ack> startClocksOfGame(String gameId, String token1, String token2) {
-        var request = Endpoint.startClocksOfGame.newRequest()
-            .path(gameId)
-            .query(Map.of("token1", token1, "token2", token2))
-            .post()
-            .build();
-
-        return fetchOne(request);
+    public One<Ack> startClocksOfGame(String gameId, String token1, String token2) {
+        return Endpoint.startClocksOfGame.newRequest(request -> request
+                .path(gameId)
+                .query(Map.of("token1", token1, "token2", token2))
+                .post())
+            .process(this);
     }
 
+    @Override
+    public One<Ack> addTimeToGame(String gameId, int seconds) {
+        return Endpoint.addTimeToGame.newRequest(request -> request
+                .post()
+                .path(gameId, seconds))
+            .process(this);
+    }
 
     @Override
-    public Result<Ack> addTimeToGame(String gameId, int seconds) {
-        if (seconds < 1 || seconds > 86400) {
-            return Result.fail("Seconds to add must be [ 1 .. 86400 ]");
+    public Many<BulkPairing> bulks() {
+        return Endpoint.bulkPairingGet.newRequest(request -> {})
+            .process(this);
+    }
+
+    @Override
+    public One<BulkPairing> createBulk(Consumer<BulkBuilder> consumer) {
+        return Endpoint.bulkPairingCreate.newRequest(request -> request
+                .post(bulkBuilderToMap(consumer)))
+            .process(this);
+    }
+
+    @Override
+    public One<Ack> startBulk(String bulkId) {
+        return Endpoint.bulkPairingStart.newRequest(request -> request
+                .path(bulkId)
+                .post())
+            .process(this);
+    }
+
+    @Override
+    public One<Ack> cancelBulk(String bulkId) {
+        return Endpoint.bulkPairingCancel.newRequest(request -> request
+                .path(bulkId)
+                .delete())
+            .process(this);
+    }
+
+    private Map<String, Object> bulkBuilderToMap(Consumer<BulkBuilder> consumer) {
+        List<BulkParams.Pairing> pairings = new ArrayList<>();
+        var builder = MapBuilder.of(BulkParams.class)
+            .addCustomHandler("addPairing", (args, map) -> pairings.add(BulkParams.Pairing.class.cast(args[0])));
+        var bulkBuilder = new BulkBuilder() {
+            @Override
+            public BulkParams clock(int initial, int increment) {
+                return builder
+                    .add("clock.limit", initial)
+                    .add("clock.increment", increment)
+                    .proxy();
+            }
+        };
+
+        record Pairings(List<BulkParams.Pairing> pairings) {
+            @Override
+            public String toString() {
+                return pairings.stream()
+                    .map(p -> String.valueOf(p.tokenWhite().get()) + ":" + String.valueOf(p.tokenBlack().get()))
+                    .collect(Collectors.joining(","));
+            }
         }
-        var request = Endpoint.addTimeToGame.newRequest()
-            .post()
-            .path(gameId, seconds)
-            .build();
 
-        return fetchOne(request);
+        consumer.accept(bulkBuilder);
+        var map = builder.toMap();
+        map.putIfAbsent("rated", false);
+        map.put("players", new Pairings(pairings));
+        return builder.toMap();
     }
-
-    @Override
-    public Result<BulkPairing> bulks() {
-        var request = Endpoint.bulkPairingGet.newRequest()
-            .build();
-
-        var result = fetchOne(request);
-
-        if (result instanceof Result.One<BulkPairings> o) {
-            return Result.many(o.entry().bulks().stream());
-        } else {
-            return Result.fail(result.error());
-        }
-    }
-
-    @Override
-    public Result<BulkPairing> createBulk(InternalBulkParameters parameters) {
-
-        if (parameters instanceof InternalBulkParameters.Parameters p) {
-            var parameterString = Util.urlEncode(p.params());
-
-            var request = Endpoint.bulkPairingCreate.newRequest()
-                .post(parameterString)
-                .build();
-
-            var result = fetchOne(request);
-
-            return result;
-        }
-
-        return Result.fail("Unknown parameters " + parameters);
-    }
-
-    @Override
-    public Result<Ack> startBulk(String bulkId) {
-        var request = Endpoint.bulkPairingStart.newRequest()
-            .path(bulkId)
-            .post()
-            .build();
-
-        return fetchOne(request);
-    }
-
-    @Override
-    public Result<Ack> cancelBulk(String bulkId) {
-        var request = Endpoint.bulkPairingCancel.newRequest()
-            .path(bulkId)
-            .delete()
-            .build();
-
-        return fetchOne(request);
-    }
-
 }

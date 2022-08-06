@@ -54,7 +54,7 @@ public sealed interface StreamEvent {
     }
 
     // Todo, check what challenge structure is used in this StreamEvent - maybe something similar generic (as opposed to identical separate structurs)
-    record ChallengeEvent(Type type, ChallengeResult.ChallengeInfo.Challenge challenge, Compat compat) implements StreamEvent {}
+    record ChallengeEvent(Type type, Challenge challenge, Compat compat) implements StreamEvent {}
 
     record Compat(boolean bot, boolean board) {}
 }

@@ -16,16 +16,7 @@ public interface Users {
      *
      * @param userId
      */
-    default Result<User> byId(String userId) { return byId(userId, p -> p.withTrophies(false)); }
-
-    /**
-     * Get public user data
-     *
-     * @param userId
-     * @param withTrophies
-     */
-    @Deprecated
-    default Result<User> byId(String userId, boolean withTrophies) { return byId(userId, p -> p.withTrophies(withTrophies)); }
+    default One<User> byId(String userId) { return byId(userId, p -> p.withTrophies(false)); }
 
     /**
      * Get public user data
@@ -33,16 +24,16 @@ public interface Users {
      * @param userId
      * @param params
      */
-    Result<User> byId(String userId, Consumer<UserParams> params);
+    One<User> byId(String userId, Consumer<UserParams> params);
 
     /**
      * Get public user data
      *
      * @param userIds A list of up to 300 user ids
      */
-    Result<User> byIds(List<String> userIds);
+    Many<User> byIds(List<String> userIds);
 
-    default Result<User> byIds(String ... userIds) {
+    default Many<User> byIds(String ... userIds) {
         return byIds(List.of(userIds));
     }
 
@@ -51,7 +42,7 @@ public interface Users {
      *
      * @param userId
      */
-    Result<RatingHistory> ratingHistoryById(String userId);
+    Many<RatingHistory> ratingHistoryById(String userId);
 
     /**
      * Read performance statistics of a user, for a single performance.
@@ -59,19 +50,20 @@ public interface Users {
      * @param userId
      * @param type
      */
-    Result<PerfStat> performanceStatisticsByIdAndType(String userId, PerfType type);
+    One<PerfStat> performanceStatisticsByIdAndType(String userId, PerfType type);
 
     /**
      * Get total number of games, and current score, of any two users.<br>
      * If the `matchup` flag is provided, and the users are currently playing, also gets the current match game number and scores.
      */
-    Result<Crosstable> crosstable(String userId1, String userId2, boolean matchup);
-    Result<Crosstable> crosstable(String userId1, String userId2);
+    One<Crosstable> crosstable(String userId1, String userId2, Consumer<CrosstableParams> params);
+    default One<Crosstable> crosstable(String userId1, String userId2) { return crosstable(userId1, userId2, __ -> {}); }
+    default One<Crosstable> crosstable(String userId1, String userId2, boolean matchup) { return crosstable(userId1, userId2, p -> p.matchup(matchup)); }
 
     /**
      * Get the top 10 players for each speed and variant.
      */
-    Result<UserTopAll> top10();
+    One<UserTopAll> top10();
 
     /**
      * Get the leaderboard for a single speed or variant (a.k.a. `perfType`).<br>
@@ -80,14 +72,17 @@ public interface Users {
      * @param nb How many users to fetch. Min 1, Max 200.
      * @param perfType Which speed or variant leaderboard.
      */
-    Result<Leaderboard> leaderboard(int nb, PerfTypeNoCorr perfType);
+    One<Leaderboard> leaderboard(int nb, PerfTypeNoCorr perfType);
 
     /**
      * Read data to generate the activity feed of a user.
      *
      * @param userId
      */
-    Result<Activity[]> activityById(String userId);
+    Many<Activity> activityById(String userId);
+
+
+    Many<UserStatus> statusByIds(Collection<String> userIds, Consumer<UserStatusParams> params);
 
     /**
      * Read the `online`, `playing` and `streaming` flags of several users.<br/>
@@ -99,27 +94,29 @@ public interface Users {
      *
      * @param userIds
      */
-    default Result<UserStatus> statusByIds(Collection<String> userIds) {
-        return statusByIds(userIds, false);
+    default Many<UserStatus> statusByIds(Collection<String> userIds) {
+        return statusByIds(userIds, __ -> {});
     }
 
     /**
      * {@link #statusByIds(Collection)}
      * @param withGameIds If set to true, the id of the game the users are playing, if any, will be included. Default: false
      */
-    Result<UserStatus> statusByIds(Collection<String> userIds, boolean withGameIds);
+    default Many<UserStatus> statusByIds(Collection<String> userIds, boolean withGameIds) {
+        return statusByIds(userIds, p -> p.withGameIds(withGameIds));
+    }
 
     /**
      * {@link #statusByIds(Collection)}
      */
-    default Result<UserStatus> statusByIds(boolean withGameIds, String... userIds) {
+    default Many<UserStatus> statusByIds(boolean withGameIds, String... userIds) {
         return statusByIds(Set.of(userIds), withGameIds);
     }
 
     /**
      * {@link #statusByIds(Collection)}
      */
-    default Result<UserStatus> statusByIds(String... userIds) {
+    default Many<UserStatus> statusByIds(String... userIds) {
         return statusByIds(Set.of(userIds));
     }
 
@@ -128,7 +125,7 @@ public interface Users {
      * This API is very fast and cheap on lichess side.<br>
      * So you can call it quite often (like once every 5 seconds).
      */
-    Result<StreamerStatus> liveStreamers();
+    Many<StreamerStatus> liveStreamers();
 
 
     interface UserParams {
@@ -139,5 +136,22 @@ public interface Users {
 
         default UserParams withTrophies() { return withTrophies(true); }
     }
+
+    interface CrosstableParams {
+        /**
+         * Whether or not to include matchup in the result
+         */
+        CrosstableParams matchup(boolean matchup);
+        default CrosstableParams matchup() { return matchup(true); }
+    }
+
+    interface UserStatusParams {
+        /**
+         * Whether or not to include game IDs in the result
+         */
+        UserStatusParams withGameIds(boolean withGameIds);
+        default UserStatusParams withGameIds() { return withGameIds(true); }
+    }
+
 
 }

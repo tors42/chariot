@@ -1,83 +1,78 @@
 package chariot.internal.impl;
 
-import chariot.internal.Endpoint;
-import chariot.internal.InternalClient;
+import java.util.Map;
+import java.util.function.Consumer;
+
+import chariot.api.*;
+import chariot.internal.*;
+import chariot.internal.Util.MapBuilder;
 import chariot.model.Ack;
 import chariot.model.Broadcast;
 import chariot.model.Broadcast.Round;
-import chariot.model.Result;
 
-public class BroadcastsAuthImpl extends BroadcastsImpl implements Internal.BroadcastsAuth {
+public class BroadcastsAuthImpl extends BroadcastsImpl implements BroadcastsAuth {
 
     public BroadcastsAuthImpl(InternalClient client) {
         super(client);
     }
 
     @Override
-    public Result<Broadcast> broadcastById(String tourId) {
-        var request = Endpoint.broadcastById.newRequest()
-            .path(tourId)
-            .build();
-
-        return fetchOne(request);
+    public One<Broadcast> broadcastById(String tourId) {
+        return Endpoint.broadcastById.newRequest(request -> request
+                .path(tourId))
+            .process(this);
     }
 
     @Override
-    public Result<Broadcast> create(InternalBroadcastParameters params) {
-        var request = Endpoint.createBroadcast.newRequest()
-            .post(params.toMap())
-            .build();
-
-        return fetchOne(request);
+    public One<Broadcast> create(Consumer<BroadcastBuilder> params) {
+        return Endpoint.createBroadcast.newRequest(request -> request
+                .post(broadastBuilderToMap(params)))
+            .process(this);
     }
 
     @Override
-    public Result<Ack> update(String tourId, InternalBroadcastParameters params) {
-        var request = Endpoint.updateBroadcast.newRequest()
-            .path(tourId)
-            .post(params.toMap())
-            .build();
-
-        return fetchOne(request);
+    public One<Ack> update(String tourId, Consumer<BroadcastBuilder> params) {
+        return Endpoint.updateBroadcast.newRequest(request -> request
+                .path(tourId)
+                .post(broadastBuilderToMap(params)))
+            .process(this);
     }
 
     @Override
-    public Result<Round> roundById(String roundId) {
-        var request = Endpoint.roundById.newRequest()
-            .path(roundId)
-            .build();
-
-        return fetchOne(request);
+    public One<Round> roundById(String roundId) {
+        return Endpoint.roundById.newRequest(request -> request
+                .path(roundId))
+            .process(this);
      }
 
     @Override
-    public Result<Broadcast.Round> createRound(String tourId, InternalRoundParameters params) {
-        var request = Endpoint.createRound.newRequest()
-            .path(tourId)
-            .post(params.toMap())
-            .build();
-
-        return fetchOne(request);
+    public One<Broadcast.Round> createRound(String tourId, Consumer<RoundBuilder> params) {
+        return Endpoint.createRound.newRequest(request -> request
+                .path(tourId)
+                .post(MapBuilder.of(RoundBuilder.class).toMap(params)))
+            .process(this);
     }
 
     @Override
-    public Result<Broadcast.Round> updateRound(String roundId, InternalRoundParameters params) {
-        var request = Endpoint.updateRound.newRequest()
-            .path(roundId)
-            .post(params.toMap())
-            .build();
-
-        return fetchOne(request);
+    public One<Broadcast.Round> updateRound(String roundId, Consumer<RoundBuilder> params) {
+        return Endpoint.updateRound.newRequest(request -> request
+                .path(roundId)
+                .post(MapBuilder.of(RoundBuilder.class).toMap(params)))
+            .process(this);
     }
 
     @Override
-    public Result<Ack> pushPgnByRoundId(String roundId, String pgn) {
-        var request = Endpoint.pushPGNbyRoundId.newRequest()
-            .path(roundId)
-            .post(pgn)
-            .build();
-
-        return fetchOne(request);
+    public One<Ack> pushPgnByRoundId(String roundId, String pgn) {
+        return Endpoint.pushPGNbyRoundId.newRequest(request -> request
+                .path(roundId)
+                .post(pgn))
+            .process(this);
     }
 
+    private Map<String, Object> broadastBuilderToMap(Consumer<BroadcastBuilder> consumer) {
+        return MapBuilder.of(BroadcastBuilder.class)
+                    .rename("shortDescription", "description")
+                    .rename("longDescription", "markdown")
+                    .toMap(consumer);
+    }
 }

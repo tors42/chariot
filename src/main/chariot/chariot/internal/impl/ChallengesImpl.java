@@ -1,30 +1,44 @@
 package chariot.internal.impl;
 
-import chariot.internal.Base;
-import chariot.internal.Endpoint;
-import chariot.internal.InternalClient;
-import chariot.model.ChallengeResult;
-import chariot.model.ChallengeResult.ChallengeOpenEnded;
-import chariot.model.Result;
+import java.util.Map;
+import java.util.function.Consumer;
 
-public class ChallengesImpl extends Base implements Internal.ChallengesInternal {
+import chariot.api.*;
+import chariot.internal.*;
+import chariot.internal.Util.MapBuilder;
+import chariot.model.ChallengeOpenEnded;
+
+public class ChallengesImpl extends Base implements Challenges {
 
     public ChallengesImpl(InternalClient client) {
         super(client);
     }
 
     @Override
-    public Result<ChallengeOpenEnded> challengeOpenEnded(ChallengeOpenEndedParameters params) {
-        var request = Endpoint.challengeOpenEnded.newRequest()
-            .post(params.toMap())
-            .build();
-
-        var result = fetchOne(request);
-
-        if (result instanceof Result.One<ChallengeResult> o && o.entry() instanceof ChallengeResult.ChallengeOpenEnded open) {
-            return Result.one(open);
-        } else {
-            return Result.fail(result.error());
-        }
+    public One<ChallengeOpenEnded> challengeOpenEnded(Consumer<OpenEndedBuilder> consumer) {
+        return Endpoint.challengeOpenEnded.newRequest(request -> request
+            .post(openEndedBuilderToMap(consumer)))
+            .process(this);
      }
+
+    private Map<String,Object> openEndedBuilderToMap(Consumer<OpenEndedBuilder> consumer) {
+        var builder = MapBuilder.of(OpenEndedParams.class);
+        var openEndedBuilder = new OpenEndedBuilder() {
+            @Override
+            public OpenEndedParams clock(int initial, int increment) {
+                return builder
+                    .add("clock.limit", initial)
+                    .add("clock.increment", increment)
+                    .proxy();
+            }
+            @Override
+            public OpenEndedParams daysPerTurn(int daysPerTurn) {
+                return builder
+                    .add("days", daysPerTurn)
+                    .proxy();
+            }
+        };
+        consumer.accept(openEndedBuilder);
+        return builder.toMap();
+    }
 }

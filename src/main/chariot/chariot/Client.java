@@ -50,8 +50,8 @@ import chariot.internal.Config;
  * }
  *
  * <p>
- * The responses from the APIs are modelled with a {@link chariot.model.Result}{@literal <T>} "container".<br>
- * Its documentation covers the types of responses (Result) and various ways of accessing their values (T).<br>
+ * The responses from the APIs are modelled with {@link chariot.api.One}{@literal <T>} and {@link chariot.api.Many}{@literal <T>} "containers".<br>
+ * Its documentation covers the types of responses and various ways of accessing their values.<br>
  * The types of the values (T) used in the APIs are bundled in the {@link chariot.model} package - simple data holders / records.
  *
  * <p>

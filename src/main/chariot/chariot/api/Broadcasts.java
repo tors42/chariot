@@ -2,7 +2,6 @@ package chariot.api;
 
 import chariot.model.Broadcast;
 import chariot.model.Pgn;
-import chariot.model.Result;
 
 public interface Broadcasts {
 
@@ -11,12 +10,12 @@ public interface Broadcasts {
      * <p>Get all incoming, ongoing, and finished official broadcasts. The broadcasts are sorted by start date, most recent first.
      * @param nb Max number of broadcasts to fetch. Default 20.
      */
-    Result<Broadcast> official(int nb);
+    Many<Broadcast> official(int nb);
 
     /**
      * See {@link #official(int)}
      */
-    Result<Broadcast> official();
+    Many<Broadcast> official();
 
     /**
      * Stream an ongoing broadcast tournament as PGN
@@ -26,7 +25,7 @@ public interface Broadcasts {
      * <p>The stream will also send PGNs when games are added to the tournament.
      * <p>This is the best way to get updates about an ongoing tournament. Streaming means no polling, and no pollings means no latency, and minimum impact on the server.
      */
-    Result<Pgn> streamBroadcast(String roundId);
+    Many<Pgn> streamBroadcast(String roundId);
 
     /**
      * Export one round as PGN
@@ -35,7 +34,7 @@ public interface Broadcasts {
      * <p> Instead, consider streaming the tournament to get a new PGN every time a game is updated, in real-time. See {@link #streamBroadcast(String)}
      * @param roundId The round ID (8 characters).
      */
-    Result<Pgn> exportOneRoundPgn(String roundId);
+    Many<Pgn> exportOneRoundPgn(String roundId);
 
     /**
      * Export all rounds as PGN
@@ -43,6 +42,6 @@ public interface Broadcasts {
      * <p>You may want to download only the games of a single round instead. See {@link #exportOneRoundPgn(String)}
      * @param tourId The broadcast tournament ID (8 characters).
      */
-    Result<Pgn> exportPgn(String tourId);
+    Many<Pgn> exportPgn(String tourId);
 
 }

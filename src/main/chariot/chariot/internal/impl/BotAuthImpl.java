@@ -1,100 +1,93 @@
 package chariot.internal.impl;
 
 import java.util.Map;
-import java.util.Optional;
 
 import chariot.Client.Scope;
+import chariot.api.*;
+import chariot.model.*;
 import chariot.model.Enums.*;
-import chariot.internal.Endpoint;
-import chariot.internal.Util;
-import chariot.internal.InternalClient;
-import chariot.model.Ack;
-import chariot.model.ChatMessage;
-import chariot.model.Result;
-import chariot.model.StreamGameEvent;
-import chariot.model.User;
+import chariot.internal.*;
 
-public class BotAuthImpl extends ChallengesAuthCommonImpl implements Internal.BotAuth {
+public class BotAuthImpl extends ChallengesAuthCommonImpl implements BotAuth {
 
     public BotAuthImpl(InternalClient client) {
         super(client, Scope.bot_play);
     }
 
     @Override
-    public Result<User> botsOnline(Optional<Integer> nb) {
-        var builder = Endpoint.botsOnline.newRequest();
-        nb.ifPresent(max -> builder.query(Map.of("nb", max)));
-        var request = builder.build();
-        return fetchMany(request);
+    public Many<User> botsOnline(int nb) {
+        return Endpoint.botsOnline.newRequest(request -> request
+                .query(Map.of("nb", nb)))
+            .process(this);
     }
 
     @Override
-    public Result<Ack> upgradeToBotAccount() {
-        var request = Endpoint.botAccountUpgrade.newRequest()
-            .post()
-            .build();
-        return fetchOne(request);
+    public Many<User> botsOnline() {
+        return Endpoint.botsOnline.newRequest(request -> {})
+            .process(this);
+    }
+
+    @Override
+    public One<Ack> upgradeToBotAccount() {
+        return Endpoint.botAccountUpgrade.newRequest(request -> request
+                .post())
+            .process(this);
      }
 
     @Override
-    public Result<StreamGameEvent> streamGameState(String gameId) {
-        var request = Endpoint.streamBotGameEvents.newRequest()
-            .path(gameId)
-            .stream()
-            .build();
-        return fetchMany(request);
+    public Many<StreamGameEvent> streamGameState(String gameId) {
+        return Endpoint.streamBotGameEvents.newRequest(request -> request
+                .path(gameId)
+                .stream())
+            .process(this);
     }
 
     @Override
-    public Result<Ack> move(String gameId, String move, Optional<Boolean> drawOffer) {
-        var builder = Endpoint.botMove.newRequest()
-            .path(gameId, move)
-            .post();
-
-        drawOffer.ifPresent(draw -> builder.query(Map.of("offeringDraw", draw)));
-
-        var request = builder.build();
-        return fetchOne(request);
+    public One<Ack> move(String gameId, String move, boolean drawOffer) {
+        return Endpoint.botMove.newRequest(request -> request
+                .path(gameId, move)
+                .post()
+                .query(Map.of("offeringDraw", drawOffer)))
+            .process(this);
     }
 
     @Override
-    public Result<Ack> chat(String gameId, String text, Room room) {
-        var map = Map.of("text", text, "room", room.name());
-        var postData = Util.urlEncode(map);
+    public One<Ack> move(String gameId, String move) {
+        return Endpoint.botMove.newRequest(request -> request
+                .path(gameId, move)
+                .post())
+            .process(this);
+    }
 
-        var request = Endpoint.botChat.newRequest()
-            .path(gameId)
-            .post(postData)
-            .build();
 
-        return fetchOne(request);
+    @Override
+    public One<Ack> chat(String gameId, String text, Room room) {
+        return Endpoint.botChat.newRequest(request -> request
+                .path(gameId)
+                .post(Map.of("text", text, "room", room.name())))
+            .process(this);
     }
 
     @Override
-    public Result<Ack> abort(String gameId) {
-        var request = Endpoint.botAbort.newRequest()
-            .path(gameId)
-            .post()
-            .build();
-        return fetchOne(request);
+    public One<Ack> abort(String gameId) {
+        return Endpoint.botAbort.newRequest(request -> request
+                .path(gameId)
+                .post())
+            .process(this);
      }
 
     @Override
-    public Result<Ack> resign(String gameId) {
-        var request = Endpoint.botResign.newRequest()
+    public One<Ack> resign(String gameId) {
+        return Endpoint.botResign.newRequest(request -> request
             .path(gameId)
-            .post()
-            .build();
-        return fetchOne(request);
+            .post())
+            .process(this);
     }
 
     @Override
-    public Result<ChatMessage> fetchChat(String gameId) {
-        var request = Endpoint.botFetchChat.newRequest()
-            .path(gameId)
-            .build();
-        return fetchArr(request);
+    public Many<ChatMessage> fetchChat(String gameId) {
+        return Endpoint.botFetchChat.newRequest(request -> request
+                .path(gameId))
+            .process(this);
     }
-
-
 }

@@ -1,13 +1,19 @@
 package chariot.api;
 
-import chariot.model.Result;
+import java.util.function.Consumer;
+
 import chariot.model.Puzzle;
 import chariot.model.StormDashboard;
 
 public interface Puzzles {
 
-    Result<StormDashboard> stormDashboard(String username);
-    Result<StormDashboard> stormDashboard(String username, int days);
+    One<StormDashboard> stormDashboard(String username, Consumer<PuzzleParams> params);
+    default One<StormDashboard> stormDashboard(String username) { return stormDashboard(username, __ -> {}); }
+    default One<StormDashboard> stormDashboard(String username, int days) { return stormDashboard(username, p -> p.days(days)); }
 
-    Result<Puzzle>         dailyPuzzle();
+    One<Puzzle>         dailyPuzzle();
+
+    interface PuzzleParams {
+        PuzzleParams days(int days);
+    }
 }

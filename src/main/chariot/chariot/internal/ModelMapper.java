@@ -2,7 +2,6 @@ package chariot.internal;
 
 import java.lang.reflect.Array;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -61,8 +60,7 @@ public class ModelMapper {
         mapper.setMappings(User.Count.class,                  ModelMapperUtil.importMapping());
         mapper.setMappings(Variant.class,                     ModelMapperUtil.shortMapping());
         mapper.setMappings(Broadcast.Round.class,             ModelMapperUtil.startsAtMapping());
-        mapper.setMappings(ChallengeResult.ChallengeAI.class, ModelMapperUtil.createdAtAndLastMoveAtMapping());
-
+        mapper.setMappings(ChallengeAI.class,                 ModelMapperUtil.createdAtAndLastMoveAtMapping());
 
         // "Exotic" JSON model...
         mappings.put(Crosstable.class,
@@ -94,18 +92,6 @@ public class ModelMapper {
                 });
 
 
-        mappings.put(Err.class,
-                (json) -> {
-                    var node = Parser.fromString(json);
-                    var err = mapper.fromYayTree(node, Err.class);
-                    if (err instanceof Err.Error e && e.error() == null) {
-                        return Err.error(json);
-                    } else if (err instanceof Err.Failure f && (f.message() == null || f.message().isEmpty())) {
-                        return Err.error(json);
-                    }
-                    return err;
-                });
-
 
         // Some guidance for the correct challenge type to be modelled...
         mappings.put(ChallengeResult.class,
@@ -114,7 +100,7 @@ public class ModelMapper {
                     if (node instanceof YayObject yo) {
                         var outer = yo.value();
                         if (outer.get("urlWhite") != null) {
-                            return mapper.fromYayTree(node, ChallengeResult.ChallengeOpenEnded.class);
+                            return mapper.fromYayTree(node, ChallengeOpenEnded.class);
                         } else {
                             if (outer.get("challenge") != null) {
                                 return mapper.fromYayTree(node, ChallengeResult.ChallengeInfo.class);
@@ -125,7 +111,7 @@ public class ModelMapper {
                                     // is sent "accepted"/"declined"...
                                     return mapper.fromYayTree(node, ChallengeResult.OpponentDecision.class);
                                 } else {
-                                    return mapper.fromYayTree(node, ChallengeResult.ChallengeAI.class);
+                                    return mapper.fromYayTree(node, ChallengeAI.class);
                                 }
                             }
                         }

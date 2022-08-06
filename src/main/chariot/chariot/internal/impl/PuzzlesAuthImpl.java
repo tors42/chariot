@@ -1,38 +1,40 @@
 package chariot.internal.impl;
 
-import java.util.*;
+import java.util.Map;
 
+import chariot.api.*;
 import chariot.internal.*;
 import chariot.model.*;
 
-public class PuzzlesAuthImpl extends PuzzlesImpl implements Internal.PuzzlesAuth {
+public class PuzzlesAuthImpl extends PuzzlesImpl implements PuzzlesAuth {
 
     public PuzzlesAuthImpl(InternalClient client) {
         super(client);
     }
 
     @Override
-    public Result<PuzzleActivity> activity(Optional<Integer> max) {
-        var requestBuilder = Endpoint.puzzleActivity.newRequest();
-        max.ifPresent(m -> requestBuilder.query(Map.of("max", m)));
-        var request = requestBuilder.build();
-        return fetchMany(request);
+    public Many<PuzzleActivity> activity(int max) {
+        return Endpoint.puzzleActivity.newRequest(request -> request
+                .query(Map.of("max", max)))
+            .process(this);
+    }
+    @Override
+    public Many<PuzzleActivity> activity() {
+        return Endpoint.puzzleActivity.newRequest(request -> {})
+            .process(this);
     }
 
     @Override
-    public Result<PuzzleDashboard> puzzleDashboard(int days) {
-        var request = Endpoint.puzzleDashboard.newRequest()
-            .path(String.valueOf(days))
-            .build();
-        return fetchOne(request);
+    public One<PuzzleDashboard> puzzleDashboard(int days) {
+        return Endpoint.puzzleDashboard.newRequest(request -> request
+                .path(String.valueOf(days)))
+            .process(this);
     }
 
     @Override
-    public Result<PuzzleRace> createAndJoinRace() {
-        var request = Endpoint.puzzleRace.newRequest()
-            .post()
-            .build();
-        return fetchOne(request);
+    public One<PuzzleRace> createAndJoinRace() {
+        return Endpoint.puzzleRace.newRequest(request -> request
+                .post())
+            .process(this);
     }
-
 }

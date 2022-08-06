@@ -1,128 +1,118 @@
 package chariot.internal.impl;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Consumer;
 
-import chariot.model.ArenaResult;
-import chariot.model.Arena;
-import chariot.model.Tournament;
-import chariot.model.TournamentStatus;
-import chariot.model.Game;
-import chariot.model.Result;
-import chariot.model.Swiss;
-import chariot.model.SwissResult;
-import chariot.model.TeamBattleResults;
+import chariot.api.*;
+import chariot.model.*;
 import chariot.model.Enums.TournamentState;
-import chariot.internal.Base;
-import chariot.internal.Endpoint;
-import chariot.internal.InternalClient;
+import chariot.internal.*;
+import chariot.internal.RequestParameters.Params;
+import chariot.internal.Util.MapBuilder;
 
-public class TournamentsImpl extends Base implements Internal.Tournaments {
+public class TournamentsImpl extends Base implements Tournaments {
 
     TournamentsImpl(InternalClient client) {
         super(client);
     }
 
     @Override
-    public Result<Arena> arenaById(String arenaId, Optional<Integer> page) {
-        var requestBuilder = Endpoint.tournamentArenaById.newRequest()
-            .path(arenaId);
-        page.ifPresent(v -> requestBuilder.query(Map.of("page", v)));
-        var request = requestBuilder.build();
-        return fetchOne(request);
+    public One<TournamentStatus> currentTournaments() {
+        return Endpoint.tournamentArenas.newRequest(request -> {})
+            .process(this);
     }
 
     @Override
-    public Result<TournamentStatus> currentTournaments() {
-        var request = Endpoint.tournamentArenas.newRequest()
-            .build();
-        return fetchOne(request);
+    public One<Arena> arenaById(String arenaId, int page) {
+        return Endpoint.tournamentArenaById.newRequest(request -> request
+                .path(arenaId)
+                .query(Map.of("page", page)))
+            .process(this);
     }
 
     @Override
-    public Result<ArenaResult> resultsByArenaId(String tournamentId, Optional<Integer> nb) {
-        var builder = Endpoint.tournamentArenaResultsById.newRequest()
-            .path(tournamentId);
-        nb.ifPresent(n -> builder.query(Map.of("nb", n)));
-        var request = builder.build();
-        return fetchMany(request);
+    public One<Arena> arenaById(String arenaId) {
+        return Endpoint.tournamentArenaById.newRequest(request -> request
+                .path(arenaId))
+            .process(this);
     }
 
     @Override
-    public Result<Tournament> arenasCreatedByUserId(String userId, Set<TournamentState> specificStatus) {
-        var builder = Endpoint.tournamentArenaCreatedByUser.newRequest();
+    public Many<ArenaResult> resultsByArenaId(String tournamentId, int nb) {
+        return Endpoint.tournamentArenaResultsById.newRequest(request -> request
+                .path(tournamentId)
+                .query(Map.of("nb", nb)))
+            .process(this);
+    }
 
+    @Override
+    public Many<ArenaResult> resultsByArenaId(String tournamentId) {
+        return Endpoint.tournamentArenaResultsById.newRequest(request -> request
+                .path(tournamentId))
+            .process(this);
+    }
+
+    @Override
+    public Many<Tournament> arenasCreatedByUserId(String userId, Set<TournamentState> specificStatus) {
+        Consumer<Params> params = request -> request.path(userId);
         if (! specificStatus.isEmpty()) {
-            builder.query(Map.of("status", specificStatus.stream().map(s -> String.valueOf(s.status())).toList().toArray(new String[0])));
+            params = params.andThen(request -> request.query(Map.of("status", specificStatus.stream()
+                            .map(s -> String.valueOf(s.status()))
+                            .toArray(String[]::new))));
         }
-
-        var request = builder
-            .path(userId)
-            .build();
-
-        return fetchMany(request);
+        return Endpoint.tournamentArenaCreatedByUser.newRequest(params)
+            .process(this);
     }
 
     @Override
-    public Result<TeamBattleResults> teamBattleResultsById(String tournamentId) {
-        var request = Endpoint.tournamentTeamBattleResultsById.newRequest()
-            .path(tournamentId)
-            .build();
-        return fetchOne(request);
-    }
-
-
-    @Override
-    public Result<Game> gamesByArenaId(String arenaId, TournamentParams parameters) {
-        var request = Endpoint.gamesByArenaId.newRequest()
-            .path(arenaId)
-            .query(parameters.toMap())
-            .build();
-        return fetchMany(request);
+    public One<TeamBattleResults> teamBattleResultsById(String tournamentId) {
+        return Endpoint.tournamentTeamBattleResultsById.newRequest(request -> request
+                .path(tournamentId))
+            .process(this);
     }
 
     @Override
-    public Result<Swiss> swissById(String swissId) {
-
-        var request = Endpoint.tournamentSwissById.newRequest()
-            .path(swissId)
-            .build();
-
-        return fetchOne(request);
-    }
-
-
-    @Override
-    public Result<SwissResult> resultsBySwissId(String swissId, Optional<Integer> nb) {
-        var builder = Endpoint.swissResults.newRequest()
-            .path(swissId);
-
-        nb.ifPresent(n -> builder.query(Map.of("nb", n)));
-
-        var request = builder.build();
-
-        return fetchMany(request);
-     }
-
-    @Override
-    public Result<String> swissTRF(String swissId) {
-
-        var request = Endpoint.swissTRF.newRequest()
-            .path(swissId)
-            .build();
-
-        return fetchMany(request);
+    public Many<Game> gamesByArenaId(String arenaId, Consumer<Games.Filter> params) {
+        return Endpoint.gamesByArenaId.newRequest(request -> request
+                .path(arenaId)
+                .query(MapBuilder.of(Games.Filter.class).toMap(params)))
+            .process(this);
     }
 
     @Override
-    public Result<Game> gamesBySwissId(String swissId, TournamentParams parameters) {
-        var request = Endpoint.gamesBySwissId.newRequest()
-            .path(swissId)
-            .query(parameters.toMap())
-            .build();
-        return fetchMany(request);
+    public One<Swiss> swissById(String swissId) {
+        return Endpoint.tournamentSwissById.newRequest(request -> request
+                .path(swissId))
+            .process(this);
     }
 
+    @Override
+    public Many<SwissResult> resultsBySwissId(String swissId, int nb) {
+        return Endpoint.swissResults.newRequest(request -> request
+                .path(swissId)
+                .query(Map.of("nb", nb)))
+            .process(this);
+    }
 
+    @Override
+    public Many<SwissResult> resultsBySwissId(String swissId) {
+        return Endpoint.swissResults.newRequest(request -> request
+                .path(swissId))
+            .process(this);
+    }
+
+    @Override
+    public Many<String> swissTRF(String swissId) {
+        return Endpoint.swissTRF.newRequest(request -> request
+                .path(swissId))
+            .process(this);
+    }
+
+    @Override
+    public Many<Game> gamesBySwissId(String swissId, Consumer<Games.Filter> params) {
+        return Endpoint.gamesBySwissId.newRequest(request -> request
+                .path(swissId)
+                .query(MapBuilder.of(Games.Filter.class).toMap(params)))
+            .process(this);
+    }
 }

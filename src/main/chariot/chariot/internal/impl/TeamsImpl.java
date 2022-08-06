@@ -1,130 +1,123 @@
 package chariot.internal.impl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.*;
 
-import chariot.model.Team;
-import chariot.model.Tournament;
-import chariot.model.Result;
-import chariot.model.PageTeam;
-import chariot.model.Swiss;
-import chariot.model.User;
-import chariot.internal.Base;
-import chariot.internal.Endpoint;
-import chariot.internal.InternalClient;
-import chariot.internal.Util;
+import chariot.api.*;
+import chariot.model.*;
+import chariot.internal.*;
+import chariot.internal.Util.MapBuilder;
 
-public class TeamsImpl extends Base implements Internal.Teams {
+public class TeamsImpl extends Base implements Teams {
 
     TeamsImpl(InternalClient client) {
         super(client);
     }
 
     @Override
-    public Result<Team> byTeamId(String teamId) {
-        var request = Endpoint.teamById.newRequest()
-            .path(teamId)
-            .build();
-        return fetchOne(request);
+    public One<Team> byTeamId(String teamId) {
+        return Endpoint.teamById.newRequest(request -> request
+                .path(teamId))
+            .process(this);
     }
 
     @Override
-    public Result<Team> byUserId(String userId) {
-        var request = Endpoint.teamsByUserId.newRequest()
-            .path(userId)
-            .build();
-        return fetchArr(request);
+    public Many<Team> byUserId(String userId) {
+        return Endpoint.teamsByUserId.newRequest(request -> request
+                .path(userId))
+            .process(this);
     }
 
     @Override
-    public Result<User> usersByTeamId(String teamId) {
-        var request = Endpoint.teamUsersById.newRequest()
-            .path(teamId)
-            .build();
-        return fetchMany(request);
+    public Many<User> usersByTeamId(String teamId) {
+        return Endpoint.teamUsersById.newRequest(request -> request
+                .path(teamId))
+            .process(this);
     }
 
     @Override
-    public Result<PageTeam> popularTeamsByPage(Optional<Integer> page) {
-        var map = new HashMap<String, Object>() {{
-            page.ifPresent(p -> put("page", p));
-        }};
+    public One<PageTeam> popularTeamsByPage(int page) {
+        return Endpoint.popularTeamsByPage.newRequest(request -> request
+                .query(Map.of("page", page)))
+            .process(this);
+    }
 
-        var request = Endpoint.popularTeamsByPage.newRequest()
-            .query(map)
-            .build();
+    @Override
+    public One<PageTeam> popularTeamsByPage() {
+        return Endpoint.popularTeamsByPage.newRequest(request -> {})
+            .process(this);
+    }
 
-        return fetchOne(request);
+    @Override
+    public One<PageTeam> searchByPage(Consumer<PageParams> consumer) {
+        return Endpoint.teamsSearch.newRequest(request -> request
+                .query(MapBuilder.of(PageParams.class).toMap(consumer)))
+            .process(this);
      }
 
     @Override
-    public Result<PageTeam> searchByPage(Optional<Integer> page, Optional<String> text) {
-        var map = new HashMap<String, Object>() {{
-            page.ifPresent(p -> put("page", p));
-            text.ifPresent(t -> put("text", t));
-        }};
-
-        var request = Endpoint.teamsSearch.newRequest()
-            .query(map)
-            .build();
-
-        return fetchOne(request);
-     }
-
-    @Override
-    public Result<Tournament> arenaByTeamId(String teamId, Optional<Integer> max) {
-        var requestBuilder = Endpoint.teamArenaById.newRequest()
-            .path(teamId);
-        max.ifPresent(v -> requestBuilder.query(Map.of("max", v)));
-        var request = requestBuilder.build();
-        return fetchMany(request);
+    public Many<Tournament> arenaByTeamId(String teamId, int max) {
+        return Endpoint.teamArenaById.newRequest(request -> request
+                .path(teamId)
+                .query(Map.of("max", max)))
+            .process(this);
     }
 
     @Override
-    public Result<Swiss> swissByTeamId(String teamId, Optional<Integer> max) {
-        var requestBuilder = Endpoint.teamSwissById.newRequest()
-            .path(teamId);
-        max.ifPresent(v -> requestBuilder.query(Map.of("max", v)));
-        var request = requestBuilder.build();
-        return fetchMany(request);
+    public Many<Tournament> arenaByTeamId(String teamId) {
+        return Endpoint.teamArenaById.newRequest(request -> request
+                .path(teamId))
+            .process(this);
     }
 
     @Override
-    public Result<Team> search(Optional<String> text) {
+    public Many<Swiss> swissByTeamId(String teamId, int max) {
+        return Endpoint.teamSwissById.newRequest(request -> request
+                .path(teamId)
+                .query(Map.of("max", max)))
+            .process(this);
+    }
 
-        var firstPage = searchByPage(Optional.of(1), text);
+    @Override
+    public Many<Swiss> swissByTeamId(String teamId) {
+        return Endpoint.teamSwissById.newRequest(request -> request
+                .path(teamId))
+            .process(this);
+    }
 
-        if (firstPage instanceof Result.One<PageTeam> one) {
-            var page = one.entry();
-            var empty = new PageTeam(0,0,List.of(),0,0,0,0);
-            var spliterator = Util.PageSpliterator.of(page, (pageNum) -> searchByPage(Optional.of(pageNum), text).getOrElse(empty));
-            var teamStream = StreamSupport.stream(spliterator, false);
-            return Result.many(teamStream);
+    @Override
+    public Many<Team> search(String text) {
+        return search(p -> p.text(text));
+    }
+
+    @Override
+    public Many<Team> search() {
+        return search(__ -> {});
+    }
+
+    private Many<Team> search(Consumer<PageParams> consumer) {
+        var firstPage = searchByPage(consumer.andThen(p -> p.page(1)));
+        if (firstPage instanceof Entry<PageTeam> one) {
+            var spliterator = Util.PageSpliterator.of(one.entry(),
+                    pageNum -> searchByPage(consumer.andThen(p -> p.page(pageNum))) instanceof Entry<PageTeam> pt ?
+                    pt.entry() : new PageTeam(0,0,List.of(),0,0,0,0));
+            return Many.entries(StreamSupport.stream(spliterator, false));
         } else {
-            return Result.many(Stream.of());
+            return Many.entries(Stream.of());
         }
-
     }
 
     @Override
-    public Result<Team> popularTeams() {
-
-        var firstPage = popularTeamsByPage(Optional.of(1));
-
-        if (firstPage instanceof Result.One<PageTeam> one) {
-            var page = one.entry();
-            var empty = new PageTeam(0,0,List.of(),0,0,0,0);
-            var spliterator = Util.PageSpliterator.of(page, (pageNum) -> popularTeamsByPage(Optional.of(pageNum)).getOrElse(empty));
-            var teamStream = StreamSupport.stream(spliterator, false);
-            return Result.many(teamStream);
+    public Many<Team> popularTeams() {
+        var firstPage = popularTeamsByPage(1);
+        if (firstPage instanceof Entry<PageTeam> one) {
+            var spliterator = Util.PageSpliterator.of(one.entry(),
+                    pageNum -> popularTeamsByPage(pageNum) instanceof Entry<PageTeam> pt ?
+                    pt.entry() : new PageTeam(0,0,List.of(),0,0,0,0));
+            return Many.entries(StreamSupport.stream(spliterator, false));
         } else {
-            return Result.many(Stream.of());
+            return Many.entries(Stream.of());
         }
-
     }
-
 }

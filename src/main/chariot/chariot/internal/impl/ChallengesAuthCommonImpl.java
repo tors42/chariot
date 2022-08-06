@@ -1,21 +1,16 @@
 package chariot.internal.impl;
 
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 import chariot.Client.Scope;
+import chariot.api.*;
+import chariot.model.*;
 import chariot.model.Enums.*;
-import chariot.internal.Endpoint;
-import chariot.internal.InternalClient;
-import chariot.model.Ack;
-import chariot.model.ChallengeResult;
-import chariot.model.ChallengeResult.ChallengeAI;
-import chariot.model.ChallengeResult.Challenge;
-import chariot.model.Result;
-import chariot.model.StreamEvent;
+import chariot.internal.*;
+import chariot.internal.Util.MapBuilder;
 
-public class ChallengesAuthCommonImpl extends ChallengesImpl implements Internal.ChallengeAuthCommon {
+public class ChallengesAuthCommonImpl extends ChallengesImpl implements ChallengesAuthCommon {
 
     private final Scope scope;
 
@@ -25,137 +20,170 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Internal
     }
 
     @Override
-    public Result<StreamEvent> streamEvents() {
+    public Many<StreamEvent> streamEvents() {
         return streamEvents(scope);
     }
 
     @Override
-    public Result<Challenge> challenge(String userId, InternalChallengeParameters parameters) {
+    public One<Challenge> challenge(String userId, Consumer<ChallengeBuilder> parameters) {
         return challenge(scope, userId, parameters);
     }
 
     @Override
-    public Result<ChallengeAI> challengeAI(InternalChallengeAIParameters parameters) {
+    public Many<Challenge> challengeKeepAlive(String userId, Consumer<ChallengeBuilder> parameters) {
+        return challengeKeepAlive(scope, userId, parameters);
+    }
+
+    @Override
+    public One<ChallengeAI> challengeAI(Consumer<ChallengeAIBuilder> parameters) {
         return challengeAI(scope, parameters);
     }
 
     @Override
-    public Result<Ack> cancelChallenge(String challengeId, Optional<Supplier<char[]>> opponentToken) {
+    public One<Ack> cancelChallenge(String challengeId, Supplier<char[]> opponentToken) {
         return cancelChallenge(scope, challengeId, opponentToken);
     }
 
     @Override
-    public Result<Ack> acceptChallenge(String challengeId) {
+    public One<Ack> cancelChallenge(String challengeId) {
+        return cancelChallenge(scope, challengeId);
+    }
+
+    @Override
+    public One<Ack> acceptChallenge(String challengeId) {
         return acceptChallenge(scope, challengeId);
     }
 
     @Override
-    public Result<Ack> declineChallenge(String challengeId, Optional<DeclineReason> reason) {
+    public One<Ack> declineChallenge(String challengeId, DeclineReason reason) {
         return declineChallenge(scope, challengeId, reason);
     }
 
-    private Result<StreamEvent> streamEvents(Scope scope) {
-        var request = Endpoint.streamEvents.newRequest()
-            .scope(scope)
-            .stream()
-            .build();
-
-        return fetchMany(request);
+    @Override
+    public One<Ack> declineChallenge(String challengeId) {
+        return declineChallenge(scope, challengeId);
     }
 
-    private Result<Challenge> challenge(Scope scope, String userId, InternalChallengeParameters parameters) {
-        var map = parameters.toMap();
-        boolean stream = (Boolean) map.getOrDefault("keepAliveStream", Boolean.FALSE);
 
-        var builder = Endpoint.challengeCreate.newRequest()
-            .scope(scope)
-            .path(userId)
-            .post(map);
+    private Many<StreamEvent> streamEvents(Scope scope) {
+        return Endpoint.streamEvents.newRequest(request -> request
+                .scope(scope)
+                .stream())
+            .process(this);
+    }
 
-        if (stream) builder.stream();
+    private One<Challenge> challenge(Scope scope, String userId, Consumer<ChallengeBuilder> consumer) {
+        return Endpoint.challengeCreate.newRequest(request -> request
+                .scope(scope)
+                .path(userId)
+                .post(challengeBuilderToMap(consumer)))
+            .process(this);
+    }
 
-        var request = builder.build();
+    private Many<Challenge> challengeKeepAlive(Scope scope, String userId, Consumer<ChallengeBuilder> consumer) {
+        var map = challengeBuilderToMap(consumer);
+        map.put("keepAliveStream", Boolean.valueOf(true));
+        return Endpoint.challengeCreateKeepAlive.newRequest(request -> request
+                .scope(scope)
+                .path(userId)
+                .post(map)
+                .stream())
+            .process(this);
+    }
 
-        if (stream) {
-            var result = fetchMany(request);
+    private One<ChallengeAI> challengeAI(Scope scope, Consumer<ChallengeAIBuilder> consumer) {
+        return Endpoint.challengeAI.newRequest(request -> request
+                .scope(scope)
+                .post(challengeAIBuilderToMap(consumer)))
+            .process(this);
+    }
 
-            if (result instanceof Result.Many<ChallengeResult> o) {
-                // If a keepAliveStream parameter is used,
-                // the response is streamed.
-                // First a challenge info object,
-                // and then a { "done" : "accepted"/"declined" } message.
-                // Hmm. If user closes stream before the "done" message is generated,
-                // the challenge is cancelled. I guess that's the main feature here.
-                // The "done" message itself... Does the user need this info?
-                // Dropping it for now, in order to not mess up the response model,
-                // maybe have a separate API for keepAliveStream parameter in the future...?
-                return Result.many(
-                        o.entries()
-                        .filter(entry -> entry instanceof ChallengeResult.ChallengeInfo)
-                        .map(entry -> ((ChallengeResult.ChallengeInfo) entry).challenge())
-                        );
-            } else {
-                return Result.fail(result.error());
+    private One<Ack> cancelChallenge(Scope scope, String challengeId, Supplier<char[]> opponentToken) {
+        return Endpoint.challengeCancel.newRequest(request -> request
+                .scope(scope)
+                .path(challengeId)
+                .query(Map.of("opponentToken", String.valueOf(opponentToken.get()))))
+            .process(this);
+    }
+
+    private One<Ack> cancelChallenge(Scope scope, String challengeId) {
+        return Endpoint.challengeCancel.newRequest(request -> request
+                .scope(scope)
+                .path(challengeId))
+            .process(this);
+    }
+
+    private One<Ack> acceptChallenge(Scope scope, String challengeId) {
+        return Endpoint.challengeAccept.newRequest(request -> request
+                .scope(scope)
+                .post()
+                .path(challengeId))
+            .process(this);
+    }
+
+    private One<Ack> declineChallenge(Scope scope, String challengeId, DeclineReason reason) {
+        return Endpoint.challengeDecline.newRequest(request -> request
+                .post(Map.of("reason", reason.name()))
+                .path(challengeId))
+            .process(this);
+    }
+
+    private One<Ack> declineChallenge(Scope scope, String challengeId) {
+        return Endpoint.challengeDecline.newRequest(request -> request
+                .post()
+                .path(challengeId))
+            .process(this);
+    }
+
+    private Map<String, Object> challengeBuilderToMap(Consumer<ChallengeBuilder> consumer) {
+        var builder = MapBuilder.of(ChallengeParams.class)
+            .addCustomHandler("acceptByToken", (args, map) -> {
+                map.put("acceptByToken", args[0]);
+                if (args.length == 2) map.put("message", args[1]);
+            });
+
+        var challengeBuilder = new ChallengeBuilder() {
+            @Override
+            public ChallengeParams clock(int initial, int increment) {
+                return builder
+                    .add("clock.limit", initial)
+                    .add("clock.increment", increment)
+                    .proxy();
             }
 
-        } else {
-            var result = fetchOne(request);
+            @Override
+            public ChallengeParams daysPerTurn(int daysPerTurn) {
+                return builder
+                    .add("days", daysPerTurn)
+                    .proxy();
+             }
+        };
+        consumer.accept(challengeBuilder);
+        return builder.toMap();
+    }
 
-            if (result instanceof Result.One<ChallengeResult> o && o.entry() instanceof ChallengeResult.ChallengeInfo ci) {
-                return Result.one(ci.challenge());
-            } else {
-                return Result.fail(result.error());
+    private Map<String, Object> challengeAIBuilderToMap(Consumer<ChallengeAIBuilder> consumer) {
+        var builder = MapBuilder.of(ChallengeAIParams.class)
+            .addCustomHandler("level", (args, map) -> map.put("level", Level.class.cast(args[0]).level) )
+            .add("level","1");
+
+        var challengeBuilder = new ChallengeAIBuilder() {
+            @Override
+            public ChallengeAIParams clock(int initial, int increment) {
+                return builder
+                    .add("clock.limit", initial)
+                    .add("clock.increment", increment)
+                    .proxy();
             }
-        }
+
+            @Override
+            public ChallengeAIParams daysPerTurn(int daysPerTurn) {
+                return builder
+                    .add("days", daysPerTurn)
+                    .proxy();
+             }
+        };
+        consumer.accept(challengeBuilder);
+        return builder.toMap();
     }
-
-    private Result<ChallengeAI> challengeAI(Scope scope, InternalChallengeAIParameters params) {
-        var request = Endpoint.challengeAI.newRequest()
-            .scope(scope)
-            .post(params.toMap())
-            .build();
-
-        var result = fetchOne(request);
-
-        if (result instanceof Result.One<ChallengeResult> o && o.entry() instanceof ChallengeAI ai) {
-            return Result.one(ai);
-        } else {
-            return Result.fail(result.error());
-        }
-    }
-
-    private Result<Ack> cancelChallenge(Scope scope, String challengeId, Optional<Supplier<char[]>> opponentToken) {
-
-        var builder = Endpoint.challengeCancel.newRequest()
-            .scope(scope)
-            .path(challengeId)
-            .post();
-
-        opponentToken.ifPresent(tokenSupplier -> builder.query(Map.of("opponentToken", String.valueOf(tokenSupplier.get()))));
-
-        var request = builder.build();
-
-        return fetchOne(request);
-    }
-
-    private Result<Ack> acceptChallenge(Scope scope, String challengeId) {
-        var request = Endpoint.challengeAccept.newRequest()
-            .scope(scope)
-            .post()
-            .path(challengeId)
-            .build();
-
-        return fetchOne(request);
-    }
-
-    private Result<Ack> declineChallenge(Scope scope, String challengeId, Optional<DeclineReason> reason) {
-        var builder = Endpoint.challengeDecline.newRequest();
-        reason.ifPresent(r -> builder.post("reason=" + r.name()));
-        builder.path(challengeId);
-
-        var request = builder.build();
-
-        return fetchOne(request);
-    }
-
 }

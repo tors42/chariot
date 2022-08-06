@@ -1,37 +1,43 @@
 package chariot.api;
 
-import chariot.model.Team;
-import chariot.model.User;
-import chariot.model.Tournament;
-import chariot.model.PageTeam;
-import chariot.model.Result;
-import chariot.model.Swiss;
+import java.util.function.Consumer;
+
+import chariot.model.*;
 
 public interface Teams {
 
-    Result<Team>        byTeamId(String teamId);
-    Result<Team>        byUserId(String userId);
-    Result<User>        usersByTeamId(String teamId);
+    One<Team>         byTeamId(String teamId);
+    Many<Team>        byUserId(String userId);
+    Many<User>        usersByTeamId(String teamId);
 
-    Result<Team>        search();
-    Result<Team>        search(String text);
+    Many<Team>        search();
+    Many<Team>        search(String text);
 
-    Result<Team>        popularTeams();
+    Many<Team>        popularTeams();
 
-    Result<Tournament>  arenaByTeamId(String teamId);
-    Result<Tournament>  arenaByTeamId(String teamId, int max);
+    Many<Tournament>  arenaByTeamId(String teamId);
+    Many<Tournament>  arenaByTeamId(String teamId, int max);
 
-    Result<Swiss>       swissByTeamId(String teamId);
-    Result<Swiss>       swissByTeamId(String teamId, int max);
+    Many<Swiss>       swissByTeamId(String teamId);
+    Many<Swiss>       swissByTeamId(String teamId, int max);
 
-    int numberOfTeams();
+    default int numberOfTeams() {
+        return searchByPage() instanceof Entry<PageTeam> page ?
+            page.entry().nbResults() : 0;
+    }
 
-    Result<PageTeam>    searchByPage();
-    Result<PageTeam>    searchByPage(int page);
-    Result<PageTeam>    searchByPage(String text);
-    Result<PageTeam>    searchByPage(int page, String text);
+    One<PageTeam>     searchByPage(Consumer<PageParams> params);
 
-    Result<PageTeam>    popularTeamsByPage();
-    Result<PageTeam>    popularTeamsByPage(int page);
+    default One<PageTeam> searchByPage() { return searchByPage(__ -> {}); }
+    default One<PageTeam> searchByPage(int page) { return searchByPage(p -> p.page(page)); }
+    default One<PageTeam> searchByPage(String text) { return searchByPage(p -> p.text(text)); }
+    default One<PageTeam> searchByPage(int page, String text) { return searchByPage(p -> p.page(page).text(text)); }
 
+    One<PageTeam>     popularTeamsByPage();
+    One<PageTeam>     popularTeamsByPage(int page);
+
+    interface PageParams {
+        PageParams page(int page);
+        PageParams text(String text);
+    }
 }

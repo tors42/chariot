@@ -1,29 +1,36 @@
 package chariot.api;
 
 import java.time.ZonedDateTime;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.*;
+import java.util.function.*;
 
-import chariot.api.Builders.Clock;
-import chariot.api.Builders.ClockMinute;
+import chariot.api.Builders.*;
 import chariot.internal.Util;
-import chariot.model.Ack;
-import chariot.model.Arena;
+import chariot.model.*;
 import chariot.model.Enums.*;
-import chariot.model.Result;
-import chariot.model.Swiss;
 
 public interface TournamentsAuth extends Tournaments {
 
-    Result<Arena> createArena(Consumer<ArenaBuilder> params);
-    Result<Arena> updateArena(String id, Consumer<ArenaBuilder> params);
-    Result<Arena> updateTeamBattle(String id, int nbLeaders, String... teamIds);
-    Result<Arena> updateTeamBattle(String id, int nbLeaders, Set<String> teamIds);
-    Result<Ack>   terminateArena(String id);
-    Result<Swiss> createSwiss(String teamId, Consumer<SwissBuilder> params);
+    One<Arena> createArena(Consumer<ArenaBuilder> params);
+    One<Arena> updateArena(String id, Consumer<ArenaBuilder> params);
+
+    One<Arena> updateTeamBattle(String id, int nbLeaders, Set<String> teamIds);
+    default One<Arena> updateTeamBattle(String id, int nbLeaders, String... teamIds) { return updateTeamBattle(id, nbLeaders, Set.of(teamIds)); }
+
+    One<Ack>   terminateArena(String id);
+
+    One<Ack> joinArena(String id, Consumer<JoinArenaParams> params);
+    default One<Ack> joinArena(String id) { return joinArena(id, __ -> {});}
+
+    /**
+     * Leave a future Arena tournament, or take a break on an ongoing Arena tournament.<br>
+     * It's possible to join again later. Points and streaks are preserved.
+     * @param id The tournament ID. Example: "hL7vMrFQ"
+     */
+    One<Ack> withdrawArena(String id);
+
+    One<Swiss> createSwiss(String teamId, Consumer<SwissBuilder> params);
+
     /**
      * Update a Swiss tournament.<br>
      * Be mindful not to make important changes to ongoing tournaments.
@@ -37,24 +44,12 @@ public interface TournamentsAuth extends Tournaments {
      * }
      *
      */
-    Result<Swiss> updateSwiss(String id, Consumer<SwissBuilder> params);
-    Result<Ack>   terminateSwiss(String swissId);
+    One<Swiss> updateSwiss(String id, Consumer<SwissBuilder> params);
 
-    Result<Ack>   joinArena(String id);
-    Result<Ack>   joinArena(String id, String password);
-    Result<Ack>   joinArenaForTeam(String id, String team);
-    Result<Ack>   joinArenaForTeam(String id, String team, String password);
+    One<Ack> terminateSwiss(String swissId);
 
-    /**
-     * Leave a future Arena tournament, or take a break on an ongoing Arena tournament.<br>
-     * It's possible to join again later. Points and streaks are preserved.
-     * @param id The tournament ID. Example: "hL7vMrFQ"
-     */
-    Result<Ack>   withdrawArena(String id);
-
-    Result<Ack>   joinSwiss(String id);
-    Result<Ack>   joinSwiss(String id, String password);
-
+    One<Ack> joinSwiss(String id, Consumer<JoinSwissParams> params);
+    default One<Ack> oinSwiss(String id) { return joinSwiss(id, __ -> {}); }
 
     /**
      * Generate user entry codes based on a tournament entry code, for a set of user ids.<br>
@@ -202,6 +197,11 @@ public interface TournamentsAuth extends Tournaments {
         }
     }
 
+    interface JoinArenaParams {
+        JoinArenaParams entryCode(String entryCode);
+        JoinArenaParams team(String team);
+    }
+
     interface SwissBuilder extends Clock<SwissParams> {}
 
     interface SwissParams {
@@ -217,6 +217,7 @@ public interface TournamentsAuth extends Tournaments {
         SwissParams name(String name);
 
         SwissParams rated(boolean rated);
+        default SwissParams rated() { return rated(true); }
 
         /**
          * Timestamp in milliseconds to start the tournament at a given date and time.
@@ -238,6 +239,7 @@ public interface TournamentsAuth extends Tournaments {
         SwissParams roundInterval(int roundInterval);
 
         SwissParams variant(VariantName variant);
+        default SwissParams variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
 
         /*
          * Anything you want to tell players about the tournament
@@ -255,6 +257,7 @@ public interface TournamentsAuth extends Tournaments {
          * Default only team members.
          */
         SwissParams chatFor(ChatFor chatFor);
+        default SwissParams chatFor(Function<ChatFor.Provider, ChatFor> chatFor) { return chatFor(chatFor.apply(ChatFor.provider())); };
 
         /**
          * Usernames of two players that must not play together.
@@ -271,10 +274,11 @@ public interface TournamentsAuth extends Tournaments {
          */
         SwissParams addForbiddenPairings(Collection<ForbiddenPairing> forbiddenPairings);
 
-        default SwissParams chatFor(Function<ChatFor.Provider, ChatFor> chatFor) { return chatFor(chatFor.apply(ChatFor.provider())); };
-        default SwissParams variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
-
         record ForbiddenPairing(String player1, String player2) {}
+    }
+
+    interface JoinSwissParams {
+        JoinSwissParams entryCode(String entryCode);
     }
 
 }

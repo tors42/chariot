@@ -1,10 +1,10 @@
 package chariot.internal.impl;
 
-import chariot.api.UsersAuth;
-import chariot.internal.Endpoint;
-import chariot.internal.InternalClient;
-import chariot.model.Ack;
-import chariot.model.Result;
+import java.util.*;
+
+import chariot.api.*;
+import chariot.internal.*;
+import chariot.model.*;
 
 public class UsersAuthImpl extends UsersImpl implements UsersAuth {
 
@@ -13,31 +13,26 @@ public class UsersAuthImpl extends UsersImpl implements UsersAuth {
     }
 
     @Override
-    public Result<Ack> sendMessageToUser(String userId, String text) {
-        var request = Endpoint.sendMessage.newRequest()
-            .path(userId)
-            .post("text=" + text)
-            .build();
-
-        return fetchOne(request);
+    public One<Ack> sendMessageToUser(String userId, String text) {
+        return Endpoint.sendMessage.newRequest(request -> request
+                .path(userId)
+                .post(Map.of("text", text)))
+            .process(this);
     }
 
     @Override
-    public Result<Ack> followUser(String userId) {
-        var request = Endpoint.followUser.newRequest()
-            .path(userId)
-            .post()
-            .build();
-        return fetchOne(request);
+    public One<Ack> followUser(String userId) {
+        return Endpoint.followUser.newRequest(request -> request
+                .path(userId)
+                .post())
+            .process(this);
     }
 
     @Override
-    public Result<Ack> unfollowUser(String userId) {
-        var request = Endpoint.unfollowUser.newRequest()
-            .path(userId)
-            .post()
-            .build();
-        return fetchOne(request);
+    public One<Ack> unfollowUser(String userId) {
+        return Endpoint.unfollowUser.newRequest(request -> request
+                .path(userId)
+                .post())
+            .process(this);
     }
-
 }

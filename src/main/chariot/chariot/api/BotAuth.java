@@ -3,10 +3,7 @@ package chariot.api;
 import java.util.function.Function;
 
 import chariot.model.Enums.Room;
-import chariot.model.Ack;
-import chariot.model.ChatMessage;
-import chariot.model.Result;
-import chariot.model.StreamGameEvent;
+import chariot.model.*;
 
 /**
  * Play on Lichess as a bot.
@@ -81,7 +78,7 @@ public interface BotAuth extends ChallengesAuthCommon, Bot {
      * Upgrade a lichess player account into a Bot account. Only Bot accounts can use the Bot API.<br>
      * The account cannot have played any game before becoming a Bot account. The upgrade is irreversible. The account will only be able to play as a Bot.<br>
      */
-    Result<Ack> upgradeToBotAccount();
+    One<Ack> upgradeToBotAccount();
 
     /**
      * Stream the state of a game being played with the Bot API
@@ -95,7 +92,7 @@ public interface BotAuth extends ChallengesAuthCommon, Bot {
      * <p> The first event is always of type gameFull
      *  @param gameId Example: 5IrD6Gzz
      */
-    Result<StreamGameEvent> streamGameState(String gameId);
+    Many<StreamGameEvent> streamGameState(String gameId);
 
     /**
      *  Make a move in a game being played with the Bot API.<br/>
@@ -104,7 +101,7 @@ public interface BotAuth extends ChallengesAuthCommon, Bot {
      *  @param move The move to play, in UCI format. Example: e2e4
      *  @param drawOffer Whether to offer (or agree to) a draw
      */
-    Result<Ack> move(String gameId, String move, boolean drawOffer);
+    One<Ack> move(String gameId, String move, boolean drawOffer);
     /**
      *  Make a move in a game being played with the Bot API.<br/>
      *  The move can also contain a draw offer/agreement. {@link #move(String, String, boolean) move(..., boolean)}
@@ -112,7 +109,7 @@ public interface BotAuth extends ChallengesAuthCommon, Bot {
      *  @param gameId Example: 5IrD6Gzz
      *  @param move The move to play, in UCI format. Example: e2e4
      */
-     Result<Ack> move(String gameId, String move);
+     One<Ack> move(String gameId, String move);
 
     /**
      * Post a message to the player or spectator chat, in a game being played with the Bot API.
@@ -120,32 +117,32 @@ public interface BotAuth extends ChallengesAuthCommon, Bot {
      * @param text The message to send
      * @param room Target either player or spectators
      */
-    Result<Ack> chat(String gameId, String text, Room room);
+    One<Ack> chat(String gameId, String text, Room room);
 
     /**
      * Abort a game being played with the Bot API.
      * @param gameId  Example: 5IrD6Gzz
      */
-    Result<Ack> abort(String gameId);
+    One<Ack> abort(String gameId);
 
     /**
      * Resign a game being played with the Bot API.
      * @param gameId  Example: 5IrD6Gzz
      */
-    Result<Ack> resign(String gameId);
+    One<Ack> resign(String gameId);
 
 
     /**
      * See {@link #chat(String, String, Room) chat(..., room)}
      */
-    default Result<Ack> chat(String gameId, String text) {
+    default One<Ack> chat(String gameId, String text) {
         return chat(gameId, text, Room.player);
     }
 
     /**
      * See {@link #chat(String, String, Room) chat(..., room)}
      */
-    default Result<Ack> chat(String gameId, String text, Function<Room.Provider, Room> room) {
+    default One<Ack> chat(String gameId, String text, Function<Room.Provider, Room> room) {
         return chat(gameId, text, room.apply(Room.provider()));
     }
 
@@ -153,6 +150,6 @@ public interface BotAuth extends ChallengesAuthCommon, Bot {
      * Get the messages posted in the game chat.
      * @param gameId  Example: 5IrD6Gzz
      */
-    Result<ChatMessage> fetchChat(String gameId);
+    Many<ChatMessage> fetchChat(String gameId);
 
 }
