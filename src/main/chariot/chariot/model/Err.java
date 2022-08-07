@@ -8,4 +8,6 @@ public sealed interface Err {
         if (string == null || string.isEmpty()) return new Empty();
         return new Info(string);
     }
+
+    default String message() { return this instanceof Info i ? i.message() : ""; }
 }
