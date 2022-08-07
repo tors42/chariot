@@ -1,5 +1,7 @@
 //DEPS io.github.tors42:chariot:0.0.46
 //JAVA 17+
+package build;
+
 import chariot.Client;
 import java.util.*;
 
