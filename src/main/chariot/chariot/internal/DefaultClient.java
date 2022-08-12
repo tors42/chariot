@@ -18,6 +18,7 @@ public class DefaultClient {
     private final BotAuthImpl bot;
     private final BroadcastsAuthImpl broadcasts;
     private final ChallengesAuthImpl challenges;
+    private final CustomImpl custom;
     private final GamesAuthImpl games;
     private final PuzzlesAuthImpl puzzles;
     private final SimulsImpl simuls;
@@ -41,6 +42,7 @@ public class DefaultClient {
         admin = new AdminAuthImpl(client);
         analysis = new AnalysisImpl(client);
         challenges = new ChallengesAuthImpl(client);
+        custom = new CustomImpl(client);
         board = new BoardAuthImpl(client);
         bot = new BotAuthImpl(client);
         broadcasts = new BroadcastsAuthImpl(client);
@@ -79,6 +81,10 @@ public class DefaultClient {
 
     public ChallengesAuth challenges() {
         return challenges;
+    }
+
+    public Custom custom() {
+        return custom;
     }
 
     public GamesAuth games() {

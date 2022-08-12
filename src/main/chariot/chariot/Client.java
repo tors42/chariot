@@ -340,6 +340,8 @@ public sealed interface Client permits ClientAuth, Client.Basic {
         return new chariot.internal.AuthClient(config);
     }
 
+    Custom custom();
+
     /**
      * OAuth scopes representing different permissions
      */
