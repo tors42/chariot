@@ -1,4 +1,4 @@
-//DEPS io.github.tors42:chariot:0.0.46
+//DEPS io.github.tors42:chariot:0.0.47
 //JAVA 17+
 package build;
 
