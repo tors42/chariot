@@ -27,7 +27,7 @@ public record Game (
     Winner winner,
     Opening opening,
     Clock clock,
-    List<Entry> analysis
+    List<AnalysisEntry> analysis
     )  {
 
     public Game {
@@ -51,36 +51,42 @@ public record Game (
         return Util.fromLong(lastMoveTime());
     }
 
-   public sealed interface Entry
-       permits Entry.Eval, Entry.Mate, Entry.Oops {
-
-       /**
-        * @param eval Evaluation in centipawns
-        */
-       public record Eval(Integer eval) implements Entry {}
-
-       /**
-        * @param mate Number of moves for mate
-        */
-       public record Mate(Integer mate) implements Entry {}
-
-       /**
-        * @param eval Evaluation in centipawns
-        * @param best Best move in UCI notation
-        * @param variation Best variation in SAN notation
-        * @param judgment Judgment annotation
-        */
-       public record Oops(Integer eval, String best, String variation, Judgment judgment) implements Entry {
-           public record Judgment (Name name, String comment) {
-               public enum Name { Inaccuracy, Mistake, Blunder }
-           }
-       }
-    }
-
     public record Players (GameUser white, GameUser black) { }
 
     public record Opening (String eco, String name, Integer ply) {}
 
     public record Clock (int initial, int increment, int totalTime) {}
+
+
+    public sealed interface AnalysisEntry permits
+        Eval,
+        ForcedMate,
+        AnnotatedEval {}
+
+    /**
+     * @param eval Evaluation in centipawns
+     */
+    public record Eval(int eval) implements AnalysisEntry {}
+
+    /**
+     * @param mate Number of moves for mate
+     */
+    public record ForcedMate(int mate) implements AnalysisEntry {}
+
+    /**
+     * @param eval Evaluation in centipawns
+     * @param best Best move in UCI notation
+     * @param variation Best variation in SAN notation
+     * @param judgment Judgment annotation
+     */
+    public record AnnotatedEval(int eval, String best, String variation, Judgment judgment) implements AnalysisEntry {}
+
+    public record Judgment(Severity name, String comment) {}
+
+    public enum Severity {
+        Inaccuracy,
+        Mistake,
+        Blunder
+    }
 
 }
