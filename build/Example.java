@@ -1,39 +1,26 @@
-//DEPS io.github.tors42:chariot:0.0.47
-//JAVA 17+
 package build;
 
 import chariot.Client;
-import java.util.*;
+import java.time.*;
 
 class Example {
 
-    // https://lichess.org/team/lichess-swiss
-    static String defaultTeamId = "lichess-swiss";
+    public static void main(String[] args) {
 
-    public static void main(String... args) {
-        String teamId = Arrays.stream(args).findFirst().orElse(defaultTeamId);
+        var client = Client.auth("my-token");
 
-        var client = Client.basic();
+        var tomorrow = ZonedDateTime.now().plusDays(1).with(
+            LocalTime.parse("17:00"));
 
-        String message = client.teams().byTeamId(teamId)
-            .map(team -> "%s has %d members".formatted(team.name(), team.nbMembers()))
-            .orElse("""
-                Couldn't find the team with team id "%s"
-                Note, a team id should be all lowercase and instead of
-                whitespace there are dashes. The team "Lichess Swiss" for
-                instance, has the team id "lichess-swiss".
-                """.formatted(teamId));
+        String teamId = "my-team-id";
 
-        System.out.println(message);
+        var result = client.tournaments().createSwiss(teamId, params -> params
+            .clockBlitz5m3s()
+            .name("My 5+3 Swiss")
+            .rated(false)
+            .description("Created via API")
+            .startsAt(tomorrow));
 
-        List<String> members = client.teams().usersByTeamId(teamId).stream()
-            .limit(3)
-            .map(user -> user.username())
-            .toList();
-
-        if (! members.isEmpty()) {
-            System.out.println("\nSome members in the team:");
-            members.forEach(System.out::println);
-        }
+        System.out.println(result);
     }
 }
