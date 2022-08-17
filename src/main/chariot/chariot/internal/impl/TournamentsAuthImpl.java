@@ -96,7 +96,7 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
         return Endpoint.joinSwissTournament.newRequest(request -> request
                 .path(id)
                 .post(MapBuilder.of(JoinSwissParams.class)
-                    .addCustomHandler("entryCode", (args, map) -> map.put("password", args[0])).toMap(consumer)))
+                    .rename("entryCode", "password").toMap(consumer)))
             .process(this);
     }
 
