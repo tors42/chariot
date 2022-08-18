@@ -479,7 +479,7 @@ public sealed interface Endpoint<T> {
         Endpoint.ofArr(ChatMessage.class).endpoint("/api/bot/game/%s/chat").accept(jsonstream).scope(Scope.bot_play).toMany();
 
     public static class Builder<T> {
-        private String endpoint;
+        private String endpoint = "";
         Function<Stream<String>, One<T>> mapOne;
         Function<Stream<String>, Many<T>> mapMany;
 
