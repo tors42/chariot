@@ -50,13 +50,13 @@ public class InternalClient {
 
     public RequestResult request(RequestParameters request) {
 
-        String host = switch(request.target()) {
+        String baseUri = switch(request.target()) {
             case api -> config.servers().api().get();
             case explorer -> config.servers().explorer().get();
             case tablebase -> config.servers().tablebase().get();
         };
 
-        var uri = URI.create(host + request.path());
+        var uri = URI.create(joinUri(baseUri, request.path()));
 
         var builder = HttpRequest.newBuilder()
             .uri(uri);
@@ -208,8 +208,7 @@ public class InternalClient {
     }
 
     public Set<Scope> fetchScopes(String endpointPath, Supplier<char[]> tokenSupplier) {
-        String host = config.servers().api().get();
-        var uri = URI.create(host + endpointPath);
+        var uri = URI.create(joinUri(config.servers().api().get(), endpointPath));
         var builder = HttpRequest.newBuilder()
             .uri(uri)
             .method("HEAD", BodyPublishers.noBody())
@@ -251,4 +250,13 @@ public class InternalClient {
         }
     }
 
+    private String joinUri(String baseUri, String path) {
+        if (!baseUri.endsWith("/") && !path.startsWith("/")) {
+            return baseUri + "/" + path;
+        } else if (baseUri.endsWith("/") && path.startsWith("/")) {
+            return baseUri + path.substring(1);
+        } else {
+            return baseUri + path;
+        }
+    }
 }
