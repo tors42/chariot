@@ -41,7 +41,7 @@ public class Util {
 
     public static String urlEncode(Map<String, ?> map) {
         return map.entrySet().stream()
-            .map(kv -> kv.getKey() + "=" + URLEncoder.encode(String.valueOf(kv.getValue()), StandardCharsets.UTF_8))
+            .map(kv -> urlEncode(kv.getKey()) + "=" + urlEncode(String.valueOf(kv.getValue())))
             .collect(Collectors.joining("&"));
     }
 
@@ -54,11 +54,11 @@ public class Util {
                     // Input:           "status=["10", "20", "30"]
                     // Expected result: "status=10&status=20&status=30"
                     var arrayString = Arrays.stream(arr)
-                        .map(val -> e.getKey() + "=" + val)
+                        .map(val -> urlEncode(e.getKey()) + "=" + urlEncode(val))
                         .collect(Collectors.joining("&"));
                     return arrayString;
                 } else {
-                    return e.getKey() + "=" + URLEncoder.encode(String.valueOf(e.getValue()), StandardCharsets.UTF_8);
+                    return urlEncode(e.getKey()) + "=" + urlEncode(String.valueOf(e.getValue()));
                 }
             })
             .collect(Collectors.joining("&"));
