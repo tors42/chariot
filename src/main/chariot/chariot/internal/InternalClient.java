@@ -69,16 +69,13 @@ public class InternalClient {
                     BodyPublishers.noBody() :
                     BodyPublishers.ofString(postData));
 
-
-
-        request.headers().put("user-agent", "%s %s".formatted(Util.javaVersion, Util.clientVersion));
-        request.headers().forEach((k,v) -> builder.header(k,v));
-
         if (config instanceof Config.Auth auth) {
             var scope = request.scope() != null ? request.scope() : Scope.any;
             auth.type().getToken(scope).ifPresent(token ->
                     builder.header("authorization", "Bearer " + String.valueOf(token.get())));
         }
+        builder.header("user-agent", "%s %s".formatted(Util.javaVersion, Util.clientVersion));
+        request.headers().forEach((k,v) -> builder.header(k,v));
 
         var httpRequest = builder.build();
 
