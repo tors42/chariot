@@ -83,7 +83,7 @@ public class InternalClient {
 
         HttpResponse<Stream<String>> httpResponse;
         try {
-            httpResponse = sendWithRetry(request.stream(), httpRequest, BodyHandlers.ofLines());
+            httpResponse = sendWithRetry(request.stream(), httpRequest, BodyHandlers.ofLines(), config.retries());
         } catch(Exception e) {
             config.logging().request().log(Level.SEVERE, "%s".formatted(httpRequest), e);
             return new RequestResult.Failure(-1, e.getMessage());
@@ -117,7 +117,7 @@ public class InternalClient {
         }
     }
 
-    private <T> HttpResponse<T> sendWithRetry(boolean stream, HttpRequest httpRequest, BodyHandler<T> bodyHandler) throws Exception {
+    private <T> HttpResponse<T> sendWithRetry(boolean stream, HttpRequest httpRequest, BodyHandler<T> bodyHandler, int retries) throws Exception {
 
         var response = sendRequest(stream, httpRequest, bodyHandler);
 
@@ -128,11 +128,12 @@ public class InternalClient {
 
             config.logging().request().warning(() -> "%s".formatted(response));
 
-            var builder = HttpRequest.newBuilder(httpRequest, (n, v) -> true);
-            httpRequest.timeout().ifPresent(t -> builder.timeout(t.plusMillis(retryMillis)));
-            var retryHttpRequest = builder.build();
-
-            return sendRequest(stream, retryHttpRequest, bodyHandler);
+            if (retries > 0) {
+                var builder = HttpRequest.newBuilder(httpRequest, (n, v) -> true);
+                httpRequest.timeout().ifPresent(t -> builder.timeout(t.plusMillis(retryMillis)));
+                var retryHttpRequest = builder.build();
+                return sendWithRetry(stream, retryHttpRequest, bodyHandler, retries-1);
+            }
         }
 
         return response;
@@ -219,7 +220,7 @@ public class InternalClient {
 
         HttpResponse<Void> response;
         try {
-            response = sendWithRetry(false, httpRequest, BodyHandlers.discarding());
+            response = sendWithRetry(false, httpRequest, BodyHandlers.discarding(), config().retries());
         } catch (Exception e) {
             config.logging().request().log(Level.SEVERE, "%s".formatted(httpRequest), e);
             return Set.of();

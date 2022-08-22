@@ -199,6 +199,13 @@ public interface Builders {
          * Log levels
          */
         Builder logging(Consumer<LogSetter> params);
+
+        /**
+         * Number of times to retry sending a request if server indicates throttling (status code 429).<br/>
+         * The waiting time until performing a retry is 60 seconds.<br/>
+         * Default: 1 retry
+         */
+        Builder retries(int retries);
     }
 
     interface ExtServBuilder {

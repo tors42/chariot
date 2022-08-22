@@ -93,6 +93,8 @@ public sealed interface Config {
     boolean isAuth();
     void store(Preferences prefs);
 
+    int retries();
+
     public Servers servers();
     public Logging logging();
 
@@ -123,7 +125,7 @@ public sealed interface Config {
     }
 
 
-    record Basic(Servers servers, Logging logging) implements Config {
+    record Basic(Servers servers, Logging logging, int retries) implements Config {
 
         @Override public boolean isAuth() { return false; }
 
@@ -244,6 +246,11 @@ public sealed interface Config {
         @Override
         public Servers servers() {
             return basic().servers();
+        }
+
+        @Override
+        public int retries() {
+            return basic().retries();
         }
 
         @Override
@@ -371,13 +378,15 @@ public sealed interface Config {
         SBuilderImpl sbuilder = new SBuilderImpl();
         LBuilderImpl lbuilder = new LBuilderImpl();
         Server api = Server.of(lichess);
+        int retries = 1;
 
         @Override public Builder api(String api) { this.api = Server.of(api); return this; }
         @Override public Builder servers(Consumer<ExtServBuilder> params) { params.accept(sbuilder); return this; }
         @Override public Builder logging(Consumer<LogSetter> params) { params.accept(lbuilder); return this; }
+        @Override public Builder retries(int retries) { this.retries = retries < 0 ? 0 : retries; return this; }
 
         Config.Basic build() {
-            return new Config.Basic(sbuilder.build(api), lbuilder.build());
+            return new Config.Basic(sbuilder.build(api), lbuilder.build(), retries);
         }
     }
 
