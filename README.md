@@ -9,9 +9,9 @@ Checkout the [JavaDoc](https://tors42.github.io/chariot/chariot/chariot/Client.h
 Make sure to use at least Java 18. A JDK archive can be downloaded and unpacked from https://jdk.java.net/
 
     $ java -version
-    openjdk version "18.0.2" 2022-07-19
-    OpenJDK Runtime Environment (build 18.0.2+9-61)
-    OpenJDK 64-Bit Server VM (build 18.0.2+9-61, mixed mode, sharing)
+    openjdk version "18.0.2.1" 2022-08-18
+    OpenJDK Runtime Environment (build 18.0.2.1+1-1)
+    OpenJDK 64-Bit Server VM (build 18.0.2.1+1-1, mixed mode, sharing)
 
     $ java build/Build.java
 
