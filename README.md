@@ -115,7 +115,7 @@ A (short) list of notable applications using Chariot,
 [Team Check](https://github.com/tors42/teamcheck) _Visualize team members (Swing)_  
 
 [JBang Examples](https://github.com/tors42/jbang-chariot) _Various example scripts (JBang)_  
-[Challenge AI Example](https://github.com/tors42/challengeaiexample) _OAuth2 PKCE example (Web Application)_ [Gitpod](https://gitpod.io/#https://github.com/tors42/challengeaiexample) / [Heroku](https://challengeaiexample.herokuapp.com)  
+[Challenge AI Example](https://github.com/tors42/challengeaiexample) _OAuth2 PKCE example (Web Application)_ [Gitpod](https://gitpod.io/#https://github.com/tors42/challengeaiexample)  
 
 # Contact
 
