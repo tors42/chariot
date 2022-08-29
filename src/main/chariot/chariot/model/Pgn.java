@@ -13,13 +13,24 @@ public sealed interface Pgn {
     Map<String,String> tagMap();
     String moves();
 
+    default List<String> moveListSAN() {
+        return moveList()
+            .stream()
+            .filter(Pgn.San.class::isInstance)
+            .map(Pgn.San.class::cast)
+            .map(Pgn.San::san)
+            .toList();
+    }
+
     record Variation(List<Move> variation)  implements Move {}
     record Result(String result)            implements Move {}
-    record NumBegin(int move, String san)   implements Move {}
-    record NumEnd(int move, String san)     implements Move {}
+    record NumBegin(int move, String san)   implements San {}
+    record NumEnd(int move, String san)     implements San {}
     record Empty()                          implements Move {}
-    record End(String san)                  implements Move {}
+    record End(String san)                  implements San {}
     record Comment(String comment)          implements Move {}
+
+    sealed interface San extends Move { String san(); }
 
     sealed interface Move {
 
@@ -109,6 +120,14 @@ public sealed interface Pgn {
 
     static List<Pgn> readFromFile(Path file) {
         try (var stream = Files.lines(file)) {
+            return StreamSupport.stream(new PgnSpliterator(stream.iterator()), false).toList();
+        } catch(Exception ex) {
+            return List.of();
+        }
+    }
+
+    static List<Pgn> readFromString(String multiLineString) {
+        try (var stream = multiLineString.lines()) {
             return StreamSupport.stream(new PgnSpliterator(stream.iterator()), false).toList();
         } catch(Exception ex) {
             return List.of();
