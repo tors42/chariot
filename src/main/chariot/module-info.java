@@ -6,6 +6,7 @@ module chariot {
     exports chariot;
     exports chariot.api;
     exports chariot.model;
+    exports chariot.util;
 
     requires transitive java.logging;
     requires transitive java.prefs;
