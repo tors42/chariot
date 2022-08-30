@@ -78,6 +78,92 @@ class Example {
     $ java -p out/modules --add-modules chariot build/Example.java
     Entry[entry=Swiss[id=vLx22Ff1, name=My 5+3 Swiss, createdBy=test, startsAt=2022-03-29T17:00:00.000+02:00, status=created, nbOngoing=0, nbPlayers=0, nbRounds=9, round=0, rated=false, variant=standard, clock=Clock[limit=300, increment=3], greatPlayer=null, nextRound=NextRound[at=2022-03-29T17:00:00.000+02:00, in=62693], quote=null]]
 
+### 3. FEN.java
+
+An example which parses PGN data and feeds moves to a Board in order to track FEN updates, and "draws" the board with text.
+
+```java
+package build;
+
+import java.util.List;
+
+import chariot.model.Pgn;
+import chariot.util.Board;
+
+class FEN {
+    public static void main(String[] args) {
+
+        List<Pgn> pgnList = Pgn.readFromString("""
+            [Event "Testing"]
+
+            1. e4 e5 2. Nf3 Nc6
+            """);
+
+        List<String> moves = pgnList.get(0).moveListSAN();
+
+        Board board = Board.fromStandardPosition();
+
+        String initialFEN = board.toFEN();
+
+        for (String move : moves) {
+            board = board.play(move);
+        }
+
+        System.out.println("Initial: " + initialFEN);
+        System.out.println(Board.fromFEN(initialFEN));
+        System.out.println("Valid moves#: " + Board.fromFEN(initialFEN).validMoves().size());
+        System.out.println("Play: " + moves.toString());
+        System.out.println(board.toFEN());
+        System.out.println(board.toString());
+        System.out.println(board.toString(c -> c.letter().frame().coordinates()));
+   }
+
+   public static long costOfThisProgramBecomingSkyNet() {
+        return Long.MAX_VALUE; // https://xkcd.com/534/
+   }
+}
+```
+
+    $ java -p out/modules --add-modules chariot build/FEN.java
+    Initial: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+    ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜
+    ♟ ♟ ♟ ♟ ♟ ♟ ♟ ♟
+    
+    
+    
+    
+    ♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙
+    ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖
+    Valid moves#: 20
+    Play: [e4, e5, Nf3, Nc6]
+    r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3
+    ♜   ♝ ♛ ♚ ♝ ♞ ♜
+    ♟ ♟ ♟ ♟   ♟ ♟ ♟
+        ♞
+            ♟
+            ♙
+              ♘
+    ♙ ♙ ♙ ♙   ♙ ♙ ♙
+    ♖ ♘ ♗ ♕ ♔ ♗   ♖
+      ┌───┬───┬───┬───┬───┬───┬───┬───┐
+    8 │ r │   │ b │ q │ k │ b │ n │ r │
+      ├───┼───┼───┼───┼───┼───┼───┼───┤
+    7 │ p │ p │ p │ p │   │ p │ p │ p │
+      ├───┼───┼───┼───┼───┼───┼───┼───┤
+    6 │   │   │ n │   │   │   │   │   │
+      ├───┼───┼───┼───┼───┼───┼───┼───┤
+    5 │   │   │   │   │ p │   │   │   │
+      ├───┼───┼───┼───┼───┼───┼───┼───┤
+    4 │   │   │   │   │ P │   │   │   │
+      ├───┼───┼───┼───┼───┼───┼───┼───┤
+    3 │   │   │   │   │   │ N │   │   │
+      ├───┼───┼───┼───┼───┼───┼───┼───┤
+    2 │ P │ P │ P │ P │   │ P │ P │ P │
+      ├───┼───┼───┼───┼───┼───┼───┼───┤
+    1 │ R │ N │ B │ Q │ K │ B │   │ R │
+      └───┴───┴───┴───┴───┴───┴───┴───┘
+        a   b   c   d   e   f   g   h
+
 ## Use as dependency
 
 The coordinates are `io.github.tors42:chariot:0.0.50`, so in a Maven project the following dependency can be added to the `pom.xml`:
