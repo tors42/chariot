@@ -50,6 +50,8 @@ public sealed interface Board {
     }
 
     String toFEN();
+    String to960FEN();
+    String toStandardFEN();
     Set<Move> validMoves();
     Board play(String move);
 
@@ -88,10 +90,9 @@ public sealed interface Board {
             return pieceMap.get(coordinate);
         }
 
-        @Override
-        public String toFEN() {
-            return fen().toString();
-        }
+        @Override public String toFEN() { return fen().toString(); }
+        @Override public String to960FEN() { return fen().as960(); }
+        @Override public String toStandardFEN() { return fen().asStandard(); }
 
         @Override
         public Set<Move> validMoves() {
@@ -159,32 +160,26 @@ public sealed interface Board {
                          }
                     }
                     case KING -> {
-                        String rights = fen().castling();
-                        if (piece.color() == Side.BLACK) {
-                            rights = rights.replace("k", "").replace("q", "");
-                        } else {
-                            rights = rights.replace("K", "").replace("Q", "");
-                        }
-                        if (rights.isEmpty()) rights = "-";
+                        CastlingRights rights = fen().castlingRights().withoutQueenSide(piece.color()).withoutKingSide(piece.color());
                         nextFEN = nextFEN.with(new FEN.Castling(rights));
                     }
                     case ROOK -> {
-                        String castling = fen().castling();
-                        if (piece.color() == Side.BLACK) {
-                            if (fromTo.from().name().equals("a8")) {
-                                castling = castling.replace("q", "");
-                            } else if (fromTo.from().name().equals("h8")) {
-                                castling = castling.replace("k", "");
-                            }
-                        } else {
-                            if (fromTo.from().name().equals("a1")) {
-                                castling = castling.replace("Q", "");
-                            } else if (fromTo.from().name().equals("h1")) {
-                                castling = castling.replace("K", "");
+                        CastlingRights rights = fen().castlingRights();
+
+                        String lowSideCastlingFile = piece.color() == Side.WHITE ? rights.files().Q() : rights.files().q();
+                        if (! lowSideCastlingFile.isEmpty()) {
+                            if (fromTo.from().equals(Coordinate.name(lowSideCastlingFile + (piece.color() == Side.WHITE ? "1" : "8")))) {
+                                rights = rights.withoutQueenSide(piece.color());
                             }
                         }
-                        if (castling.isEmpty()) castling = "-";
-                        nextFEN = nextFEN.with(new FEN.Castling(castling));
+
+                        String highSideCastlingFile = piece.color() == Side.WHITE ? rights.files().K() : rights.files().k();
+                        if (! highSideCastlingFile.isEmpty()) {
+                            if (fromTo.from().equals(Coordinate.name(highSideCastlingFile + (piece.color() == Side.WHITE ? "1" : "8")))) {
+                                rights = rights.withoutKingSide(piece.color());
+                            }
+                        }
+                        nextFEN = nextFEN.with(new FEN.Castling(rights));
                     }
                     case BISHOP, KNIGHT, QUEEN -> {}
                 };
@@ -211,14 +206,7 @@ public sealed interface Board {
                 @SuppressWarnings("unused")
                 Piece empty2 = afterMove.put(castling.rook().to(), rook);
 
-                String rights = fen().castling();
-                if (king.color() == Side.BLACK) {
-                    rights = rights.replace("k", "").replace("q", "");
-                } else {
-                    rights = rights.replace("K", "").replace("Q", "");
-                }
-                if (rights.isEmpty()) rights = "-";
-                nextFEN = nextFEN.with(new FEN.Castling(rights));
+                nextFEN = nextFEN.with(new FEN.Castling(fen().castlingRights().withoutQueenSide(king.color()).withoutKingSide(king.color())));
             } else if (move instanceof Invalid invalid) {
                 System.err.println("Invalid move: " + invalid);
                 return this;
@@ -334,15 +322,253 @@ public sealed interface Board {
     default Piece get(int row, int col) { return get(Coordinate.rowCol(row, col)); }
     default Piece get(String coordinate) { return get(Coordinate.name(coordinate)); }
 
-    record FEN(String positions, Side whoseTurn, String castling, String ep, int halfMoveClock, int move) {
-        public static final FEN standard = new FEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", Side.WHITE, "KQkq", "-", 0, 1);
+    sealed interface CastlingRights {
+
+        record Standard(RookFiles files) implements CastlingRights {
+            @Override public String toString() { return asStandard(); }
+        }
+
+        record Chess960(RookFiles files) implements CastlingRights {
+            @Override public String toString() { return as960(); }
+        }
+
+        default CastlingRights withoutKingSide(Side side) {
+            RookFiles without = new RookFiles(
+                    side == Side.WHITE ? "" : files().K(),
+                    files().Q(),
+                    side == Side.WHITE ? files().k() : "",
+                    files().q());
+            if (this instanceof Standard) {
+                return new Standard(without);
+            } else {
+                return new Chess960(without);
+            }
+        }
+
+        default CastlingRights withoutQueenSide(Side side) {
+            RookFiles without = new RookFiles(
+                    files().K(),
+                    side == Side.WHITE ? "" : files().Q(),
+                    files().k(),
+                    side == Side.WHITE ? files().q() : ""
+                    );
+            if (this instanceof Standard) {
+                return new Standard(without);
+            } else {
+                return new Chess960(without);
+            }
+        }
+
+        record RookFiles(String K, String Q, String k, String q) {}
+
+        static CastlingRights parse(String rights, String positions) {
+            var map = pieceMap(positions);
+            var kingEntries = map.entrySet().stream().filter(entry -> entry.getValue().type() == PieceType.KING).toList();
+            char whiteKingFile = kingEntries.stream().filter(entry -> entry.getValue().color() == Side.WHITE)
+                .map(entry -> entry.getKey().name().charAt(0))
+                .findAny()
+                .orElse('e');
+            char blackKingFile = kingEntries.stream().filter(entry -> entry.getValue().color() == Side.BLACK)
+                .map(entry -> entry.getKey().name().charAt(0))
+                .findAny()
+                .orElse('e');
+
+            var rookEntries = map.entrySet().stream().filter(entry -> entry.getValue().type() == PieceType.ROOK).toList();
+            char whiteHighRookFile = rookEntries.stream().filter(entry -> entry.getValue().color() == Side.WHITE)
+                .map(entry -> entry.getKey().name().charAt(0))
+                .filter(file -> file > whiteKingFile)
+                .findAny()
+                .orElse('h');
+            char whiteLowRookFile = rookEntries.stream().filter(entry -> entry.getValue().color() == Side.WHITE)
+                .map(entry -> entry.getKey().name().charAt(0))
+                .filter(file -> file < whiteKingFile)
+                .findAny()
+                .orElse('a');
+            char blackHighRookFile = rookEntries.stream().filter(entry -> entry.getValue().color() == Side.BLACK)
+                .map(entry -> entry.getKey().name().charAt(0))
+                .filter(file -> file > blackKingFile)
+                .findAny()
+                .orElse('h');
+            char blackLowRookFile = rookEntries.stream().filter(entry -> entry.getValue().color() == Side.BLACK)
+                .map(entry -> entry.getKey().name().charAt(0))
+                .filter(file -> file < blackKingFile)
+                .findAny()
+                .orElse('a');
+
+            return parse(rights, whiteKingFile, blackKingFile, whiteHighRookFile, whiteLowRookFile, blackHighRookFile, blackLowRookFile);
+        }
+
+        static CastlingRights parse(String rights) {
+            return parse(rights, 'e', 'e', 'h', 'a', 'h', 'a');
+        }
+
+        private static CastlingRights parse(String rights, char whiteKingFile, char blackKingFile, char whiteHighRookFile, char whiteLowRookFile, char blackHighRookFile, char blackLowRookFile) {
+            if (rights.isEmpty() || rights.equals("-")) {
+                return new Standard(new RookFiles("", "", "", ""));
+            }
+
+            if ("abcdefgh".chars().anyMatch(i -> rights.toLowerCase().contains(Character.toString(i)))) {
+                String whiteHighFileSide = "abcdefgh".toUpperCase().chars().filter(file -> file > Character.toUpperCase(whiteKingFile))
+                    .mapToObj(Character::toString)
+                    .filter(rights::contains)
+                    .findAny()
+                    .orElse("");
+                String whiteLowFileSide = "abcdefgh".toUpperCase().chars().filter(file -> file < Character.toUpperCase(whiteKingFile))
+                    .mapToObj(Character::toString)
+                    .filter(rights::contains)
+                    .findAny()
+                    .orElse("");
+                String blackHighFileSide = "abcdefgh".chars().filter(file -> file > blackKingFile)
+                    .mapToObj(Character::toString)
+                    .filter(rights::contains)
+                    .findAny()
+                    .orElse("");
+                String blackLowFileSide = "abcdefgh".chars().filter(file -> file < blackKingFile)
+                    .mapToObj(Character::toString)
+                    .filter(rights::contains)
+                    .findAny()
+                    .orElse("");
+                return new Chess960(new RookFiles(whiteHighFileSide, whiteLowFileSide, blackHighFileSide, blackLowFileSide));
+            } else {
+                String whiteHighFileSide = rights.contains("K") ? Character.toString(whiteHighRookFile).toUpperCase() : "";
+                String whiteLowFileSide = rights.contains("Q") ? Character.toString(whiteLowRookFile).toUpperCase() : "";
+                String blackHighFileSide = rights.contains("k") ? Character.toString(blackHighRookFile) : "";
+                String blackLowFileSide = rights.contains("q") ? Character.toString(blackLowRookFile) : "";
+                return new Standard(new RookFiles(whiteHighFileSide, whiteLowFileSide, blackHighFileSide, blackLowFileSide));
+            }
+        }
+
+        RookFiles files();
+
+        default String asStandard() {
+            return dashIfEmpty(String.join("",
+                    files().K.isEmpty() ? "" : "K",
+                    files().Q().isEmpty() ? "" : "Q",
+                    files().k().isEmpty() ? "" : "k",
+                    files().q().isEmpty() ? "" : "q"
+                    ));
+        }
+
+        default String as960() {
+            return dashIfEmpty(String.join("",
+                    files().K,
+                    files().Q(),
+                    files().k(),
+                    files().q()
+                    ));
+         }
+
+        static String dashIfEmpty(String rights) {
+            return rights.isEmpty() ? "-" : rights;
+        }
+
+        default Set<Castling> validCastlingMoves(
+                Coordinate kingFromCoordinate,
+                AttackedCoordinatePredicate attackedCoordinatePredicate,
+                Map<Coordinate, Piece> pieceMap) {
+
+            Piece king = pieceMap.get(kingFromCoordinate);
+            if (king == null) return Set.of();
+
+            if (attackedCoordinatePredicate.test(kingFromCoordinate, king.color().other(), pieceMap)) {
+                return Set.of();
+            }
+
+            Set<Castling> castlingMoves = new HashSet<>(2);
+
+            var kingTargetSquareKingSide = Coordinate.name("g" + (king.color() == Side.WHITE ? "1" : "8"));
+            var rookTargetSquareKingSide = Coordinate.name("f" + (king.color() == Side.WHITE ? "1" : "8"));
+
+            var kingTargetSquareQueenSide  = Coordinate.name("c" + (king.color() == Side.WHITE ? "1" : "8"));
+            var rookTargetSquareQueenSide  = Coordinate.name("d" + (king.color() == Side.WHITE ? "1" : "8"));
+
+            Coordinate kingSideRook = king.color() == Side.WHITE ?
+                ("".equals(files().K()) ? null : Coordinate.name(files().K().toLowerCase() + "1")) :
+                ("".equals(files().k()) ? null : Coordinate.name(files().k().toLowerCase() + "8"));
+
+            if (kingSideRook != null) {
+                Piece rook = pieceMap.get(kingSideRook);
+                if (rook != null && rook.type() == PieceType.ROOK && rook.color() == king.color()) {
+                    Set<Coordinate> rookTravelSquares = new HashSet<>(8);
+                    int rookDistance = kingSideRook.col() - rookTargetSquareKingSide.col();
+                    for (int i = rookDistance; i != 0; i = i - (rookDistance > 0 ? 1 : -1)) {
+                        rookTravelSquares.add(Coordinate.rowCol(kingSideRook.row(), rookTargetSquareKingSide.col() + i));
+                    }
+                    Set<Coordinate> kingTravelSquares = new HashSet<>(8);
+                    int kingDistance = kingFromCoordinate.col() - kingTargetSquareKingSide.col();
+                    for (int i = kingDistance; i != 0; i = i - (kingDistance > 0 ? 1 : -1)) {
+                        kingTravelSquares.add(Coordinate.rowCol(kingFromCoordinate.row(), kingTargetSquareKingSide.col() + i));
+                    }
+
+                    rookTravelSquares.remove(kingFromCoordinate);
+                    rookTravelSquares.remove(kingSideRook);
+                    kingTravelSquares.remove(kingFromCoordinate);
+                    kingTravelSquares.remove(kingSideRook);
+                    if (rookTravelSquares.stream().noneMatch(c -> pieceMap.containsKey(c)) &&
+                        kingTravelSquares.stream().noneMatch(c -> pieceMap.containsKey(c))) {
+                        if (kingTravelSquares.stream().noneMatch(
+                                    c -> attackedCoordinatePredicate.test(c, king.color().other(), pieceMap))) {
+                            castlingMoves.add(new Castling(
+                                        new FromTo(kingFromCoordinate, kingTargetSquareKingSide),
+                                        new FromTo(kingSideRook, rookTargetSquareKingSide)));
+                        }
+
+                    }
+                }
+            }
+
+            Coordinate queenSideRook = king.color() == Side.WHITE ?
+                ("".equals(files().Q()) ? null : Coordinate.name(files().Q().toLowerCase() + "1")) :
+                ("".equals(files().q()) ? null : Coordinate.name(files().q().toLowerCase() + "8"));
+
+            if (queenSideRook != null) {
+                Piece rook = pieceMap.get(queenSideRook);
+                if (rook != null && rook.type() == PieceType.ROOK && rook.color() == king.color()) {
+                    Set<Coordinate> rookTravelSquares = new HashSet<>(8);
+                    int rookDistance = queenSideRook.col() - rookTargetSquareQueenSide.col();
+                    for (int i = rookDistance; i != 0; i = i - (rookDistance > 0 ? 1 : -1)) {
+                        rookTravelSquares.add(Coordinate.rowCol(queenSideRook.row(), rookTargetSquareQueenSide.col() + i));
+                    }
+                    Set<Coordinate> kingTravelSquares = new HashSet<>(8);
+                    int kingDistance = kingFromCoordinate.col() - kingTargetSquareQueenSide.col();
+                    for (int i = kingDistance; i != 0; i = i - (kingDistance > 0 ? 1 : -1)) {
+                        kingTravelSquares.add(Coordinate.rowCol(kingFromCoordinate.row(), kingTargetSquareQueenSide.col() + i));
+                    }
+                    rookTravelSquares.remove(kingFromCoordinate);
+                    rookTravelSquares.remove(queenSideRook);
+                    kingTravelSquares.remove(kingFromCoordinate);
+                    kingTravelSquares.remove(queenSideRook);
+                    if (rookTravelSquares.stream().noneMatch(c -> pieceMap.containsKey(c)) &&
+                        kingTravelSquares.stream().noneMatch(c -> pieceMap.containsKey(c))) {
+                        if (kingTravelSquares.stream().noneMatch(
+                                    c -> attackedCoordinatePredicate.test(c, king.color().other(), pieceMap))) {
+                            castlingMoves.add(new Castling(
+                                        new FromTo(kingFromCoordinate, kingTargetSquareQueenSide),
+                                        new FromTo(queenSideRook, rookTargetSquareQueenSide)));
+                        }
+                    }
+                }
+            }
+            return castlingMoves;
+        }
+
+        @FunctionalInterface
+        interface AttackedCoordinatePredicate {
+            boolean test(Coordinate coordinate, Side attacker, Map<Coordinate, Piece> pieceMap);
+        }
+
+    }
+
+    record FEN(String positions, Side whoseTurn, CastlingRights castlingRights, String ep, int halfMoveClock, int move) {
+        public static final FEN standard = new FEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", Side.WHITE, CastlingRights.parse("KQkq"), "-", 0, 1);
+
 
         //sealed interface Component {}
         sealed interface Component permits Positions, WhoseTurn, Castling, EP, HalfMoveClock, Move {}
 
         record Positions(String value) implements Component {}
         record WhoseTurn(Side value) implements Component {}
-        record Castling(String value) implements Component {}
+        record Castling(CastlingRights value) implements Component {}
         record EP(String value) implements Component {}
         record HalfMoveClock(int value) implements Component {}
         record Move(int value) implements Component {}
@@ -351,7 +577,7 @@ public sealed interface Board {
             return new FEN(
                     component instanceof Positions p ? p.value : positions(),
                     component instanceof WhoseTurn w ? w.value : whoseTurn(),
-                    component instanceof Castling c ? c.value : castling(),
+                    component instanceof Castling c ? c.value : castlingRights(),
                     component instanceof EP e ? e.value : ep(),
                     component instanceof HalfMoveClock h ? h.value : halfMoveClock(),
                     component instanceof Move m ? m.value : move()
@@ -369,7 +595,7 @@ public sealed interface Board {
             String[] parts = fen.split(" ");
             if (parts.length > 0) f = f.with(new Positions(parts[0]));
             if (parts.length > 1) f = f.with(new WhoseTurn("b".equals(parts[1]) ? Side.BLACK : Side.WHITE));
-            if (parts.length > 2) f = f.with(new Castling(parts[2]));
+            if (parts.length > 2) f = f.with(new Castling(CastlingRights.parse(parts[2], f.positions())));
             if (parts.length > 3) f = f.with(new EP(parts[3]));
             if (parts.length > 4) f = f.with(new HalfMoveClock(Integer.parseInt(parts[4])));
             if (parts.length > 5) f = f.with(new Move(Integer.parseInt(parts[5])));
@@ -378,9 +604,16 @@ public sealed interface Board {
 
         @Override
         public String toString() {
-            return "%s %s %s %s %d %d".formatted(positions, whoseTurn.toChar(), castling, ep, halfMoveClock, move);
+            return "%s %s %s %s %d %d".formatted(positions, whoseTurn.toChar(), castlingRights.toString(), ep, halfMoveClock, move);
         }
-    }
+
+        public String asStandard() {
+            return "%s %s %s %s %d %d".formatted(positions, whoseTurn.toChar(), castlingRights.asStandard(), ep, halfMoveClock, move);
+        }
+        public String as960() {
+            return "%s %s %s %s %d %d".formatted(positions, whoseTurn.toChar(), castlingRights.as960(), ep, halfMoveClock, move);
+        }
+     }
 
     private static Map<Coordinate, Piece> pieceMap(String positions) {
         Map<Coordinate, Piece> pieceMap = new HashMap<>(32);
@@ -730,82 +963,7 @@ public sealed interface Board {
                             pieceMap.containsKey(c) && pieceMap.get(c).color() == piece.color().other())
                         .map(c -> new FromTo(coordinate, c))
                         .toList());
-
-                if (piece.color() == Side.WHITE) {
-                    if (fen.castling().contains("K")) {
-                        boolean fail = false;
-                        for (var name : List.of("f1", "g1")) {
-                            fail |= pieceMap.containsKey(Coordinate.name(name));
-                        }
-                        if (!fail) {
-                            for (var name : List.of("e1", "f1", "g1")) {
-                                fail |= isCoordinateAttacked(Coordinate.name(name), piece.color().other(), pieceMap);
-                                if (fail) break;
-                            }
-                        }
-                        if (!fail) {
-                            moves.add(new Castling(
-                                        new FromTo(coordinate, Coordinate.name("g1")),
-                                        new FromTo(Coordinate.name("h1"), Coordinate.name("f1"))
-                                        ));
-                        }
-                    }
-                    if (fen.castling().contains("Q")) {
-                        boolean fail = false;
-                        for (var name : List.of("d1", "c1")) {
-                            fail |= pieceMap.containsKey(Coordinate.name(name));
-                        }
-                        if (!fail) {
-                            for (var name : List.of("e1", "d1", "c1")) {
-                                fail |= isCoordinateAttacked(Coordinate.name(name), piece.color().other(), pieceMap);
-                                if (fail) break;
-                            }
-                        }
-                        if (!fail) {
-                            moves.add(new Castling(
-                                        new FromTo(coordinate, Coordinate.name("c1")),
-                                        new FromTo(Coordinate.name("a1"), Coordinate.name("d1"))
-                                        ));
-                        }
-                    }
-                } else {
-                    if (fen.castling().contains("k")) {
-                        boolean fail = false;
-                        for (var name : List.of("f8", "g8")) {
-                            fail |= pieceMap.containsKey(Coordinate.name(name));
-                        }
-                        if (!fail) {
-                            for (var name : List.of("e8", "f8", "g8")) {
-                                fail |= isCoordinateAttacked(Coordinate.name(name), piece.color().other(), pieceMap);
-                                if (fail) break;
-                            }
-                        }
-                        if (!fail) {
-                            moves.add(new Castling(
-                                        new FromTo(coordinate, Coordinate.name("g8")),
-                                        new FromTo(Coordinate.name("h8"), Coordinate.name("f8"))
-                                        ));
-                        }
-                    }
-                    if (fen.castling().contains("q")) {
-                        boolean fail = false;
-                        for (var name : List.of("d8", "c8")) {
-                            fail |= pieceMap.containsKey(Coordinate.name(name));
-                        }
-                        if (!fail) {
-                            for (var name : List.of("e8", "d8", "c8")) {
-                                fail |= isCoordinateAttacked(Coordinate.name(name), piece.color().other(), pieceMap);
-                                if (fail) break;
-                            }
-                        }
-                        if (!fail) {
-                            moves.add(new Castling(
-                                        new FromTo(coordinate, Coordinate.name("c8")),
-                                        new FromTo(Coordinate.name("a8"), Coordinate.name("d8"))
-                                        ));
-                        }
-                    }
-                }
+                moves.addAll(fen.castlingRights().validCastlingMoves(coordinate, Board::isCoordinateAttacked, pieceMap));
                 yield moves;
             }
         };
