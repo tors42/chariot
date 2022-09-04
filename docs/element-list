@@ -1,0 +1,6 @@
+module:chariot
+chariot
+chariot.api
+chariot.chess
+chariot.model
+chariot.util
