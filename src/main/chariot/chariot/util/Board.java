@@ -1,14 +1,8 @@
 package chariot.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.*;
 
 public sealed interface Board {
 
@@ -25,27 +19,39 @@ public sealed interface Board {
     }
 
     private static Board fromFENWithHistory(FEN fen, List<FEN> history) {
-        // todo, result instead of bool for "ended"
-        // - draw by half move clock
-        // - draw by threefold repetition
-        // - draw by stalemate
-        // - result by checkmate
-        boolean ended = fen.halfMoveClock() >= 100;
-        if (!ended) {
-            Set<Move> validMoves = Board.validMoves(fen);
-            ended = validMoves.isEmpty();
+
+        GameState gameState = GameState.ongoing;
+
+        if (fen.halfMoveClock() >= 100) gameState = GameState.draw_by_fifty_move_rule;
+
+        if (gameState == GameState.ongoing) {
+            if (Board.validMoves(fen).isEmpty()) {
+                var pieceMap = Board.pieceMap(fen.positions());
+                Coordinate kingCoodinate = pieceMap.entrySet().stream()
+                    .filter(entry -> entry.getValue().type() == PieceType.KING
+                                  && entry.getValue().color() == fen.whoseTurn())
+                    .map(entry -> entry.getKey())
+                    .findAny()
+                    .orElse(Coordinate.rowCol(-1,-1));
+
+                gameState = Board.isCoordinateAttacked(kingCoodinate, fen.whoseTurn().other(), pieceMap) ?
+                    GameState.checkmate : GameState.stalemate;
+            }
         }
 
-        if (!ended) {
+        if (gameState == GameState.ongoing) {
             record PositionAndMove(String position, int move) {}
-            ended = Stream.concat(Stream.of(fen), history.stream())
+            if (Stream.concat(Stream.of(fen), history.stream())
                 .map(f -> new PositionAndMove(f.positions(), f.move()))
                 .distinct()
                 .collect(Collectors.groupingBy(PositionAndMove::position, Collectors.counting()))
-                .values().stream().anyMatch(count -> count >= 3);
+                .values().stream().anyMatch(count -> count >= 3))
+            {
+                gameState = GameState.draw_by_threefold_repetition;
+            }
         }
 
-        var bd = new BoardData(pieceMap(fen.positions()), fen, history, ended);
+        var bd = new BoardData(pieceMap(fen.positions()), fen, history, gameState);
         return bd;
     }
 
@@ -54,6 +60,17 @@ public sealed interface Board {
     String toStandardFEN();
     Set<Move> validMoves();
     Board play(String move);
+
+    default boolean ended() {
+        return this instanceof BoardData board && board.gameState() != GameState.ongoing;
+    }
+
+    default boolean whiteToMove() {
+        return !blackToMove();
+    }
+    default boolean blackToMove() {
+        return this instanceof BoardData board && board.fen().whoseTurn() == Side.BLACK;
+    }
 
     default String toString(Consumer<ConsoleRenderer.Config> config) {
         return ConsoleRenderer.render(this, config);
@@ -78,7 +95,15 @@ public sealed interface Board {
         char toChar() { return this == BLACK ? 'b' : 'w'; }
     }
 
-    record BoardData(Map<Coordinate, Piece> pieceMap, FEN fen, List<FEN> history, boolean ended) implements Board {
+    enum GameState {
+        ongoing,
+        draw_by_threefold_repetition,
+        draw_by_fifty_move_rule,
+        stalemate,
+        checkmate
+    }
+
+    record BoardData(Map<Coordinate, Piece> pieceMap, FEN fen, List<FEN> history, GameState gameState) implements Board {
 
         public BoardData {
             pieceMap = Map.copyOf(pieceMap);
@@ -242,10 +267,7 @@ public sealed interface Board {
     }
 
     record RowCol(int row, int col) implements Coordinate {
-        @Override
-        public String toString() {
-            return name();
-        }
+        @Override public String toString() { return name(); }
     }
 
     sealed interface Coordinate {
