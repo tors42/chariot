@@ -183,7 +183,7 @@ public class GamesImpl extends Base implements Games {
     }
 
     @Override
-    public Many<TVFeed> tvFeed() {
+    public Many<TVFeedEvent> tvFeed() {
         return Endpoint.gameTVFeed.newRequest(request -> {})
             .process(this);
     }

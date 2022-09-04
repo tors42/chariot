@@ -117,7 +117,7 @@ public interface Games {
      * Stream positions and moves of the current TV game.<br>
      * A summary of the game is sent as a first message, and when the featured game changes.
      */
-    Many<TVFeed> tvFeed();
+    Many<TVFeedEvent> tvFeed();
 
     /**
      * Stream the games played between a list of users, in real time.<br>
