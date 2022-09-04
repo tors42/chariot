@@ -199,6 +199,7 @@ A (short) list of notable applications using Chariot,
 [Lichess Rating Graph](https://github.com/TBestLittleHelper/SimpleGraphApplication) _Visualize rating (JavaFX)_  
 [Lichess Search Engine Bot](https://github.com/jalpp/LichessSearchEngineBot) _Discord Bot for accessing Lichess features (Discord)_  
 [Team Check](https://github.com/tors42/teamcheck) _Visualize team members (Swing)_  
+[JC](https://github.com/tors42/jc) _Currently shows the featured LichessTV game in console (Terminal)_  
 
 [JBang Examples](https://github.com/tors42/jbang-chariot) _Various example scripts (JBang)_  
 [Challenge AI Example](https://github.com/tors42/challengeaiexample) _OAuth2 PKCE example (Web Application)_ [Gitpod](https://gitpod.io/#https://github.com/tors42/challengeaiexample)  
