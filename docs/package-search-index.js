@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html","k":"18"},{"m":"chariot","l":"chariot"},{"m":"chariot","l":"chariot.api"},{"m":"chariot","l":"chariot.chess"},{"m":"chariot","l":"chariot.model"},{"m":"chariot","l":"chariot.util"}];updateSearchResults();
