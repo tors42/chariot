@@ -34,6 +34,7 @@ public interface Enums {
             default Color white()  { return white; }
             default Color black()  { return black; }
         }
+        public Color other() { return this == white ? black : white; }
         public static Provider provider() {return new Provider(){};}
     }
 
