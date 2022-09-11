@@ -13,7 +13,7 @@ public record Activity(Interval interval, Set<Activity.Type> activities)  {
 
     public record Interval(ZonedDateTime start, ZonedDateTime end) {};
 
-    public sealed interface Type permits Type.Games, Type.Puzzles, Type.Tournaments, Type.Practices, Type.CorrespondenceMoves, Type.CorrespondenceEnds, Type.Follows, Type.Teams, Type.Posts, Type.Simuls, Type.Unknown {
+    public sealed interface Type permits Type.Games, Type.Puzzles, Type.Tournaments, Type.Practices, Type.CorrespondenceMoves, Type.CorrespondenceEnds, Type.Follows, Type.Teams, Type.Patron, Type.Posts, Type.Simuls, Type.Unknown {
         public record Games(List<Result> result) implements Type {};
         public record Puzzles(Result score) implements Type {};
         public record Tournaments(Integer nb, List<Tournament> best) implements Type {}
@@ -22,6 +22,7 @@ public record Activity(Interval interval, Set<Activity.Type> activities)  {
         public record CorrespondenceEnds(Result score, List<Game> games) implements Type {}
         public record Follows(List<String> inIds, List<String> outIds) implements Type {}
         public record Teams(List<Team> teams) implements Type {}
+        public record Patron(int months) implements Type {}
         public record Posts(List<Topic> topics) implements Type {}
         public record Simuls(List<Simul> simuls) implements Type {}
         public record Unknown(String name, String raw) implements Type {}

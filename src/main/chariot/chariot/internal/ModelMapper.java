@@ -284,8 +284,8 @@ public class ModelMapper {
                                                         );
                                             }
                                             case "teams" -> new Activity.Type.Teams(((YayArray) node).value().stream().map(y -> mapper.fromYayTree(y, Activity.Team.class)).toList());
+                                            case "patron" -> mapper.fromYayTree(node, Activity.Type.Patron.class);
                                             case "posts" -> new Activity.Type.Posts(((YayArray) node).value().stream().map(y -> mapper.fromYayTree(y, Activity.Topic.class)).toList());
-
                                             default -> new Activity.Type.Unknown(activityType, yo.value().get(activityType).toString());
                                         };
 
