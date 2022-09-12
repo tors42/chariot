@@ -128,7 +128,7 @@ public sealed interface Endpoint<T> {
         Endpoint.ofArr(User.class).endpoint("/api/users").contentType(plain).toMany();
 
     public static EPMany<StreamerStatus> liveStreamers =
-        Endpoint.ofArr(StreamerStatus.class).endpoint("/streamer/live").toMany();
+        Endpoint.ofArr(StreamerStatus.class).endpoint("/api/streamer/live").toMany();
 
     public static EPOne<Team> teamById =
         Endpoint.of(Team.class).endpoint("/api/team/%s").toOne();
@@ -259,7 +259,7 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Game.class).endpoint("/api/tv/%s").accept(jsonstream).toMany();
 
     public static EPOne<UserTopAll> usersTopAll =
-        Endpoint.of(UserTopAll.class).endpoint("/player").accept(lichessjson).toOne();
+        Endpoint.of(UserTopAll.class).endpoint("/api/player").accept(lichessjson).toOne();
 
     public static EPOne<Leaderboard> usersLeaderboard =
         Endpoint.of(Leaderboard.class).endpoint("/player/top/%s/%s").accept(lichessjson).toOne();
