@@ -198,8 +198,18 @@ public interface TournamentsAuth extends Tournaments {
     }
 
     interface JoinArenaParams {
+        /** The tournament entry code, if one is required. Can also be a user-specific entry code generated and shared by the organizer. */
         JoinArenaParams entryCode(String entryCode);
+        /** The team to join the tournament with, for team battle tournaments */
         JoinArenaParams team(String team);
+        /**
+         * If the tournament is started, attempt to pair the user, even if they are not connected to the tournament page. <br/>
+         * This expires after one minute, to avoid pairing a user who is long gone. You may call "join" again to extend the waiting. <br/>
+         * Default: {@code false}
+         */
+        JoinArenaParams pairMeAsap(boolean pairMeAsap);
+        /** {@see #pairMeAsap(boolean)} */
+        default JoinArenaParams pairMeAsap() { return pairMeAsap(true); }
     }
 
     interface SwissBuilder extends Clock<SwissParams> {}
