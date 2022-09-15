@@ -23,7 +23,9 @@ public class ChallengesImpl extends Base implements Challenges {
      }
 
     private Map<String,Object> openEndedBuilderToMap(Consumer<OpenEndedBuilder> consumer) {
-        var builder = MapBuilder.of(OpenEndedParams.class);
+        var builder = MapBuilder.of(OpenEndedParams.class)
+            .addCustomHandler("users", (args, map) -> map.put("users", args[0] + "," + args[1]));
+
         var openEndedBuilder = new OpenEndedBuilder() {
             @Override
             public OpenEndedParams clock(int initial, int increment) {
