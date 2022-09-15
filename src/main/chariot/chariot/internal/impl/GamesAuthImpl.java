@@ -13,13 +13,6 @@ public class GamesAuthImpl extends GamesImpl implements GamesAuth {
     }
 
     @Override
-    public One<GameImport> importGame(String pgn) {
-        return Endpoint.gameImport.newRequest(request -> request
-                .post(Map.of("pgn", pgn)))
-            .process(this);
-    }
-
-    @Override
     public Many<GameInfo> ongoing() {
         return Endpoint.accountNowPlaying.newRequest(request -> {})
             .process(this);

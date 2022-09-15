@@ -131,6 +131,24 @@ public interface Games {
     default Many<StreamGame> streamGamesByUserIds(Set<String> userIds) { return streamGamesByUserIds(true, userIds); }
     default Many<StreamGame> streamGamesByUserIds(boolean withCurrentGames, String... userIds) { return streamGamesByUserIds(withCurrentGames, Set.of(userIds)); }
 
+
+    /**
+     * Creates a stream of games from an arbitrary streamId, and a list of game IDs.<br>
+     * The stream first outputs the games that already exists, then emits an event each time a game is started or finished.<br>
+     * Maximum number of games: 500 for anonymous requests, or 1000 for OAuth2 authenticated requests.<br>
+     * While the stream is open, it is possible to add new game IDs to watch.<br>
+     * @param streamId Arbitrary stream ID that you can later use to add game IDs to the stream. Example: myAppName-someRandomId
+     */
+    Many<StreamGame> streamGamesByGameIds(String streamId, Set<String> gameIds);
+    default Many<StreamGame> streamGamesByGameIds(String streamId, String... gameIds) { return streamGamesByGameIds(streamId, Set.of(gameIds)); }
+
+    /**
+     * Add new game IDs for an existing stream to watch.<br>
+     * The stream will immediately outputs the games that already exists, then emit an event each time a game is started or finished.<br>
+     */
+    One<Ack> addGameIdsToStream(String streamId, Set<String> gameIds);
+    default One<Ack> addGameIdsToStream(String streamId, String... gameIds) { return addGameIdsToStream(streamId, Set.of(gameIds)); }
+
     /**
      * Stream positions and moves of any ongoing game.<br>
      * A description of the game is sent as a first message. Then a message is sent

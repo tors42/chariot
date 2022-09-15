@@ -178,6 +178,12 @@ public sealed interface Endpoint<T> {
     public static EPMany<StreamGame> streamGamesByUsers =
         Endpoint.of(StreamGame.class).endpoint("/api/stream/games-by-users").accept(jsonstream).contentType(plain).toMany();
 
+    public static EPMany<StreamGame> streamGamesByStreamIds =
+        Endpoint.of(StreamGame.class).endpoint("/api/stream/games/%s").accept(jsonstream).contentType(plain).toMany();
+
+    public static EPOne<Ack> addGameIdsToStream=
+        Endpoint.of(Ack.class).endpoint("/api/stream/games/%s/add").accept(json).contentType(plain).toOne();
+
     public static EPMany<StreamMove> streamMoves=
         Endpoint.of(StreamMove.class).endpoint("/api/stream/game/%s").accept(jsonstream).toMany();
 

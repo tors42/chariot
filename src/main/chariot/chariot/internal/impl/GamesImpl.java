@@ -156,7 +156,6 @@ public class GamesImpl extends Base implements Games {
     public Many<StreamGame> streamGamesByUserIds(boolean withCurrentGames, Set<String> userIds) {
         Consumer<Params> params = request -> request
             .post(userIds.stream()
-                    .limit(300)
                     .collect(Collectors.joining(",")))
             .stream();
 
@@ -166,7 +165,23 @@ public class GamesImpl extends Base implements Games {
 
         return Endpoint.streamGamesByUsers.newRequest(params)
             .process(this);
-     }
+    }
+
+    @Override
+    public Many<StreamGame> streamGamesByGameIds(String streamId, Set<String> gameIds) {
+        return Endpoint.streamGamesByStreamIds.newRequest(request -> request
+                .path(streamId)
+                .post(String.join(",", gameIds)))
+            .process(this);
+    }
+
+    @Override
+    public One<Ack> addGameIdsToStream(String streamId, Set<String> gameIds) {
+        return Endpoint.addGameIdsToStream.newRequest(request -> request
+                .path(streamId)
+                .post(String.join(",", gameIds)))
+            .process(this);
+    }
 
     @Override
     public Many<StreamMove> streamMovesByGameId(String gameId) {

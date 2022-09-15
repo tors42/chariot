@@ -10,6 +10,7 @@ public record StreamGame (
      String perf,
      boolean rated,
      Integer status,
+     String statusName,
      Long createdTime,
      Clock clock,
      Players players

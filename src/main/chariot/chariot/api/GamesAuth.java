@@ -1,5 +1,7 @@
 package chariot.api;
 
+import java.util.Set;
+
 import chariot.model.*;
 
 public interface GamesAuth extends Games {
@@ -13,11 +15,11 @@ public interface GamesAuth extends Games {
      */
     Many<GameInfo> ongoing();
 
-    /**
-     * Import a game from PGN.<br>
-     * Rate limiting: 200 games per hour for OAuth requests.<br>
-     * See {@link Games#importGame} for non-authenticated access.<br>
-     * To broadcast ongoing games, consider pushing to a broadcast instead. See {@link BroadcastsAuth#pushPgnByRoundId}
-     */
+    /** {@inheritDoc} */
     One<GameImport> importGame(String pgn);
+
+    /** {@inheritDoc} */
+    Many<StreamGame> streamGamesByGameIds(String streamId, Set<String> gameIds);
+    default Many<StreamGame> streamGamesByGameIds(String streamId, String... gameIds) { return streamGamesByGameIds(streamId, Set.of(gameIds)); }
+
 }
