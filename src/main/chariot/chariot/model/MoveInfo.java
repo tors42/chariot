@@ -4,9 +4,9 @@ import chariot.internal.Util;
 import chariot.model.Enums.Color;
 import static chariot.internal.Util.orEmpty;
 
-public sealed interface StreamMove {
+public sealed interface MoveInfo {
 
-    public record Info(
+    public record GameSummary(
             String id,
             String speed,
             String perf,
@@ -21,9 +21,9 @@ public sealed interface StreamMove {
             boolean rated,
             Variant variant,
             Color player
-            ) implements StreamMove {
+            ) implements MoveInfo {
 
-        public Info {
+        public GameSummary {
             lastMove = orEmpty(lastMove);
             initialFen = orEmpty(initialFen);
         }
@@ -35,7 +35,7 @@ public sealed interface StreamMove {
         }
     }
 
-    public record Move(String fen, String lm, int wc, int bc) implements StreamMove {
+    public record Move(String fen, String lm, int wc, int bc) implements MoveInfo {
         public Move {
             // first move has no lm (last move)
             lm = orEmpty(lm);

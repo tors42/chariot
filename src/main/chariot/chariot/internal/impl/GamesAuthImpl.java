@@ -13,13 +13,13 @@ public class GamesAuthImpl extends GamesImpl implements GamesAuth {
     }
 
     @Override
-    public Many<GameInfo> ongoing() {
+    public Many<MyGameInfo> ongoing() {
         return Endpoint.accountNowPlaying.newRequest(request -> {})
             .process(this);
     }
 
     @Override
-    public Many<GameInfo> ongoing(int nb) {
+    public Many<MyGameInfo> ongoing(int nb) {
         return Endpoint.accountNowPlaying.newRequest(request -> request
                 .query(Map.of("nb", nb)))
             .process(this);

@@ -33,7 +33,7 @@ public class BoardAuthImpl extends ChallengesAuthCommonImpl implements BoardAuth
     }
 
     @Override
-    public Many<StreamGameEvent> streamGameState(String gameId) {
+    public Many<GameEvent> connectToGame(String gameId) {
         return Endpoint.streamBoardGameEvents.newRequest(request -> request
                 .path(gameId)
                 .stream())

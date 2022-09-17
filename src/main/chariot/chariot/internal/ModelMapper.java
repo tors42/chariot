@@ -52,15 +52,15 @@ public class ModelMapper {
         // Specify Java model <-> JSON model field name mappings,
         // where JSON model contains Java keywords,
         // so another name must be used in the Java model.
-        mapper.setMappings(PerfStat.Stat.DateResult.class,    ModelMapperUtil.intMapping());
-        mapper.setMappings(Game.class,                        ModelMapperUtil.createdAtAndLastMoveAtMapping());
-        mapper.setMappings(StreamMove.Info.class,             ModelMapperUtil.createdAtMapping());
-        mapper.setMappings(StreamGameEvent.Full.class,        ModelMapperUtil.createdAtMapping());
-        mapper.setMappings(TVChannels.class,                  ModelMapperUtil.tvChannelsMapping());
-        mapper.setMappings(User.Count.class,                  ModelMapperUtil.importMapping());
-        mapper.setMappings(Variant.class,                     ModelMapperUtil.shortMapping());
-        mapper.setMappings(Broadcast.Round.class,             ModelMapperUtil.startsAtMapping());
-        mapper.setMappings(ChallengeAI.class,                 ModelMapperUtil.createdAtAndLastMoveAtMapping());
+        mapper.setMappings(PerfStat.Stat.DateResult.class, ModelMapperUtil.intMapping());
+        mapper.setMappings(Game.class,                     ModelMapperUtil.createdAtAndLastMoveAtMapping());
+        mapper.setMappings(MoveInfo.GameSummary.class,     ModelMapperUtil.createdAtMapping());
+        mapper.setMappings(GameEvent.Full.class,           ModelMapperUtil.createdAtMapping());
+        mapper.setMappings(TVChannels.class,               ModelMapperUtil.tvChannelsMapping());
+        mapper.setMappings(User.Count.class,               ModelMapperUtil.importMapping());
+        mapper.setMappings(Variant.class,                  ModelMapperUtil.shortMapping());
+        mapper.setMappings(Broadcast.Round.class,          ModelMapperUtil.startsAtMapping());
+        mapper.setMappings(ChallengeAI.class,              ModelMapperUtil.createdAtAndLastMoveAtMapping());
 
         // "Exotic" JSON model...
         mappings.put(Crosstable.class,

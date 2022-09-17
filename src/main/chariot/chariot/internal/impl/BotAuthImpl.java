@@ -35,7 +35,7 @@ public class BotAuthImpl extends ChallengesAuthCommonImpl implements BotAuth {
      }
 
     @Override
-    public Many<StreamGameEvent> streamGameState(String gameId) {
+    public Many<GameEvent> connectToGame(String gameId) {
         return Endpoint.streamBotGameEvents.newRequest(request -> request
                 .path(gameId)
                 .stream())

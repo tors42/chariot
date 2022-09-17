@@ -8,7 +8,11 @@ import chariot.api.Builders.*;
 
 public interface ChallengesAuthCommon {
 
-    Many<StreamEvent> streamEvents();
+    /**
+     * Stream the events reaching the Lichess user in real time.<br>
+     * When the stream opens, all current challenges and games are sent.
+     */
+    Many<Event> connect();
 
     /**
      * The challenge expires after 20s if not accepted.<br>

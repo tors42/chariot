@@ -68,8 +68,8 @@ public sealed interface Endpoint<T> {
     public static EPOne<Ack> accountKidStatus =
         Endpoint.of(Ack.class).endpoint("/api/account/kid").scope(Scope.preference_write).toOne();
 
-    public static EPMany<GameInfo> accountNowPlaying =
-        Endpoint.of(GameInfo.class).endpoint("/api/account/playing")
+    public static EPMany<MyGameInfo> accountNowPlaying =
+        Endpoint.of(MyGameInfo.class).endpoint("/api/account/playing")
         .streamMapper(stream -> stream.map(mapper(PlayingWrapper.class)).filter(Objects::nonNull).flatMap(pw -> pw.nowPlaying().stream()))
         .scope(Scope.any).toMany();
 
@@ -175,20 +175,20 @@ public sealed interface Endpoint<T> {
     public static EPOne<GameImport> gameImport =
         Endpoint.of(GameImport.class).endpoint("/api/import").contentType(wwwform).toOne();
 
-    public static EPMany<StreamGame> streamGamesByUsers =
-        Endpoint.of(StreamGame.class).endpoint("/api/stream/games-by-users").accept(jsonstream).contentType(plain).toMany();
+    public static EPMany<GameInfo> streamGamesByUsers =
+        Endpoint.of(GameInfo.class).endpoint("/api/stream/games-by-users").accept(jsonstream).contentType(plain).toMany();
 
-    public static EPMany<StreamGame> streamGamesByStreamIds =
-        Endpoint.of(StreamGame.class).endpoint("/api/stream/games/%s").accept(jsonstream).contentType(plain).toMany();
+    public static EPMany<GameInfo> streamGamesByStreamIds =
+        Endpoint.of(GameInfo.class).endpoint("/api/stream/games/%s").accept(jsonstream).contentType(plain).toMany();
 
-    public static EPOne<Ack> addGameIdsToStream=
+    public static EPOne<Ack> addGameIdsToStream =
         Endpoint.of(Ack.class).endpoint("/api/stream/games/%s/add").accept(json).contentType(plain).toOne();
 
-    public static EPMany<StreamMove> streamMoves=
-        Endpoint.of(StreamMove.class).endpoint("/api/stream/game/%s").accept(jsonstream).toMany();
+    public static EPMany<MoveInfo> streamMoves =
+        Endpoint.of(MoveInfo.class).endpoint("/api/stream/game/%s").accept(jsonstream).toMany();
 
-    public static EPMany<StreamEvent> streamEvents =
-        Endpoint.of(StreamEvent.class).endpoint("/api/stream/event").accept(jsonstream).scope(Scope.challenge_read).toMany();
+    public static EPMany<Event> streamEvents =
+        Endpoint.of(Event.class).endpoint("/api/stream/event").accept(jsonstream).scope(Scope.challenge_read).toMany();
 
     public static EPOne<Arena> createArenaTournament =
         Endpoint.of(Arena.class).endpoint("/api/tournament").contentType(wwwform).scope(Scope.tournament_write).toOne();
@@ -433,8 +433,8 @@ public sealed interface Endpoint<T> {
     public static EPOne<SeekAck> boardSeekCorr =
         Endpoint.of(SeekAck.class).endpoint("/api/board/seek").contentType(wwwform).accept(plain).scope(Scope.board_play).toOne();
 
-    public static EPMany<StreamGameEvent> streamBoardGameEvents =
-        Endpoint.of(StreamGameEvent.class).endpoint("/api/board/game/stream/%s").accept(jsonstream).scope(Scope.board_play).toMany();
+    public static EPMany<GameEvent> streamBoardGameEvents =
+        Endpoint.of(GameEvent.class).endpoint("/api/board/game/stream/%s").accept(jsonstream).scope(Scope.board_play).toMany();
 
     public static EPOne<Ack> boardMove =
         Endpoint.of(Ack.class).endpoint("/api/board/game/%s/move/%s").scope(Scope.board_play).toOne();
@@ -466,8 +466,8 @@ public sealed interface Endpoint<T> {
     public static EPOne<Ack> botAccountUpgrade =
         Endpoint.of(Ack.class).endpoint("/api/bot/account/upgrade").scope(Scope.bot_play).toOne();
 
-    public static EPMany<StreamGameEvent> streamBotGameEvents =
-        Endpoint.of(StreamGameEvent.class).endpoint("/api/bot/game/stream/%s").accept(jsonstream).scope(Scope.bot_play).toMany();
+    public static EPMany<GameEvent> streamBotGameEvents =
+        Endpoint.of(GameEvent.class).endpoint("/api/bot/game/stream/%s").accept(jsonstream).scope(Scope.bot_play).toMany();
 
     public static EPOne<Ack> botMove =
         Endpoint.of(Ack.class).endpoint("/api/bot/game/%s/move/%s").scope(Scope.bot_play).toOne();

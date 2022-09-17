@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import chariot.model.Enums.*;
 
-public sealed interface StreamEvent {
+public sealed interface Event {
 
     enum Type { gameStart, gameFinish, challenge, challengeCanceled, challengeDeclined }
 
@@ -26,7 +26,7 @@ public sealed interface StreamEvent {
         }
     }
 
-    record GameEvent(Type type, GameInfo game) implements StreamEvent {
+    record GameEvent(Type type, GameInfo game) implements Event {
         public record GameInfo(
                 String fullId,
                 String gameId,
@@ -54,7 +54,7 @@ public sealed interface StreamEvent {
     }
 
     // Todo, check what challenge structure is used in this StreamEvent - maybe something similar generic (as opposed to identical separate structurs)
-    record ChallengeEvent(Type type, Challenge challenge, Compat compat) implements StreamEvent {}
+    record ChallengeEvent(Type type, Challenge challenge, Compat compat) implements Event {}
 
     record Compat(boolean bot, boolean board) {}
 }

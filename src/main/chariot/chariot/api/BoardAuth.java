@@ -71,7 +71,7 @@ public interface BoardAuth extends ChallengesAuthCommon {
      * <p> The first event is always of type gameFull
      *  @param gameId Example: 5IrD6Gzz
      */
-    Many<StreamGameEvent> streamGameState(String gameId);
+    Many<GameEvent> connectToGame(String gameId);
 
     /**
      *  Make a move in a game being played with the Board API.<br/>

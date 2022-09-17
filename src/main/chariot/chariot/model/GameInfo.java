@@ -1,23 +1,28 @@
 package chariot.model;
 
-import chariot.model.Enums.Color;
+import chariot.model.Enums.VariantName;
+import chariot.internal.Util;
 
-public record GameInfo(
-            String fullId,
-            String gameId,
-            String fen,
-            Color color,
-            String lastMove,
-            String source,
-            String speed,
-            String perf,
-            Integer secondsLeft,
-            boolean rated,
-            boolean isMyTurn,
-            boolean hasMoved,
-            Variant variant,
-            Opponent opponent)  {
-    public record Variant(String key, String name) {}
-    public record Opponent(String id, String username, Integer rating) {}
+public record GameInfo (
+     String id,
+     VariantName variant,
+     String speed,
+     String perf,
+     boolean rated,
+     Integer status,
+     String statusName,
+     Long createdTime,
+     Clock clock,
+     Players players
+     )  {
+
+    public java.time.ZonedDateTime createdAt() {
+        return Util.fromLong(createdTime());
+    }
+
+    public record Clock(Integer initial, Integer increment, Integer totalTime) {}
+
+    public record Players(Player white, Player black) {
+        public record Player(String userId, Integer rating) {}
+    }
 }
-

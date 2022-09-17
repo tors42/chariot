@@ -20,8 +20,8 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
     }
 
     @Override
-    public Many<StreamEvent> streamEvents() {
-        return streamEvents(scope);
+    public Many<Event> connect() {
+        return connect(scope);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
     }
 
 
-    private Many<StreamEvent> streamEvents(Scope scope) {
+    private Many<Event> connect(Scope scope) {
         return Endpoint.streamEvents.newRequest(request -> request
                 .scope(scope)
                 .stream())

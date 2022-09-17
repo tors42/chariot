@@ -28,7 +28,7 @@ import chariot.model.*;
  *      ClientAuth client = Client.auth("my-bot-token");
  *
  *      // Connect the bot to Lichess, becoming challengeable
- *      Stream<StreamEvent> events = client.bot().streamEvents().stream();
+ *      Stream<Event> events = client.bot().connect().stream();
  *
  *      // Handle events
  *      events.forEach( event -> {
@@ -41,7 +41,7 @@ import chariot.model.*;
  *                  // A game has started! Likely because we've accepted a challenge.
  *
  *                  // Connect to the game, receiving game events. We'll always get a Full game state first.
- *                  Stream<StreamGameEvent> gameEvents = client.bot().streamGameEvents(event.id()).stream();
+ *                  Stream<GameEvent> gameEvents = client.bot().connectToGame(event.id()).stream();
  *
  *                  client.bot().chat(event.id(), "I wish you a pleasant game!");
  *                  gameEvents.forEach( gameEvent -> {
@@ -56,8 +56,7 @@ import chariot.model.*;
  *                              // *stays silent*
  *                              break;
  *                          case gameState:
- *                              // With record pattern matching we wouldn't have needed this ugly cast...
- *                              Game.Status status = ((StreamGameEvent.State) gameEvent).status();
+ *                              Game.Status status = ((GameEvent.State) gameEvent).status();
  *                              if (status == Game.Status.mate) {
  *                                  client.bot().chat(event.id(), "Nice we could play until the end! Laters!");
  *                              } else {
@@ -92,7 +91,7 @@ public interface BotAuth extends ChallengesAuthCommon, Bot {
      * <p> The first event is always of type gameFull
      *  @param gameId Example: 5IrD6Gzz
      */
-    Many<StreamGameEvent> streamGameState(String gameId);
+    Many<GameEvent> connectToGame(String gameId);
 
     /**
      *  Make a move in a game being played with the Bot API.<br/>

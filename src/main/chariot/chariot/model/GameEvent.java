@@ -3,7 +3,7 @@ package chariot.model;
 import chariot.model.Enums.Room;
 import chariot.internal.Util;
 
-public sealed interface StreamGameEvent {
+public sealed interface GameEvent {
 
     enum Type { gameFull, gameState, chatLine }
 
@@ -22,7 +22,7 @@ public sealed interface StreamGameEvent {
             LightUser black,
             String initialFen,
             State state
-            ) implements StreamGameEvent {
+            ) implements GameEvent {
 
         public java.time.ZonedDateTime createdAt() {
             return Util.fromLong(createdTime());
@@ -45,13 +45,13 @@ public sealed interface StreamGameEvent {
             boolean wtakeback,
             boolean btakeback,
             Game.Status status,
-            String winner) implements StreamGameEvent {}
+            String winner) implements GameEvent {}
 
 
     record Chat(
             Type type,
             String username,
             String text,
-            Room room) implements StreamGameEvent {}
+            Room room) implements GameEvent {}
 
 }

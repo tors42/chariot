@@ -123,14 +123,12 @@ public interface Games {
      * Stream the games played between a list of users, in real time.<br>
      * Only games where both players are part of the list are included.<br>
      * Maximum number of users: 300.
-     * @param withCurrentGames whether to include ongoing games or not. Default: true
      * @param userIds
+     * @param params
      */
-    Many<StreamGame> streamGamesByUserIds(boolean withCurrentGames, Set<String> userIds);
-    default Many<StreamGame> streamGamesByUserIds(String... userIds) { return streamGamesByUserIds(Set.of(userIds)); }
-    default Many<StreamGame> streamGamesByUserIds(Set<String> userIds) { return streamGamesByUserIds(true, userIds); }
-    default Many<StreamGame> streamGamesByUserIds(boolean withCurrentGames, String... userIds) { return streamGamesByUserIds(withCurrentGames, Set.of(userIds)); }
-
+    Many<GameInfo> gameInfosByUserIds(Set<String> userIds, Consumer<GamesParameters> params);
+    default Many<GameInfo> gameInfosByUserIds(Set<String> userIds) { return gameInfosByUserIds(userIds, __ -> {}); }
+    default Many<GameInfo> gameInfosByUserIds(String... userIds) { return gameInfosByUserIds(Set.of(userIds)); }
 
     /**
      * Creates a stream of games from an arbitrary streamId, and a list of game IDs.<br>
@@ -138,9 +136,10 @@ public interface Games {
      * Maximum number of games: 500 for anonymous requests, or 1000 for OAuth2 authenticated requests.<br>
      * While the stream is open, it is possible to add new game IDs to watch.<br>
      * @param streamId Arbitrary stream ID that you can later use to add game IDs to the stream. Example: myAppName-someRandomId
+     * @param gameIds The IDs of the games (more can be added at a later point with {@link #addGameIdsToStream(String, String...)}
      */
-    Many<StreamGame> streamGamesByGameIds(String streamId, Set<String> gameIds);
-    default Many<StreamGame> streamGamesByGameIds(String streamId, String... gameIds) { return streamGamesByGameIds(streamId, Set.of(gameIds)); }
+    Many<GameInfo> gameInfosByGameIds(String streamId, Set<String> gameIds);
+    default Many<GameInfo> gameInfosByGameIds(String streamId, String... gameIds) { return gameInfosByGameIds(streamId, Set.of(gameIds)); }
 
     /**
      * Add new game IDs for an existing stream to watch.<br>
@@ -158,7 +157,15 @@ public interface Games {
      * as to prevent cheat bots from using this API.<br>
      * No more than 8 game streams can be opened at the same time from the same IP address.
      */
-    Many<StreamMove> streamMovesByGameId(String gameId);
+    Many<MoveInfo> moveInfosByGameId(String gameId);
+
+    interface GamesParameters {
+        /**
+         * @param withCurrentGames whether to include ongoing games or not. Default: true
+         */
+        GamesParameters withCurrentGames(boolean withCurrentGames);
+        default GamesParameters withCurrentGames() { return withCurrentGames(true); }
+    }
 
     interface CommonGameParameters<T> {
         /**

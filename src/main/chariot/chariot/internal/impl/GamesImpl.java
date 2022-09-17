@@ -153,22 +153,23 @@ public class GamesImpl extends Base implements Games {
     }
 
     @Override
-    public Many<StreamGame> streamGamesByUserIds(boolean withCurrentGames, Set<String> userIds) {
-        Consumer<Params> params = request -> request
-            .post(userIds.stream()
+    public Many<GameInfo> gameInfosByUserIds(Set<String> userIds, Consumer<GamesParameters> consumer) {
+        var builder = MapBuilder.of(GamesParameters.class)
+            .addCustomHandler("withCurrentGames", (args, map) -> {
+                if (args[0] instanceof Boolean b && b.booleanValue()) map.put("withCurrentGames", 1);
+            });
+
+        return Endpoint.streamGamesByUsers.newRequest(request -> request
+                .post(userIds.stream()
+                    .map(String::toLowerCase)
                     .collect(Collectors.joining(",")))
-            .stream();
-
-        if (withCurrentGames) {
-            params = params.andThen(request -> request.query(Map.of("withCurrentGames", 1)));
-        }
-
-        return Endpoint.streamGamesByUsers.newRequest(params)
+                .query(builder.toMap(consumer))
+                .stream())
             .process(this);
     }
 
     @Override
-    public Many<StreamGame> streamGamesByGameIds(String streamId, Set<String> gameIds) {
+    public Many<GameInfo> gameInfosByGameIds(String streamId, Set<String> gameIds) {
         return Endpoint.streamGamesByStreamIds.newRequest(request -> request
                 .path(streamId)
                 .post(String.join(",", gameIds)))
@@ -184,7 +185,7 @@ public class GamesImpl extends Base implements Games {
     }
 
     @Override
-    public Many<StreamMove> streamMovesByGameId(String gameId) {
+    public Many<MoveInfo> moveInfosByGameId(String gameId) {
         return Endpoint.streamMoves.newRequest(request -> request
             .path(gameId)
             .stream())
