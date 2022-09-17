@@ -38,5 +38,5 @@ public sealed interface GameUser {
         }
 
 
-        record Analysis(int inaccuracy, int mistake, int blunder, int acpl) {}
+        record Analysis(int inaccuracy, int mistake, int blunder, int acpl, int accuracy) {}
 }
