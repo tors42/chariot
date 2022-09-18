@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import chariot.api.*;
 import chariot.internal.*;
-import chariot.internal.RequestParameters.Params;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 import chariot.model.Enums.Channel;
