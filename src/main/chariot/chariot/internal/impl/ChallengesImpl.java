@@ -1,6 +1,8 @@
 package chariot.internal.impl;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import chariot.api.*;
@@ -23,8 +25,13 @@ public class ChallengesImpl extends Base implements Challenges {
      }
 
     private Map<String,Object> openEndedBuilderToMap(Consumer<OpenEndedBuilder> consumer) {
+        Set<String> rules = new HashSet<>();
         var builder = MapBuilder.of(OpenEndedParams.class)
-            .addCustomHandler("users", (args, map) -> map.put("users", args[0] + "," + args[1]));
+            .addCustomHandler("users", (args, map) -> map.put("users", args[0] + "," + args[1]))
+            .addCustomHandler("noAbort",    (args, map) -> rules.add("noAbort"))
+            .addCustomHandler("noRematch",  (args, map) -> rules.add("noRematch"))
+            .addCustomHandler("noGiveTime", (args, map) -> rules.add("noGiveTime"))
+            .addCustomHandler("noClaimWin", (args, map) -> rules.add("noClaimWin"));
 
         var openEndedBuilder = new OpenEndedBuilder() {
             @Override
@@ -42,6 +49,8 @@ public class ChallengesImpl extends Base implements Challenges {
             }
         };
         consumer.accept(openEndedBuilder);
-        return builder.toMap();
+        var map = builder.toMap();
+        if (!rules.isEmpty()) map.put("rules", String.join(",", rules));
+        return map;
     }
 }

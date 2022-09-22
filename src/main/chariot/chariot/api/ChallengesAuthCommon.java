@@ -84,12 +84,10 @@ public interface ChallengesAuthCommon {
          */
         ChallengeParams acceptByToken(String acceptByToken, String message);
 
-        /**
-         * @param singleGame Prevent players from aborting the game, and from playing a rematch after it.
-         */
-        ChallengeParams singleGame(boolean singleGame);
-        default ChallengeParams singleGame() { return singleGame(true); }
-
+        ChallengeParams noAbort();
+        ChallengeParams noRematch();
+        ChallengeParams noGiveTime();
+        ChallengeParams noClaimWin();
 
         default ChallengeParams color(Function<ColorPref.Provider, ColorPref> color) { return color(color.apply(ColorPref.provider())); }
         default ChallengeParams variant(Function<VariantName.Provider, VariantName> variant) {return variant(variant.apply(VariantName.provider())); }

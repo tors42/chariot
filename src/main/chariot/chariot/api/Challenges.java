@@ -32,16 +32,15 @@ public interface Challenges {
         OpenEndedParams name(String name);
 
         /**
-         * @param singleGame Prevent players from aborting the game, and from playing a rematch after it.
-         */
-        OpenEndedParams singleGame(boolean singleGame);
-        default OpenEndedParams singleGame() { return singleGame(true); }
-
-        /**
          * Optionally specify two usernames. Only these users may join the challenge.
          * @param white the username which plays white pieces
          * @param black the username which plays black pieces
          */
         OpenEndedParams users(String white, String black);
+
+        OpenEndedParams noAbort();
+        OpenEndedParams noRematch();
+        OpenEndedParams noGiveTime();
+        OpenEndedParams noClaimWin();
     }
 }

@@ -11,7 +11,8 @@ public record BulkPairing(
             Long startClocksAt,
             Long scheduledAt,
             Clock clock,
-            List<Game> games)  {
+            List<Game> games,
+            List<String> rules)  {
 
     public record Clock(Integer limit, Integer increment) {}
     public record Game(String id, String black, String white) {}

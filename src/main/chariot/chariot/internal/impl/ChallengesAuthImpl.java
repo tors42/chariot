@@ -70,8 +70,13 @@ public class ChallengesAuthImpl extends ChallengesAuthCommonImpl implements Chal
 
     private Map<String, Object> bulkBuilderToMap(Consumer<BulkBuilder> consumer) {
         List<BulkParams.Pairing> pairings = new ArrayList<>();
+        Set<String> rules = new HashSet<>();
         var builder = MapBuilder.of(BulkParams.class)
-            .addCustomHandler("addPairing", (args, map) -> pairings.add(BulkParams.Pairing.class.cast(args[0])));
+            .addCustomHandler("addPairing", (args, map) -> pairings.add(BulkParams.Pairing.class.cast(args[0])))
+            .addCustomHandler("noAbort",    (args, map) -> rules.add("noAbort"))
+            .addCustomHandler("noRematch",  (args, map) -> rules.add("noRematch"))
+            .addCustomHandler("noGiveTime", (args, map) -> rules.add("noGiveTime"))
+            .addCustomHandler("noClaimWin", (args, map) -> rules.add("noClaimWin"));
         var bulkBuilder = new BulkBuilder() {
             @Override
             public BulkParams clock(int initial, int increment) {
@@ -95,6 +100,7 @@ public class ChallengesAuthImpl extends ChallengesAuthCommonImpl implements Chal
         var map = builder.toMap();
         map.putIfAbsent("rated", false);
         map.put("players", new Pairings(pairings));
-        return builder.toMap();
+        if (!rules.isEmpty()) map.put("rules", String.join(",", rules));
+        return map;
     }
 }

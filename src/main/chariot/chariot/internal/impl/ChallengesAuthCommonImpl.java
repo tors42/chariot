@@ -1,6 +1,8 @@
 package chariot.internal.impl;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.*;
 
 import chariot.Client.Scope;
@@ -136,11 +138,16 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
     }
 
     private Map<String, Object> challengeBuilderToMap(Consumer<ChallengeBuilder> consumer) {
+        Set<String> rules = new HashSet<>();
         var builder = MapBuilder.of(ChallengeParams.class)
             .addCustomHandler("acceptByToken", (args, map) -> {
                 map.put("acceptByToken", args[0]);
                 if (args.length == 2) map.put("message", args[1]);
-            });
+            })
+            .addCustomHandler("noAbort",    (args, map) -> rules.add("noAbort"))
+            .addCustomHandler("noRematch",  (args, map) -> rules.add("noRematch"))
+            .addCustomHandler("noGiveTime", (args, map) -> rules.add("noGiveTime"))
+            .addCustomHandler("noClaimWin", (args, map) -> rules.add("noClaimWin"));
 
         var challengeBuilder = new ChallengeBuilder() {
             @Override
@@ -159,7 +166,9 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
              }
         };
         consumer.accept(challengeBuilder);
-        return builder.toMap();
+        var map = builder.toMap();
+        if (!rules.isEmpty()) map.put("rules", String.join(",", rules));
+        return map;
     }
 
     private Map<String, Object> challengeAIBuilderToMap(Consumer<ChallengeAIBuilder> consumer) {

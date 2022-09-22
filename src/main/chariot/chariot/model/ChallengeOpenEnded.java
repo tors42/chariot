@@ -24,7 +24,8 @@ public record ChallengeOpenEnded(
             Player challenger,
             Player destUser,
             Perf perf,
-            Open open) {
+            Open open,
+            List<String> rules) {
 
         public Challenge {
             status = Util.orEmpty(status);

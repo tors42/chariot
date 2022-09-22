@@ -1,5 +1,6 @@
 package chariot.model;
 
+import java.util.List;
 import java.util.Optional;
 
 import chariot.internal.Util;
@@ -23,7 +24,8 @@ public record Challenge(
         Player destUser,
         Perf perf,
         Optional<String> declineReason,
-        Optional<String> rematchOf) {
+        Optional<String> rematchOf,
+        List<String> rules) {
 
     public record Variant (GameVariant key, String name) {}
 

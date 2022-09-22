@@ -137,6 +137,11 @@ public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
          */
         BulkParams message(String message);
 
+        BulkParams noAbort();
+        BulkParams noRematch();
+        BulkParams noGiveTime();
+        BulkParams noClaimWin();
+
         record Pairing(Supplier<char[]> tokenWhite, Supplier<char[]> tokenBlack) {}
     }
 }
