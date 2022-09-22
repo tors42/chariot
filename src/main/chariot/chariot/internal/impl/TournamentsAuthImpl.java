@@ -117,7 +117,12 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
             .rename("conditionTeam", "conditions.teamMember.teamId")
             .rename("conditionMinRating", "conditions.minRating.rating")
             .rename("conditionMaxRating", "conditions.maxRating.rating")
-            .rename("conditionMinRatedGames", "conditions.nbRatedGames.nb");
+            .rename("conditionMinRatedGames", "conditions.nbRatedGames.nb")
+            .addCustomHandler("allowList", (args, map) -> {
+                @SuppressWarnings("unchecked")
+                List<String> list = (List<String>) args[0];
+                if (!list.isEmpty()) map.put("conditions.allowList", String.join(",", list));
+            });
 
         var arenaBuilder = new ArenaBuilder() {
             @Override
@@ -137,6 +142,11 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
         var builder = MapBuilder.of(SwissParams.class)
             .rename("entryCode", "password")
             .addCustomHandler("chatFor", (args, map) -> map.put("chatFor", ChatFor.class.cast(args[0]).id))
+            .addCustomHandler("allowList", (args, map) -> {
+                @SuppressWarnings("unchecked")
+                List<String> list = (List<String>) args[0];
+                if (!list.isEmpty()) map.put("conditions.allowList", String.join(",", list));
+            })
             .addCustomHandler("forbiddenPairings", (args, map) -> {
                 @SuppressWarnings("unchecked")
                 var pairings = (Collection<SwissParams.ForbiddenPairing>) args[0];

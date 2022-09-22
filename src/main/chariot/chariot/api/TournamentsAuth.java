@@ -172,6 +172,11 @@ public interface TournamentsAuth extends Tournaments {
          */
         ArenaParams conditionMinRatedGames(int conditionMinRatedGames);
 
+        /**
+         * @param allowList Predefined list of usernames that are allowed to join. If this list is non-empty, then usernames absent from this list will be forbidden to join. Adding {@code %titled} to the list additionally allows any titled player to join. Example: {@code List.of("thibault", "german11", "%titled")}
+         */
+        ArenaParams allowList(List<String> allowList);
+
 
         sealed interface StartTime {
             interface Provider {
@@ -268,6 +273,12 @@ public interface TournamentsAuth extends Tournaments {
          */
         SwissParams chatFor(ChatFor chatFor);
         default SwissParams chatFor(Function<ChatFor.Provider, ChatFor> chatFor) { return chatFor(chatFor.apply(ChatFor.provider())); };
+
+        /**
+         * @param allowList Predefined list of usernames that are allowed to join. If this list is non-empty, then usernames absent from this list will be forbidden to join. Adding {@code %titled} to the list additionally allows any titled player to join. Example: {@code List.of("thibault", "german11", "%titled")}
+         */
+        SwissParams allowList(List<String> allowList);
+
 
         /**
          * Usernames of two players that must not play together.
