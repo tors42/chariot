@@ -18,6 +18,7 @@ public record ChallengeOpenEnded(
             String status,
             boolean rated,
             ColorPref color,
+            Color finalColor,
             TimeControl timeControl,
             Variant variant,
             Player challenger,
