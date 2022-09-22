@@ -1,5 +1,7 @@
 package chariot.model;
 
+import java.util.List;
+
 import chariot.internal.Util;
 import chariot.model.Enums.*;
 
@@ -20,12 +22,15 @@ public record ChallengeOpenEnded(
             Variant variant,
             Player challenger,
             Player destUser,
-            Perf perf) {
+            Perf perf,
+            Open open) {
 
         public Challenge {
             status = Util.orEmpty(status);
         }
     }
+
+    public record Open(List<String> userIds) {}
 }
 
 
