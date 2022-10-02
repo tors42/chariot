@@ -10,7 +10,6 @@ import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 import chariot.model.Enums.Channel;
-import chariot.model.Enums.Speed;
 import chariot.model.PerfStat.Stat.PerfType;
 
 public class GamesImpl extends Base implements Games {
@@ -68,86 +67,6 @@ public class GamesImpl extends Base implements Games {
     public One<GameImport> importGame(String pgn) {
         return Endpoint.gameImport.newRequest(request -> request
             .post(Map.of("pgn", pgn)))
-            .process(this);
-    }
-
-    @Override
-    public One<Pgn> openingExplorerMastersOTB(String gameId) {
-        return Endpoint.exploreMasterOTB.newRequest(request -> request
-            .path(gameId))
-            .process(this);
-    }
-
-    @Override
-    public One<ExploreResult.OpeningDB> openingExplorerMasters(Consumer<MastersBuilder> params) {
-        return Endpoint.exploreMasters.newRequest(request -> request
-            .query(MapBuilder.of(MastersBuilder.class).toMap(params)))
-            .process(this);
-    }
-
-    @Override
-    public One<ExploreResult.OpeningDB> openingExplorerLichess(Consumer<LichessBuilder> params) {
-        return Endpoint.exploreLichess.newRequest(request -> request
-            .query(MapBuilder.of(LichessBuilder.class)
-               .addCustomHandler("speeds", (args, map) -> {
-                    @SuppressWarnings("unchecked")
-                    var speeds = (Set<Speed>) args[0];
-                    if (! speeds.isEmpty()) {
-                        map.put("speeds", speeds.stream().map(Speed::name).collect(Collectors.joining(",")));
-                    }
-                })
-               .addCustomHandler("ratings", (args, map) -> {
-                    @SuppressWarnings("unchecked")
-                    var ratings = (Set<LichessBuilder.RatingGroup>) args[0];
-                    if (! ratings.isEmpty()) {
-                        map.put("ratings", ratings.stream().map(LichessBuilder.RatingGroup::asString).collect(Collectors.joining(",")));
-                    }
-                }).toMap(params)))
-            .process(this);
-     }
-
-    @Override
-    public One<ExploreResult.OpeningPlayer> openingExplorerPlayer(String userId, Consumer<PlayerBuilder> params) {
-        return Endpoint.explorePlayers.newRequest(request -> request
-            .query(MapBuilder.of(PlayerBuilder.class)
-                .add("player", userId)
-                .add("color", chariot.model.Enums.Color.white)
-                .addCustomHandler("speeds", (args, map) -> {
-                    @SuppressWarnings("unchecked")
-                    var speeds = (Set<Speed>) args[0];
-                    if (! speeds.isEmpty()) {
-                        map.put("speeds", speeds.stream().map(Speed::name).collect(Collectors.joining(",")));
-                    }
-                })
-                .addCustomHandler("ratings", (args, map) -> {
-                    @SuppressWarnings("unchecked")
-                    var modes = (Set<Games.PlayerBuilder.Mode>) args[0];
-                    if (! modes.isEmpty()) {
-                        map.put("modes", modes.stream().map(Games.PlayerBuilder.Mode::name).collect(Collectors.joining(",")));
-                    }
-                })
-                .toMap(params)))
-            .process(this);
-     }
-
-    @Override
-    public One<TablebaseResult> lookupTablebase(String fen) {
-        return Endpoint.tablebaseLookup.newRequest(request -> request
-                .query(Map.of("fen", fen)))
-            .process(this);
-    }
-
-    @Override
-    public One<TablebaseResult> lookupTablebaseAtomic(String fen) {
-        return Endpoint.tablebaseAtomicLookup.newRequest(request -> request
-            .query(Map.of("fen", fen)))
-            .process(this);
-    }
-
-    @Override
-    public One<TablebaseResult> lookupTablebaseAntichess(String fen) {
-        return Endpoint.tablebaseAntichessLookup.newRequest(request -> request
-            .query(Map.of("fen", fen)))
             .process(this);
     }
 

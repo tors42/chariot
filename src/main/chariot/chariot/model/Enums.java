@@ -97,6 +97,62 @@ public interface Enums {
         public static Provider provider() {return new Provider(){};}
     }
 
+    /**
+     * Specifies a rating group, which includes ratings up to next rating
+     * group.<br/>
+     * _1600 indicates ratings between 1600-1800 and
+     * _2500 indicates ratings from 2500 and up.
+     */
+    enum RatingGroup {
+        _1600, _1800, _2000, _2200, _2500;
+
+        public String asString() {
+            return name().substring(1);
+        }
+
+        public interface Provider {
+            /**
+             * 1600-1800
+             */
+            default RatingGroup _1600() {
+                return _1600;
+            }
+
+            /**
+             * 1800-2000
+             */
+            default RatingGroup _1800() {
+                return _1800;
+            }
+
+            /**
+             * 2000-2200
+             */
+            default RatingGroup _2000() {
+                return _2000;
+            }
+
+            /**
+             * 2200-2500
+             */
+            default RatingGroup _2200() {
+                    return _2200;
+            }
+
+            /**
+             * 2500-over 9000!
+             */
+            default RatingGroup _2500() {
+                return _2500;
+            }
+        }
+
+        public static Provider provider() {
+            return new Provider() {
+            };
+        }
+    }
+
     public enum VariantName {
         standard,
         chess960,

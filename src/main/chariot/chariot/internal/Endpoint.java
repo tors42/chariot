@@ -238,6 +238,9 @@ public sealed interface Endpoint<T> {
     public static EPOne<ExploreResult.OpeningDB> exploreLichess =
         Endpoint.of(ExploreResult.OpeningDB.class).endpoint("/lichess").target(ServerType.explorer).toOne();
 
+    public static EPOne<ExploreResult.HistoryStats> exploreLichessHistory =
+        Endpoint.of(ExploreResult.HistoryStats.class).endpoint("/lichess/history").target(ServerType.explorer).toOne();
+
     public static EPOne<ExploreResult.OpeningPlayer> explorePlayers =
         Endpoint.of(ExploreResult.OpeningPlayer.class).endpoint("/player").target(ServerType.explorer).toOne();
 

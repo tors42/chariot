@@ -65,4 +65,7 @@ public sealed interface ExploreResult {
 
     public record ERPlayer(String name, Integer rating) {}
     public record EROpening(String eco, String name) {}
+
+    public record HistoryStats(List<ERStats> history, EROpening opening) {}
+    public record ERStats(String month, int black, int draws, int white) {}
 }

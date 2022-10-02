@@ -153,6 +153,11 @@ public sealed interface Client permits ClientAuth, Client.Basic {
     Games games();
 
     /**
+     * Lookup positions from the Lichess opening explorer.
+     */
+    OpeningExplorer openingExplorer();
+
+    /**
      * Access Lichess puzzle history and dashboard.
      */
     Puzzles puzzles();
@@ -166,6 +171,11 @@ public sealed interface Client permits ClientAuth, Client.Basic {
      * Access Lichess studies.
      */
     Studies studies();
+
+    /**
+     * Lookup positions from the Lichess tablebase server.
+     */
+    Tablebase tablebase();
 
     /**
      * Access and manage Lichess teams and their members.

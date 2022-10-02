@@ -20,9 +20,11 @@ public class DefaultClient {
     private final ChallengesAuthImpl challenges;
     private final CustomImpl custom;
     private final GamesAuthImpl games;
+    private final OpeningExplorerImpl openingExplorer;
     private final PuzzlesAuthImpl puzzles;
     private final SimulsImpl simuls;
     private final StudiesImpl studies;
+    private final TablebaseImpl tablebase;
     private final TeamsAuthImpl teams;
     private final TournamentsAuthImpl tournaments;
     private final UsersAuthImpl users;
@@ -47,9 +49,11 @@ public class DefaultClient {
         bot = new BotAuthImpl(client);
         broadcasts = new BroadcastsAuthImpl(client);
         games = new GamesAuthImpl(client);
+        openingExplorer = new OpeningExplorerImpl(client);
         puzzles = new PuzzlesAuthImpl(client);
         simuls = new SimulsImpl(client);
         studies = new StudiesImpl(client);
+        tablebase = new TablebaseImpl(client);
         teams = new TeamsAuthImpl(client);
         tournaments = new TournamentsAuthImpl(client);
         users = new UsersAuthImpl(client);
@@ -91,6 +95,10 @@ public class DefaultClient {
         return games;
     }
 
+    public OpeningExplorer openingExplorer() {
+        return openingExplorer;
+    }
+
     public PuzzlesAuth puzzles() {
         return puzzles;
     }
@@ -101,6 +109,10 @@ public class DefaultClient {
 
     public Studies studies() {
         return studies;
+    }
+
+    public Tablebase tablebase() {
+        return tablebase;
     }
 
     public TeamsAuth teams() {
