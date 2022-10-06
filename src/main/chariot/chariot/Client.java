@@ -417,9 +417,14 @@ public sealed interface Client permits ClientAuth, Client.Basic {
         team_read,
 
         /**
-         * Join, leave, and manage teams
+         * Join, leave
          */
         team_write,
+
+        /**
+         * Manage teams (kick members, send team messages, accept/decline join requests)
+         */
+        team_lead,
 
         /**
          * Send private messages to other players

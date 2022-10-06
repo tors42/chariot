@@ -158,19 +158,19 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Ack.class).endpoint("/team/%s/quit").scope(Scope.team_write).toOne();
 
     public static EPOne<Ack> teamKick =
-        Endpoint.of(Ack.class).endpoint("/team/%s/kick/%s").scope(Scope.team_write).toOne();
+        Endpoint.of(Ack.class).endpoint("/team/%s/kick/%s").scope(Scope.team_lead).toOne();
 
     public static EPOne<Ack> teamMessage =
-        Endpoint.of(Ack.class).endpoint("/team/%s/pm-all").contentType(wwwform).scope(Scope.team_write).toOne();
+        Endpoint.of(Ack.class).endpoint("/team/%s/pm-all").contentType(wwwform).scope(Scope.team_lead).toOne();
 
     public static EPMany<TeamRequest> teamRequests =
         Endpoint.ofArr(TeamRequest.class).endpoint("/api/team/%s/requests").scope(Scope.team_read).toMany();
 
     public static EPOne<Ack> teamAcceptJoin =
-        Endpoint.of(Ack.class).endpoint("/api/team/%s/request/%s/accept").scope(Scope.team_write).toOne();
+        Endpoint.of(Ack.class).endpoint("/api/team/%s/request/%s/accept").scope(Scope.team_lead).toOne();
 
     public static EPOne<Ack> teamDeclineJoin =
-        Endpoint.of(Ack.class).endpoint("/api/team/%s/request/%s/decline").scope(Scope.team_write).toOne();
+        Endpoint.of(Ack.class).endpoint("/api/team/%s/request/%s/decline").scope(Scope.team_lead).toOne();
 
     public static EPOne<GameImport> gameImport =
         Endpoint.of(GameImport.class).endpoint("/api/import").contentType(wwwform).toOne();
