@@ -85,6 +85,13 @@ public class ChallengesAuthImpl extends ChallengesAuthCommonImpl implements Chal
                     .add("clock.increment", increment)
                     .proxy();
             }
+
+            @Override
+            public BulkParams daysPerTurn(int daysPerTurn) {
+                return builder
+                    .add("days", daysPerTurn)
+                    .proxy();
+            }
         };
 
         record Pairings(List<BulkParams.Pairing> pairings) {

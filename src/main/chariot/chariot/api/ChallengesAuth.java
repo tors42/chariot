@@ -5,6 +5,7 @@ import java.util.function.*;
 
 import chariot.model.Enums.*;
 import chariot.api.Builders.Clock;
+import chariot.api.Builders.ClockCorrespondence;
 import chariot.internal.Crypt;
 import chariot.model.*;
 
@@ -55,7 +56,7 @@ public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
     One<Ack>         cancelBulk(String bulkId);
 
 
-    interface BulkBuilder extends Clock<BulkParams> {}
+    interface BulkBuilder extends Clock<BulkParams>, ClockCorrespondence<BulkParams> {}
 
     interface BulkParams {
 
