@@ -1,11 +1,14 @@
 package chariot.model;
 
 import chariot.model.Enums.Room;
+
+import java.util.Optional;
+
 import chariot.internal.Util;
 
 public sealed interface GameEvent {
 
-    enum Type { gameFull, gameState, chatLine }
+    enum Type { gameFull, gameState, chatLine, opponentGone }
 
     Type type();
 
@@ -53,5 +56,11 @@ public sealed interface GameEvent {
             String username,
             String text,
             Room room) implements GameEvent {}
+
+    record OpponentGone(
+            Type type,
+            boolean gone,
+            Optional<Integer> claimWinInSeconds) implements GameEvent {}
+
 
 }
