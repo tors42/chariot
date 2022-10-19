@@ -32,13 +32,15 @@ public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
      * challenge:write scope.<br>
      * You can schedule up to 500 games every 10 minutes. Contact Lichess if
      * you need higher limits.<br>
+     * If games have a real-time clock, each player must have only one pairing.
+     * For correspondence games, players can have multiple pairings within the same bulk.<br>
      * The entire bulk is rejected if:
      * <ul>
      * <li> a token is missing
-     * <li> a token is present more than once
+     * <li> a token is present more than once (except in correspondence)
      * <li> a token lacks the challenge:write scope
      * <li> a player account is closed
-     * <li> a player is paired more than once
+     * <li> a player is paired more than once (except in correspondence)
      * <li> a bulk is already scheduled to start at the same time with the same player
      * <li> you have 10 scheduled bulks
      * <li> you have 1000 scheduled games
