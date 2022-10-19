@@ -143,6 +143,12 @@ public interface BoardAuth extends ChallengesAuthCommon {
      */
     Many<ChatMessage> fetchChat(String gameId);
 
+    /**
+     * Go berserk on an arena tournament game. Halves the clock time, grants an extra point upon winning.
+     * Only available in arena tournaments that allow berserk, and before each player has made a move.
+     * @param gameId  Example: 5IrD6Gzz
+     */
+    One<Ack> berserk(String gameId);
 
     /**
      * See {@link chariot.api.BoardAuth#chat}

@@ -463,6 +463,9 @@ public sealed interface Endpoint<T> {
     public static EPMany<ChatMessage> boardFetchChat =
         Endpoint.ofArr(ChatMessage.class).endpoint("/api/board/game/%s/chat").accept(jsonstream).scope(Scope.board_play).toMany();
 
+    public static EPOne<Ack> boardBerserk =
+        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/berserk").scope(Scope.board_play).toOne();
+
     public static EPMany<User> botsOnline =
         Endpoint.of(User.class).endpoint("/api/bot/online").accept(jsonstream).toMany();
 

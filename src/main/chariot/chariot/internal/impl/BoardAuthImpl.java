@@ -88,6 +88,12 @@ public class BoardAuthImpl extends ChallengesAuthCommonImpl implements BoardAuth
             .process(this);
     }
 
+    @Override
+    public One<Ack> berserk(String gameId) {
+        return Endpoint.boardBerserk.newRequest(request -> request
+                .path(gameId))
+            .process(this);
+    }
 
     @Override
     public One<Ack> handleDrawOffer(String gameId, Offer accept) {
