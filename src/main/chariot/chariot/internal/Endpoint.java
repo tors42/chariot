@@ -271,7 +271,7 @@ public sealed interface Endpoint<T> {
         Endpoint.of(UserTopAll.class).endpoint("/api/player").accept(lichessjson).toOne();
 
     public static EPOne<Leaderboard> usersLeaderboard =
-        Endpoint.of(Leaderboard.class).endpoint("/player/top/%s/%s").accept(lichessjson).toOne();
+        Endpoint.of(Leaderboard.class).endpoint("/api/player/top/%s/%s").accept(lichessjson).toOne();
 
     public static EPOne<Puzzle> dailyPuzzle =
         Endpoint.of(Puzzle.class).endpoint("/api/puzzle/daily").toOne();
