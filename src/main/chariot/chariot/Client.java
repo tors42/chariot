@@ -452,6 +452,16 @@ public sealed interface Client permits ClientAuth, Client.Basic {
         follow_write,
 
         /**
+         * View and use your external engines
+         */
+        engine_read,
+
+        /**
+         * Create and update external engines
+         */
+        engine_write,
+
+        /**
          * Create authenticated website sessions (grants full access!)
          */
         web_login,
