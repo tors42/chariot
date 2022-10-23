@@ -148,6 +148,11 @@ public sealed interface Client permits ClientAuth, Client.Basic {
     Challenges challenges();
 
     /**
+     * External engine. For engine management, see {@link chariot.api.ExternalEngineAuth}
+     */
+    ExternalEngine externalEngine();
+
+    /**
      * Access games and TV channels, played on Lichess.
      */
     Games games();

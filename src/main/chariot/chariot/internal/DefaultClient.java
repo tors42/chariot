@@ -19,6 +19,7 @@ public class DefaultClient {
     private final BroadcastsAuthImpl broadcasts;
     private final ChallengesAuthImpl challenges;
     private final CustomImpl custom;
+    private final ExternalEngineAuthImpl externalEngine;
     private final GamesAuthImpl games;
     private final OpeningExplorerImpl openingExplorer;
     private final PuzzlesAuthImpl puzzles;
@@ -48,6 +49,7 @@ public class DefaultClient {
         board = new BoardAuthImpl(client);
         bot = new BotAuthImpl(client);
         broadcasts = new BroadcastsAuthImpl(client);
+        externalEngine = new ExternalEngineAuthImpl(client);
         games = new GamesAuthImpl(client);
         openingExplorer = new OpeningExplorerImpl(client);
         puzzles = new PuzzlesAuthImpl(client);
@@ -89,6 +91,10 @@ public class DefaultClient {
 
     public Custom custom() {
         return custom;
+    }
+
+    public ExternalEngineAuth externalEngine() {
+        return externalEngine;
     }
 
     public GamesAuth games() {

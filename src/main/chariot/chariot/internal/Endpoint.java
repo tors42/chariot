@@ -2,6 +2,7 @@ package chariot.internal;
 
 import static chariot.internal.Util.MediaType.*;
 
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.*;
@@ -496,6 +497,33 @@ public sealed interface Endpoint<T> {
         Endpoint.ofArr(ChatMessage.class).endpoint("/api/bot/game/%s/chat").accept(jsonstream).scope(Scope.bot_play).toMany();
 
 
+    public static EPMany<ExternalEngineInfo> externalEngineList =
+        Endpoint.ofArr(ExternalEngineInfo.class).endpoint("/api/external-engine").scope(Scope.engine_read).toMany();
+
+    public static EPOne<ExternalEngineInfo> externalEngineCreate =
+        Endpoint.of(ExternalEngineInfo.class).endpoint("/api/external-engine").post(json).scope(Scope.engine_write).toOne();
+
+    public static EPOne<ExternalEngineInfo> externalEngineGet =
+        Endpoint.of(ExternalEngineInfo.class).endpoint("/api/external-engine/%s").scope(Scope.engine_read).toOne();
+
+    public static EPOne<ExternalEngineInfo> externalEngineUpdate =
+        Endpoint.of(ExternalEngineInfo.class).endpoint("/api/external-engine/%s").put(json).scope(Scope.engine_write).toOne();
+
+    public static EPOne<Ack> externalEngineDelete =
+        Endpoint.of(Ack.class).endpoint("/api/external-engine/%s").delete().scope(Scope.engine_write).toOne();
+
+
+    public static EPMany<ExternalEngineAnalysis> externalEngineAnalyse =
+        Endpoint.of(ExternalEngineAnalysis.class).endpoint("/api/external-engine/%s/analyse").post(json).accept(jsonstream).target(ServerType.engine).toMany();
+
+    public static EPOne<ExternalEngineRequest> externalEngineAcquire =
+        Endpoint.of(ExternalEngineRequest.class).endpoint("/api/external-engine/work").post(json).target(ServerType.engine).toOne();
+
+    public static EPOne<Void> externalEngineAnswer =
+        Endpoint.of(Void.class).endpoint("/api/external-engine/work/%s").post(plain).target(ServerType.engine).toOne();
+
+
+
     public static class Builder<T> {
         private String endpoint = "";
         Function<Stream<String>, One<T>> mapOne;
@@ -617,6 +645,7 @@ public sealed interface Endpoint<T> {
         var params = new Params() {
             public Params path(Object... pathParameters)             { builder.path(pathParameters); return this; }
             public Params query(Map<String, Object> queryParameters) { builder.query(queryParameters); return this;}
+            public Params body(InputStream inputStream)              { builder.body(inputStream); return this; }
             public Params body(String data)                          { builder.body(data); return this; }
             public Params body(Map<String, ?> dataMap)               { builder.body(dataMap); return this; }
             public Params timeout(Duration timeout)                  { builder.timeout(timeout); return this; }

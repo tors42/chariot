@@ -24,9 +24,10 @@ public sealed interface Config {
     final static String lichess   = "https://lichess.org";
     final static String explorer  = "https://explorer.lichess.ovh";
     final static String tablebase = "https://tablebase.lichess.ovh";
+    final static String engine    = "https://engine.lichess.ovh";
     final static String local     = "http://localhost:9663";
 
-    record Servers(Server api, Server explorer, Server tablebase) {}
+    record Servers(Server api, Server explorer, Server tablebase, Server engine) {}
     record Logging(Logger request, Logger responsebodyraw, Logger auth) {}
 
     /**
@@ -87,7 +88,8 @@ public sealed interface Config {
     enum ServerType {
         api,
         explorer,
-        tablebase
+        tablebase,
+        engine
     }
 
     boolean isAuth();
@@ -394,7 +396,8 @@ public sealed interface Config {
         Map<String, Server> map = new HashMap<>();
         @Override public ExtServBuilder explorer(String url) { map.put("explorer", Server.of(url)); return this; }
         @Override public ExtServBuilder tablebase(String url) { map.put("tablebase", Server.of(url)); return this; }
-        Servers build(Server api) { Servers server = new Servers(api, map.get("explorer"), map.get("tablebase")); return server; }
+        @Override public ExtServBuilder engine(String url) { map.put("engine", Server.of(url)); return this; }
+        Servers build(Server api) { Servers server = new Servers(api, map.get("explorer"), map.get("tablebase"), map.get("engine")); return server; }
     }
 
     class LBuilderImpl implements LogSetter {

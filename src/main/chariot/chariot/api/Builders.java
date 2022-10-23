@@ -218,6 +218,11 @@ public interface Builders {
          * Address of the tablebase service
          */
         ExtServBuilder tablebase(String url);
+
+        /**
+         * Address of the engine service
+         */
+        ExtServBuilder engine(String url);
     }
 
     interface LogSetter {

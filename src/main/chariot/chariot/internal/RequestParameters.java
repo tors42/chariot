@@ -1,5 +1,6 @@
 package chariot.internal;
 
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ public sealed interface RequestParameters {
     public record Parameters(
             String path,
             String data,
+            InputStream dataInputStream,
             String method,
             Duration timeout,
             Map<String, String> headers,
@@ -46,6 +48,7 @@ public sealed interface RequestParameters {
     Parameters parameters();
     default String path() { return parameters().path(); }
     default String data() { return parameters().data(); }
+    default InputStream dataInputStream() { return parameters().dataInputStream(); }
     default String method() { return parameters().method(); }
     default Duration timeout() { return parameters().timeout(); }
     default Map<String, String> headers() { return parameters().headers(); }
@@ -64,6 +67,7 @@ public sealed interface RequestParameters {
     public interface Params {
         Params path(Object... pathParameters);
         Params query(Map<String, Object> queryParameters);
+        Params body(InputStream inputStream);
         Params body(String data);
         Params body(Map<String, ?> map);
         Params timeout(Duration timeout);
@@ -78,6 +82,7 @@ public sealed interface RequestParameters {
         private final String method;
         private String path;
         private String data;
+        private InputStream dataInputStream;
         private Map<String, ?> dataMap;
 
         private Duration timeout = Duration.ofSeconds(60);
@@ -95,6 +100,7 @@ public sealed interface RequestParameters {
 
         public ParamsBuilder path(Object... pathParameters) { this.pathParameters = List.of(Objects.requireNonNull(pathParameters)); return this; }
         public ParamsBuilder query(Map<String, Object> queryParameters) { this.queryParameters = Objects.requireNonNull(queryParameters); return this; }
+        public ParamsBuilder body(InputStream inputStream) { this.dataInputStream = inputStream; return this; }
         public ParamsBuilder body(String data) { this.data = data; return this; }
         public ParamsBuilder body(Map<String, ?> dataMap) { this.dataMap = dataMap; return this; }
         public ParamsBuilder timeout(Duration timeout) { this.timeout = timeout; return this; }
@@ -117,7 +123,7 @@ public sealed interface RequestParameters {
                 data = Util.urlEncode(dataMap);
             }
 
-            return new Parameters(path, data, method, timeout, headers, scope, target, stream);
+            return new Parameters(path, data, dataInputStream, method, timeout, headers, scope, target, stream);
         }
     }
 

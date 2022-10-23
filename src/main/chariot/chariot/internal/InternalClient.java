@@ -54,6 +54,7 @@ public class InternalClient {
             case api -> config.servers().api().get();
             case explorer -> config.servers().explorer().get();
             case tablebase -> config.servers().tablebase().get();
+            case engine -> config.servers().engine().get();
         };
 
         var uri = URI.create(joinUri(baseUri, request.path()));
@@ -63,6 +64,11 @@ public class InternalClient {
 
         String requestBody = Objects.toString(request.data(), "");
         var bodyPublisher = requestBody.isEmpty() ? BodyPublishers.noBody() : BodyPublishers.ofString(requestBody);
+
+        if (request.dataInputStream() != null) {
+            bodyPublisher = BodyPublishers.ofInputStream(() -> request.dataInputStream());
+        }
+
 
         switch(request.method()) {
             case "DELETE" -> builder.DELETE();

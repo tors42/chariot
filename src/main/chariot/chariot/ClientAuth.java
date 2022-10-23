@@ -71,6 +71,11 @@ public sealed interface ClientAuth extends Client permits chariot.internal.AuthC
     /**
      * {@inheritDoc}
      */
+    ExternalEngineAuth externalEngine();
+
+    /**
+     * {@inheritDoc}
+     */
     GamesAuth games();
 
     /**
