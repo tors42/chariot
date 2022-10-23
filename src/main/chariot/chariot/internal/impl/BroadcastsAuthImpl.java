@@ -25,7 +25,7 @@ public class BroadcastsAuthImpl extends BroadcastsImpl implements BroadcastsAuth
     @Override
     public One<Broadcast> create(Consumer<BroadcastBuilder> params) {
         return Endpoint.createBroadcast.newRequest(request -> request
-                .post(broadastBuilderToMap(params)))
+                .body(broadastBuilderToMap(params)))
             .process(this);
     }
 
@@ -33,7 +33,7 @@ public class BroadcastsAuthImpl extends BroadcastsImpl implements BroadcastsAuth
     public One<Ack> update(String tourId, Consumer<BroadcastBuilder> params) {
         return Endpoint.updateBroadcast.newRequest(request -> request
                 .path(tourId)
-                .post(broadastBuilderToMap(params)))
+                .body(broadastBuilderToMap(params)))
             .process(this);
     }
 
@@ -48,7 +48,7 @@ public class BroadcastsAuthImpl extends BroadcastsImpl implements BroadcastsAuth
     public One<Broadcast.Round> createRound(String tourId, Consumer<RoundBuilder> params) {
         return Endpoint.createRound.newRequest(request -> request
                 .path(tourId)
-                .post(MapBuilder.of(RoundBuilder.class).toMap(params)))
+                .body(MapBuilder.of(RoundBuilder.class).toMap(params)))
             .process(this);
     }
 
@@ -56,7 +56,7 @@ public class BroadcastsAuthImpl extends BroadcastsImpl implements BroadcastsAuth
     public One<Broadcast.Round> updateRound(String roundId, Consumer<RoundBuilder> params) {
         return Endpoint.updateRound.newRequest(request -> request
                 .path(roundId)
-                .post(MapBuilder.of(RoundBuilder.class).toMap(params)))
+                .body(MapBuilder.of(RoundBuilder.class).toMap(params)))
             .process(this);
     }
 
@@ -64,7 +64,7 @@ public class BroadcastsAuthImpl extends BroadcastsImpl implements BroadcastsAuth
     public One<Ack> pushPgnByRoundId(String roundId, String pgn) {
         return Endpoint.pushPGNbyRoundId.newRequest(request -> request
                 .path(roundId)
-                .post(pgn))
+                .body(pgn))
             .process(this);
     }
 

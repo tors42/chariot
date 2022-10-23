@@ -56,7 +56,7 @@ public class GamesImpl extends Base implements Games {
     @Override
     public Many<Game> byGameIds(Set<String> gameIds, Consumer<GameParams> params) {
         return Endpoint.gamesByIds.newRequest(request -> request
-                .post(gameIds.stream()
+                .body(gameIds.stream()
                     .limit(300)
                     .collect(Collectors.joining(",")))
                 .query(MapBuilder.of(GameParams.class).toMap(params)))
@@ -66,7 +66,7 @@ public class GamesImpl extends Base implements Games {
     @Override
     public One<GameImport> importGame(String pgn) {
         return Endpoint.gameImport.newRequest(request -> request
-            .post(Map.of("pgn", pgn)))
+            .body(Map.of("pgn", pgn)))
             .process(this);
     }
 
@@ -78,7 +78,7 @@ public class GamesImpl extends Base implements Games {
             });
 
         return Endpoint.streamGamesByUsers.newRequest(request -> request
-                .post(userIds.stream()
+                .body(userIds.stream()
                     .map(String::toLowerCase)
                     .collect(Collectors.joining(",")))
                 .query(builder.toMap(consumer))
@@ -90,7 +90,7 @@ public class GamesImpl extends Base implements Games {
     public Many<GameInfo> gameInfosByGameIds(String streamId, Set<String> gameIds) {
         return Endpoint.streamGamesByStreamIds.newRequest(request -> request
                 .path(streamId)
-                .post(String.join(",", gameIds)))
+                .body(String.join(",", gameIds)))
             .process(this);
     }
 
@@ -98,7 +98,7 @@ public class GamesImpl extends Base implements Games {
     public One<Ack> addGameIdsToStream(String streamId, Set<String> gameIds) {
         return Endpoint.addGameIdsToStream.newRequest(request -> request
                 .path(streamId)
-                .post(String.join(",", gameIds)))
+                .body(String.join(",", gameIds)))
             .process(this);
     }
 

@@ -33,8 +33,7 @@ public class PuzzlesAuthImpl extends PuzzlesImpl implements PuzzlesAuth {
 
     @Override
     public One<PuzzleRace> createAndJoinRace() {
-        return Endpoint.puzzleRace.newRequest(request -> request
-                .post())
+        return Endpoint.puzzleRace.newRequest(request -> {})
             .process(this);
     }
 }

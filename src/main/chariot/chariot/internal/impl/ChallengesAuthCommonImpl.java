@@ -78,7 +78,7 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
         return Endpoint.challengeCreate.newRequest(request -> request
                 .scope(scope)
                 .path(userId)
-                .post(challengeBuilderToMap(consumer)))
+                .body(challengeBuilderToMap(consumer)))
             .process(this);
     }
 
@@ -88,7 +88,7 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
         return Endpoint.challengeCreateKeepAlive.newRequest(request -> request
                 .scope(scope)
                 .path(userId)
-                .post(map)
+                .body(map)
                 .stream())
             .process(this);
     }
@@ -96,7 +96,7 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
     private One<ChallengeAI> challengeAI(Scope scope, Consumer<ChallengeAIBuilder> consumer) {
         return Endpoint.challengeAI.newRequest(request -> request
                 .scope(scope)
-                .post(challengeAIBuilderToMap(consumer)))
+                .body(challengeAIBuilderToMap(consumer)))
             .process(this);
     }
 
@@ -118,21 +118,19 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
     private One<Ack> acceptChallenge(Scope scope, String challengeId) {
         return Endpoint.challengeAccept.newRequest(request -> request
                 .scope(scope)
-                .post()
                 .path(challengeId))
             .process(this);
     }
 
     private One<Ack> declineChallenge(Scope scope, String challengeId, DeclineReason reason) {
         return Endpoint.challengeDecline.newRequest(request -> request
-                .post(Map.of("reason", reason.name()))
+                .body(Map.of("reason", reason.name()))
                 .path(challengeId))
             .process(this);
     }
 
     private One<Ack> declineChallenge(Scope scope, String challengeId) {
         return Endpoint.challengeDecline.newRequest(request -> request
-                .post()
                 .path(challengeId))
             .process(this);
     }

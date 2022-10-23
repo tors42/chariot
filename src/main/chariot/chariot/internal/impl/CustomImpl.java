@@ -35,8 +35,32 @@ public class CustomImpl extends Base implements Custom {
             }
 
             @Override
-            public EndpointBuilder<T> contentType(String contentType) {
-                builder = builder.contentType(contentType);
+            public EndpointBuilder<T> post() {
+                builder = builder.post();
+                return this;
+            }
+
+            @Override
+            public EndpointBuilder<T> post(String contentType) {
+                builder = builder.post(contentType);
+                return this;
+            }
+
+            @Override
+            public EndpointBuilder<T> put() {
+                builder = builder.put();
+                return this;
+            }
+
+            @Override
+            public EndpointBuilder<T> put(String contentType) {
+                builder = builder.put(contentType);
+                return this;
+            }
+
+            @Override
+            public EndpointBuilder<T> delete() {
+                builder = builder.delete();
                 return this;
             }
 
@@ -80,10 +104,8 @@ public class CustomImpl extends Base implements Custom {
         request -> params -> request.accept(new Request() {
             @Override public Request path(Object... parameters) { params.path(parameters); return this; }
             @Override public Request query(Map<String, Object> parameters) { params.query(parameters); return this; }
-            @Override public Request post(String body) { params.post(body); return this; }
-            @Override public Request post() { params.post(); return this; }
-            @Override public Request post(Map<String, Object> parameters) { params.post(parameters); return this; }
-            @Override public Request delete() { params.delete(); return this; }
+            @Override public Request body(String body) { params.body(body); return this; }
+            @Override public Request body(Map<String, Object> parameters) { params.body(parameters); return this; }
             @Override public Request headers(Map<String, String> headers) { params.headers(headers); return this; }
             @Override public Request scope(Scope scope) { params.scope(scope); return this; }
             @Override public Request stream() { params.stream(); return this; }

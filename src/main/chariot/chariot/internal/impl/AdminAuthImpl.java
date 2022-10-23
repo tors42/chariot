@@ -18,7 +18,7 @@ public class AdminAuthImpl extends Base implements AdminAuth {
     @Override
     public One<ChallengeTokens> obtainChallengeTokens(Set<String> userIds, Consumer<Params> consumer) {
         return Endpoint.apiAdminChallengeTokens.newRequest(request -> request
-                .post(MapBuilder.of(Params.class)
+                .body(MapBuilder.of(Params.class)
                     .add("users", userIds.stream().collect(Collectors.joining(",")))
                     .toMap(consumer)))
             .process(this);

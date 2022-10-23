@@ -29,8 +29,7 @@ public class BotAuthImpl extends ChallengesAuthCommonImpl implements BotAuth {
 
     @Override
     public One<Ack> upgradeToBotAccount() {
-        return Endpoint.botAccountUpgrade.newRequest(request -> request
-                .post())
+        return Endpoint.botAccountUpgrade.newRequest(request -> {})
             .process(this);
      }
 
@@ -46,7 +45,6 @@ public class BotAuthImpl extends ChallengesAuthCommonImpl implements BotAuth {
     public One<Ack> move(String gameId, String move, boolean drawOffer) {
         return Endpoint.botMove.newRequest(request -> request
                 .path(gameId, move)
-                .post()
                 .query(Map.of("offeringDraw", drawOffer)))
             .process(this);
     }
@@ -54,8 +52,7 @@ public class BotAuthImpl extends ChallengesAuthCommonImpl implements BotAuth {
     @Override
     public One<Ack> move(String gameId, String move) {
         return Endpoint.botMove.newRequest(request -> request
-                .path(gameId, move)
-                .post())
+                .path(gameId, move))
             .process(this);
     }
 
@@ -64,23 +61,21 @@ public class BotAuthImpl extends ChallengesAuthCommonImpl implements BotAuth {
     public One<Ack> chat(String gameId, String text, Room room) {
         return Endpoint.botChat.newRequest(request -> request
                 .path(gameId)
-                .post(Map.of("text", text, "room", room.name())))
+                .body(Map.of("text", text, "room", room.name())))
             .process(this);
     }
 
     @Override
     public One<Ack> abort(String gameId) {
         return Endpoint.botAbort.newRequest(request -> request
-                .path(gameId)
-                .post())
+                .path(gameId))
             .process(this);
      }
 
     @Override
     public One<Ack> resign(String gameId) {
         return Endpoint.botResign.newRequest(request -> request
-            .path(gameId)
-            .post())
+            .path(gameId))
             .process(this);
     }
 

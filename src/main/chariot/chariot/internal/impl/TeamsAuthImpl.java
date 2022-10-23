@@ -16,7 +16,7 @@ public class TeamsAuthImpl extends TeamsImpl implements TeamsAuth {
     @Override
     public One<Ack> joinTeam(String teamId, Consumer<JoinParams> consumer) {
         return Endpoint.teamJoin.newRequest(request -> request
-                .post(MapBuilder.of(JoinParams.class)
+                .body(MapBuilder.of(JoinParams.class)
                     .rename("entryCode", "password")
                     .toMap(consumer))
                 .path(teamId))
@@ -26,16 +26,14 @@ public class TeamsAuthImpl extends TeamsImpl implements TeamsAuth {
     @Override
     public One<Ack> leaveTeam(String teamId) {
         return Endpoint.teamQuit.newRequest(request -> request
-                .path(teamId)
-                .post())
+                .path(teamId))
             .process(this);
      }
 
     @Override
     public One<Ack> kickFromTeam(String teamId, String userId) {
         return Endpoint.teamKick.newRequest(request -> request
-                .path(teamId, userId)
-                .post())
+                .path(teamId, userId))
             .process(this);
     }
 
@@ -43,7 +41,7 @@ public class TeamsAuthImpl extends TeamsImpl implements TeamsAuth {
     public One<Ack> messageTeam(String teamId, String message) {
         return Endpoint.teamMessage.newRequest(request -> request
                 .path(teamId)
-                .post(Map.of("message", message)))
+                .body(Map.of("message", message)))
             .process(this);
     }
 
@@ -57,16 +55,14 @@ public class TeamsAuthImpl extends TeamsImpl implements TeamsAuth {
     @Override
     public One<Ack> requestAccept(String teamId, String userId) {
         return Endpoint.teamAcceptJoin.newRequest(request -> request
-                .path(teamId, userId)
-                .post())
+                .path(teamId, userId))
             .process(this);
      }
 
     @Override
     public One<Ack> requestDecline(String teamId, String userId) {
         return Endpoint.teamDeclineJoin.newRequest(request -> request
-                .path(teamId, userId)
-                .post())
+                .path(teamId, userId))
             .process(this);
      }
 }

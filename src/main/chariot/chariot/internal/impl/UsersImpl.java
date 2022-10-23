@@ -31,7 +31,7 @@ public class UsersImpl extends Base implements Users {
     @Override
     public Many<User> byIds(List<String> userIds) {
         return Endpoint.usersByIds.newRequest(request -> request
-                .post(userIds.stream().collect(Collectors.joining(","))))
+                .body(userIds.stream().collect(Collectors.joining(","))))
             .process(this);
     }
 

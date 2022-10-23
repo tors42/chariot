@@ -20,7 +20,7 @@ public class ChallengesImpl extends Base implements Challenges {
     @Override
     public One<ChallengeOpenEnded> challengeOpenEnded(Consumer<OpenEndedBuilder> consumer) {
         return Endpoint.challengeOpenEnded.newRequest(request -> request
-            .post(openEndedBuilderToMap(consumer)))
+            .body(openEndedBuilderToMap(consumer)))
             .process(this);
      }
 

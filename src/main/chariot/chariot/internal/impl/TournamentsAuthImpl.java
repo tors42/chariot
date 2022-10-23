@@ -19,7 +19,7 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
     @Override
     public One<Arena> createArena(Consumer<ArenaBuilder> consumer) {
         return Endpoint.createArenaTournament.newRequest(request -> request
-                .post(arenaBuilderToMap(consumer)))
+                .body(arenaBuilderToMap(consumer)))
             .process(this);
     }
 
@@ -27,7 +27,7 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
     public One<Arena> updateArena(String id, Consumer<ArenaBuilder> consumer) {
         return Endpoint.updateArenaTournament.newRequest(request -> request
                 .path(id)
-                .post(arenaBuilderToMap(consumer)))
+                .body(arenaBuilderToMap(consumer)))
             .process(this);
     }
 
@@ -35,7 +35,7 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
     public One<Arena> updateTeamBattle(String id, int nbLeaders, Set<String> teamIds) {
         return Endpoint.updateTeamBattleTournament.newRequest(request -> request
                 .path(id)
-                .post(Map.ofEntries(
+                .body(Map.ofEntries(
                         Map.entry("teams", teamIds.stream().collect(Collectors.joining(","))),
                         Map.entry("nbLeaders", String.valueOf(nbLeaders))
                         )))
@@ -45,8 +45,7 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
     @Override
     public One<Ack> terminateArena(String id) {
         return Endpoint.terminateArenaTournament.newRequest(request -> request
-                .path(id)
-                .post())
+                .path(id))
             .process(this);
     }
 
@@ -54,7 +53,7 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
     public One<Ack> joinArena(String id, Consumer<JoinArenaParams> consumer) {
         return Endpoint.joinArenaTournament.newRequest(request -> request
             .path(id)
-            .post(MapBuilder.of(JoinArenaParams.class)
+            .body(MapBuilder.of(JoinArenaParams.class)
                 .rename("entryCode", "password").toMap(consumer)))
             .process(this);
     }
@@ -62,8 +61,7 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
     @Override
     public One<Ack> withdrawArena(String id) {
         return Endpoint.withdrawArenaTournament.newRequest(request -> request
-            .path(id)
-            .post())
+            .path(id))
             .process(this);
     }
 
@@ -71,7 +69,7 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
     public One<Swiss> createSwiss(String teamId, Consumer<SwissBuilder> consumer) {
         return Endpoint.createSwiss.newRequest(request -> request
                 .path(teamId)
-                .post(swissBuilderToMap(consumer)))
+                .body(swissBuilderToMap(consumer)))
             .process(this);
     }
 
@@ -79,15 +77,14 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
     public One<Swiss> updateSwiss(String id, Consumer<SwissBuilder> consumer) {
         return Endpoint.updateSwissTournament.newRequest(request -> request
                 .path(id)
-                .post(swissBuilderToMap(consumer)))
+                .body(swissBuilderToMap(consumer)))
             .process(this);
     }
 
     @Override
     public One<Ack> terminateSwiss(String swissId) {
         return Endpoint.terminateSwiss.newRequest(request -> request
-                .path(swissId)
-                .post())
+                .path(swissId))
             .process(this);
     }
 
@@ -95,7 +92,7 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
     public One<Ack> joinSwiss(String id, Consumer<JoinSwissParams> consumer) {
         return Endpoint.joinSwissTournament.newRequest(request -> request
                 .path(id)
-                .post(MapBuilder.of(JoinSwissParams.class)
+                .body(MapBuilder.of(JoinSwissParams.class)
                     .rename("entryCode", "password").toMap(consumer)))
             .process(this);
     }

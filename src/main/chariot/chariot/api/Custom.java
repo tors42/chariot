@@ -18,7 +18,11 @@ public interface Custom {
     interface EndpointBuilder<T> {
         EndpointBuilder<T> path(String path);
         EndpointBuilder<T> accept(String contentType);
-        EndpointBuilder<T> contentType(String contentType);
+        EndpointBuilder<T> post();
+        EndpointBuilder<T> post(String contentType);
+        EndpointBuilder<T> put();
+        EndpointBuilder<T> put(String contentType);
+        EndpointBuilder<T> delete();
         EndpointBuilder<T> scope(Scope scope);
         EndpointBuilder<T> streamMapper(Function<Stream<String>, Stream<T>> mapper);
 
@@ -37,10 +41,8 @@ public interface Custom {
     interface Request {
         Request path(Object... parameters);
         Request query(Map<String, Object> parameters);
-        Request post(String body);
-        Request post();
-        Request post(Map<String,Object> parameters);
-        Request delete();
+        Request body(String body);
+        Request body(Map<String,Object> parameters);
         Request headers(Map<String, String> headers);
         Request scope(Scope scope);
         Request stream();

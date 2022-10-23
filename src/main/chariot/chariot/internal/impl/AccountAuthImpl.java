@@ -37,8 +37,7 @@ public class AccountAuthImpl extends AccountImpl implements AccountAuth {
     @Override
     public One<Ack> setKidModeStatus(boolean value) {
         return Endpoint.accountKidStatus.newRequest(request -> request
-                .query(java.util.Map.of("v", value))
-                .post())
+                .query(java.util.Map.of("v", value)))
             .process(this);
     }
 
@@ -61,8 +60,7 @@ public class AccountAuthImpl extends AccountImpl implements AccountAuth {
 
     @Override
     public One<Ack> revokeToken() {
-        return Endpoint.apiTokenRevoke.newRequest(request -> request
-                .delete())
+        return Endpoint.apiTokenRevoke.newRequest(request -> {})
             .process(this);
     }
 }

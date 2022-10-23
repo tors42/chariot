@@ -63,7 +63,7 @@ public class AccountImpl extends Base implements chariot.api.Account {
 
     TokenResult token(Map<String, String> parameters) {
         return Endpoint.apiToken.newRequest(request -> request
-                .post(parameters))
+                .body(parameters))
             .process(this) instanceof Entry<TokenResult> tr ?
             tr.entry() : new TokenResult.Error("Unknown Error", "Unknown");
     }
@@ -77,7 +77,7 @@ public class AccountImpl extends Base implements chariot.api.Account {
     @Override
     public One<TokenBulkResult> testTokens(Set<String> tokens) {
         return Endpoint.apiTokenBulkTest.newRequest(request -> request
-                .post(tokens.stream().collect(Collectors.joining(","))))
+                .body(tokens.stream().collect(Collectors.joining(","))))
             .process(this);
     }
 }

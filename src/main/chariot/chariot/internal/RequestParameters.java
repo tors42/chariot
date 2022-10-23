@@ -15,11 +15,11 @@ public sealed interface RequestParameters {
 
     public record Parameters(
             String path,
-            String postData,
+            String data,
+            String method,
             Duration timeout,
             Map<String, String> headers,
             Scope scope,
-            boolean delete,
             ServerType target,
             boolean stream) {}
 
@@ -45,11 +45,11 @@ public sealed interface RequestParameters {
 
     Parameters parameters();
     default String path() { return parameters().path(); }
-    default String postData() { return parameters().postData(); }
+    default String data() { return parameters().data(); }
+    default String method() { return parameters().method(); }
     default Duration timeout() { return parameters().timeout(); }
     default Map<String, String> headers() { return parameters().headers(); }
     default Scope scope() { return parameters().scope(); }
-    default boolean delete() { return parameters().delete(); }
     default ServerType target() { return parameters().target(); }
     default boolean stream() { return parameters().stream(); }
 
@@ -64,10 +64,8 @@ public sealed interface RequestParameters {
     public interface Params {
         Params path(Object... pathParameters);
         Params query(Map<String, Object> queryParameters);
-        Params post(String postData);
-        Params post(Map<String, ?> postMap);
-        Params post();
-        Params delete();
+        Params body(String data);
+        Params body(Map<String, ?> map);
         Params timeout(Duration timeout);
         Params headers(Map<String, String> headers);
         Params scope(Scope scope);
@@ -77,27 +75,28 @@ public sealed interface RequestParameters {
 
     public static class ParamsBuilder {
         private final String endpoint;
+        private final String method;
         private String path;
-        private String postData;
+        private String data;
+        private Map<String, ?> dataMap;
+
         private Duration timeout = Duration.ofSeconds(60);
         private Map<String, String> headers = Map.of();
         private List<Object> pathParameters = List.of();
         private Map<String, Object> queryParameters = Map.of();
         private Scope scope;
-        private boolean delete;
         private ServerType target;
         private boolean stream;
 
-        ParamsBuilder(String endpoint) {
+        ParamsBuilder(String endpoint, String method) {
             this.endpoint = Objects.requireNonNull(endpoint);
+            this.method = Objects.requireNonNull(method);
         }
 
         public ParamsBuilder path(Object... pathParameters) { this.pathParameters = List.of(Objects.requireNonNull(pathParameters)); return this; }
         public ParamsBuilder query(Map<String, Object> queryParameters) { this.queryParameters = Objects.requireNonNull(queryParameters); return this; }
-        public ParamsBuilder post(String postData) { this.postData = postData; return this; }
-        public ParamsBuilder post(Map<String, ?> postMap) { this.postData = Util.urlEncode(postMap); return this; }
-        public ParamsBuilder post() { this.postData = ""; return this; }
-        public ParamsBuilder delete() { this.delete = true; return this; }
+        public ParamsBuilder body(String data) { this.data = data; return this; }
+        public ParamsBuilder body(Map<String, ?> dataMap) { this.dataMap = dataMap; return this; }
         public ParamsBuilder timeout(Duration timeout) { this.timeout = timeout; return this; }
         public ParamsBuilder headers(Map<String, String> headers) { this.headers = headers; return this; }
         public ParamsBuilder scope(Scope scope) { this.scope = scope; return this; }
@@ -111,7 +110,14 @@ public sealed interface RequestParameters {
                     "" :
                     "?" + withQueryParameters
                     );
-            return new Parameters(path, postData, timeout, headers, scope, delete, target, stream);
+
+            // todo, encode by content-type...
+            // currently the only used content-type for "Map<String, ?>" is url-encoding
+            if (dataMap != null) {
+                data = Util.urlEncode(dataMap);
+            }
+
+            return new Parameters(path, data, method, timeout, headers, scope, target, stream);
         }
     }
 

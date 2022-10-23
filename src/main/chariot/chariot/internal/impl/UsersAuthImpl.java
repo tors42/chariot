@@ -16,23 +16,21 @@ public class UsersAuthImpl extends UsersImpl implements UsersAuth {
     public One<Ack> sendMessageToUser(String userId, String text) {
         return Endpoint.sendMessage.newRequest(request -> request
                 .path(userId)
-                .post(Map.of("text", text)))
+                .body(Map.of("text", text)))
             .process(this);
     }
 
     @Override
     public One<Ack> followUser(String userId) {
         return Endpoint.followUser.newRequest(request -> request
-                .path(userId)
-                .post())
+                .path(userId))
             .process(this);
     }
 
     @Override
     public One<Ack> unfollowUser(String userId) {
         return Endpoint.unfollowUser.newRequest(request -> request
-                .path(userId)
-                .post())
+                .path(userId))
             .process(this);
     }
 }

@@ -61,13 +61,14 @@ public class InternalClient {
         var builder = HttpRequest.newBuilder()
             .uri(uri);
 
-        String postData = request.postData();
-        if (postData == null) {
-            if (request.delete()) builder.DELETE();
-        } else
-            builder.POST(postData.isEmpty() ?
-                    BodyPublishers.noBody() :
-                    BodyPublishers.ofString(postData));
+        String requestBody = Objects.toString(request.data(), "");
+        var bodyPublisher = requestBody.isEmpty() ? BodyPublishers.noBody() : BodyPublishers.ofString(requestBody);
+
+        switch(request.method()) {
+            case "DELETE" -> builder.DELETE();
+            case "POST"   -> builder.POST(bodyPublisher);
+            case "PUT"    -> builder.PUT(bodyPublisher);
+        };
 
         if (config instanceof Config.Auth auth) {
             var scope = request.scope() != null ? request.scope() : Scope.any;
@@ -79,7 +80,7 @@ public class InternalClient {
 
         var httpRequest = builder.build();
 
-        config.logging().request().info(() -> "### Request: %s%nBody:%n%s".formatted(uri, postData));
+        config.logging().request().info(() -> "### Request: %s%nBody:%n%s".formatted(uri, requestBody));
 
         HttpResponse<Stream<String>> httpResponse;
         try {
@@ -99,11 +100,11 @@ public class InternalClient {
 
             return new RequestResult.Success(stream);
         } else {
-            var body = httpResponse.body().collect(Collectors.joining());
+            var responseBody = httpResponse.body().collect(Collectors.joining());
 
             Supplier<String> msg = () -> {
                 var headers = httpResponse.headers().map().entrySet().stream().map(e -> "[%s] [%s]".formatted(e.getKey(), e.getValue())).collect(Collectors.joining("\n"));
-                return "### Response: %s%nBody:%n%s%nHeaders:%n%s".formatted(httpResponse, body.isEmpty() ? "<no body>" : body, headers);
+                return "### Response: %s%nBody:%n%s%nHeaders:%n%s".formatted(httpResponse, responseBody.isEmpty() ? "<no body>" : responseBody, headers);
             };
 
             if (statusCode >= 500)
@@ -111,9 +112,9 @@ public class InternalClient {
             else
                 config.logging().request().info(msg);
 
-            config.logging().responsebodyraw().info(() -> body);
+            config.logging().responsebodyraw().info(() -> responseBody);
 
-            return new RequestResult.Failure(statusCode, body);
+            return new RequestResult.Failure(statusCode, responseBody);
         }
     }
 

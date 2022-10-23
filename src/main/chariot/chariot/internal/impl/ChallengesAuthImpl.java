@@ -26,15 +26,13 @@ public class ChallengesAuthImpl extends ChallengesAuthCommonImpl implements Chal
     public One<Ack> startClocksOfGame(String gameId, String token1, String token2) {
         return Endpoint.startClocksOfGame.newRequest(request -> request
                 .path(gameId)
-                .query(Map.of("token1", token1, "token2", token2))
-                .post())
+                .query(Map.of("token1", token1, "token2", token2)))
             .process(this);
     }
 
     @Override
     public One<Ack> addTimeToGame(String gameId, int seconds) {
         return Endpoint.addTimeToGame.newRequest(request -> request
-                .post()
                 .path(gameId, seconds))
             .process(this);
     }
@@ -48,23 +46,21 @@ public class ChallengesAuthImpl extends ChallengesAuthCommonImpl implements Chal
     @Override
     public One<BulkPairing> createBulk(Consumer<BulkBuilder> consumer) {
         return Endpoint.bulkPairingCreate.newRequest(request -> request
-                .post(bulkBuilderToMap(consumer)))
+                .body(bulkBuilderToMap(consumer)))
             .process(this);
     }
 
     @Override
     public One<Ack> startBulk(String bulkId) {
         return Endpoint.bulkPairingStart.newRequest(request -> request
-                .path(bulkId)
-                .post())
+                .path(bulkId))
             .process(this);
     }
 
     @Override
     public One<Ack> cancelBulk(String bulkId) {
         return Endpoint.bulkPairingCancel.newRequest(request -> request
-                .path(bulkId)
-                .delete())
+                .path(bulkId))
             .process(this);
     }
 
