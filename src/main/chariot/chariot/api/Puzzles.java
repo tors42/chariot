@@ -11,6 +11,7 @@ public interface Puzzles {
     default One<StormDashboard> stormDashboard(String username, int days) { return stormDashboard(username, p -> p.days(days)); }
 
     One<Puzzle>         dailyPuzzle();
+    One<Puzzle>         byId(String puzzleId);
 
     interface PuzzleParams {
         PuzzleParams days(int days);

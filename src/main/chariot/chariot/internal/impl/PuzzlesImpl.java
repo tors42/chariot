@@ -20,6 +20,13 @@ public class PuzzlesImpl extends Base implements Puzzles {
     }
 
     @Override
+    public One<Puzzle> byId(String puzzleId) {
+        return Endpoint.puzzleById.newRequest(request -> request
+                .path(puzzleId))
+            .process(this);
+    }
+
+    @Override
     public One<StormDashboard> stormDashboard(String username, Consumer<PuzzleParams> consumer) {
         return Endpoint.stormDashboard.newRequest(request -> request
                 .path(username)
