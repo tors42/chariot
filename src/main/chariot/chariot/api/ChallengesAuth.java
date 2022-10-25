@@ -134,6 +134,12 @@ public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
         default BulkParams variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
 
         /**
+         * Custom initial position (in FEN). Variant must be standard, fromPosition, or chess960 (if a valid 960 starting position), and the game cannot be rated.<br>
+         * Default: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+         */
+        BulkParams fen(String fen);
+
+        /**
          * @param message Message that will be sent to each player, when the game is created.<br>
          *                It is sent from your user account.<br>
          *                Default: "Your game with {opponent} is ready: {game}."
