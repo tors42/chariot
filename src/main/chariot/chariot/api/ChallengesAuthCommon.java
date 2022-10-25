@@ -55,7 +55,7 @@ public interface ChallengesAuthCommon {
         /**
          * @param fen Custom initial position (in FEN).
          * <p>Default: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"<br/>
-         * Variant must be standard, and the game cannot be rated.<br/>
+         * Variant must be standard, fromPosition, or chess960 (if a valid 960 starting positiion), and the game cannot be rated.<br/>
          * Castling moves will use UCI_Chess960 notation, for example <code>e1h1</code> instead of <code>e1g1</code>.<br/>
          */
         ChallengeParams fen(String fen);
@@ -118,7 +118,7 @@ public interface ChallengesAuthCommon {
         /**
          * @param fen Custom initial position (in FEN).
          * <p>Default: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"<br/>
-         * Variant must be standard, and the game cannot be rated.<br/>
+         * Variant must be standard, fromPosition, or chess960 (if a valid 960 starting positiion), and the game cannot be rated.<br/>
          * Castling moves will use UCI_Chess960 notation, for example <code>e1h1</code> instead of <code>e1g1</code>.<br/>
          */
         ChallengeAIParams fen(String fen);

@@ -21,7 +21,7 @@ public interface Challenges {
         /**
          * @param fen Custom initial position (in FEN).
          * Default: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-         * Variant must be standard, and the game cannot be rated.
+         * Variant must be standard, fromPosition, or chess960 (if a valid 960 starting positiion), and the game cannot be rated.
          * Castling moves will use UCI_Chess960 notation, for example e1h1 instead of e1g1.
          */
         OpenEndedParams fen(String fen);
