@@ -144,9 +144,9 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
                 List<String> list = (List<String>) args[0];
                 if (!list.isEmpty()) map.put("conditions.allowList", String.join(",", list));
             })
-            .addCustomHandler("forbiddenPairings", (args, map) -> {
+            .addCustomHandler("addForbiddenPairings", (args, map) -> {
                 @SuppressWarnings("unchecked")
-                var pairings = (Collection<SwissParams.ForbiddenPairing>) args[0];
+                var pairings = (Collection<SwissParams.Pairing>) args[0];
 
                 String forbiddenPairings = pairings.stream()
                     .map(pairing -> String.join(" ", pairing.player1(), pairing.player2()))
@@ -158,6 +158,21 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
                     forbiddenPairings = String.join("\n", existingPairings, forbiddenPairings);
                 }
                 map.put("forbiddenPairings", forbiddenPairings);
+            })
+            .addCustomHandler("addManualPairings", (args, map) -> {
+                @SuppressWarnings("unchecked")
+                var pairings = (Collection<SwissParams.Pairing>) args[0];
+
+                String manualPairings = pairings.stream()
+                    .map(pairing -> String.join(" ", pairing.player1(), pairing.player2()))
+                    .collect(Collectors.joining("\n"));
+
+                var existingPairings = (String) map.get("manualPairings");
+
+                if (existingPairings != null) {
+                    manualPairings = String.join("\n", existingPairings, manualPairings);
+                }
+                map.put("manualPairings", manualPairings);
             });
 
         var swissBuilder = new SwissBuilder() {

@@ -279,23 +279,40 @@ public interface TournamentsAuth extends Tournaments {
          */
         SwissParams allowList(List<String> allowList);
 
+        /**
+         * Usernames of two players that must not play together.
+         */
+        default SwissParams addForbiddenPairing(String player1, String player2) { return addForbiddenPairings(Set.of(new Pairing(player1, player2))); }
 
         /**
          * Usernames of two players that must not play together.
          */
-        default SwissParams addForbiddenPairing(String player1, String player2) { return addForbiddenPairings(Set.of(new ForbiddenPairing(player1, player2))); }
-
-        /**
-         * Usernames of two players that must not play together.
-         */
-        default SwissParams addForbiddenPairing(ForbiddenPairing forbiddenPairing) { return addForbiddenPairings(Set.of(forbiddenPairing)); }
+        default SwissParams addForbiddenPairing(Pairing forbiddenPairing) { return addForbiddenPairings(Set.of(forbiddenPairing)); }
 
         /**
          * Set of usernames of players that must not play together.
          */
-        SwissParams addForbiddenPairings(Collection<ForbiddenPairing> forbiddenPairings);
+        SwissParams addForbiddenPairings(Collection<Pairing> forbiddenPairings);
 
-        record ForbiddenPairing(String player1, String player2) {}
+
+        /**
+         * Manual pairings for the next round. Missing players will be given a bye, which is worth 1 point.
+         */
+        default SwissParams addManualPairing(String player1, String player2) { return addManualPairings(Set.of(new Pairing(player1, player2))); }
+
+        /**
+         * Manual pairings for the next round. Missing players will be given a bye, which is worth 1 point.
+         */
+        default SwissParams addManualPairing(Pairing forbiddenPairing) { return addManualPairings(Set.of(forbiddenPairing)); }
+
+        /**
+         * Manual pairings for the next round. Missing players will be given a bye, which is worth 1 point.
+         */
+        SwissParams addManualPairings(Collection<Pairing> manualPairings);
+
+
+
+        record Pairing(String player1, String player2) {}
     }
 
     interface JoinSwissParams {
