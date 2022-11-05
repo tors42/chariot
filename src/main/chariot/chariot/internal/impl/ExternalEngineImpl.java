@@ -35,6 +35,7 @@ public class ExternalEngineImpl extends Base implements ExternalEngine {
     public One<Void> answer(String analysisId, InputStream inputStream) {
         return Endpoint.externalEngineAnswer.newRequest(request -> request
                 .path(analysisId)
+                .stream()
                 .body(inputStream))
             .process(this);
     }
