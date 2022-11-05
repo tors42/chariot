@@ -19,9 +19,9 @@ public class ExternalEngineAuthImpl extends ExternalEngineImpl implements Extern
     }
 
     @Override
-    public One<ExternalEngineInfo> create(ExternalEngineParams params) {
+    public One<ExternalEngineInfo> create(ExternalEngineRegistration registration) {
         return Endpoint.externalEngineCreate.newRequest(request -> request
-                .body(toJson(params)))
+                .body(toJson(registration)))
             .process(this);
     }
 
@@ -33,10 +33,10 @@ public class ExternalEngineAuthImpl extends ExternalEngineImpl implements Extern
     }
 
     @Override
-    public One<ExternalEngineInfo> update(String engineId, ExternalEngineParams params) {
+    public One<ExternalEngineInfo> update(String engineId, ExternalEngineRegistration registration) {
         return Endpoint.externalEngineUpdate.newRequest(request -> request
                 .path(engineId)
-                .body(toJson(params)))
+                .body(toJson(registration)))
             .process(this);
     }
 
@@ -47,26 +47,25 @@ public class ExternalEngineAuthImpl extends ExternalEngineImpl implements Extern
             .process(this);
     }
 
-    private String toJson(ExternalEngineParams params) {
+    private String toJson(ExternalEngineRegistration registration) {
         return """
         {
             "name": "%s",
             "maxThreads": %d,
             "maxHash": %d,
-            "shallowDepth": %d,
-            "deepDepth": %d,
+            "defaultDepth": %d,
             "providerSecret": "%s"
             %s
             %s
         }
         """.formatted(
-                params.name(),
-                params.maxThreads(),
-                params.maxHash(),
-                params.defaultDepth(),
-                params.providerSecret(),
-                params.variants().isEmpty() ? "" : ",\"variants\":[" + params.variants().stream().map(v -> '"' + v + '"').collect(Collectors.joining(",")),
-                params.providerSecret().equals("") ? "" : ",\"providerSecret\":\"" + params.providerSecret() + "\""
+                registration.name(),
+                registration.maxThreads(),
+                registration.maxHash(),
+                registration.defaultDepth(),
+                registration.providerSecret(),
+                registration.variants().isEmpty() ? "" : ",\"variants\":[" + registration.variants().stream().map(v -> '"' + v + '"').collect(Collectors.joining(",")) + "]",
+                registration.providerData().equals("") ? "" : ",\"providerData\":\"" + registration.providerData() + "\""
                 );
     }
 }
