@@ -86,7 +86,14 @@ public class InternalClient {
 
         var httpRequest = builder.build();
 
-        config.logging().request().info(() -> "### Request: %s%nBody:%n%s".formatted(uri, requestBody));
+        config.logging().request().info(() -> "### Request: %s%nHeaders:%n%s%nBody:%n%s".formatted(
+                    uri,
+                    httpRequest.headers().map().entrySet().stream()
+                        .flatMap(e -> e.getValue().stream().map(v -> Util.stripSensitive(e.getKey(), v)))
+                        .sorted()
+                        .collect(Collectors.joining("\n")),
+                    requestBody)
+                );
 
         HttpResponse<Stream<String>> httpResponse;
         try {
