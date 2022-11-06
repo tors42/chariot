@@ -359,7 +359,7 @@ public sealed interface Endpoint<T> {
         Endpoint.of(ChallengeOpenEnded.class).endpoint("/api/challenge/open").post(wwwform).scope(Scope.challenge_write).toOne();
 
     public static EPOne<Ack> challengeCancel =
-        Endpoint.of(Ack.class).endpoint("/api/challenge/%s/cancel").scope(Scope.challenge_write).toOne();
+        Endpoint.of(Ack.class).endpoint("/api/challenge/%s/cancel").post().scope(Scope.challenge_write).toOne();
 
     public static EPOne<Ack> challengeAccept =
         Endpoint.of(Ack.class).endpoint("/api/challenge/%s/accept").post().scope(Scope.challenge_write).toOne();
