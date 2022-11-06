@@ -210,6 +210,16 @@ public class Util {
         return StreamSupport.stream(new PgnSpliterator(stream.iterator()), false);
     }
 
+    public static String stripSensitive(String headerName, String value) {
+        String stripped = switch(headerName.toLowerCase()) {
+            case "authorization" -> value.split(" ").length == 2 ?
+                "%s ***".formatted(value.split(" ")[0]) :
+                "Not on format \"<scheme> ***\"";
+            default -> value;
+        };
+        return "%s: %s".formatted(headerName, stripped);
+    }
+
     public static class MapBuilder<T> {
         final T forInterface;
         final Map<String, Object> map;
