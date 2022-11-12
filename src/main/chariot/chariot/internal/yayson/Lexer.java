@@ -44,7 +44,7 @@ public class Lexer {
                 } else if (t instanceof Token.JsonNumber n) {
                     return n.string();
                 } else if (t instanceof Token.JsonString s) {
-                    return '"' + s.decode() + '"';
+                    return '"' + s.raw() + '"';
                 } else {
                     return "<Unknown Token [%t]>".formatted(t);
                 }

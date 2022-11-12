@@ -50,21 +50,23 @@ public sealed interface Token {
             this(string, string);
         }
 
-        public static JsonString encode(String unencoded) {
+        public static JsonString decode(String raw) {
 
-            try {
-                var bytes = decodeUnicode(unencoded.getBytes());
-                var unicode = new String(bytes);
-                var unescaped = unicode.translateEscapes();
-                return new JsonString(unescaped, unencoded);
-            } catch(Exception e) {
-                e.printStackTrace();
+            if (raw.contains("\\")) {
+                try {
+                    var removedOptionalForwardSlashEscapes = raw.replaceAll("\\\\/", "/");
+                    var decodedUnicode = decodeUnicode(removedOptionalForwardSlashEscapes);
+                    var translatedEscapes = decodedUnicode.translateEscapes();
+                    return new JsonString(translatedEscapes, raw);
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
             }
 
-            return new JsonString(unencoded, unencoded);
+            return new JsonString(raw, raw);
         }
 
-        public String decode() {
+        public String raw() {
             // For now, let's give back the original...
             return source();
         }
@@ -153,7 +155,7 @@ public sealed interface Token {
                 // let's use everything we found.
 
                 var parsedString = json.substring(1, endQuote);
-                var string = JsonString.encode(parsedString);
+                var string = JsonString.decode(parsedString);
                 return Optional.of(string);
             }
         } catch (Exception e) {
@@ -195,7 +197,8 @@ public sealed interface Token {
         return Optional.of(new JsonNumber(string, number));
     }
 
-    public static byte[] decodeUnicode(byte[] bytes) throws Exception {
+    public static String decodeUnicode(String string) throws Exception {
+        byte[] bytes = string.getBytes();
         ByteBuffer bb = ByteBuffer.allocate(bytes.length);
         for(int i = 0; i < bytes.length; i++) {
             byte b = bytes[i];
@@ -250,7 +253,7 @@ public sealed interface Token {
         }
 
         int pos = bb.position();
-        return bb.slice(0, pos).array();
+        return new String(bb.slice(0, pos).array());
     }
 
 }
