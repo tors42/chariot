@@ -119,7 +119,8 @@ public sealed interface Config {
                 .api(prefs.get("api", lichess))
                 .servers(s -> s
                     .explorer(prefs.get("explorer", explorer))
-                    .tablebase(prefs.get("tablebase", tablebase)))
+                    .tablebase(prefs.get("tablebase", tablebase))
+                    .engine(prefs.get("engine", engine)))
                 .logging(l -> l.request().warning()
                     .response().warning()
                     .auth().off()
@@ -194,6 +195,7 @@ public sealed interface Config {
              prefs.put("api", servers().api().get());
              if (servers().explorer() instanceof Server.Url u) prefs.put("explorer", u.url); else prefs.remove("explorer");
              if (servers().tablebase() instanceof Server.Url u) prefs.put("tablebase", u.url); else prefs.remove("tablebase");
+             if (servers().engine() instanceof Server.Url u) prefs.put("engine", u.url); else prefs.remove("engine");
              prefs.put("chariot.request", logging().request().getLevel().toString());
              prefs.put("chariot.response-body-raw", logging().responsebodyraw().getLevel().toString());
              prefs.put("chariot.auth", logging().auth().getLevel().toString());
