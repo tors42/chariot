@@ -1,18 +1,8 @@
 package chariot.internal;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.*;
+import java.util.function.*;
+import java.util.logging.*;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
@@ -306,6 +296,14 @@ public sealed interface Config {
                 }
             });
         }
+    }
+
+    static void clearAuth(Preferences prefs) {
+        prefs.remove("omni_");
+        prefs.remove("pre_");
+        try { Arrays.stream(prefs.keys()).filter(s -> s.startsWith("pre_")).forEach(s -> prefs.remove(s)); }
+        catch (Exception e) {}
+        try { prefs.flush();} catch (Exception e) {}
     }
 
     sealed interface TokenType {

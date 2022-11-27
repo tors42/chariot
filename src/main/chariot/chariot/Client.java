@@ -241,6 +241,13 @@ public sealed interface Client permits ClientAuth, Client.Basic {
     boolean store(Preferences prefs);
 
     /**
+     * Clears client token information from preferences.<br>
+     * See {@link Client#load(Preferences)}
+     * @param prefs The preferences node to clear
+     */
+    default void clearAuth(Preferences prefs) { Config.clearAuth(prefs); }
+
+    /**
      * Creates an authenticated customized client from a preferences node with provided token<br>
      * @param prefs A configuration preferences node
      * @param token A token to use for the authenticated parts of the API
