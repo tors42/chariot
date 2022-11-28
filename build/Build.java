@@ -29,8 +29,9 @@ class Build {
         Path metaInf = out.resolve("META-INF");
         Path manifest = out.resolve("MANIFEST.MF");
 
-        Files.createDirectories(moduleOut);
-        Files.createDirectories(metaInf);
+        for (var dir : List.of(moduleOut, metaInf))
+            Files.createDirectories(dir);
+
         Files.copy(Path.of("LICENSE"), metaInf.resolve("LICENSE"));
 
         Files.writeString(manifest, """
