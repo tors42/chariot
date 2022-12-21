@@ -194,16 +194,17 @@ And then visting http://127.0.0.1:8000/ with a Web Browser
 
 # Applications
 
-A (short) list of notable applications using Chariot,
+A list of applications using Chariot,
 
 [Bobby](https://github.com/teemoo7/bobby) _Chess Engine with Lichess Bot integration (Java)_  
 [Lichess Rating Graph](https://github.com/TBestLittleHelper/SimpleGraphApplication) _Visualize rating (JavaFX)_  
 [Lichess Search Engine Bot](https://github.com/jalpp/LichessSearchEngineBot) _Discord Bot for accessing Lichess features (Discord)_  
 [Team Check](https://github.com/tors42/teamcheck) _Visualize team members (Swing)_  
-[JC](https://github.com/tors42/jc) _Currently shows the featured LichessTV game in console (Terminal)_  
+[jc](https://github.com/tors42/jc) _Watch the featured LichessTV game in terminal or Play a casual Rapid game with the Board API (Swing/Text)_  
+[ee](https://github.com/tors42/ee) _External Engine - Use local desktop chess engine in Lichess Analysis web browser (Swing)_  
 
 [JBang Examples](https://github.com/tors42/jbang-chariot) _Various example scripts (JBang)_  
-[Challenge AI Example](https://github.com/tors42/challengeaiexample) _OAuth2 PKCE example (Web Application)_ [Gitpod](https://gitpod.io/#https://github.com/tors42/challengeaiexample)  
+[Challenge AI Example](https://github.com/tors42/challengeaiexample) _OAuth2 PKCE example (Web Application)_ [GitHub Codespaces](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=507622401)  
 
 # Contact
 
