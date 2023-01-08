@@ -4,6 +4,9 @@ Chariot is a Java client for the [Lichess API](https://lichess.org/api). It is c
 
 Checkout the [JavaDoc](https://tors42.github.io/chariot/chariot/chariot/Client.html)
 
+Try out writing code in Web Browser using [tors42/playground](https://github.com/tors42/playground),  
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=586354374)
+
 ## Build Chariot
 
 Make sure to use at least Java 19. A JDK archive can be downloaded and unpacked from https://jdk.java.net/
@@ -204,7 +207,8 @@ A list of applications using Chariot,
 [ee](https://github.com/tors42/ee) _External Engine - Use local desktop chess engine in Lichess Analysis web browser (Swing)_  
 
 [JBang Examples](https://github.com/tors42/jbang-chariot) _Various example scripts (JBang)_  
-[Challenge AI Example](https://github.com/tors42/challengeaiexample) _OAuth2 PKCE example (Web Application)_ [GitHub Codespaces](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=507622401)  
+[Challenge AI Example](https://github.com/tors42/challengeaiexample) _OAuth2 PKCE example (Web Application)_  
+[Playground](https://github.com/tors42/playground) _GitHub Codespaces repo to write code in browser_  
 
 # Contact
 
