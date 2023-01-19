@@ -40,6 +40,7 @@ public interface ChallengesAuthCommon {
     interface ChallengeParams {
 
         ChallengeParams rated(boolean rated);
+        default ChallengeParams rated() { return rated(true); }
 
         /**
          * @param color Which color you get to play,

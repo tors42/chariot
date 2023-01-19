@@ -185,6 +185,7 @@ public interface BoardAuth extends ChallengesAuthCommon {
         SeekParams variant(VariantName variant);
         default SeekParams variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
         SeekParams rated(boolean rated);
+        default SeekParams rated() { return rated(true); }
         /**
          * The rating range of potential opponents. Better left empty. Example: 1500-1800
          */

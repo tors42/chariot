@@ -110,6 +110,7 @@ public interface TournamentsAuth extends Tournaments {
          * @param rated Games are rated and impact players ratings
          */
         ArenaParams rated(boolean rated);
+        default ArenaParams rated() { return rated(true); }
 
         /**
          * @param position Custom initial position (in FEN) for all games of the tournament. Must be a legal chess position. Only works with standard chess, not variants (except Chess960).
@@ -120,16 +121,19 @@ public interface TournamentsAuth extends Tournaments {
          * @param berserkable  Whether the players can use berserk
          */
         ArenaParams berserkable(boolean berserkable);
+        default ArenaParams berserkable() { return berserkable(true); }
 
         /**
          * @param streakable After 2 wins, consecutive wins grant 4 points instead of 2.
          */
         ArenaParams streakable(boolean streakable);
+        default ArenaParams streakable() { return streakable(true); }
 
         /**
          * @param hasChat Whether the players can discuss in a chat
          */
         ArenaParams hasChat(boolean hasChat);
+        default ArenaParams hasChat() { return hasChat(true); }
 
         /**
          * @param description Anything you want to tell players about the tournament

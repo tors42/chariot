@@ -135,26 +135,32 @@ public interface Games {
          * Default `true`
          */
         T moves(boolean moves);
+        default T moves() { return moves(true); }
         /**
          * Include the full PGN within the JSON response, in a pgn field.<br>
          * Default `false`
          */
         T pgnInJson(boolean pgnInJson);
+        default T pgnInJson() { return pgnInJson(true); }
         /**
          * Include the PGN tags.<br>
          * Default `true
          */
         T tags(boolean tags);
+        default T tags() { return tags(true); }
         /**
          * Include clock comments in the PGN moves, when available.<br>
          * Default `true`
          */
         T clocks(boolean clocks);
+        default T clocks() { return clocks(true); }
+
         /**
          * Include the opening name.<br>
          * Default `true`
          */
         T opening(boolean opening);
+        default T opening() { return opening(true); }
     }
 
     interface EvalsAndPlayers<T> {
@@ -163,6 +169,7 @@ public interface Games {
          * Default `true`
          */
         T evals(boolean evals);
+        default T evals() { return evals(true); }
         /**
          * URL of a text file containing real names and ratings, to replace Lichess usernames and ratings in the PGN.<br>
          * Example: https://gist.githubusercontent.com/ornicar/6bfa91eb61a2dcae7bcd14cce1b2a4eb/raw/768b9f6cc8a8471d2555e47ba40fb0095e5fba37/gistfile1.txt
@@ -219,6 +226,7 @@ public interface Games {
          *  Only rated (`true`) or casual (`false`) games
          */
         SearchFilter rated(boolean rated);
+        default SearchFilter rated() { return rated(true); }
         /**
          * Only games played as this color.
          */
@@ -231,6 +239,8 @@ public interface Games {
          * Only games with or without a computer analysis available
          */
         SearchFilter analyzed(boolean analyzed);
+        default SearchFilter analyzed() { return analyzed(true); }
+
         /**
          * Only games in these speeds or variants.<br>
          * Multiple perf types can be specified.
@@ -248,22 +258,26 @@ public interface Games {
          * Default: false
          */
         SearchFilter ongoing(boolean ongoing);
+        default SearchFilter ongoing() { return ongoing(true); }
         /**
          * Include finished games. Set to {@code false} to only get ongoing games<br>
          * Default: true
          */
         SearchFilter finished(boolean finished);
+        default SearchFilter finished() { return finished(true); }
         /**
          * Sort order of the games, based on date.<br>
          * Default sort order is descending (i.e "false")
          */
         SearchFilter sortAscending(boolean ascending);
+        default SearchFilter sortAscending() { return sortAscending(true); }
 
         /**
          * Insert textual annotations in the PGN about the opening, analysis variations, mistakes, and game termination.<br>
          * Default `false`
          */
         SearchFilter literate(boolean literate);
+        default SearchFilter literate() { return literate(true); }
 
         private static long zdtToMillis(ZonedDateTime zdt) { return zdt.toInstant().getEpochSecond() * 1000; }
     }

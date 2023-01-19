@@ -23,8 +23,11 @@ public interface Studies {
 
     interface Params {
         Params clocks(boolean clocks);
+        default Params clocks() { return clocks(true); }
         Params comments(boolean comments);
+        default Params comments() { return comments(true); }
         Params variations(boolean variations);
+        default Params variations() { return variations(true); }
     }
 
 }

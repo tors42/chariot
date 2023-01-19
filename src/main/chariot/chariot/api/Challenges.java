@@ -15,6 +15,7 @@ public interface Challenges {
 
     interface OpenEndedParams {
         OpenEndedParams rated(boolean rated);
+        default OpenEndedParams rated() { return rated(true); }
         OpenEndedParams variant(VariantName variant);
         default OpenEndedParams variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
 
