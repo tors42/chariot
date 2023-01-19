@@ -279,6 +279,13 @@ public interface Games {
         SearchFilter literate(boolean literate);
         default SearchFilter literate() { return literate(true); }
 
+        /**
+         * Include the FEN notation of the last position of the game.<br>
+         * Default `false`
+         */
+        SearchFilter lastFen(boolean lastFen);
+        default SearchFilter lastFen() { return lastFen(true); }
+
         private static long zdtToMillis(ZonedDateTime zdt) { return zdt.toInstant().getEpochSecond() * 1000; }
     }
 

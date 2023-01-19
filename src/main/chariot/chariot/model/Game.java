@@ -20,6 +20,7 @@ public record Game (
     // Optional...
     String moves,
     String initialFen,
+    String lastFen,
     String pgn,
     String tournament,
     String swiss,
@@ -33,6 +34,7 @@ public record Game (
     public Game {
         moves = orEmpty(moves);
         initialFen = orEmpty(initialFen);
+        lastFen = orEmpty(lastFen);
         pgn = orEmpty(pgn);
         tournament = orEmpty(tournament);
         swiss = orEmpty(swiss);
