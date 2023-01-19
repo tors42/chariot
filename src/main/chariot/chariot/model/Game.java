@@ -41,7 +41,7 @@ public record Game (
         daysPerTurn = daysPerTurn == null ? 0 : daysPerTurn;
     }
 
-    public enum Status { created, started, aborted, mate, resign, stalemate, timeout, draw, outoftime, cheat, noStart, unknonwFinish, variantEnd }
+    public enum Status { created, started, aborted, mate, resign, stalemate, timeout, draw, outoftime, cheat, noStart, unknownFinish, variantEnd }
 
     public enum Winner { white, black }
 
