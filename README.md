@@ -169,14 +169,14 @@ class FEN {
 
 ## Use as dependency
 
-The coordinates are `io.github.tors42:chariot:0.0.57`, so in a Maven project the following dependency can be added to the `pom.xml`:
+The coordinates are `io.github.tors42:chariot:0.0.58`, so in a Maven project the following dependency can be added to the `pom.xml`:
 
 ```xml
     ...
     <dependency>
       <groupId>io.github.tors42</groupId>
       <artifactId>chariot</artifactId>
-      <version>0.0.57</version>
+      <version>0.0.58</version>
     </dependency>
     ...
 ```
