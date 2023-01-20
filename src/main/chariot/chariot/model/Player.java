@@ -2,7 +2,7 @@ package chariot.model;
 
 import java.util.Optional;
 
-public sealed interface GameUser {
+public sealed interface Player {
 
         default String name() {
             if (this instanceof Anonymous) return "Anonymous";
@@ -24,9 +24,18 @@ public sealed interface GameUser {
             return Optional.empty();
         }
 
-        record Anonymous(Optional<Analysis> analysis) implements GameUser {}
+        record Anonymous(Optional<Analysis> analysis) implements Player {}
 
-        record Computer(Integer aiLevel) implements GameUser {}
+        record Computer(Integer aiLevel) implements Player {}
+
+        // Conveninece for accessing the LightUser-methods in User-record
+        // if (player instanceof User u && u.title().equals("GM")) ...
+        interface LUser {
+            String id();
+            String name();
+            String title();
+            boolean patron();
+        }
 
         record User(
                 LightUser user,
@@ -34,9 +43,13 @@ public sealed interface GameUser {
                 Integer ratingDiff,
                 boolean provisional,
                 Optional<Boolean> berserk,
-                Optional<Analysis> analysis) implements GameUser {
-        }
+                Optional<Analysis> analysis) implements Player, LUser {
 
+            @Override public String id() { return user.id(); }
+            @Override public String name() { return user.name(); }
+            @Override public String title() { return user.title(); }
+            @Override public boolean patron() { return user.patron(); }
+        }
 
         record Analysis(int inaccuracy, int mistake, int blunder, int acpl, int accuracy) {}
 }

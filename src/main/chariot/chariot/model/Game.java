@@ -53,7 +53,7 @@ public record Game (
         return Util.fromLong(lastMoveTime());
     }
 
-    public record Players (GameUser white, GameUser black) { }
+    public record Players (Player white, Player black) { }
 
     public record Opening (String eco, String name, Integer ply) {}
 
