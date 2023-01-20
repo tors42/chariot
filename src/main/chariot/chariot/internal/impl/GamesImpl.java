@@ -22,7 +22,7 @@ public class GamesImpl extends Base implements Games {
     public One<Game> byGameId(String gameId, Consumer<GameParams> params) {
         return Endpoint.gameById.newRequest(request -> request
                 .path(gameId)
-                .query(MapBuilder.of(GameParams.class).toMap(params)))
+                .query(gameParamsBuilder().toMap(params)))
             .process(this);
     }
 
@@ -30,7 +30,7 @@ public class GamesImpl extends Base implements Games {
     public One<Game> currentByUserId(String userId, Consumer<GameParams> params) {
         return Endpoint.gameCurrentByUserId.newRequest(request -> request
                 .path(userId)
-                .query(MapBuilder.of(GameParams.class).toMap(params)))
+                .query(gameParamsBuilder().toMap(params)))
             .process(this);
     }
 
@@ -48,6 +48,7 @@ public class GamesImpl extends Base implements Games {
                     .addCustomHandler("sortAscending", (args, map) -> {
                         map.put("sort", (boolean) args[0] ? "dateAsc" : "dateDesc");
                     })
+                    .rename("pgn", "pgnInJson")
                     .toMap(params))
                 .timeout(Duration.ofHours(1)))
             .process(this);
@@ -59,7 +60,7 @@ public class GamesImpl extends Base implements Games {
                 .body(gameIds.stream()
                     .limit(300)
                     .collect(Collectors.joining(",")))
-                .query(MapBuilder.of(GameParams.class).toMap(params)))
+                .query(gameParamsBuilder().toMap(params)))
             .process(this);
     }
 
@@ -126,7 +127,16 @@ public class GamesImpl extends Base implements Games {
     public Many<Game> byChannel(Channel channel, Consumer<ChannelFilter> params) {
         return Endpoint.gamesTVChannel.newRequest(request -> request
             .path(channel.name())
-            .query(MapBuilder.of(ChannelFilter.class).toMap(params)))
+            .query(channelFilterBuilder().toMap(params)))
             .process(this);
     }
+
+    static MapBuilder<GameParams> gameParamsBuilder() { return builder(GameParams.class); }
+    static MapBuilder<Filter> filterBuilder() { return builder(Filter.class); }
+    static MapBuilder<ChannelFilter> channelFilterBuilder() { return builder(ChannelFilter.class); }
+
+    static <T extends CommonGameParameters<?>> MapBuilder<T> builder(Class<T> clazz) {
+        return MapBuilder.of(clazz).rename("pgn", "pgnInJson");
+    }
+
  }

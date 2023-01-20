@@ -8,7 +8,6 @@ import chariot.model.*;
 import chariot.model.Enums.TournamentState;
 import chariot.internal.*;
 import chariot.internal.RequestParameters.Params;
-import chariot.internal.Util.MapBuilder;
 
 public class TournamentsImpl extends Base implements Tournaments {
 
@@ -75,7 +74,7 @@ public class TournamentsImpl extends Base implements Tournaments {
     public Many<Game> gamesByArenaId(String arenaId, Consumer<Games.Filter> params) {
         return Endpoint.gamesByArenaId.newRequest(request -> request
                 .path(arenaId)
-                .query(MapBuilder.of(Games.Filter.class).toMap(params)))
+                .query(GamesImpl.filterBuilder().toMap(params)))
             .process(this);
     }
 
@@ -112,7 +111,7 @@ public class TournamentsImpl extends Base implements Tournaments {
     public Many<Game> gamesBySwissId(String swissId, Consumer<Games.Filter> params) {
         return Endpoint.gamesBySwissId.newRequest(request -> request
                 .path(swissId)
-                .query(MapBuilder.of(Games.Filter.class).toMap(params)))
+                .query(GamesImpl.filterBuilder().toMap(params)))
             .process(this);
     }
 }

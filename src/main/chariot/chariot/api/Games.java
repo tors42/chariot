@@ -140,8 +140,15 @@ public interface Games {
          * Include the full PGN within the JSON response, in a pgn field.<br>
          * Default `false`
          */
-        T pgnInJson(boolean pgnInJson);
-        default T pgnInJson() { return pgnInJson(true); }
+        T pgn(boolean pgn);
+        default T pgn() { return pgn(true); }
+
+        /**
+         * @deprecated Use {@link #pgn(boolean)} instead
+         */
+        @Deprecated
+        default T pgnInJson(boolean pgnInJson) { return pgn(pgnInJson); }
+
         /**
          * Include the PGN tags.<br>
          * Default `true
