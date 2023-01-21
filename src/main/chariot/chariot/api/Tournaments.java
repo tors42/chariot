@@ -104,6 +104,12 @@ public interface Tournaments {
          * @param max Max number of players to fetch. >= 1
          */
         ArenaResultParams max(int max);
+
+        /**
+         * Provide values to the sheet field in the results ({@link ArenaResult#sheet()}). It's an expensive server computation that slows down the stream.
+         */
+        ArenaResultParams sheet(boolean sheet);
+        default ArenaResultParams sheet() { return sheet(true); }
     }
 
     interface SwissResultParams {

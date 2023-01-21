@@ -9,11 +9,13 @@ public record ArenaResult(
         String username,
         String title,
         Integer performance,
-        String team)  {
+        String team,
+        String sheet)  {
 
     public ArenaResult {
         title = orEmpty(title);
         team = orEmpty(team);
+        sheet = orEmpty(sheet);
     }
 
 }
