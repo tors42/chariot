@@ -33,16 +33,15 @@ public interface Tournaments {
      * Players of an Arena tournament, with their score and performance, sorted by rank (best first).<br>
      * If called on an ongoing tournament, results can be inconsistent due to ranking changes while the players are being streamed.<br>
      * Use on finished tournaments for guaranteed consistency.
-     * @param nb Max number of players to fetch
+     *
+     * {@snippet :
+     * List<ArenaResult> top10 = client.tournaments().resultsByArenaId("QITRjufu", params -> params.max(10)).stream().toList();
+     * }
      */
-    Many<ArenaResult> resultsByArenaId(String arenaId, int nb);
-    /**
-     * Players of an Arena tournament, with their score and performance, sorted by rank (best first).<br>
-     * If called on an ongoing tournament, results can be inconsistent due to ranking changes while the players are being streamed.<br>
-     * Use on finished tournaments for guaranteed consistency.
-     */
-    Many<ArenaResult> resultsByArenaId(String arenaId);
+    Many<ArenaResult> resultsByArenaId(String arenaId, Consumer<ArenaResultParams> parameters);
 
+    /** @see #resultsByArenaId(String, Consumer) */
+    default Many<ArenaResult> resultsByArenaId(String arenaId) { return resultsByArenaId(arenaId, __ -> {}); }
 
     /**
      * Get tournaments created by a given user.
@@ -70,20 +69,21 @@ public interface Tournaments {
      */
     One<Swiss> swissById(String swissId);
 
-    /**
-     * Players of a swiss tournament, with their score and performance, sorted by rank (best first).<br>
-     * If called on an ongoing tournament, results can be inconsistent due to ranking changes while the players are being streamed.<br>
-     * Use on finished tournaments for guaranteed consistency.
-     * @param nb Max number of players to fetch
-     */
-    Many<SwissResult> resultsBySwissId(String swissId, int nb);
 
     /**
      * Players of a swiss tournament, with their score and performance, sorted by rank (best first).<br>
      * If called on an ongoing tournament, results can be inconsistent due to ranking changes while the players are being streamed.<br>
      * Use on finished tournaments for guaranteed consistency.
+     * @param parameters
+     *
+     * {@snippet :
+     * List<SwissResult> top10 = client.tournaments().resultsBySwissId("j8rtJ5GL", params -> params.max(10)).stream().toList();
+     * }
      */
-    Many<SwissResult> resultsBySwissId(String swissId);
+    Many<SwissResult> resultsBySwissId(String swissId, Consumer<SwissResultParams> parameters);
+
+    /** @see #resultsBySwissId(String, Consumer) */
+    default Many<SwissResult> resultsBySwissId(String swissId) { return resultsBySwissId(swissId, __ -> {}); }
 
     /**
      * Download a tournament in the Tournament Report File format, the FIDE standard.<br>
@@ -98,5 +98,19 @@ public interface Tournaments {
      */
     Many<Game> gamesBySwissId(String swissId, Consumer<Games.Filter> params);
     default Many<Game> gamesBySwissId(String swissId) { return gamesBySwissId(swissId, __ -> {}); }
+
+    interface ArenaResultParams {
+        /**
+         * @param max Max number of players to fetch. >= 1
+         */
+        ArenaResultParams max(int max);
+    }
+
+    interface SwissResultParams {
+        /**
+         * @param max Max number of players to fetch. >= 1
+         */
+        SwissResultParams max(int max);
+    }
 
 }

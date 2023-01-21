@@ -8,6 +8,7 @@ import chariot.model.*;
 import chariot.model.Enums.TournamentState;
 import chariot.internal.*;
 import chariot.internal.RequestParameters.Params;
+import chariot.internal.Util.MapBuilder;
 
 public class TournamentsImpl extends Base implements Tournaments {
 
@@ -37,17 +38,10 @@ public class TournamentsImpl extends Base implements Tournaments {
     }
 
     @Override
-    public Many<ArenaResult> resultsByArenaId(String tournamentId, int nb) {
+    public Many<ArenaResult> resultsByArenaId(String tournamentId, Consumer<ArenaResultParams> params) {
         return Endpoint.tournamentArenaResultsById.newRequest(request -> request
                 .path(tournamentId)
-                .query(Map.of("nb", nb)))
-            .process(this);
-    }
-
-    @Override
-    public Many<ArenaResult> resultsByArenaId(String tournamentId) {
-        return Endpoint.tournamentArenaResultsById.newRequest(request -> request
-                .path(tournamentId))
+                .query(MapBuilder.of(ArenaResultParams.class).rename("max", "nb").toMap(params)))
             .process(this);
     }
 
@@ -86,17 +80,10 @@ public class TournamentsImpl extends Base implements Tournaments {
     }
 
     @Override
-    public Many<SwissResult> resultsBySwissId(String swissId, int nb) {
+    public Many<SwissResult> resultsBySwissId(String swissId, Consumer<SwissResultParams> params) {
         return Endpoint.swissResults.newRequest(request -> request
                 .path(swissId)
-                .query(Map.of("nb", nb)))
-            .process(this);
-    }
-
-    @Override
-    public Many<SwissResult> resultsBySwissId(String swissId) {
-        return Endpoint.swissResults.newRequest(request -> request
-                .path(swissId))
+                .query(MapBuilder.of(SwissResultParams.class).rename("max", "nb").toMap(params)))
             .process(this);
     }
 
