@@ -29,6 +29,7 @@ public record Game (
     Color winner,
     Opening opening,
     Clock clock,
+    List<Integer> clocks,
     List<AnalysisEntry> analysis
     )  {
 
