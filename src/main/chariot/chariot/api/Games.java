@@ -196,7 +196,14 @@ public interface Games {
          */
         T opening(boolean opening);
         default T opening() { return opening(true); }
-    }
+
+        /**
+         * Include accuracy percent of each player, when available.<br>
+         * Default `false`
+         */
+        T accuracy(boolean accuracy);
+        default T accuracy() { return accuracy(true); }
+     }
 
     interface EvalsAndPlayers<T> {
         /**

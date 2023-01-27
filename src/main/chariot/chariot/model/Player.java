@@ -24,6 +24,11 @@ public sealed interface Player {
             return Optional.empty();
         }
 
+        default Optional<Integer> accuracy() {
+            if (this instanceof User u) return u.accuracy();
+            return Optional.empty();
+        }
+
         record Anonymous(Optional<Analysis> analysis) implements Player {}
 
         record Computer(Integer aiLevel) implements Player {}
@@ -43,7 +48,8 @@ public sealed interface Player {
                 Integer ratingDiff,
                 boolean provisional,
                 Optional<Boolean> berserk,
-                Optional<Analysis> analysis) implements Player, LUser {
+                Optional<Analysis> analysis,
+                Optional<Integer> accuracy) implements Player, LUser {
 
             @Override public String id() { return user.id(); }
             @Override public String name() { return user.name(); }
@@ -51,5 +57,5 @@ public sealed interface Player {
             @Override public boolean patron() { return user.patron(); }
         }
 
-        record Analysis(int inaccuracy, int mistake, int blunder, int acpl, int accuracy) {}
+        record Analysis(int inaccuracy, int mistake, int blunder, int acpl) {}
 }
