@@ -112,6 +112,11 @@ public sealed interface Endpoint<T> {
     public static EPOne<Game> gameCurrentByUserId =
         Endpoint.of(Game.class).endpoint("/api/user/%s/current-game").toOne();
 
+    public static EPOne<Pgn> gameCurrentByUserIdPgn =
+        Endpoint.of(Pgn.class).endpoint("/api/user/%s/current-game")
+        .streamMapper(Util::toPgnStream)
+        .accept(chesspgn).toOne();
+
     public static EPMany<User> relFollowing =
         Endpoint.of(User.class).endpoint("/api/rel/following").scope(Scope.follow_read).accept(jsonstream).toMany();
 
@@ -226,14 +231,36 @@ public sealed interface Endpoint<T> {
     public static EPMany<Game> gamesByArenaId =
         Endpoint.of(Game.class).endpoint("/api/tournament/%s/games").accept(jsonstream).toMany();
 
+    public static EPMany<Pgn> gamesByArenaIdPgn =
+        Endpoint.of(Pgn.class).endpoint("/api/tournament/%s/games")
+        .streamMapper(Util::toPgnStream)
+        .accept(chesspgn).toMany();
+
     public static EPMany<Game> gamesByUserId =
         Endpoint.of(Game.class).endpoint("/api/games/user/%s").accept(jsonstream).toMany();
+
+    public static EPMany<Pgn> gamesByUserIdPgn =
+        Endpoint.of(Pgn.class).endpoint("/api/games/user/%s")
+        .streamMapper(Util::toPgnStream)
+        .accept(chesspgn).toMany();
 
     public static EPOne<Game> gameById =
         Endpoint.of(Game.class).endpoint("/game/export/%s").toOne();
 
+    public static EPOne<Pgn> gameByIdPgn =
+        Endpoint.of(Pgn.class).endpoint("/game/export/%s")
+        .streamMapper(Util::toPgnStream)
+        .accept(chesspgn).toOne();
+
+
     public static EPMany<Game> gamesByIds =
         Endpoint.of(Game.class).endpoint("/api/games/export/_ids").post(plain).accept(jsonstream).toMany();
+
+    public static EPMany<Pgn> gamesByIdsPgn =
+        Endpoint.of(Pgn.class).endpoint("/api/games/export/_ids").post(plain)
+        .streamMapper(Util::toPgnStream)
+        .accept(chesspgn).toMany();
+
 
     public static EPOne<ExploreResult.OpeningDB> exploreMasters =
         Endpoint.of(ExploreResult.OpeningDB.class).endpoint("/masters").target(ServerType.explorer).toOne();
@@ -249,7 +276,7 @@ public sealed interface Endpoint<T> {
 
     public static EPOne<Pgn> exploreMasterOTB =
         Endpoint.of(Pgn.class).endpoint("/master/pgn/%s")
-        .streamMapper(stream -> Util.toPgnStream(stream))
+        .streamMapper(Util::toPgnStream)
         .accept(chesspgn).target(ServerType.explorer).toOne();
 
     public static EPOne<TablebaseResult> tablebaseLookup =
@@ -269,6 +296,12 @@ public sealed interface Endpoint<T> {
 
     public static EPMany<Game> gamesTVChannel =
         Endpoint.of(Game.class).endpoint("/api/tv/%s").accept(jsonstream).toMany();
+
+    public static EPMany<Pgn> gamesTVChannelPgn =
+        Endpoint.of(Pgn.class).endpoint("/api/tv/%s")
+        .streamMapper(Util::toPgnStream)
+        .accept(chesspgn).toMany();
+
 
     public static EPOne<UserTopAll> usersTopAll =
         Endpoint.of(UserTopAll.class).endpoint("/api/player").accept(lichessjson).toOne();
@@ -302,17 +335,17 @@ public sealed interface Endpoint<T> {
 
     public static EPMany<Pgn> exportChapter =
         Endpoint.of(Pgn.class).endpoint("/study/%s/%s.pgn")
-        .streamMapper(stream -> Util.toPgnStream(stream))
+        .streamMapper(Util::toPgnStream)
         .accept(chesspgn).toMany();
 
     public static EPMany<Pgn> exportChapters =
         Endpoint.of(Pgn.class).endpoint("/api/study/%s.pgn")
-        .streamMapper(stream -> Util.toPgnStream(stream))
+        .streamMapper(Util::toPgnStream)
         .accept(chesspgn).toMany();
 
     public static EPMany<Pgn> exportStudies =
         Endpoint.of(Pgn.class).endpoint("/study/by/%s/export.pgn")
-        .streamMapper(stream -> Util.toPgnStream(stream))
+        .streamMapper(Util::toPgnStream)
         .accept(chesspgn).scope(Scope.any).toMany();
 
     public static EPMany<BulkPairing> bulkPairingGet =
@@ -397,6 +430,11 @@ public sealed interface Endpoint<T> {
     public static EPMany<Game> gamesBySwissId =
         Endpoint.of(Game.class).endpoint("/api/swiss/%s/games").accept(jsonstream).toMany();
 
+    public static EPMany<Pgn> gamesBySwissIdPgn =
+        Endpoint.of(Pgn.class).endpoint("/api/swiss/%s/games")
+        .streamMapper(Util::toPgnStream)
+        .accept(chesspgn).toMany();
+
     public static EPMany<Broadcast> officialBroadcasts =
         Endpoint.of(Broadcast.class).endpoint("/api/broadcast").accept(jsonstream).toMany();
 
@@ -423,17 +461,17 @@ public sealed interface Endpoint<T> {
 
     public static EPMany<Pgn> streamBroadcast =
         Endpoint.of(Pgn.class).endpoint("/api/stream/broadcast/round/%s.pgn")
-        .streamMapper(stream -> Util.toPgnStream(stream))
+        .streamMapper(Util::toPgnStream)
         .accept(chesspgn).toMany();
 
     public static EPMany<Pgn> exportBroadcastOneRoundPgn =
         Endpoint.of(Pgn.class).endpoint("/api/broadcast/round/%s.pgn")
-        .streamMapper(stream -> Util.toPgnStream(stream))
+        .streamMapper(Util::toPgnStream)
         .accept(chesspgn).toMany();
 
     public static EPMany<Pgn> exportBroadcastAllRoundsPgn =
         Endpoint.of(Pgn.class).endpoint("/api/broadcast/%s.pgn")
-        .streamMapper(stream -> Util.toPgnStream(stream))
+        .streamMapper(Util::toPgnStream)
         .accept(chesspgn).toMany();
 
     public static EPMany<String> boardSeekRealTime =

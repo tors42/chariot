@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import chariot.api.*;
 import chariot.internal.*;
+import chariot.internal.RequestParameters.Params;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 import chariot.model.Enums.Channel;
@@ -20,47 +21,49 @@ public class GamesImpl extends Base implements Games {
 
     @Override
     public One<Game> byGameId(String gameId, Consumer<GameParams> params) {
-        return Endpoint.gameById.newRequest(request -> request
-                .path(gameId)
-                .query(gameParamsBuilder().toMap(params)))
+        return Endpoint.gameById.newRequest(paramsConsumerByIdGameParams(gameId, params))
+            .process(this);
+    }
+
+    @Override
+    public One<Pgn> pgnByGameId(String gameId, Consumer<GameParams> params) {
+        return Endpoint.gameByIdPgn.newRequest(paramsConsumerByIdGameParams(gameId, params))
             .process(this);
     }
 
     @Override
     public One<Game> currentByUserId(String userId, Consumer<GameParams> params) {
-        return Endpoint.gameCurrentByUserId.newRequest(request -> request
-                .path(userId)
-                .query(gameParamsBuilder().toMap(params)))
+        return Endpoint.gameCurrentByUserId.newRequest(paramsConsumerByIdGameParams(userId, params))
+            .process(this);
+    }
+
+    @Override
+    public One<Pgn> pgnCurrentByUserId(String userId, Consumer<GameParams> params) {
+        return Endpoint.gameCurrentByUserIdPgn.newRequest(paramsConsumerByIdGameParams(userId, params))
             .process(this);
     }
 
     @Override
     public Many<Game> byUserId(String userId, Consumer<SearchFilter> params) {
-        return Endpoint.gamesByUserId.newRequest(request -> request
-                .path(userId)
-                .query(MapBuilder.of(SearchFilter.class)
-                    .addCustomHandler("perfType", (args, map) ->
-                        map.put("perfType",
-                            Arrays.stream((PerfType[]) args[0])
-                            .map(PerfType::name)
-                            .collect(Collectors.joining(",")))
-                        )
-                    .addCustomHandler("sortAscending", (args, map) -> {
-                        map.put("sort", (boolean) args[0] ? "dateAsc" : "dateDesc");
-                    })
-                    .rename("pgn", "pgnInJson")
-                    .toMap(params))
-                .timeout(Duration.ofHours(1)))
+        return Endpoint.gamesByUserId.newRequest(paramsConsumerByUserId(userId, params))
+            .process(this);
+    }
+
+    @Override
+    public Many<Pgn> pgnByUserId(String userId, Consumer<SearchFilter> params) {
+        return Endpoint.gamesByUserIdPgn.newRequest(paramsConsumerByUserId(userId, params))
             .process(this);
     }
 
     @Override
     public Many<Game> byGameIds(Set<String> gameIds, Consumer<GameParams> params) {
-        return Endpoint.gamesByIds.newRequest(request -> request
-                .body(gameIds.stream()
-                    .limit(300)
-                    .collect(Collectors.joining(",")))
-                .query(gameParamsBuilder().toMap(params)))
+        return Endpoint.gamesByIds.newRequest(paramsConsumerByIdsGameParams(gameIds, params))
+            .process(this);
+    }
+
+    @Override
+    public Many<Pgn> pgnByGameIds(Set<String> gameIds, Consumer<GameParams> params) {
+        return Endpoint.gamesByIdsPgn.newRequest(paramsConsumerByIdsGameParams(gameIds, params))
             .process(this);
     }
 
@@ -125,11 +128,23 @@ public class GamesImpl extends Base implements Games {
 
     @Override
     public Many<Game> byChannel(Channel channel, Consumer<ChannelFilter> params) {
-        return Endpoint.gamesTVChannel.newRequest(request -> request
-            .path(channel.name())
-            .query(channelFilterBuilder().toMap(params)))
+        return Endpoint.gamesTVChannel.newRequest(paramsConsumerByChannelChannelFilter(channel, params))
             .process(this);
     }
+
+    @Override
+    public Many<Pgn> pgnByChannel(Channel channel, Consumer<ChannelFilter> params) {
+        return Endpoint.gamesTVChannelPgn.newRequest(paramsConsumerByChannelChannelFilter(channel, params))
+            .process(this);
+    }
+
+    static Consumer<Params> paramsConsumerByChannelChannelFilter(Channel channel, Consumer<ChannelFilter> params) {
+        return request -> request
+            .path(channel.name())
+            .query(channelFilterBuilder().toMap(params));
+    }
+
+
 
     static MapBuilder<GameParams> gameParamsBuilder() { return builder(GameParams.class); }
     static MapBuilder<Filter> filterBuilder() { return builder(Filter.class); }
@@ -139,4 +154,37 @@ public class GamesImpl extends Base implements Games {
         return MapBuilder.of(clazz).rename("pgn", "pgnInJson");
     }
 
- }
+
+    static Consumer<Params> paramsConsumerByUserId(String userId, Consumer<SearchFilter> params) {
+        return request -> request
+                .path(userId)
+                .query(MapBuilder.of(SearchFilter.class)
+                    .addCustomHandler("perfType", (args, map) ->
+                        map.put("perfType",
+                            Arrays.stream((PerfType[]) args[0])
+                            .map(PerfType::name)
+                            .collect(Collectors.joining(",")))
+                        )
+                    .addCustomHandler("sortAscending", (args, map) -> {
+                        map.put("sort", (boolean) args[0] ? "dateAsc" : "dateDesc");
+                    })
+                    .rename("pgn", "pgnInJson")
+                    .toMap(params))
+                .timeout(Duration.ofHours(1));
+    }
+
+    static Consumer<Params> paramsConsumerByIdGameParams(String pathId, Consumer<GameParams> params) {
+        return request -> request
+            .path(pathId)
+            .query(gameParamsBuilder().toMap(params));
+    }
+
+    static Consumer<Params> paramsConsumerByIdsGameParams(Set<String> gameIds, Consumer<GameParams> params) {
+        return request -> request
+            .body(gameIds.stream()
+                    .limit(300)
+                    .collect(Collectors.joining(",")))
+            .query(gameParamsBuilder().toMap(params));
+    }
+
+}

@@ -66,9 +66,13 @@ public class TournamentsImpl extends Base implements Tournaments {
 
     @Override
     public Many<Game> gamesByArenaId(String arenaId, Consumer<Games.Filter> params) {
-        return Endpoint.gamesByArenaId.newRequest(request -> request
-                .path(arenaId)
-                .query(GamesImpl.filterBuilder().toMap(params)))
+        return Endpoint.gamesByArenaId.newRequest(paramsConsumerByPathId(arenaId, params))
+            .process(this);
+    }
+
+    @Override
+    public Many<Pgn> pgnGamesByArenaId(String arenaId, Consumer<Games.Filter> params) {
+        return Endpoint.gamesByArenaIdPgn.newRequest(paramsConsumerByPathId(arenaId, params))
             .process(this);
     }
 
@@ -96,9 +100,20 @@ public class TournamentsImpl extends Base implements Tournaments {
 
     @Override
     public Many<Game> gamesBySwissId(String swissId, Consumer<Games.Filter> params) {
-        return Endpoint.gamesBySwissId.newRequest(request -> request
-                .path(swissId)
-                .query(GamesImpl.filterBuilder().toMap(params)))
+        return Endpoint.gamesBySwissId.newRequest(paramsConsumerByPathId(swissId, params))
             .process(this);
     }
+
+    @Override
+    public Many<Pgn> pgnGamesBySwissId(String swissId, Consumer<Games.Filter> params) {
+        return Endpoint.gamesBySwissIdPgn.newRequest(paramsConsumerByPathId(swissId, params))
+            .process(this);
+    }
+
+    static Consumer<Params> paramsConsumerByPathId(String pathId, Consumer<Games.Filter> params) {
+        return request -> request
+                .path(pathId)
+                .query(GamesImpl.filterBuilder().toMap(params));
+    }
+
 }
