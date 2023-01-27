@@ -225,6 +225,7 @@ public interface Games {
          * Default `false`
          */
         GameParams literate(boolean literate);
+        default GameParams literate() { return literate(true); }
     }
 
     interface SearchFilter extends CommonGameParameters<SearchFilter>, EvalsAndPlayers<SearchFilter> {
