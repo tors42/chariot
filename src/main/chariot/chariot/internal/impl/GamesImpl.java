@@ -11,7 +11,7 @@ import chariot.internal.RequestParameters.Params;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 import chariot.model.Enums.Channel;
-import chariot.model.PerfStat.Stat.PerfType;
+import chariot.model.Enums.PerfType;
 
 public class GamesImpl extends Base implements Games {
 
