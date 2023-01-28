@@ -49,7 +49,7 @@ public interface TournamentsAuth extends Tournaments {
     One<Ack> terminateSwiss(String swissId);
 
     One<Ack> joinSwiss(String id, Consumer<JoinSwissParams> params);
-    default One<Ack> oinSwiss(String id) { return joinSwiss(id, __ -> {}); }
+    default One<Ack> joinSwiss(String id) { return joinSwiss(id, __ -> {}); }
 
     /**
      * Generate user entry codes based on a tournament entry code, for a set of user ids.<br>
