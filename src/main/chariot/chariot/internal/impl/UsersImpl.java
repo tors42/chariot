@@ -122,4 +122,18 @@ public class UsersImpl extends Base implements Users {
             .flatMap(Many::stream);
         return Many.entries(userStatusStream);
     }
+
+    @Override
+    public Many<String> autocompleteNames(String term) {
+        return Endpoint.usersNamesAutocomplete.newRequest(request -> request
+                .query(Map.of("term", term, "object", "false")))
+            .process(this);
+    }
+
+    @Override
+    public Many<LightUserWithStatus> autocompleteUsers(String term) {
+        return Endpoint.usersStatusAutocomplete.newRequest(request -> request
+                .query(Map.of("term", term, "object", "true")))
+            .process(this);
+    }
 }

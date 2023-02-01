@@ -33,4 +33,19 @@ public class UsersAuthImpl extends UsersImpl implements UsersAuth {
                 .path(userId))
             .process(this);
     }
+
+    @Override
+    public Many<String> autocompleteNames(String term, boolean friend) {
+        return Endpoint.usersNamesAutocomplete.newRequest(request -> request
+                .query(Map.of("term", term, "object", "false", "friend", Boolean.toString(friend))))
+            .process(this);
+    }
+
+    @Override
+    public Many<LightUserWithStatus> autocompleteUsers(String term, boolean friend) {
+        return Endpoint.usersStatusAutocomplete.newRequest(request -> request
+                .query(Map.of("term", term, "object", "true", "friend", Boolean.toString(friend))))
+            .process(this);
+    }
+
 }

@@ -128,6 +128,19 @@ public interface Users {
     Many<StreamerStatus> liveStreamers();
 
 
+
+    /**
+     * Autocomplete names given the starting 3 or more characters of a username
+     * @param term The beginning of a username >= 3 characters
+     */
+    Many<String>     autocompleteNames(String term);
+    /**
+     * Autocomplete names given the starting 3 or more characters of a username
+     * @param term The beginning of a username >= 3 characters
+     */
+    Many<LightUserWithStatus> autocompleteUsers(String term);
+
+
     interface UserParams {
         /**
          * Whether or not to include any trophies in the result

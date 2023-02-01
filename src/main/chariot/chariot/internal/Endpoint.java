@@ -135,6 +135,16 @@ public sealed interface Endpoint<T> {
     public static EPMany<User> usersByIds =
         Endpoint.ofArr(User.class).endpoint("/api/users").post(plain).toMany();
 
+    public static EPMany<String> usersNamesAutocomplete =
+        Endpoint.ofArr(s -> s.substring(1, s.length()-1).replaceAll("\"", "").split(","))
+        .endpoint("/api/player/autocomplete").accept(plain).toMany();
+
+    public static EPMany<LightUserWithStatus> usersStatusAutocomplete =
+        Endpoint.ofArr(LightUserWithStatus.class).endpoint("/api/player/autocomplete")
+        .streamMapper(stream -> stream.map(mapper(AutocompleteWrapper.class))
+                .filter(Objects::nonNull).flatMap(wrapper -> wrapper.result().stream()))
+        .toMany();
+
     public static EPMany<StreamerStatus> liveStreamers =
         Endpoint.ofArr(StreamerStatus.class).endpoint("/api/streamer/live").toMany();
 
@@ -561,6 +571,9 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Void.class).endpoint("/api/external-engine/work/%s").post(plain).target(ServerType.engine).toOne();
 
 
+    static record AutocompleteWrapper(List<LightUserWithStatus> result) {}
+    static record BulkPairingWrapper(List<BulkPairing> bulks) {}
+    static record PlayingWrapper(List<MyGameInfo> nowPlaying)  {}
 
     public static class Builder<T> {
         private String endpoint = "";
