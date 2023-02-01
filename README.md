@@ -95,6 +95,8 @@ client.users().statusByIds()
 client.users().ratingHistoryById()
 client.users().crosstable()
 client.users().performanceStatisticsByIdAndType()
+client.users().autocompleteNames()
+client.users().autocompleteUsers()
 ```
 </details>
 
