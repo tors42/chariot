@@ -14,5 +14,5 @@ public record StreamerStatus(
         StreamerInfo streamer)  {
 
     public record StreamInfo(String service, String status, String lang) {}
-    public record StreamerInfo(String name, String headline, String description, Optional<String> twitch, Optional<String> youTube) {}
+    public record StreamerInfo(String name, String headline, String description, Optional<String> twitch, Optional<String> youTube, Optional<String> image) {}
 }
