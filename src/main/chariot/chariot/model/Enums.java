@@ -104,13 +104,41 @@ public interface Enums {
      * _2500 indicates ratings from 2500 and up.
      */
     enum RatingGroup {
-        _1600, _1800, _2000, _2200, _2500;
+        _600, _1000, _1200, _1400, _1600, _1800, _2000, _2200, _2500;
 
         public String asString() {
             return name().substring(1);
         }
 
         public interface Provider {
+            /**
+             * 600-1000
+             */
+            default RatingGroup _600() {
+                return _600;
+            }
+
+            /**
+             * 1000-1200
+             */
+            default RatingGroup _1000() {
+                return _1000;
+            }
+
+            /**
+             * 1200-1400
+             */
+            default RatingGroup _1200() {
+                return _1200;
+            }
+
+            /**
+             * 1400-1600
+             */
+            default RatingGroup _1400() {
+                return _1400;
+            }
+
             /**
              * 1600-1800
              */
