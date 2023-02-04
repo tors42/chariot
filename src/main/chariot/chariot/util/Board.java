@@ -131,13 +131,25 @@ public sealed interface Board {
 
         @Override
         public Board play(String move) {
+            if (move.contains(" ")) {
+                return playMultipleMoves(Arrays.stream(move.split(" ")));
+            } else {
+                return playSingleMove(Move.parse(move, fen));
+            }
+        }
+
+        private Board playMultipleMoves(Stream<String> moves) {
+            return moves.reduce(
+                    (Board)this,
+                    (board, move) -> board.play(move),
+                    (__, ___) -> __);
+        }
+
+        private Board playSingleMove(Move move) {
             if (ended()) {
                 return this;
             }
-            return play(Move.parse(move, fen));
-        }
 
-        private Board play(Move move) {
             FEN nextFEN = fen();
 
             //// positions
@@ -309,7 +321,7 @@ public sealed interface Board {
 
             // todo, make it possible to ask to not include the check/checkmate symbol?
             final String checkSymbol;
-            if (play(move) instanceof BoardData boardIfPlayed) {
+            if (playSingleMove(move) instanceof BoardData boardIfPlayed) {
                 if (boardIfPlayed.gameState() == GameState.checkmate) {
                     checkSymbol = "#";
                 } else {
