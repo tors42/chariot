@@ -264,6 +264,153 @@ public sealed interface Board {
 
             return nextBoard;
         }
+
+
+        @Override
+        public String toSAN(String moves) {
+            if (moves.contains(" ")) {
+                return String.join(" ", multipleMovesToSAN(moves.split(" ")));
+            } else {
+                return singleMoveToSAN(moves);
+            }
+        }
+
+        @Override
+        public String toSAN(String... moves) {
+            return String.join(" ", multipleMovesToSAN(moves));
+        }
+
+        @Override
+        public List<String> toSAN(List<String> moves) {
+            return multipleMovesToSAN(moves.stream());
+        }
+
+        private List<String> multipleMovesToSAN(String[] moves) {
+            return multipleMovesToSAN(Arrays.stream(moves));
+        }
+
+        private List<String> multipleMovesToSAN(Stream<String> moves) {
+            record BoardMoves(Board board, List<String> sans) {}
+            var boardMoves = moves.reduce(new BoardMoves(this, new ArrayList<>()),
+                    (bm, move) -> {
+                        bm.sans().add(bm.board().toSAN(move));
+                        return new BoardMoves(bm.board().play(move), bm.sans());
+                    },
+                    (__, ___) -> __);
+            return boardMoves.sans();
+        }
+
+        private String singleMoveToSAN(String move) {
+            return toSAN(Move.parse(move, fen));
+        }
+
+        public String toSAN(Move move) {
+            if (move instanceof Invalid invalid) return "";
+
+            // todo, make it possible to ask to not include the check/checkmate symbol?
+            final String checkSymbol;
+            if (play(move) instanceof BoardData boardIfPlayed) {
+                if (boardIfPlayed.gameState() == GameState.checkmate) {
+                    checkSymbol = "#";
+                } else {
+                    var inCheck = boardIfPlayed.pieceMap().entrySet().stream()
+                        .filter(entry -> entry.getValue().type() == PieceType.KING
+                                && entry.getValue().color() == fen().whoseTurn().other())
+                        .findFirst()
+                        .map(king -> Board.isCoordinateAttacked(king.getKey(), fen().whoseTurn() , boardIfPlayed.pieceMap()))
+                        .orElse(false);
+                    checkSymbol = inCheck ? "+" : "";
+                }
+            } else {
+                checkSymbol = "";
+            }
+
+            if (move instanceof FromTo fromTo) {
+                Piece piece = pieceMap().get(fromTo.from());
+                if (piece == null) return "-";
+                if (piece.color() != fen().whoseTurn()) return "-";
+
+                if (piece.type() == PieceType.PAWN) {
+                    if (pieceMap().containsKey(fromTo.to()) || fromTo.from().col() != fromTo.to().col()) {
+                        String file = fromTo.from().name().substring(0,1);
+                        String capture = "x";
+                        String destination = fromTo.to().name(); // make it possible to specify format? "ed", "exd", "exd6", "exd6 e.p"
+                        String san = "%s%s%s%s".formatted(file, capture, destination, checkSymbol);
+                        return san;
+                    } else {
+                        String destination = fromTo.to().name();
+                        String san = "%s%s".formatted(destination, checkSymbol);
+                        return san;
+                    }
+                } else if(piece.type() == PieceType.KING) {
+                    String letter = "K";
+                    String capture = pieceMap().containsKey(fromTo.to()) ? "x" : "";
+                    String destination = fromTo.to().name();
+                    String san = "%s%s%s%s".formatted(letter, capture, destination, checkSymbol);
+                    return san;
+                } else {
+                    List<Map.Entry<Coordinate, Piece>> disambiguation = pieceMap().entrySet().stream()
+                        .filter(entry -> entry.getValue().type() == piece.type() && entry.getValue().color() == piece.color())
+                        .filter(entry -> entry.getValue() != piece)
+                        .filter(entry -> Board.coordinatesAttackedByPiece(entry.getKey(), pieceMap()).contains(fromTo.to()))
+                        .toList();
+
+                    record Unique(boolean file, boolean rank) {}
+                    var unique = disambiguation.stream().reduce(
+                            new Unique(true, true),
+                            (a, e) -> new Unique(a.file() && e.getKey().col() != fromTo.from().col(),
+                                a.rank() && e.getKey().row() != fromTo.from().row()),
+                            (u1, u2) -> new Unique(u1.file() && u2.file(), u1.rank() && u2.rank()));
+
+                    String letter = piece.letter().toUpperCase();
+
+                    final String dis;
+                    if (unique.file() && unique.rank()) {
+                        dis = "";
+                    } else if (unique.file()) {
+                        dis = fromTo.from().name().substring(1,2);
+                    } else if (unique.rank()) {
+                        dis = fromTo.from().name().substring(0,1);
+                    } else {
+                        dis = fromTo.from().name();
+                    }
+
+                    String capture = pieceMap().containsKey(fromTo.to()) ? "x" : "";
+                    String destination = fromTo.to().name();
+
+                    String san = "%s%s%s%s%s".formatted(letter, dis, capture, destination, checkSymbol);
+                    return san;
+                }
+            }
+
+            if (move instanceof Castling castling) {
+                String castleside = castling.king().from().col() < castling.rook().from().col() ?
+                    "O-O" : "O-O-O";
+                String san = "%s%s".formatted(castleside, checkSymbol);
+                return san;
+            }
+
+            if (move instanceof Promotion promotion) {
+                if (pieceMap().containsKey(promotion.pawn().to())) {
+                    // bxa8=R
+                    String file = promotion.pawn().from().name().substring(0,1);
+                    String capture = "x";
+                    String destination = promotion.pawn().to().name();
+                    String prom = "=" + promotion.piece().toChar();
+                    String san = "%s%s%s%s%s".formatted(file, capture, destination, prom, checkSymbol);
+                    return san;
+                } else {
+                    // a8=Q
+                    String destination = promotion.pawn().to().name();
+                    String prom = "=" + promotion.piece().toChar();
+                    String san = "%s%s%s".formatted(destination, prom, checkSymbol);
+                    return san;
+                }
+            }
+
+            return "";
+        }
+
     }
 
     record RowCol(int row, int col) implements Coordinate {
@@ -892,8 +1039,12 @@ public sealed interface Board {
         default String uci(Coordinate from, Coordinate to) {
             return from.name() + to.name();
         }
-
     }
+
+    String toSAN(String move);
+    String toSAN(String... move);
+    List<String> toSAN(List<String> move);
+    String toSAN(Move move);
 
     record Invalid(String info)                    implements Move {};
     record FromTo(Coordinate from, Coordinate to)  implements Move {
