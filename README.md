@@ -214,6 +214,26 @@ client.users().unfollowUser()
 
 Checkout the [JavaDoc](https://tors42.github.io/chariot/chariot/chariot/Client.html) for details.
 
+## Use as Dependency
+
+The coordinates are `io.github.tors42:chariot:0.0.61`, so in a Maven project
+the following dependency can be added to the `pom.xml`:
+
+```xml
+    ...
+    <dependency>
+      <groupId>io.github.tors42</groupId>
+      <artifactId>chariot</artifactId>
+      <version>0.0.61</version>
+    </dependency>
+    ...
+```
+
+Here is a link to a simple example Maven project application
+https://github.com/tors42/chariot-example which can be imported into an IDE in
+order to get things like code completion support and other good stuff.
+
+
 ## Build Chariot
 
 Make sure to use at least Java 19. A JDK archive can be downloaded and unpacked from https://jdk.java.net/
@@ -373,34 +393,6 @@ class FEN {
     1 │ R │ N │ B │ Q │ K │ B │   │ R │
       └───┴───┴───┴───┴───┴───┴───┴───┘
         a   b   c   d   e   f   g   h
-
-## Use as dependency
-
-The coordinates are `io.github.tors42:chariot:0.0.61`, so in a Maven project the following dependency can be added to the `pom.xml`:
-
-```xml
-    ...
-    <dependency>
-      <groupId>io.github.tors42</groupId>
-      <artifactId>chariot</artifactId>
-      <version>0.0.61</version>
-    </dependency>
-    ...
-```
-
-Here is a link to a simple example Maven project application https://github.com/tors42/chariot-example which can be imported into an IDE in order to get things like code completion support and other good stuff.
-
-### Serve JavaDoc
-
-A simple way to check the generated JavaDoc is by serving it locally using the Java 18 included Simple Web Server tool `jwebserver`,
-
-    $ cd out/javadoc/
-    $ jwebserver
-    Binding to loopback by default. For all interfaces use "-b 0.0.0.0" or "-b ::".
-    Serving /tmp/chariot/out/javadoc and subdirectories on 127.0.0.1 port 8000
-    URL http://127.0.0.1:8000/
-
-And then visting http://127.0.0.1:8000/ with a Web Browser
 
 # Applications
 
