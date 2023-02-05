@@ -2,36 +2,38 @@ package build;
 
 import java.util.List;
 
-import chariot.model.Pgn;
 import chariot.util.Board;
 
 class FEN {
     public static void main(String[] args) {
 
-        List<Pgn> pgnList = Pgn.readFromString("""
-            [Event "Testing"]
+        Board initialBoard = Board.fromStandardPosition();
 
-            1. e4 e5 2. Nf3 Nc6
-            """);
+        List<String> validMovesUCI = initialBoard.validMoves().stream()
+            .map(Board.Move::uci)
+            .sorted()
+            .toList();
 
-        List<String> moves = pgnList.get(0).moveListSAN();
+        List<String> validMovesSAN = validMovesUCI.stream()
+            .map(initialBoard::toSAN)
+            .toList();
 
-        Board board = Board.fromStandardPosition();
+        String movesToPlay = "e4 e5 Nf3 Nc6"; // (UCI also ok, "e2e4 e7e5 g1f3 b8c6")
 
-        String initialFEN = board.toFEN();
+        Board resultingBoard = initialBoard.play(movesToPlay);
 
-        for (String move : moves) {
-            board = board.play(move);
-        }
-
-        System.out.println("Initial: " + initialFEN);
-        System.out.println(Board.fromFEN(initialFEN));
-        System.out.println("Valid moves#: " + Board.fromFEN(initialFEN).validMoves().size());
-        System.out.println("Play: " + moves.toString());
-        System.out.println(board.toFEN());
-        System.out.println(board.toString());
-        System.out.println(board.toString(c -> c.letter().frame().coordinates()));
-   }
+        System.out.println(String.join("\n",
+                "Initial FEN: "         + initialBoard.toFEN(),
+                "Initial Board:\n"      + initialBoard,
+                "Valid moves (UCI): "   + validMovesUCI,
+                "Valid moves (SAN): "   + validMovesSAN.stream().map("%4s"::formatted).toList(),
+                "Playing: "             + movesToPlay,
+                "Resulting FEN: "       + resultingBoard.toFEN(),
+                "Resulting Board:\n"    + resultingBoard,
+                "Board (letter, frame, coordinates):\n" +
+                resultingBoard.toString(c -> c.letter().frame().coordinates())
+                ));
+    }
 
    public static long costOfThisProgramBecomingSkyNet() {
         return Long.MAX_VALUE; // https://xkcd.com/534/
