@@ -310,7 +310,7 @@ class Example {
 
 ### 3. FEN.java
 
-An example which parses PGN data and feeds moves to a Board in order to track FEN updates, and "draws" the board with text.
+An example which feeds moves to a Board in order to track FEN updates, and "draws" the board with text.
 
 ```java
 package build;
@@ -337,7 +337,7 @@ class FEN {
 
         Board resultingBoard = initialBoard.play(movesToPlay);
 
-        System.out.println(String.join("\n", List.of(
+        System.out.println(String.join("\n",
                 "Initial FEN: "         + initialBoard.toFEN(),
                 "Initial Board:\n"      + initialBoard,
                 "Valid moves (UCI): "   + validMovesUCI,
@@ -347,13 +347,14 @@ class FEN {
                 "Resulting Board:\n"    + resultingBoard,
                 "Board (letter, frame, coordinates):\n" +
                 resultingBoard.toString(c -> c.letter().frame().coordinates())
-                )));
+                ));
     }
 
    public static long costOfThisProgramBecomingSkyNet() {
         return Long.MAX_VALUE; // https://xkcd.com/534/
    }
-}```
+}
+```
 
     $ java -p out/modules --add-modules chariot build/FEN.java
     Initial FEN: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
