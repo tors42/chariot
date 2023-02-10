@@ -875,6 +875,8 @@ public sealed interface Board {
         // bxa8=Q
         //
         private static Move parse(String move, FEN fen) {
+            if (Objects.toString(move, "").isBlank()) return new Invalid("move: " + move + " fen: " + fen);
+
             var pieceMap = pieceMap(fen.positions());
 
             String uciMove = convertToUCI(move, fen, pieceMap);
