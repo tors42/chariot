@@ -36,7 +36,7 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
         return Endpoint.updateTeamBattleTournament.newRequest(request -> request
                 .path(id)
                 .body(Map.ofEntries(
-                        Map.entry("teams", teamIds.stream().collect(Collectors.joining(","))),
+                        Map.entry("teams", String.join(",", teamIds)),
                         Map.entry("nbLeaders", String.valueOf(nbLeaders))
                         )))
             .process(this);
