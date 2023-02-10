@@ -48,6 +48,13 @@ public interface TournamentsAuth extends Tournaments {
 
     One<Ack> terminateSwiss(String swissId);
 
+    /**
+     * Leave a future Swiss tournament, or take a break on an ongoing Swiss tournament. It's possible to join again later. Points are preserved.
+     * @param id The tournament ID. Example: "hL7vMrFQ"
+     */
+    One<Ack> withdrawSwiss(String id);
+
+
     One<Ack> joinSwiss(String id, Consumer<JoinSwissParams> params);
     default One<Ack> joinSwiss(String id) { return joinSwiss(id, __ -> {}); }
 

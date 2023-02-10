@@ -89,6 +89,13 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
     }
 
     @Override
+    public One<Ack> withdrawSwiss(String id) {
+        return Endpoint.withdrawSwiss.newRequest(request -> request
+            .path(id))
+            .process(this);
+    }
+
+    @Override
     public One<Ack> joinSwiss(String id, Consumer<JoinSwissParams> consumer) {
         return Endpoint.joinSwissTournament.newRequest(request -> request
                 .path(id)

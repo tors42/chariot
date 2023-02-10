@@ -431,6 +431,9 @@ public sealed interface Endpoint<T> {
     public static EPOne<Ack> terminateSwiss =
         Endpoint.of(Ack.class).endpoint("/api/swiss/%s/terminate").post().scope(Scope.tournament_write).toOne();
 
+    public static EPOne<Ack> withdrawSwiss =
+        Endpoint.of(Ack.class).endpoint("/api/swiss/%s/withdraw").post().scope(Scope.tournament_write).toOne();
+
     public static EPMany<SwissResult> swissResults =
         Endpoint.of(SwissResult.class).endpoint("/api/swiss/%s/results").accept(jsonstream).toMany();
 
