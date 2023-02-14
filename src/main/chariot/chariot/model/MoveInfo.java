@@ -20,15 +20,14 @@ public sealed interface MoveInfo {
             Long createdTime,
             boolean rated,
             Variant variant,
-            Color player
+            Color player,
+            Players players
             ) implements MoveInfo {
 
         public GameSummary {
             lastMove = orEmpty(lastMove);
             initialFen = orEmpty(initialFen);
         }
-
-        public record Status(int id, String name) {}
 
         public java.time.ZonedDateTime createdAt() {
             return Util.fromLong(createdTime());
@@ -41,4 +40,7 @@ public sealed interface MoveInfo {
             lm = orEmpty(lm);
         }
     }
+
+    public record Status(int id, String name) {}
+    public record Players(Player white, Player black) { }
 }
