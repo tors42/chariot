@@ -41,8 +41,11 @@ public interface AccountAuth extends Account {
     One<Ack> setKidModeStatus(boolean value);
 
     /**
+     * @deprecated Use {@link chariot.ClientAuth#revokeToken} instead.<br>
+     *
      * Revokes the access token sent as Bearer for this request.
      */
+    @Deprecated
     One<Ack> revokeToken();
 
     /**

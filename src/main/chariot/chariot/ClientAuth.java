@@ -1,6 +1,8 @@
 package chariot;
 
 import chariot.api.*;
+import chariot.model.Ack;
+import chariot.model.One;
 
 /**
  * {@code ClientAuth} provides authenticated access to the <a href="https://lichess.org/api">Lichess API</a>.
@@ -98,5 +100,10 @@ public sealed interface ClientAuth extends Client permits chariot.internal.AuthC
      * Send messages to users.
      */
     UsersAuth users();
+
+    /**
+     * Revokes the access token sent as Bearer for this request.
+     */
+    One<Ack> revokeToken();
 
 }

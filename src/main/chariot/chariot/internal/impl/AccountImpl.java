@@ -2,12 +2,12 @@ package chariot.internal.impl;
 
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import chariot.Client.Scope;
-import chariot.api.*;
 import chariot.internal.*;
 import chariot.model.*;
 
@@ -20,7 +20,9 @@ public class AccountImpl extends Base implements chariot.api.Account {
     @Override
     public UriAndToken oauthPKCE(Scope... scopes) {
         try {
-            var uriAndToken = PKCE.initiateAuthorizationFlow(Set.of(scopes), client.config().servers().api().get(), this::token);
+            String lichessUri = client.config().servers().api().get();
+            String successPage = PKCE.successPage(lichessUri);
+            var uriAndToken = PKCE.initiateAuthorizationFlow(Set.of(scopes), lichessUri, this::token, Duration.ofMinutes(2), successPage);
             return uriAndToken;
         } catch (Exception e) {
             // Hmm... Prolly fail more gracefully
@@ -61,7 +63,7 @@ public class AccountImpl extends Base implements chariot.api.Account {
         }
     }
 
-    TokenResult token(Map<String, String> parameters) {
+    public TokenResult token(Map<String, String> parameters) {
         return Endpoint.apiToken.newRequest(request -> request
                 .body(parameters))
             .process(this) instanceof Entry<TokenResult> tr ?

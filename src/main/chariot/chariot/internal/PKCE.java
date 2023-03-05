@@ -1,29 +1,22 @@
 package chariot.internal;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.URI;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.stream.*;
 
 import com.sun.net.httpserver.HttpServer;
 
-import chariot.Client.Scope;
-import chariot.api.Account.UriAndToken;
-import chariot.api.Account.UriAndTokenExchange;
+import chariot.Client;
+import chariot.Client.*;
+import chariot.api.Account.*;
 import chariot.model.TokenResult;
+import chariot.internal.impl.AccountImpl;
 
 public class PKCE {
 
@@ -45,6 +38,19 @@ public class PKCE {
         }
     }
 
+    public static String successPage(String lichessUri) {
+        return """
+            <html>
+            <body>
+            <h1>Success, you may close this page</h1>
+            <p>If you later want to revoke the token, you can do so from
+            <a href="%s">Security</a> in Preferences of your Lichess account.</p>
+            </body>
+            </html>"""
+            .formatted(lichessUri + "/account/security");
+    }
+
+    @SuppressWarnings(value = {"deprecation"})
     public static UriAndTokenExchange initiateAuthorizationFlowCustom(
             Set<Scope> scopes,
             String lichessUri,
@@ -111,10 +117,14 @@ public class PKCE {
         return uriAndToken;
     }
 
+
+    @SuppressWarnings(value = {"deprecation"})
     public static UriAndToken initiateAuthorizationFlow(
             Set<Scope> scopes,
             String lichessUri,
-            Function<Map<String,String>, TokenResult> apiTokenLookup) throws Exception {
+            Function<Map<String,String>, TokenResult> apiTokenLookup,
+            Duration timeout,
+            String successPage) throws Exception {
 
         var loopbackAddress = InetAddress.getLoopbackAddress();
         var local = new InetSocketAddress(loopbackAddress, 0);
@@ -149,16 +159,6 @@ public class PKCE {
                         return;
                     }
 
-                    var successPage = """
-                        <html>
-                        <body>
-                        <h1>Success, you may close this page</h1>
-                        <p>If you later want to revoke the token, you can do so from
-                        <a href="%s">Security</a> in Preferences of your Lichess account.</p>
-                        </body>
-                        </html>"""
-                        .formatted(lichessUri + "/account/security");
-
                     var responseBytes = successPage.getBytes();
                     exchange.sendResponseHeaders(200, responseBytes.length);
                     exchange.getResponseBody().write(responseBytes);
@@ -170,17 +170,23 @@ public class PKCE {
         httpServer.start();
 
         var urlAndTokenExchange = initiateAuthorizationFlowCustom(scopes, lichessUri, apiTokenLookup, redirectUri);
+        var uri = urlAndTokenExchange.url();
 
-        return new UriAndToken(urlAndTokenExchange.url(), () -> {
+        Supplier<Supplier<char[]>> tokenSupplier = () -> {
             try {
-                var stateAndCode = cf.get(2, TimeUnit.MINUTES);
-                return urlAndTokenExchange.token(stateAndCode.code(), stateAndCode.state()).get();
+                var stateAndCode = cf.get(timeout.toMinutes(), TimeUnit.MINUTES);
+                var supplier = urlAndTokenExchange.token(stateAndCode.code(), stateAndCode.state());
+                return supplier.get();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             } finally {
                 httpServer.stop(0);
             }
-        });
+        };
+
+        var uriAndToken = new UriAndToken(uri, tokenSupplier);
+
+        return uriAndToken;
     }
 
     static CodeVerifier generateRandomCodeVerifier() {
@@ -220,4 +226,84 @@ public class PKCE {
             .replaceAll("\\/", "_");
     }
 
+    public static AuthResult pkceAuth(Client client, Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
+        if (! (client instanceof chariot.internal.DefaultClient dc)) return new Client.AuthFail("Internal Error");
+
+        record Custom(URI redirectUri, Supplier<Client.CodeAndState> codeAndState) {}
+        record Data(Optional<Set<Scope>> scope, Optional<Duration> timeout, Optional<String> htmlSuccess, Optional<String> usernameHint, Optional<Custom> custom) {}
+
+        final class Builder implements PkceConfig {
+            Data data = new Data(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+
+            @Override
+            public PkceConfig scope(Scope... scopes) {
+                var updatedScopes = Stream.concat(
+                        data.scope().orElse(Set.of()).stream(),
+                        Arrays.stream(scopes))
+                    .collect(Collectors.toSet());
+                data = new Data(Optional.of(updatedScopes), data.timeout(), data.htmlSuccess(), data.usernameHint(), data.custom());
+                return this;
+            }
+
+            @Override
+            public PkceConfig timeout(Duration duration) {
+                data = new Data(data.scope(), Optional.of(duration), data.htmlSuccess(), data.usernameHint(), data.custom());
+                return this;
+            }
+
+            @Override
+            public PkceConfig htmlSuccess(String html) {
+                data = new Data(data.scope(), data.timeout(), Optional.of(html), data.usernameHint(), data.custom());
+                return this;
+            }
+
+            @Override
+            public PkceConfig customRedirect(URI redirectUri, Supplier<CodeAndState> codeAndState) {
+                data = new Data(data.scope(), data.timeout(), data.htmlSuccess(), data.usernameHint(), Optional.of(new Custom(redirectUri, codeAndState)));
+                return this;
+            }
+        }
+
+        var builder = new Builder();
+        pkce.accept(builder);
+
+        Data data = builder.data;
+
+        Set<Scope> scopes = data.scope().orElse(Set.of());
+        Duration timeout = data.timeout().orElse(Duration.ofMinutes(2));
+        String html = data.htmlSuccess().orElse(PKCE.successPage(dc.config().servers().api().get()));
+        //String usernameHint = data.usernameHint().orElse(null);
+
+        if (data.custom().isEmpty()) {
+            try {
+                var uriAndToken = PKCE.initiateAuthorizationFlow(
+                        scopes,
+                        dc.config().servers().api().get(),
+                        map -> ((AccountImpl)dc.account()).token(map),
+                        timeout,
+                        html);
+
+                uriHandler.accept(uriAndToken.url());
+                return new AuthOk(client.withToken(uriAndToken.token().get()));
+            } catch (Exception e) {
+                return new AuthFail(e.getMessage());
+            }
+        } else {
+            URI redirectUri = data.custom().get().redirectUri();
+            Supplier<CodeAndState> codeAndStateSupplier = data.custom().get().codeAndState();
+
+            try {
+                var exchange = PKCE.initiateAuthorizationFlowCustom(scopes, dc.config().servers().api().get(), map -> ((AccountImpl)dc.account()).token(map), redirectUri);
+                @SuppressWarnings(value = {"deprecation"})
+                URI uri = exchange.url();
+                uriHandler.accept(uri);
+                var codeAndState = codeAndStateSupplier.get();
+                @SuppressWarnings(value = {"deprecation"})
+                var supplier = exchange.token(codeAndState.code(), codeAndState.state());
+                return new AuthOk(client.withToken(supplier.get()));
+            } catch (Exception e) {
+                return new AuthFail(e.getMessage());
+            }
+        }
+    }
 }

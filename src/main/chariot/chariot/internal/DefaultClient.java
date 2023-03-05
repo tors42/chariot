@@ -5,6 +5,8 @@ import java.util.prefs.Preferences;
 import chariot.internal.Config.TokenType;
 import chariot.api.*;
 import chariot.internal.impl.*;
+import chariot.model.Ack;
+import chariot.model.One;
 
 public class DefaultClient {
 
@@ -131,6 +133,10 @@ public class DefaultClient {
 
     public UsersAuth users() {
         return users;
+    }
+
+    public One<Ack> revokeToken() {
+        return ((AccountAuthImpl)account()).revokeToken();
     }
 
     public Config config() {

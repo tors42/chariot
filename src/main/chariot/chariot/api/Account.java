@@ -19,6 +19,8 @@ import chariot.model.TokenBulkResult;
 public interface Account {
 
     /**
+     * @deprecated Use {@link Client#withPkce} instead.
+     *
      * Use OAuth 2.0 with Proof Key Code Exchange to make it possible for a user
      * to authorize the application to act on the behalf of the user for
      * specified scopes.
@@ -85,8 +87,13 @@ public interface Account {
      * communication, and a {@code Supplier} of the authorization token - which
      * will supply a value after the front channel communication has succeeded.
      */
+    @Deprecated
     UriAndToken oauthPKCE(Scope... scopes);
 
+     /**
+     * @deprecated Use {@link Client#withPkce} instead.
+     */
+    @Deprecated
     UriAndTokenExchange oauthPKCEwithCustomRedirect(URI customRedirectUri, Scope... scopes);
 
     /**
@@ -113,8 +120,10 @@ public interface Account {
      */
     URL personalAccessTokenForm(String description, Scope... scopes);
 
+    @Deprecated
     record UriAndToken(URI url, Supplier<Supplier<char[]>> token) {}
 
+    @Deprecated
     interface UriAndTokenExchange {
         URI url();
         /**
