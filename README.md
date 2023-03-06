@@ -12,11 +12,9 @@ import chariot.Client;
 
 var client = Client.basic()
 
-client.account().oauthPKCE()
-client.account().oauthPKCEwithCustomRedirect()
-client.account().personalAccessTokenForm()
-client.account().testTokens()
-client.account().scopes()
+
+client.withToken()
+client.withPkce()
 
 client.analysis().cloudEval()
 
@@ -106,7 +104,9 @@ client.users().autocompleteUsers()
 ```java
 import chariot.Client;
 
-var client = Client.auth("my-token")
+var client = Client.auth()
+
+client.revokeToken()
 
 client.account().profile()
 client.account().following()
@@ -114,7 +114,6 @@ client.account().emailAddress()
 client.account().preferences()
 client.account().getKidModeStatus()
 client.account().setKidModeStatus()
-client.account().revokeToken()
 
 client.board().connect()
 client.board().challenge()
