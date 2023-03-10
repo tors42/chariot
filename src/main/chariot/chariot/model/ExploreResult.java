@@ -24,7 +24,7 @@ public sealed interface ExploreResult {
             List<PlayerGame> recentGames,
             Optional<EROpening> opening) implements ExploreResult {}
 
-    public record DBMove(
+    record DBMove(
             String uci,
             String san,
             int white,
@@ -33,7 +33,7 @@ public sealed interface ExploreResult {
             int averageRating,
             Optional<DBGame> game) {}
 
-    public record DBGame(
+    record DBGame(
             String uci,
             String id,
             Optional<Color> winner,
@@ -42,7 +42,7 @@ public sealed interface ExploreResult {
             int year,
             String month) {}
 
-    public record PlayerMove(
+    record PlayerMove(
             String uci,
             String san,
             int white,
@@ -52,7 +52,7 @@ public sealed interface ExploreResult {
             int performance,
             Optional<PlayerGame> game) {}
 
-    public record PlayerGame(
+    record PlayerGame(
             String uci,
             String id,
             Optional<Color> winner,
@@ -63,9 +63,9 @@ public sealed interface ExploreResult {
             int year,
             String month) {}
 
-    public record ERPlayer(String name, Integer rating) {}
-    public record EROpening(String eco, String name) {}
+    record ERPlayer(String name, Integer rating) {}
+    record EROpening(String eco, String name) {}
 
-    public record HistoryStats(List<ERStats> history, EROpening opening) {}
-    public record ERStats(String month, int black, int draws, int white) {}
+    record HistoryStats(List<ERStats> history, EROpening opening) {}
+    record ERStats(String month, int black, int draws, int white) {}
 }
