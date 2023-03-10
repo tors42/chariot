@@ -100,7 +100,7 @@ public sealed interface Client permits ClientAuth, Client.Basic {
      * Creates a default client
      */
     static Client basic() {
-        return basic(Config.basic(c -> c.production()));
+        return basic(Config.of());
     }
 
     /**
@@ -108,9 +108,8 @@ public sealed interface Client permits ClientAuth, Client.Basic {
      * @param token A token to use for the authenticated parts of the API
      */
     static ClientAuth auth(String token) {
-        return auth(c -> c.production().auth(token));
+        return auth(token::toCharArray);
     }
-
 
     /**
      * Helps to perform a OAuth 2 PKCE flow or prepare a URL to create a Personal API Token with specified Scope/s.
@@ -200,7 +199,7 @@ public sealed interface Client permits ClientAuth, Client.Basic {
      * Creates a customized client
      * @param params A configuration parameters builder
      */
-    static Client basic(Consumer<Builder> params){
+    static Client basic(Consumer<ConfigBuilder> params){
         return basic(Config.basic(params));
     }
     /**
@@ -236,46 +235,30 @@ public sealed interface Client permits ClientAuth, Client.Basic {
         if (this instanceof chariot.internal.DefaultClient dc) {
             Config config = dc.config();
             Config.Basic basic = config instanceof Config.Auth auth ? auth.basic() : (Config.Basic) config;
-            return Client.auth(basic.withAuth(token));
+            Config.Auth auth = new Config.Auth(basic, token);
+            return Client.auth(auth);
         }
         return null;
     }
 
     /**
-     * @deprecated Use {@link #auth(Consumer, Supplier)} instead<br>
-     *
      * Creates a customizable client using the provided configuration parameters builder.<br>
-     * Note, make sure to supply a token using the withToken* methods, or a IllegalArgumentException will be thrown.
      * @param params A configuration parameters builder
      */
-    @Deprecated
-    static ClientAuth auth(Consumer<TokenBuilder> params) {
-        return auth(Config.auth(params));
-    }
+    static ClientAuth auth(Consumer<ConfigBuilder> params, Supplier<char[]> token) { return basic(params).withToken(token); }
+
 
     /**
      * Creates a customizable client using the provided configuration parameters builder.<br>
      * @param params A configuration parameters builder
      */
-    static ClientAuth auth(Consumer<Builder> params, String token) {
-        return auth(params, token::toCharArray);
-    }
-
-    /**
-     * Creates a customizable client using the provided configuration parameters builder.<br>
-     * @param params A configuration parameters builder
-     */
-    static ClientAuth auth(Consumer<Builder> params, Supplier<char[]> token) {
-        return basic(params).withToken(token);
-    }
+    static ClientAuth auth(Consumer<ConfigBuilder> params, String token) { return auth(params, token::toCharArray); }
 
     /**
      * Creates a default client using the provided token to use the authenticated parts of the API
      * @param token A token to use for the authenticated parts of the API
      */
-    static ClientAuth auth(Supplier<char[]> token) {
-        return auth(c -> c.production().auth(token));
-    }
+    static ClientAuth auth(Supplier<char[]> token) { return auth(c -> {}, token); }
 
     sealed interface AuthResult {}
     record AuthOk(ClientAuth client) implements AuthResult {}
@@ -383,7 +366,7 @@ public sealed interface Client permits ClientAuth, Client.Basic {
      * @param uriHandler The generated Lichess URI that your user can visit to review and approve granting access to your application
      * @param pkce Configuration of for instance which scopes if any that the resulting Access Token should include.
      */
-    static AuthResult auth(Consumer<Builder> config, Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
+    static AuthResult auth(Consumer<ConfigBuilder> config, Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
         return basic(config).withPkce(uriHandler, pkce);
     }
 
@@ -416,8 +399,8 @@ public sealed interface Client permits ClientAuth, Client.Basic {
      * @param prefs A configuration preferences node
      * @param token A token to use for the authenticated parts of the API
      */
-    static ClientAuth load(Preferences prefs, Consumer<AuthBuilder> token) {
-        return auth(Config.load(prefs, token));
+    static ClientAuth load(Preferences prefs, String token) {
+        return load(prefs).withToken(token);
     }
 
     /**
@@ -482,7 +465,7 @@ public sealed interface Client permits ClientAuth, Client.Basic {
         @SuppressWarnings(value = {"deprecation"})
         var oauth = client.account().oauthPKCE(scopes);
         System.out.println("\n\nGrant access at URL:\n" + oauth.url() + "\n");
-        var clientAuth = Client.load(prefs, auth -> auth.auth(oauth.token().get()));
+        var clientAuth = Client.load(prefs).withToken(oauth.token().get());
         clientAuth.store(prefs);
 
         return clientAuth;
@@ -498,9 +481,9 @@ public sealed interface Client permits ClientAuth, Client.Basic {
     /**
      * Configure logging levels
      */
-    default void logging(Consumer<LogSetter> params) {
+    default void logging(Consumer<LoggingBuilder> params) {
         var logging = ((chariot.internal.DefaultClient) this).config().logging();
-        var builder = new Config.LBuilderImpl(logging);
+        var builder = Config.loggingBuilder(logging);
         params.accept(builder);
     }
 

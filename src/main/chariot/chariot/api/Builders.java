@@ -1,10 +1,7 @@
 package chariot.api;
 
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.prefs.Preferences;
 
 import chariot.Client.Scope;
@@ -85,147 +82,76 @@ public interface Builders {
         default T clockClassical30m20s() { return clock(30.0f, 20); }
     }
 
-
-
-    interface TokenBuilder extends Builder, AuthBuilder {
-
-        /**
-         * {@inheritDoc}
-         */
-        default TokenBuilder auth(String token) {
-            return auth(() -> token.toCharArray());
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        TokenBuilder auth(Supplier<char[]> token);
-
-        /**
-         * {@inheritDoc}
-         */
-        TokenBuilder auth(Set<Supplier<char[]>> tokens);
-
-        /**
-         * {@inheritDoc}
-         */
-        TokenBuilder auth(Map<Scope, Supplier<char[]>> tokens);
-
-        /**
-         * {@inheritDoc}
-         */
-        TokenBuilder api(String url);
-
-        /**
-         * {@inheritDoc}
-         */
-        TokenBuilder servers(Consumer<ExtServBuilder> params);
-
-        /**
-         * {@inheritDoc}
-         */
-        TokenBuilder logging(Consumer<LogSetter> params);
-
-        /**
-         * {@inheritDoc}
-         */
-        default TokenBuilder production() { Builder.super.production(); return this; }
-
-        /**
-         * {@inheritDoc}
-         */
-        default TokenBuilder local() { Builder.super.local(); return this;}
-    }
-
-    interface AuthBuilder {
-        /**
-         *  Enables use of authenticated endpoints,
-         *  by using the supplied token for authentication.
-         */
-        default AuthBuilder auth(String token) {
-            return auth(() -> token.toCharArray());
-        }
-
-        /**
-         * Enables use of authenticated endpoints, by using the supplied
-         * token for authentication.
-         */
-        AuthBuilder auth(Supplier<char[]> token);
-
-        /**
-         * Enables use of authenticated endpoints, by using the supplied
-         * tokens for authentication.
-         * The server will be queried for each token to see which scopes they
-         * are valid for, and when making a request to an endpoint which needs
-         * a specific scope, a token providing that scope will be used.
-         */
-        AuthBuilder auth(Set<Supplier<char[]>> tokens);
-
-        /**
-         * Enables use of authenticated endpoints, by using the supplied
-         * tokens for authentication.
-         * When making a request to an endpoint which needs a specific scope,
-         * the token providing that scope will be used.
-         */
-        AuthBuilder auth(Map<Scope, Supplier<char[]>> tokens);
-    }
-
-    interface Builder {
+    interface ConfigBuilder {
         /**
          * Lichess<br/>
          * API: https://lichess.org<br/>
-         * Explorer: https://explorer.lichess.ova<br/>
-         * Tablebase: https://tablebase.lichess.ova<br/>
+         * Explorer: https://explorer.lichess.ovh<br/>
+         * Tablebase: https://tablebase.lichess.ovh<br/>
+         * Engine: https://engine.lichess.ovh<br/>
          */
-        default Builder production() { return api(Config.lichess).servers(s -> s.explorer(Config.explorer).tablebase(Config.tablebase)); }
+        default ConfigBuilder production() {
+            var prod = Config.Servers.of();
+            return servers(s -> s
+                    .api(prod.api().toString())
+                    .explorer(prod.explorer().toString())
+                    .tablebase(prod.tablebase().toString())
+                    .engine(prod.engine().toString())
+                    );
+        }
 
         /**
          * Development<br/>
          * API: http://localhost:9663
          */
-        default Builder local() { return api(Config.local); }
+        default ConfigBuilder local() { return api("http://localhost:9663"); }
 
         /**
          * Custom API URL
          */
-        Builder api(String url);
+        ConfigBuilder api(String url);
 
         /**
-         * Custom explorer and tablebase URLs
+         * Custom api, explorer, tablebase and engine URLs
          */
-        Builder servers(Consumer<ExtServBuilder> params);
+        ConfigBuilder servers(Consumer<ServerBuilder> params);
 
         /**
          * Log levels
          */
-        Builder logging(Consumer<LogSetter> params);
+        ConfigBuilder logging(Consumer<LoggingBuilder> params);
 
         /**
          * Number of times to retry sending a request if server indicates throttling (status code 429).<br/>
          * The waiting time until performing a retry is 60 seconds.<br/>
          * Default: 1 retry
          */
-        Builder retries(int retries);
+        ConfigBuilder retries(int retries);
     }
 
-    interface ExtServBuilder {
+    interface ServerBuilder {
+        /**
+         * Address of the api service
+         */
+        ServerBuilder api(String url);
+
         /**
          * Address of the explorer service
          */
-        ExtServBuilder explorer(String url);
+        ServerBuilder explorer(String url);
 
         /**
          * Address of the tablebase service
          */
-        ExtServBuilder tablebase(String url);
+        ServerBuilder tablebase(String url);
 
         /**
          * Address of the engine service
          */
-        ExtServBuilder engine(String url);
+        ServerBuilder engine(String url);
     }
 
-    interface LogSetter {
+    interface LoggingBuilder {
         /**
          * Log level of logger "chariot.request", default warning
          */
@@ -241,15 +167,17 @@ public interface Builders {
     }
 
     interface LogLevel {
-        LogSetter all();
-        LogSetter finest();
-        LogSetter finer();
-        LogSetter fine();
-        LogSetter config();
-        LogSetter info();
-        LogSetter warning();
-        LogSetter severe();
-        LogSetter off();
+        LoggingBuilder all();
+        LoggingBuilder finest();
+        LoggingBuilder finer();
+        LoggingBuilder fine();
+        LoggingBuilder config();
+        LoggingBuilder info();
+        LoggingBuilder warning();
+        LoggingBuilder severe();
+        LoggingBuilder off();
+
+        LoggingBuilder parse(String level);
     }
 
 }

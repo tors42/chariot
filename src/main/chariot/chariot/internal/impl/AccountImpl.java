@@ -18,9 +18,10 @@ public class AccountImpl extends Base implements chariot.api.Account {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public UriAndToken oauthPKCE(Scope... scopes) {
         try {
-            String lichessUri = client.config().servers().api().get();
+            String lichessUri = client.config().servers().api().toString();
             String successPage = PKCE.successPage(lichessUri);
             var uriAndToken = PKCE.initiateAuthorizationFlow(Set.of(scopes), lichessUri, this::token, Duration.ofMinutes(2), successPage);
             return uriAndToken;
@@ -31,9 +32,10 @@ public class AccountImpl extends Base implements chariot.api.Account {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public UriAndTokenExchange oauthPKCEwithCustomRedirect(URI customRedirectUri, Scope... scopes) {
         try {
-            var uriAndToken = PKCE.initiateAuthorizationFlowCustom(Set.of(scopes), client.config().servers().api().get(), this::token, customRedirectUri);
+            var uriAndToken = PKCE.initiateAuthorizationFlowCustom(Set.of(scopes), client.config().servers().api().toString(), this::token, customRedirectUri);
             return uriAndToken;
         } catch (Exception e) {
             // Hmm... Prolly fail more gracefully
@@ -50,7 +52,7 @@ public class AccountImpl extends Base implements chariot.api.Account {
 
         var descriptionString = "description=" + URLEncoder.encode(description, StandardCharsets.UTF_8);
 
-        var server = client.config().servers().api().get();
+        var server = client.config().servers().api().toString();
         var endpoint = Endpoint.accountOAuthToken.endpoint() + "/create" + "?" ;
         var params = String.join("&", scopesString, descriptionString);
 

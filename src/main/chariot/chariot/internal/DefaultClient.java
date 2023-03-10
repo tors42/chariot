@@ -2,7 +2,6 @@ package chariot.internal;
 
 import java.util.prefs.Preferences;
 
-import chariot.internal.Config.TokenType;
 import chariot.api.*;
 import chariot.internal.impl.*;
 import chariot.model.Ack;
@@ -37,13 +36,6 @@ public class DefaultClient {
         client = new InternalClient(config);
 
         account = new AccountAuthImpl(client);
-
-        if (config instanceof Config.Auth auth) {
-            if (auth.type() instanceof TokenType.AutoScopedTokens auto) {
-                auto.resolve(account::scopes);
-            }
-        }
-
         admin = new AdminAuthImpl(client);
         analysis = new AnalysisImpl(client);
         challenges = new ChallengesAuthImpl(client);

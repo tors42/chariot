@@ -271,14 +271,14 @@ public class PKCE {
 
         Set<Scope> scopes = data.scope().orElse(Set.of());
         Duration timeout = data.timeout().orElse(Duration.ofMinutes(2));
-        String html = data.htmlSuccess().orElse(PKCE.successPage(dc.config().servers().api().get()));
+        String html = data.htmlSuccess().orElse(PKCE.successPage(dc.config().servers().api().toString()));
         //String usernameHint = data.usernameHint().orElse(null);
 
         if (data.custom().isEmpty()) {
             try {
                 var uriAndToken = PKCE.initiateAuthorizationFlow(
                         scopes,
-                        dc.config().servers().api().get(),
+                        dc.config().servers().api().toString(),
                         map -> ((AccountImpl)dc.account()).token(map),
                         timeout,
                         html);
@@ -293,7 +293,7 @@ public class PKCE {
             Supplier<CodeAndState> codeAndStateSupplier = data.custom().get().codeAndState();
 
             try {
-                var exchange = PKCE.initiateAuthorizationFlowCustom(scopes, dc.config().servers().api().get(), map -> ((AccountImpl)dc.account()).token(map), redirectUri);
+                var exchange = PKCE.initiateAuthorizationFlowCustom(scopes, dc.config().servers().api().toString(), map -> ((AccountImpl)dc.account()).token(map), redirectUri);
                 @SuppressWarnings(value = {"deprecation"})
                 URI uri = exchange.url();
                 uriHandler.accept(uri);

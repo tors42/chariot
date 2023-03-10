@@ -51,16 +51,15 @@ public class InternalClient {
     public RequestResult request(RequestParameters request) {
 
         String baseUri = switch(request.target()) {
-            case api -> config.servers().api().get();
-            case explorer -> config.servers().explorer().get();
-            case tablebase -> config.servers().tablebase().get();
-            case engine -> config.servers().engine().get();
+            case api -> config.servers().api().toString();
+            case explorer -> config.servers().explorer().toString();
+            case tablebase -> config.servers().tablebase().toString();
+            case engine -> config.servers().engine().toString();
         };
 
         var uri = URI.create(joinUri(baseUri, request.path()));
 
-        var builder = HttpRequest.newBuilder()
-            .uri(uri);
+        var builder = HttpRequest.newBuilder(uri);
 
         String requestBody = Objects.toString(request.data(), "");
         var bodyPublisher = requestBody.isEmpty() ? BodyPublishers.noBody() : BodyPublishers.ofString(requestBody);
@@ -77,10 +76,9 @@ public class InternalClient {
         };
 
         if (config instanceof Config.Auth auth) {
-            var scope = request.scope() != null ? request.scope() : Scope.any;
-            auth.type().getToken(scope).ifPresent(token ->
-                    builder.header("authorization", "Bearer " + String.valueOf(token.get())));
+            builder.header("authorization", "Bearer " + String.valueOf(auth.token().get()));
         }
+
         builder.header("user-agent", "%s %s".formatted(Util.javaVersion, Util.clientVersion));
         request.headers().forEach((k,v) -> builder.header(k,v));
 
@@ -108,7 +106,7 @@ public class InternalClient {
             config.logging().request().info(() -> "%s".formatted(httpResponse));
 
             var stream = httpResponse.body()
-                .peek(string -> config.logging().responsebodyraw().info(() -> string))
+                .peek(string -> config.logging().response().info(() -> string))
                 .filter(Predicate.not("{}"::equals)); // Filter out any keep-alive messages
 
             return new RequestResult.Success(stream);
@@ -125,7 +123,7 @@ public class InternalClient {
             else
                 config.logging().request().info(msg);
 
-            config.logging().responsebodyraw().info(() -> responseBody);
+            config.logging().response().info(() -> responseBody);
 
             return new RequestResult.Failure(statusCode, responseBody);
         }
@@ -216,16 +214,12 @@ public class InternalClient {
 
     public Set<Scope> fetchScopes(String endpointPath) {
         return config instanceof Config.Auth auth ?
-            auth.type().getToken(Scope.any)
-            .map(supplier -> fetchScopes(endpointPath, supplier))
-            .orElse(Set.of()) :
-            Set.of();
+            fetchScopes(endpointPath, auth.token()) : Set.of();
     }
 
     public Set<Scope> fetchScopes(String endpointPath, Supplier<char[]> tokenSupplier) {
-        var uri = URI.create(joinUri(config.servers().api().get(), endpointPath));
-        var builder = HttpRequest.newBuilder()
-            .uri(uri)
+        var uri = URI.create(joinUri(config.servers().api().toString(), endpointPath));
+        var builder = HttpRequest.newBuilder(uri)
             .method("HEAD", BodyPublishers.noBody())
             .timeout(Duration.ofSeconds(15));
         builder.header("authorization", "Bearer " + new String(tokenSupplier.get()));
