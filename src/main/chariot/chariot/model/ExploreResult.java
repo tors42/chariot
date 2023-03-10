@@ -22,7 +22,8 @@ public sealed interface ExploreResult {
             List<PlayerMove> moves,
             List<PlayerGame> topGames,
             List<PlayerGame> recentGames,
-            Optional<EROpening> opening) implements ExploreResult {}
+            Optional<EROpening> opening,
+            Optional<Integer> queuePosition) implements ExploreResult {}
 
     record DBMove(
             String uci,
