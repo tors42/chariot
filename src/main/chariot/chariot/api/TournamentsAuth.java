@@ -307,21 +307,24 @@ public interface TournamentsAuth extends Tournaments {
 
 
         /**
-         * Manual pairings for the next round. Missing players will be given a bye, which is worth 1 point.
+         * Manual pairings for the next round. Missing players will be considered absent and get zero points.
          */
         default SwissParams addManualPairing(String player1, String player2) { return addManualPairings(Set.of(new Pairing(player1, player2))); }
 
         /**
-         * Manual pairings for the next round. Missing players will be given a bye, which is worth 1 point.
+         * Manual pairings for the next round. Missing players will be considered absent and get zero points.
          */
         default SwissParams addManualPairing(Pairing forbiddenPairing) { return addManualPairings(Set.of(forbiddenPairing)); }
 
         /**
-         * Manual pairings for the next round. Missing players will be given a bye, which is worth 1 point.
+         * Manual pairings for the next round. Missing players will be considered absent and get zero points.
          */
         SwissParams addManualPairings(Collection<Pairing> manualPairings);
 
-
+        /**
+         * Give a bye (1 point) to a player, instead of pairing them with an opponent.
+         */
+        default SwissParams addManualBye(String player) { return addManualPairing(player, "1"); }
 
         record Pairing(String player1, String player2) {}
     }
