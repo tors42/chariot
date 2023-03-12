@@ -190,6 +190,7 @@ client.teams().leaveTeam()
 client.teams().messageTeam()
 client.teams().kickFromTeam()
 client.teams().requests()
+client.teams().requestsDeclined()
 client.teams().requestAccept()
 client.teams().requestDecline()
 
