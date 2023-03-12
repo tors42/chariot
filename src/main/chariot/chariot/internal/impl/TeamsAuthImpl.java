@@ -53,6 +53,14 @@ public class TeamsAuthImpl extends TeamsImpl implements TeamsAuth {
     }
 
     @Override
+    public Many<TeamRequest> requestsDeclined(String teamId) {
+        return Endpoint.teamRequests.newRequest(request -> request
+                .path(teamId)
+                .query(Map.of("declined", true)))
+            .process(this);
+    }
+
+    @Override
     public One<Ack> requestAccept(String teamId, String userId) {
         return Endpoint.teamAcceptJoin.newRequest(request -> request
                 .path(teamId, userId))

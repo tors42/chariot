@@ -27,6 +27,11 @@ public interface TeamsAuth extends Teams {
     Many<TeamRequest> requests(String teamId);
 
     /**
+     * Get the declined join requests of your team
+     */
+    Many<TeamRequest> requestsDeclined(String teamId);
+
+    /**
      * Accept a join request to a team from a user
      * @param teamId
      * @param userId
