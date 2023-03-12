@@ -13,7 +13,7 @@ import chariot.api.Builders.*;
 //  - api
 //  - explorer
 //  - tablebase
-//  - eninge
+//  - engine
 // logging
 //  - request
 //  - response
