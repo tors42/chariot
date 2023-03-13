@@ -361,30 +361,32 @@ public sealed interface Board {
                     String san = "%s%s%s%s".formatted(letter, capture, destination, checkSymbol);
                     return san;
                 } else {
+                    String letter = piece.letter().toUpperCase();
+
                     List<Map.Entry<Coordinate, Piece>> disambiguation = pieceMap().entrySet().stream()
                         .filter(entry -> entry.getValue().type() == piece.type() && entry.getValue().color() == piece.color())
                         .filter(entry -> entry.getValue() != piece)
                         .filter(entry -> Board.coordinatesAttackedByPiece(entry.getKey(), pieceMap()).contains(fromTo.to()))
                         .toList();
 
-                    record Unique(boolean file, boolean rank) {}
-                    var unique = disambiguation.stream().reduce(
-                            new Unique(true, true),
-                            (a, e) -> new Unique(a.file() && e.getKey().col() != fromTo.from().col(),
-                                a.rank() && e.getKey().row() != fromTo.from().row()),
-                            (u1, u2) -> new Unique(u1.file() && u2.file(), u1.rank() && u2.rank()));
+                    String dis = "";
+                    if ( ! disambiguation.isEmpty()) {
+                        record Unique(boolean file, boolean rank) {}
+                        var unique = disambiguation.stream().reduce(
+                                new Unique(true, true),
+                                (a, e) -> new Unique(a.file() && e.getKey().col() != fromTo.from().col(),
+                                    a.rank() && e.getKey().row() != fromTo.from().row()),
+                                (u1, u2) -> new Unique(u1.file() && u2.file(), u1.rank() && u2.rank()));
 
-                    String letter = piece.letter().toUpperCase();
-
-                    final String dis;
-                    if (unique.file() && unique.rank()) {
-                        dis = "";
-                    } else if (unique.file()) {
-                        dis = fromTo.from().name().substring(1,2);
-                    } else if (unique.rank()) {
-                        dis = fromTo.from().name().substring(0,1);
-                    } else {
-                        dis = fromTo.from().name();
+                        if (unique.file() && unique.rank()) {
+                            dis = fromTo.from().name().substring(0,1); // specify the file
+                        } else if (unique.file()) {
+                            dis = fromTo.from().name().substring(1,2); // specify the rank
+                        } else if (unique.rank()) {
+                            dis = fromTo.from().name().substring(0,1); // specify the file
+                        } else {
+                            dis = fromTo.from().name();                // specify both file and rank
+                        }
                     }
 
                     String capture = pieceMap().containsKey(fromTo.to()) ? "x" : "";
