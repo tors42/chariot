@@ -2,6 +2,7 @@ package chariot.api;
 
 import java.time.ZonedDateTime;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import chariot.model.*;
 import chariot.model.Broadcast.Round;
@@ -74,6 +75,12 @@ public interface BroadcastsAuth extends Broadcasts {
          *                 Leave empty to manually start the broadcast round.
          */
         default RoundBuilder startsAt(ZonedDateTime startsAt) { return startsAt(startsAt.toInstant().toEpochMilli()); }
+
+        /**
+         * @param now Broadcast round start, from a given {@code ZonedDateTime.now()} instance.
+         */
+        default RoundBuilder startsAt(Function<ZonedDateTime, ZonedDateTime> now) { return startsAt(now.apply(ZonedDateTime.now())); }
+
 
     }
 }

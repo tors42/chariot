@@ -247,6 +247,11 @@ public interface Games {
          */
         default SearchFilter since(ZonedDateTime since) { return since(zdtToMillis(since)); }
         /**
+         * Download games played since this timestamp, from a given {@code ZonedDateTime.now()} instance..<br>
+         * Default: Account creation date
+         */
+        default SearchFilter since(Function<ZonedDateTime, ZonedDateTime> now) { return since(now.apply(ZonedDateTime.now())); }
+        /**
          * Download games played until this timestamp.<br>
          * Default: Now
          */
@@ -257,6 +262,11 @@ public interface Games {
          */
         default SearchFilter until(ZonedDateTime until) { return until(zdtToMillis(until)); }
         /**
+         * Download games played until this timestamp, from a given {@code ZonedDateTime.now()} instance..<br>
+         * Default: Now
+         */
+        default SearchFilter until(Function<ZonedDateTime, ZonedDateTime> now) { return until(now.apply(ZonedDateTime.now())); }
+         /**
          * How many games to download.<br>
          * Leave empty to download all games.
          */

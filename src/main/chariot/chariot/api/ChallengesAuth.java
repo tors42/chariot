@@ -105,7 +105,15 @@ public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
          *               Up to 24h in the future.<br>
          *               Omit, or set to current date and time, to start the games immediately.
          */
-         default BulkParams pairAt(ZonedDateTime pairAt) { return pairAt(pairAt.toInstant().toEpochMilli()); }
+        default BulkParams pairAt(ZonedDateTime pairAt) { return pairAt(pairAt.toInstant().toEpochMilli()); }
+
+        /**
+         * @param now Date at which the games will be created, from a given {@code ZonedDateTime.now()} instance.<br>
+         *            Up to 24h in the future.<br>
+         *            Omit, or set to current date and time, to start the games immediately.<br>
+         */
+        default BulkParams pairAt(Function<ZonedDateTime, ZonedDateTime> now) { return pairAt(now.apply(ZonedDateTime.now())); }
+
 
         /**
          * @param startClocksAt Date at which the clocks will be automatically started.<br>
@@ -122,6 +130,14 @@ public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
          *                      If omitted, the clocks will not start automatically.
          */
         default BulkParams startClocksAt(ZonedDateTime startClocksAt) { return startClocksAt(startClocksAt.toInstant().toEpochMilli()); }
+
+        /**
+         * @param now Date at which the clocks will be automatically started, from a given {@code ZonedDateTime.now()} instance.<br>
+         *                      Up to 24h in the future.<br>
+         *                      Note that the clocks can start earlier than specified, if players start making moves in the game.<br>
+         *                      If omitted, the clocks will not start automatically.
+         */
+        default BulkParams startClocksAt(Function<ZonedDateTime, ZonedDateTime> now) { return startClocksAt(now.apply(ZonedDateTime.now())); }
 
         /**
          * @param variant The variant to use in games
