@@ -20,16 +20,16 @@ jobs:
           ref: main
           path: chariot
 
-      - name: Download OpenJDK 19
+      - name: Download OpenJDK 20
         run: |
-          download_url="https://download.java.net/java/GA/jdk19.0.2/fdb695a9d9064ad6b064dc6df578380c/7/GPL/openjdk-19.0.2_linux-x64_bin.tar.gz"
+          download_url="https://download.java.net/java/GA/jdk20/bdc68b4b9cbc4ebcb30745c85038d91d/36/GPL/openjdk-20_linux-x64_bin.tar.gz"
           wget -O $RUNNER_TEMP/java_package.tar.gz $download_url
 
       - uses: actions/setup-java@v3
         with:
           distribution: 'jdkfile'
           jdkFile: ${{ runner.temp }}/java_package.tar.gz
-          java-version: '19'
+          java-version: '20'
           architecture: x64
 
       - name: Check java version
@@ -44,6 +44,9 @@ jobs:
 
       - name: Run the build.sh script
         run: actions/build.sh
+
+      - name: checksum
+        run: sha256sum bundle/*
 
       # chariot-VERSION.jar
       # chariot-VERSION-sources.jar
