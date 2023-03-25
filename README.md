@@ -240,9 +240,9 @@ order to get things like code completion support and other good stuff.
 Make sure to use at least Java 19. A JDK archive can be downloaded and unpacked from https://jdk.java.net/
 
     $ java -version
-    openjdk version "19.0.2" 2023-01-17
-    OpenJDK Runtime Environment (build 19.0.2+7-44)
-    OpenJDK 64-Bit Server VM (build 19.0.2+7-44, mixed mode, sharing)
+    openjdk version "20" 2023-03-21
+    OpenJDK Runtime Environment (build 20+36-2344)
+    OpenJDK 64-Bit Server VM (build 20+36-2344, mixed mode, sharing)
 
     $ java build/Build.java
 
