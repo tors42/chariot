@@ -94,7 +94,8 @@ public class GamesImpl extends Base implements Games {
     public Many<GameInfo> gameInfosByGameIds(String streamId, Set<String> gameIds) {
         return Endpoint.streamGamesByStreamIds.newRequest(request -> request
                 .path(streamId)
-                .body(String.join(",", gameIds)))
+                .body(String.join(",", gameIds))
+                .stream())
             .process(this);
     }
 
@@ -122,7 +123,7 @@ public class GamesImpl extends Base implements Games {
 
     @Override
     public Many<TVFeedEvent> tvFeed() {
-        return Endpoint.gameTVFeed.newRequest(request -> {})
+        return Endpoint.gameTVFeed.newRequest(request -> request.stream())
             .process(this);
     }
 
