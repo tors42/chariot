@@ -46,6 +46,30 @@ public interface TournamentsAuth extends Tournaments {
      */
     One<Swiss> updateSwiss(String id, Consumer<SwissBuilder> params);
 
+
+    /**
+     * Manually schedule the next round
+     * <p>
+     * Manually schedule the next round date and time of a Swiss tournament.<br>
+     * This sets the {@code roundInterval} field to {@code 99999999}, i.e. manual scheduling.<br>
+     * All further rounds will need to be manually scheduled, unless the {@code roundInterval} field is changed back to automatic scheduling.
+     * @param id The tournament ID. Example: {@code hL7vMrFQ}
+     * @param date The time to start the next round. Example: {@code java.time.ZonedDateTime.now().plusMinutes(5)}
+     */
+    One<Void> scheduleNextRoundSwiss(String id, ZonedDateTime date);
+    /**
+     * Manually schedule the next round
+     * <p>
+     * Manually schedule the next round date and time of a Swiss tournament.<br>
+     * This sets the {@code roundInterval} field to {@code 99999999}, i.e. manual scheduling.<br>
+     * All further rounds will need to be manually scheduled, unless the {@code roundInterval} field is changed back to automatic scheduling.
+     * @param id The tournament ID. Example: {@code hL7vMrFQ}
+     * @param date The time to start the next round. Example: {@code now -> now.plusMinutes(5)}
+     */
+    default One<Void> scheduleNextRoundSwiss(String id, UnaryOperator<ZonedDateTime> date) {
+        return scheduleNextRoundSwiss(id, date.apply(ZonedDateTime.now()));
+    }
+
     One<Ack> terminateSwiss(String swissId);
 
     /**

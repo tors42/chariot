@@ -425,6 +425,10 @@ public sealed interface Endpoint<T> {
     public static EPOne<Swiss> updateSwissTournament =
         Endpoint.of(Swiss.class).endpoint("/api/swiss/%s/edit").post(wwwform).scope(Scope.tournament_write).toOne();
 
+    public static EPOne<Void> scheduleNextRoundSwiss =
+        Endpoint.of(Void.class).endpoint("/api/swiss/%s/schedule-next-round").post(wwwform).scope(Scope.tournament_write).toOne();
+
+
     public static EPOne<Ack> joinSwissTournament =
         Endpoint.of(Ack.class).endpoint("/api/swiss/%s/join").post(wwwform).scope(Scope.tournament_write).toOne();
 

@@ -1,5 +1,6 @@
 package chariot.internal.impl;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
@@ -80,6 +81,15 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
                 .body(swissBuilderToMap(consumer)))
             .process(this);
     }
+
+    @Override
+    public One<Void> scheduleNextRoundSwiss(String id, ZonedDateTime date) {
+        return Endpoint.scheduleNextRoundSwiss.newRequest(request -> request
+                .path(id)
+                .body(Map.of("date", date.toInstant().toEpochMilli())))
+            .process(this);
+    }
+
 
     @Override
     public One<Ack> terminateSwiss(String swissId) {
