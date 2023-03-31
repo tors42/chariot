@@ -41,8 +41,19 @@ public class Util {
 
     public static String urlEncode(Map<String, ?> map) {
         return map.entrySet().stream()
-            .map(kv -> urlEncode(kv.getKey()) + "=" + urlEncode(String.valueOf(kv.getValue())))
+            .map(kv -> urlEncode(kv.getKey()) + "=" + urlEncode(stringify(kv.getValue())))
             .collect(Collectors.joining("&"));
+    }
+
+    private static String stringify(Object obj) {
+        if (obj instanceof Float f) {
+            // Strip trailing zeros
+            // 15.0 -> 15
+            // 0.75 -> 0.75
+            return (f % 1.0 == 0 ? "%.0f" : "%s").formatted(f);
+        } else {
+            return String.valueOf(obj);
+        }
     }
 
     public static String urlEncodeWithWorkaround(Map<String, Object> map) {
