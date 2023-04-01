@@ -23,7 +23,10 @@ public record Challenge(
         Player challenger,
         Player destUser,
         Perf perf,
+        /** Human readable, possibly translated reason why the challenge was declined. **/
         Optional<String> declineReason,
+        /** Untranslated, computer-matchable reason why the challenge was declined. **/
+        Optional<String> declineReasonKey,
         Optional<String> rematchOf,
         List<String> rules) {
 
