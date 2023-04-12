@@ -27,9 +27,10 @@ public class InternalClient {
     private final int NUMBER_OF_BURST_REQUESTS = 4;
     private final int NUMBER_OF_STREAM_REQUESTS = 8;
 
-    private final Semaphore singleSemaphore = new Semaphore(NUMBER_OF_PARALLEL_REQUESTS);
+    private final Semaphore singleSemaphore = new Semaphore(NUMBER_OF_PARALLEL_REQUESTS, true);
+    private final Semaphore streamSemaphore = new Semaphore(NUMBER_OF_STREAM_REQUESTS, true);
     private final Semaphore burstSemaphore = new Semaphore(NUMBER_OF_BURST_REQUESTS);
-    private final Semaphore streamSemaphore = new Semaphore(NUMBER_OF_STREAM_REQUESTS);
+    private final Semaphore waitingSemaphore = new Semaphore(0);
     private final AtomicLong previousRequestTS = new AtomicLong();
     private final AtomicBoolean throttle429 = new AtomicBoolean();
     private final Lock throttleLock = new ReentrantLock();
@@ -151,10 +152,6 @@ public class InternalClient {
         return response;
     }
 
-    private void sleep(long millis) {
-        try{Thread.sleep(millis);}catch(InterruptedException ie){}
-    }
-
     private <T> HttpResponse<T> sendRequest(
             boolean stream,
             HttpRequest httpRequest,
@@ -166,7 +163,7 @@ public class InternalClient {
                 long elapsedSince429 = System.currentTimeMillis() - previousRequestTS.get();
                 long wait = retryMillis - elapsedSince429;
                 if (wait > 0) {
-                    sleep(wait);
+                    waitingSemaphore.tryAcquire(wait, TimeUnit.MILLISECONDS);
                 }
                 throttle429.set(false);
             }
@@ -195,7 +192,7 @@ public class InternalClient {
 
                 if (elapsedSincePreviousRequest < requestSpacingMillis) {
                     long wait = requestSpacingMillis - elapsedSincePreviousRequest;
-                    sleep(wait);
+                    waitingSemaphore.tryAcquire(wait, TimeUnit.MILLISECONDS);
                 }
             }
 
