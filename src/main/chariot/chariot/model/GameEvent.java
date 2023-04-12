@@ -2,6 +2,8 @@ package chariot.model;
 
 import chariot.model.Enums.Room;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import chariot.internal.Util;
@@ -48,7 +50,12 @@ public sealed interface GameEvent {
             boolean wtakeback,
             boolean btakeback,
             Game.Status status,
-            String winner) implements GameEvent {}
+            String winner) implements GameEvent {
+
+        public List<String> moveList() {
+            return Arrays.stream(moves.split(" ")).filter(s -> ! s.isEmpty()).toList();
+        }
+    }
 
 
     record Chat(
