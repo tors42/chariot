@@ -83,7 +83,7 @@ public class GamesImpl extends Base implements Games {
 
         return Endpoint.streamGamesByUsers.newRequest(request -> request
                 .body(userIds.stream()
-                    .map(String::toLowerCase)
+                    .map(s -> s.toLowerCase(Locale.ROOT))
                     .collect(Collectors.joining(",")))
                 .query(builder.toMap(consumer))
                 .stream())

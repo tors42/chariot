@@ -205,7 +205,7 @@ public class Util {
             mac.init(key);
 
             for (String userId : userIds) {
-                byte[] dbytes = userId.toLowerCase().getBytes("UTF8");
+                byte[] dbytes = userId.toLowerCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8);
                 mac.update(dbytes);
                 byte[] bytes = mac.doFinal();
                 String hex = java.util.HexFormat.of().formatHex(bytes);
@@ -222,7 +222,7 @@ public class Util {
     }
 
     public static String stripSensitive(String headerName, String value) {
-        String stripped = switch(headerName.toLowerCase()) {
+        String stripped = switch(headerName.toLowerCase(Locale.ROOT)) {
             case "authorization" -> value.split(" ").length == 2 ?
                 "%s ***".formatted(value.split(" ")[0]) :
                 "Not on format \"<scheme> ***\"";

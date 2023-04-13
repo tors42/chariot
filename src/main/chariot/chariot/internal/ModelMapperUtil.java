@@ -75,7 +75,7 @@ public class ModelMapperUtil {
     }
 
     private static String capitalize(String string) {
-        return String.valueOf(string.charAt(0)).toUpperCase() + string.substring(1);
+        return Character.toUpperCase(string.charAt(0)) + string.substring(1);
     }
 
 }
