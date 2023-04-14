@@ -321,6 +321,12 @@ public interface TournamentsAuth extends Tournaments {
         default SwissParams chatFor(Function<ChatFor.Provider, ChatFor> chatFor) { return chatFor(chatFor.apply(ChatFor.provider())); };
 
         /**
+         * @param position Custom initial position (in FEN) for all games of the tournament. Must be a legal chess position. Only works with standard chess, not variants (except Chess960).
+         */
+        SwissParams position(String position);
+
+
+        /**
          * @param allowList Predefined list of usernames that are allowed to join. If this list is non-empty, then usernames absent from this list will be forbidden to join. Adding {@code %titled} to the list additionally allows any titled player to join. Example: {@code List.of("thibault", "german11", "%titled")}
          */
         SwissParams allowList(List<String> allowList);
