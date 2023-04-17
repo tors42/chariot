@@ -344,7 +344,7 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Analysis.class).endpoint("/api/cloud-eval").toOne();
 
     public static EPMany<Pgn> exportChapter =
-        Endpoint.of(Pgn.class).endpoint("/study/%s/%s.pgn")
+        Endpoint.of(Pgn.class).endpoint("/api/study/%s/%s.pgn")
         .streamMapper(Util::toPgnStream)
         .accept(chesspgn).toMany();
 
