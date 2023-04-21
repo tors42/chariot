@@ -58,6 +58,7 @@ public sealed interface Board {
     String toFEN();
     String to960FEN();
     String toStandardFEN();
+    GameState gameState();
     Set<Move> validMoves();
     Board play(String move);
 
