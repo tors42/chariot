@@ -238,12 +238,12 @@ order to get things like code completion support and other good stuff.
 
 ## Build Chariot
 
-Make sure to use at least Java 19. A JDK archive can be downloaded and unpacked from https://jdk.java.net/
+Build with latest Java. A JDK archive can be downloaded and unpacked from https://jdk.java.net/
 
     $ java -version
-    openjdk version "20" 2023-03-21
-    OpenJDK Runtime Environment (build 20+36-2344)
-    OpenJDK 64-Bit Server VM (build 20+36-2344, mixed mode, sharing)
+    openjdk version "20.0.1" 2023-04-18
+    OpenJDK Runtime Environment (build 20.0.1+9-29)
+    OpenJDK 64-Bit Server VM (build 20.0.1+9-29, mixed mode, sharing)
 
     $ java build/Build.java
 
