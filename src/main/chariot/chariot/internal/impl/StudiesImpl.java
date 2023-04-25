@@ -1,5 +1,7 @@
 package chariot.internal.impl;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
 import chariot.api.Studies;
@@ -35,6 +37,17 @@ public class StudiesImpl extends Base implements Studies {
                 .path(userId)
                 .query(MapBuilder.of(Params.class).toMap(params)))
             .process(this);
+    }
+
+    @Override
+    public One<ZonedDateTime> lastModifiedByStudyId(String studyId) {
+        var headers = client.fetchHeaders(Endpoint.lastModifiedStudy.endpoint().formatted(studyId));
+        if (headers == null) return One.fail(404, Err.from("Maybe 404"));
+        return headers.allValues("Last-Modified").stream()
+            .map(rfc_1123 -> ZonedDateTime.parse(rfc_1123, DateTimeFormatter.RFC_1123_DATE_TIME))
+            .map(One::entry)
+            .findFirst()
+            .orElse(One.fail(404, Err.from("Maybe 404")));
     }
 
 }

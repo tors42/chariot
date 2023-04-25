@@ -1,5 +1,6 @@
 package chariot.api;
 
+import java.time.ZonedDateTime;
 import java.util.function.Consumer;
 
 import chariot.model.*;
@@ -20,6 +21,13 @@ public interface Studies {
     default Many<Pgn> exportStudiesByUserId(String userId) {
         return exportStudiesByUserId(userId, __ -> {});
     }
+
+    /**
+     * Lookup the Last-Modified timestamp of the study
+     * @param studyId 8 character study id
+     * @return A ZonedDateTime of when the study was last modified
+     */
+    One<ZonedDateTime> lastModifiedByStudyId(String studyId);
 
     interface Params {
         /**

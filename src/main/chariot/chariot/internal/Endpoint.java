@@ -4,6 +4,7 @@ import static chariot.internal.Util.MediaType.*;
 
 import java.io.InputStream;
 import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
@@ -353,6 +354,10 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Pgn.class).endpoint("/api/study/%s.pgn")
         .streamMapper(Util::toPgnStream)
         .accept(chesspgn).toMany();
+
+    public static EPOne<ZonedDateTime> lastModifiedStudy  =
+        Endpoint.of(ZonedDateTime.class).endpoint("/api/study/%s.pgn")
+        .head().toOne();
 
     public static EPMany<Pgn> exportStudies =
         Endpoint.of(Pgn.class).endpoint("/study/by/%s/export.pgn")
