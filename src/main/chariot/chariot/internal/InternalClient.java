@@ -219,12 +219,36 @@ public class InternalClient {
     }
 
     public Set<Scope> fetchScopes(String endpointPath, Supplier<char[]> tokenSupplier) {
+        var headers = fetchHeaders(endpointPath, tokenSupplier);
+        if (headers == null) return Set.of();
+
+        return headers.allValues("x-oauth-scopes").stream()
+            .flatMap(s -> Arrays.stream(s.split(",")))
+            .map(String::trim)
+            .map(s -> Scope.fromString(s))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toSet());
+    }
+
+    public HttpHeaders fetchHeaders(String endpointPath) {
+        return fetchHeaders(headBuilder(endpointPath));
+    }
+
+    public HttpHeaders fetchHeaders(String endpointPath, Supplier<char[]> tokenSupplier) {
+        return fetchHeaders(headBuilder(endpointPath)
+                .header("authorization", "Bearer " + new String(tokenSupplier.get())));
+    }
+
+    private HttpRequest.Builder headBuilder(String endpointPath) {
         var uri = URI.create(joinUri(config.servers().api().toString(), endpointPath));
         var builder = HttpRequest.newBuilder(uri)
             .method("HEAD", BodyPublishers.noBody())
             .timeout(Duration.ofSeconds(15));
-        builder.header("authorization", "Bearer " + new String(tokenSupplier.get()));
+        return builder;
+    }
 
+    public HttpHeaders fetchHeaders(HttpRequest.Builder builder) {
         var httpRequest = builder.build();
 
         HttpResponse<Void> response;
@@ -232,7 +256,7 @@ public class InternalClient {
             response = sendWithRetry(false, httpRequest, BodyHandlers.discarding(), config().retries());
         } catch (Exception e) {
             config.logging().request().log(Level.SEVERE, "%s".formatted(httpRequest), e);
-            return Set.of();
+            return null;
         }
 
         var statusCode = response.statusCode();
@@ -246,17 +270,10 @@ public class InternalClient {
 
         if (statusCode >= 200 && statusCode <= 299) {
             config.logging().auth().info(log);
-
-            return response.headers().allValues("x-oauth-scopes").stream()
-                .flatMap(s -> Arrays.stream(s.split(",")))
-                .map(String::trim)
-                .map(s -> Scope.fromString(s))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet());
+            return response.headers();
         } else {
             config.logging().request().warning(log);
-            return Set.of();
+            return null;
         }
     }
 
