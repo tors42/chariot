@@ -57,6 +57,7 @@ client.simuls().simuls()
 client.studies().exportStudiesByUserId()
 client.studies().exportChaptersByStudyId()
 client.studies().exportChapterByStudyAndChapterId()
+client.studies().lastModifiedByStudyId()
 
 client.tablebase().standard()
 client.tablebase().atomic()
