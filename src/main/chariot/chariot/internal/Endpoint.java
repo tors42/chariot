@@ -11,6 +11,7 @@ import java.util.stream.*;
 import chariot.Client.Scope;
 import chariot.internal.Config.ServerType;
 import chariot.internal.RequestParameters.*;
+import chariot.internal.Util.Method;
 import chariot.model.*;
 import chariot.model.ChallengeResult.ChallengeInfo;
 
@@ -44,7 +45,7 @@ public sealed interface Endpoint<T> {
             String endpoint,
             String accept,
             String contentType,
-            String method,
+            Method method,
             Scope scope,
             ServerType target) {}
 
@@ -52,7 +53,7 @@ public sealed interface Endpoint<T> {
     default String endpoint()    { return ep().endpoint(); }
     default String accept()      { return ep().accept(); }
     default String contentType() { return ep().contentType(); }
-    default String method()      { return ep().method(); }
+    default Method method()      { return ep().method(); }
     default Scope scope()        { return ep().scope(); }
     default ServerType target()  { return ep().target(); }
 
@@ -590,7 +591,7 @@ public sealed interface Endpoint<T> {
         private ServerType target = ServerType.api;
         private String accept = json;
         private String contentType;
-        private String method = "GET";
+        private Method method = Method.GET;
         private Scope scope;
 
         public Builder<T> elementMapper(Function<String, T> mapper) {
@@ -618,7 +619,7 @@ public sealed interface Endpoint<T> {
         }
 
         public Builder<T> post() {
-            this.method = "POST";
+            this.method = Method.POST;
             return this;
         }
 
@@ -628,7 +629,7 @@ public sealed interface Endpoint<T> {
         }
 
         public Builder<T> put() {
-            this.method = "PUT";
+            this.method = Method.PUT;
             return this;
         }
 
@@ -637,8 +638,13 @@ public sealed interface Endpoint<T> {
             return put();
         }
 
+        public Builder<T> head() {
+            this.method = Method.HEAD;
+            return this;
+        }
+
         public Builder<T> delete() {
-            this.method = "DELETE";
+            this.method = Method.DELETE;
             return this;
         }
 

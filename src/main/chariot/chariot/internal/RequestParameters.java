@@ -11,6 +11,7 @@ import chariot.Client.Scope;
 import chariot.model.Many;
 import chariot.model.One;
 import chariot.internal.Config.ServerType;
+import chariot.internal.Util.Method;
 
 public sealed interface RequestParameters {
 
@@ -18,7 +19,7 @@ public sealed interface RequestParameters {
             String path,
             String data,
             InputStream dataInputStream,
-            String method,
+            Method method,
             Duration timeout,
             Map<String, String> headers,
             Scope scope,
@@ -49,7 +50,7 @@ public sealed interface RequestParameters {
     default String path() { return parameters().path(); }
     default String data() { return parameters().data(); }
     default InputStream dataInputStream() { return parameters().dataInputStream(); }
-    default String method() { return parameters().method(); }
+    default Method method() { return parameters().method(); }
     default Duration timeout() { return parameters().timeout(); }
     default Map<String, String> headers() { return parameters().headers(); }
     default Scope scope() { return parameters().scope(); }
@@ -79,7 +80,7 @@ public sealed interface RequestParameters {
 
     public static class ParamsBuilder {
         private final String endpoint;
-        private final String method;
+        private final Method method;
         private String path;
         private String data;
         private InputStream dataInputStream;
@@ -93,7 +94,7 @@ public sealed interface RequestParameters {
         private ServerType target;
         private boolean stream;
 
-        ParamsBuilder(String endpoint, String method) {
+        ParamsBuilder(String endpoint, Method method) {
             this.endpoint = Objects.requireNonNull(endpoint);
             this.method = Objects.requireNonNull(method);
         }

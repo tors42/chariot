@@ -101,6 +101,13 @@ public class Util {
         public static final String plain       = "text/plain; charset=utf-8";
     }
 
+    public enum Method {
+        HEAD,
+        GET,
+        POST,
+        PUT,
+        DELETE,
+    }
 
     public static class PageSpliterator<T> implements Spliterator<T> {
         Page<T> page;

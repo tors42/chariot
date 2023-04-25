@@ -71,9 +71,13 @@ public class InternalClient {
 
 
         switch(request.method()) {
-            case "DELETE" -> builder.DELETE();
-            case "POST"   -> builder.POST(bodyPublisher);
-            case "PUT"    -> builder.PUT(bodyPublisher);
+            case GET    -> builder.GET();
+            case DELETE -> builder.DELETE();
+            case POST   -> builder.POST(bodyPublisher);
+            case PUT    -> builder.PUT(bodyPublisher);
+            //TODO, Java 18 introduced short form .HEAD(),
+            //so update after jumping from Java 17 LTS...
+            case HEAD   -> builder.method("HEAD", BodyPublishers.noBody());
         };
 
         if (config instanceof Config.Auth auth) {
