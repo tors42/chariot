@@ -193,8 +193,8 @@ public sealed interface Config {
         Basic basic = new Basic(Servers.of(), Logging.of(), 1 /*retries*/);
 
         @Override
-        public ConfigBuilder api(String url) {
-            basic = basic.with(basic.servers().with(new Config.Servers.Api(URI.create(url))));
+        public ConfigBuilder api(URI uri) {
+            basic = basic.with(basic.servers().with(new Config.Servers.Api(uri)));
             return this;
         }
 
@@ -224,13 +224,13 @@ public sealed interface Config {
     class DefaultServerBuilder implements ServerBuilder {
         Servers servers;
         DefaultServerBuilder(Servers initial) { servers = initial; }
-        @Override public ServerBuilder api(String url)       { return component(Servers.Api::new, url); }
-        @Override public ServerBuilder explorer(String url)  { return component(Servers.Explorer::new, url); }
-        @Override public ServerBuilder tablebase(String url) { return component(Servers.Tablebase::new, url); }
-        @Override public ServerBuilder engine(String url)    { return component(Servers.Engine::new, url); }
+        @Override public ServerBuilder api(URI uri)       { return component(Servers.Api::new, uri); }
+        @Override public ServerBuilder explorer(URI uri)  { return component(Servers.Explorer::new, uri); }
+        @Override public ServerBuilder tablebase(URI uri) { return component(Servers.Tablebase::new, uri); }
+        @Override public ServerBuilder engine(URI uri)    { return component(Servers.Engine::new, uri); }
 
-        private ServerBuilder component(Function<URI, Servers.Component> constr, String uri) {
-            servers = servers.with(constr.apply(URI.create(uri)));
+        private ServerBuilder component(Function<URI, Servers.Component> constr, URI uri) {
+            servers = servers.with(constr.apply(uri));
             return this;
         }
     }

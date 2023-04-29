@@ -1,5 +1,6 @@
 package chariot.api;
 
+import java.net.URI;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.prefs.Preferences;
@@ -93,10 +94,10 @@ public interface Builders {
         default ConfigBuilder production() {
             var prod = Config.Servers.of();
             return servers(s -> s
-                    .api(prod.api().toString())
-                    .explorer(prod.explorer().toString())
-                    .tablebase(prod.tablebase().toString())
-                    .engine(prod.engine().toString())
+                    .api(prod.api())
+                    .explorer(prod.explorer())
+                    .tablebase(prod.tablebase())
+                    .engine(prod.engine())
                     );
         }
 
@@ -109,7 +110,11 @@ public interface Builders {
         /**
          * Custom API URL
          */
-        ConfigBuilder api(String url);
+        default ConfigBuilder api(String uri) { return api(URI.create(uri)); }
+        /**
+         * Custom API URL
+         */
+        ConfigBuilder api(URI uri);
 
         /**
          * Custom api, explorer, tablebase and engine URLs
@@ -133,22 +138,39 @@ public interface Builders {
         /**
          * Address of the api service
          */
-        ServerBuilder api(String url);
+        ServerBuilder api(URI uri);
+        /**
+         * Address of the api service
+         */
+        default ServerBuilder api(String uri) { return api(URI.create(uri)); }
+
 
         /**
          * Address of the explorer service
          */
-        ServerBuilder explorer(String url);
+        ServerBuilder explorer(URI uri);
+        /**
+         * Address of the explorer service
+         */
+        default ServerBuilder explorer(String uri) { return explorer(URI.create(uri)); }
 
         /**
          * Address of the tablebase service
          */
-        ServerBuilder tablebase(String url);
+        ServerBuilder tablebase(URI uri);
+        /**
+         * Address of the tablebase service
+         */
+        default ServerBuilder tablebase(String uri) { return tablebase(URI.create(uri)); }
 
         /**
          * Address of the engine service
          */
-        ServerBuilder engine(String url);
+        ServerBuilder engine(URI uri);
+        /**
+         * Address of the engine service
+         */
+        default ServerBuilder engine(String uri) { return engine(URI.create(uri)); }
     }
 
     interface LoggingBuilder {
