@@ -247,6 +247,8 @@ Build with latest Java. A JDK archive can be downloaded and unpacked from https:
     OpenJDK 64-Bit Server VM (build 20.0.1+9-29, mixed mode, sharing)
 
     $ java build/Build.java
+    55 successful tests
+    0 failed tests
 
 The resulting artifact, `out/modules/chariot-0.0.1-SNAPSHOT.jar`, will be compatible with Java release 17
 
