@@ -29,7 +29,8 @@ class Build {
         Path out = Path.of("out");
         del(out);
 
-        Path moduleSrc = Path.of("src", "main");
+        Path mainSrc   = Path.of("src", "main");
+        Path testSrc   = Path.of("src", "test");
         Path classes   = out.resolve("classes");
         Path moduleOut = out.resolve("modules");
         Path metaInf   = out.resolve("META-INF");
@@ -47,10 +48,10 @@ class Build {
 
         var executor = Executors.newCachedThreadPool();
 
-        executor.submit(() -> {
+        var testResult = executor.submit(() -> {
             run(javac,
                 "--release", "17",
-                "--module-source-path", moduleSrc,
+                "--module-source-path", mainSrc,
                 "--module", module,
                 "-d", classes
                );
@@ -63,13 +64,41 @@ class Build {
                 "-C", out, "META-INF",
                 "-C", classes.resolve(module), "."
                );
+
+            run(javac,
+                "--release", "17",
+                "--module-path", moduleOut,
+                "--module-source-path", testSrc,
+                "--module", "testchariot",
+                "--add-exports", "chariot/chariot.internal=testchariot",
+                "--add-exports", "chariot/chariot.internal.yayson=testchariot",
+                "-d", classes
+               );
+
+            run(jar,
+                "--create",
+                "--date", timestamp,
+                "--manifest", manifest,
+                "--module-version", version,
+                "--main-class", "util.Main",
+                "--file", moduleOut.resolve("test"+filenamePrefix + ".jar"),
+                "-C", classes.resolve("testchariot"), "."
+               );
+
+            return new ProcessBuilder("java",
+                "--add-exports", "chariot/chariot.internal=testchariot",
+                "--add-exports", "chariot/chariot.internal.yayson=testchariot",
+                "-p", moduleOut.toString(), "-m", "testchariot")
+                .inheritIO()
+                .start()
+                .waitFor();
         });
 
         executor.submit(() -> {
             run(javadoc,
                 "--release", "17",
                 "-notimestamp",
-                "--module-source-path", moduleSrc,
+                "--module-source-path", mainSrc,
                 "--module", module,
                 "-d", out.resolve("javadoc")
                );
@@ -90,10 +119,15 @@ class Build {
                 "--manifest", manifest,
                 "--file", out.resolve(filenamePrefix + "-sources.jar"),
                 "-C", out, "META-INF",
-                "-C", moduleSrc, "."
+                "-C", mainSrc, "."
            ));
 
         executor.shutdown();
+
+        if (testResult.get() != 0) {
+            System.err.println("Test Failure");
+            System.exit(testResult.get());
+        }
     }
 
     static void del(Path dir) {
@@ -124,5 +158,4 @@ class Build {
             System.exit(exitCode);
         }
     }
-
 }
