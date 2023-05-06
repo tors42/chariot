@@ -36,6 +36,14 @@ public class TestBoard {
     }
 
     @Test
+    public void disambiguationTwoQueensOnSameFile() {
+        Board board = Board.fromFEN("rn1k4/pb3r2/q2b4/1p1p4/2P1p3/1K1P1p1p/P3P2P/qNBQ1B1R b -- 0 50");
+        String san = board.toSAN("a6a2");
+
+        assertEquals("Q6xa2#", san);
+    }
+
+    @Test
     public void revokedCastlingRightsWhite() {
         Board whiteToMove = Board.fromFEN("r3k2r/4p3/8/8/8/8/4P3/R3K2R w KQkq - 0 1");
 
