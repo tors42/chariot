@@ -382,9 +382,9 @@ public sealed interface Board {
                         if (unique.file() && unique.rank()) {
                             dis = fromTo.from().name().substring(0,1); // specify the file
                         } else if (unique.file()) {
-                            dis = fromTo.from().name().substring(1,2); // specify the rank
+                            dis = fromTo.from().name().substring(0,1); // specify the rank
                         } else if (unique.rank()) {
-                            dis = fromTo.from().name().substring(0,1); // specify the file
+                            dis = fromTo.from().name().substring(1,2); // specify the file
                         } else {
                             dis = fromTo.from().name();                // specify both file and rank
                         }
