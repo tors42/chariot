@@ -95,7 +95,7 @@ public class UsersHandler implements UsersAuth {
     }
 
     @Override
-    public One<PerfStat> performanceStatisticsByIdAndType(String userId, PerfType type) {
+    public One<PerformanceStatistics> performanceStatisticsByIdAndType(String userId, PerfType type) {
         return Endpoint.perfStatByIdAndType.newRequest(request -> request
                 .path(userId, type.name()))
             .process(requestHandler);

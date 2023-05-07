@@ -50,7 +50,7 @@ public interface Users {
      * @param userId
      * @param type
      */
-    One<PerfStat> performanceStatisticsByIdAndType(String userId, PerfType type);
+    One<PerformanceStatistics> performanceStatisticsByIdAndType(String userId, PerfType type);
 
     /**
      * Get total number of games, and current score, of any two users.<br>

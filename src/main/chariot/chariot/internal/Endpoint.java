@@ -105,8 +105,8 @@ public sealed interface Endpoint<T> {
     public static EPMany<RatingHistory> ratingHistoryById =
         Endpoint.ofArr(RatingHistory.class).endpoint("/api/user/%s/rating-history").toMany();
 
-    public static EPOne<PerfStat> perfStatByIdAndType =
-        Endpoint.of(PerfStat.class).endpoint("/api/user/%s/perf/%s").toOne();
+    public static EPOne<PerformanceStatistics> perfStatByIdAndType =
+        Endpoint.of(PerformanceStatistics.class).endpoint("/api/user/%s/perf/%s").toOne();
 
     public static EPMany<Activity> activityById =
         Endpoint.ofArr(Activity.class).endpoint("/api/user/%s/activity").toMany();

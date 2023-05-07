@@ -52,7 +52,7 @@ public class ModelMapper {
         // Specify Java model <-> JSON model field name mappings,
         // where JSON model contains Java keywords,
         // so another name must be used in the Java model.
-        mapper.setMappings(PerfStat.Stat.DateResult.class, ModelMapperUtil.intMapping());
+        mapper.setMappings(PerformanceStatistics.DateResult.class, ModelMapperUtil.intMapping());
         mapper.setMappings(Game.class,                     ModelMapperUtil.createdAtAndLastMoveAtMapping());
         mapper.setMappings(MoveInfo.GameSummary.class,     ModelMapperUtil.createdAtMapping());
         mapper.setMappings(GameStateEvent.Full.class,           ModelMapperUtil.createdAtMapping());
