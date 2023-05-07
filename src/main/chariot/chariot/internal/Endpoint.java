@@ -65,11 +65,11 @@ public sealed interface Endpoint<T> {
     public static EPOne<AccountPreferences> accountPreferences =
         Endpoint.of(AccountPreferences.class).endpoint("/api/account/preferences").scope(Scope.preference_read).toOne();
 
-    public static EPOne<AccountEmail> accountEmail =
-        Endpoint.of(AccountEmail.class).endpoint("/api/account/email").scope(Scope.email_read).toOne();
+    public static EPOne<String> accountEmail =
+        Endpoint.of(mapper(AccountEmail.class).andThen(AccountEmail::email)).endpoint("/api/account/email").scope(Scope.email_read).toOne();
 
-    public static EPOne<AccountKid> accountKid =
-        Endpoint.of(AccountKid.class).endpoint("/api/account/kid").scope(Scope.preference_read).toOne();
+    public static EPOne<Boolean> accountKid =
+        Endpoint.of(mapper(AccountKid.class).andThen(AccountKid::kid)).endpoint("/api/account/kid").scope(Scope.preference_read).toOne();
 
     public static EPOne<Void> accountKidStatus =
         Endpoint.of(Void.class).endpoint("/api/account/kid").post().scope(Scope.preference_write).toOne();
@@ -592,6 +592,8 @@ public sealed interface Endpoint<T> {
     static record AutocompleteWrapper(List<LightUserWithStatus> result) {}
     static record BulkPairingWrapper(List<BulkPairing> bulks) {}
     static record PlayingWrapper(List<MyGameInfo> nowPlaying)  {}
+    static record AccountEmail(String email)  {}
+    static record AccountKid(boolean kid)  {}
 
     public static class Builder<T> {
         private String endpoint = "";

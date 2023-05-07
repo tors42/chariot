@@ -16,7 +16,7 @@ public interface AccountAuth {
      * Read the email address of the logged in user.<br/>
      * Auth {@link chariot.Client.Scope#email_read}
      */
-    One<AccountEmail> emailAddress();
+    One<String> emailAddress();
 
     /**
      * Read the preferences of the logged in user.<br/>
@@ -28,14 +28,14 @@ public interface AccountAuth {
      * Read the kid mode status of the logged in user.<br/>
      * Auth {@link chariot.Client.Scope#preference_read}
      */
-    One<AccountKid> getAccountKidMode();
+    One<Boolean> kidMode();
 
     /**
      * Set the kid mode status of the logged in user.<br/>
      * Auth {@link chariot.Client.Scope#preference_write}
-     * @param value kid mode status
+     * @param kid true to enable kid mode, false to disable kid mode
      */
-    One<Void> setAccountKidMode(boolean value);
+    One<Void> kidMode(boolean kid);
 
     /**
      * Get users followed by logged in user.

@@ -20,19 +20,19 @@ public class AccountHandler implements AccountAuth {
     }
 
     @Override
-    public One<AccountEmail> emailAddress() {
+    public One<String> emailAddress() {
         return Endpoint.accountEmail.newRequest(request -> {})
             .process(requestHandler);
     }
 
     @Override
-    public One<AccountKid> getAccountKidMode() {
+    public One<Boolean> kidMode() {
         return Endpoint.accountKid.newRequest(request -> {})
             .process(requestHandler);
     }
 
     @Override
-    public One<Void> setAccountKidMode(boolean value) {
+    public One<Void> kidMode(boolean value) {
         return Endpoint.accountKidStatus.newRequest(request -> request
                 .query(java.util.Map.of("v", value)))
             .process(requestHandler);
