@@ -10,7 +10,7 @@ public interface AccountAuth {
     /**
      * Public informations about the logged in user.
      */
-    One<User> profile();
+    One<UserAuth> profile();
 
     /**
      * Read the email address of the logged in user.<br/>
@@ -40,6 +40,6 @@ public interface AccountAuth {
     /**
      * Get users followed by logged in user.
      */
-    Many<User> following();
+    Many<UserAuth> following();
 
 }

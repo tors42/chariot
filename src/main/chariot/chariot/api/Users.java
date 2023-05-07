@@ -9,14 +9,14 @@ import chariot.model.Enums.*;
 /**
  * Access registered users on Lichess.
  */
-public interface Users {
+public interface Users<T extends User> {
 
     /**
      * Get public user data
      *
      * @param userId
      */
-    default One<User> byId(String userId) { return byId(userId, p -> p.withTrophies(false)); }
+    default One<T> byId(String userId) { return byId(userId, p -> p.withTrophies(false)); }
 
     /**
      * Get public user data
@@ -24,16 +24,16 @@ public interface Users {
      * @param userId
      * @param params
      */
-    One<User> byId(String userId, Consumer<UserParams> params);
+    One<T> byId(String userId, Consumer<UserParams> params);
 
     /**
      * Get public user data
      *
      * @param userIds A list of up to 300 user ids
      */
-    Many<User> byIds(List<String> userIds);
+    Many<T> byIds(List<String> userIds);
 
-    default Many<User> byIds(String ... userIds) {
+    default Many<T> byIds(String ... userIds) {
         return byIds(List.of(userIds));
     }
 
@@ -125,7 +125,7 @@ public interface Users {
      * This API is very fast and cheap on lichess side.<br>
      * So you can call it quite often (like once every 5 seconds).
      */
-    Many<StreamerStatus> liveStreamers();
+    Many<LiveStreamer> liveStreamers();
 
 
 
@@ -138,7 +138,7 @@ public interface Users {
      * Autocomplete names given the starting 3 or more characters of a username
      * @param term The beginning of a username >= 3 characters
      */
-    Many<LightUserWithStatus> autocompleteUsers(String term);
+    Many<UserStatus> autocompleteUsers(String term);
 
 
     interface UserParams {

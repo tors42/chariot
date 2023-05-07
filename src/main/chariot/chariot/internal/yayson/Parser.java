@@ -16,58 +16,56 @@ public class Parser {
         }
     }
 
-    public sealed interface YayNode
-        permits YayNode.YayWithRaw, YayNode.YayEmpty, YayNode.YayArray, YayNode.YayObject, YayNode.YayValue {
+    public sealed interface YayNode {}
+    public sealed interface YayValue extends YayNode {}
 
-        record YayWithRaw(YayNode node, String raw) implements Parser.YayNode {}
-        record YayEmpty() implements YayNode {}
-        record YayArray(List<YayNode> value) implements YayNode {}
-        record YayObject(Map<String, YayNode> value) implements YayNode {
-            public String getString(String key) {
-                if (value().get(key) instanceof YayValue.YayString s) {
-                    return s.value();
-                }
-                return null;
+    public record YayWithRaw(YayNode node, String raw)  implements YayNode {}
+    public record YayEmpty()                            implements YayNode {}
+    public record YayArray(List<YayNode> value)         implements YayNode {}
+    public record YayObject(Map<String, YayNode> value) implements YayNode {
+        public String getString(String key) {
+            if (value().get(key) instanceof YayString s) {
+                return s.value();
             }
-
-            public Number getNumber(String key) {
-                if (value().get(key) instanceof YayValue.YayNumber n) {
-                    return n.value();
-                }
-                return null;
-            }
-            public Integer getInteger(String key) {
-                if (value().get(key) instanceof YayValue.YayNumber n) {
-                    return n.value().intValue();
-                }
-                return null;
-            }
-            public Long getLong(String key) {
-                if (value().get(key) instanceof YayValue.YayNumber n) {
-                    return n.value().longValue();
-                }
-                return null;
-            }
-
-            public boolean getBool(String key) {
-                if (value().get(key) instanceof YayValue.YayBool b) {
-                    return b.value();
-                }
-                return false;
-            }
+            return null;
         }
 
-        public non-sealed interface YayValue extends YayNode {
-            record YayNumber(Number value) implements YayValue {}
-            record YayString(String value) implements YayValue {}
-            record YayBool(boolean value) implements YayValue {}
-            record YayNull() implements YayValue {}
+        public Number getNumber(String key) {
+            if (value().get(key) instanceof YayNumber n) {
+                return n.value();
+            }
+            return null;
+        }
+        public Integer getInteger(String key) {
+            if (value().get(key) instanceof YayNumber n) {
+                return n.value().intValue();
+            }
+            return null;
+        }
+        public Long getLong(String key) {
+            if (value().get(key) instanceof YayNumber n) {
+                return n.value().longValue();
+            }
+            return null;
+        }
+
+        public boolean getBool(String key) {
+            if (value().get(key) instanceof YayBool b) {
+                return b.value();
+            }
+            return false;
         }
     }
 
+    public record YayNumber(Number value) implements YayValue {}
+    public record YayString(String value) implements YayValue {}
+    public record YayBool(boolean value)  implements YayValue {}
+    public record YayNull()               implements YayValue {}
+
+
     static YayNode parse(List<Token> tokens) {
         if (tokens.isEmpty()) {
-            return new YayNode.YayEmpty();
+            return new YayEmpty();
         }
         var token = tokens.remove(0);
 
@@ -88,22 +86,22 @@ public class Parser {
             return parseObject(tokens);
         } else {
             if (token instanceof False) {
-                return new YayNode.YayValue.YayBool(false);
+                return new YayBool(false);
             } else if (token instanceof True) {
-                return new YayNode.YayValue.YayBool(true);
+                return new YayBool(true);
             } else if (token instanceof Null) {
-                return new YayNode.YayValue.YayNull();
+                return new YayNull();
             } else if (token instanceof JsonNumber n) {
-                return new YayNode.YayValue.YayNumber(n.number());
+                return new YayNumber(n.number());
             } else if (token instanceof JsonString s) {
-                return new YayNode.YayValue.YayString(s.string());
+                return new YayString(s.string());
             }
-            return new YayNode.YayEmpty();
+            return new YayEmpty();
         }
     }
 
-    static YayNode.YayArray parseArray(List<Token> tokens) {
-        var yayArray = new YayNode.YayArray(new ArrayList<>());
+    static YayArray parseArray(List<Token> tokens) {
+        var yayArray = new YayArray(new ArrayList<>());
 
         if (tokens.get(0) instanceof EndArray) {
             tokens.remove(0);
@@ -122,8 +120,8 @@ public class Parser {
         }
     }
 
-    static YayNode.YayObject parseObject(List<Token> tokens) {
-        var yayObject = new YayNode.YayObject(new HashMap<String, YayNode>());
+    static YayObject parseObject(List<Token> tokens) {
+        var yayObject = new YayObject(new HashMap<String, YayNode>());
         if (tokens.get(0) instanceof EndObject) {
             tokens.remove(0);
             return yayObject;

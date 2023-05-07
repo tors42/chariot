@@ -2,7 +2,7 @@ package chariot.api;
 
 import chariot.model.*;
 
-public interface UsersAuth extends Users {
+public interface UsersAuth extends Users<UserAuth> {
 
     One<Void> sendMessageToUser(String userId, String text);
 
@@ -20,6 +20,6 @@ public interface UsersAuth extends Users {
      * @param term The beginning of a username >= 3 characters
      * @param friends If true, returns followed players matching {@code term} if any, else returns other players.
      */
-    Many<LightUserWithStatus> autocompleteUsers(String term, boolean friends);
+    Many<UserStatus> autocompleteUsers(String term, boolean friends);
 
 }

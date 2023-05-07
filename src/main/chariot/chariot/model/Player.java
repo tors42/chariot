@@ -53,7 +53,7 @@ public sealed interface Player {
 
             @Override public String id() { return user.id(); }
             @Override public String name() { return user.name(); }
-            @Override public String title() { return user.title(); }
+            @Override public String title() { return user.title().orElse(""); }
             @Override public boolean patron() { return user.patron(); }
         }
 

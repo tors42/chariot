@@ -9,14 +9,13 @@ import chariot.ClientAuth;
 import chariot.api.*;
 import chariot.internal.impl.*;
 import chariot.model.One;
-import chariot.model.TokenBulkResult;
-import chariot.model.TokenResult;
+import chariot.model.*;
 
 public record Default(Config config, InternalClient client, Apis apis) implements ClientAuth {
 
     public static Default of(Config config) {
         var client = new InternalClient(config);
-        var apis = new Apis(client);
+        var apis = Apis.of(client);
         return new Default(config, client, apis);
     }
 
@@ -41,8 +40,8 @@ public record Default(Config config, InternalClient client, Apis apis) implement
             TokenHandler tokenHandler,
             CustomHandler custom) {
 
-        public Apis(InternalClient client) {
-            this(
+        static Apis of(InternalClient client) {
+            return new Apis(
                     new AccountHandler(client::request),
                     new UsersHandler(client::request),
                     new AdminHandler(client::request),
@@ -92,6 +91,7 @@ public record Default(Config config, InternalClient client, Apis apis) implement
             return true;
         } catch(Exception e) { e.printStackTrace(System.err); }
         return false;
+
     }
 
     @Override

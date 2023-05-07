@@ -4,11 +4,11 @@ import java.util.function.Consumer;
 
 import chariot.model.*;
 
-public interface Teams {
+public interface Teams<T extends TeamMember> {
 
     One<Team>         byTeamId(String teamId);
     Many<Team>        byUserId(String userId);
-    Many<User>        usersByTeamId(String teamId);
+    Many<T>           usersByTeamId(String teamId);
 
     Many<Team>        search();
     Many<Team>        search(String text);

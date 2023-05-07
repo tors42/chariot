@@ -1,26 +1,15 @@
 package chariot.internal.yayson;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.RecordComponent;
-import java.lang.reflect.Type;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.lang.invoke.*;
+import java.lang.reflect.*;
+import java.net.URI;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.time.ZonedDateTime;
 
 import chariot.internal.Util;
-import chariot.internal.yayson.Parser.YayNode;
-import chariot.internal.yayson.Parser.YayNode.*;
-import chariot.internal.yayson.Parser.YayNode.YayValue.*;
+import chariot.internal.yayson.Parser.*;
 
 public class YayMapper {
 
@@ -50,14 +39,27 @@ public class YayMapper {
 
 
     public <T> T fromString(String json, Class<T> cls) {
-        var node = Parser.fromString(json);
-
-        // Here be dragons...
-        T t = fromYayTree(node, cls);
-        return t;
+        try {
+            var node = Parser.fromString(json);
+            // Here be dragons...
+            T t = fromYayTree(node, cls);
+            return t;
+        } catch (Exception e) {
+            System.err.println("""
+                    Failed: T fromString(String json, Class<T> cls)
+                    e.getMessage(): %s
+                    cls.getName(): %s
+                    json:
+                    =======================
+                    %s
+                    =======================
+            """.formatted(e.getMessage(), cls.getName(), json));
+        }
+        return null;
     }
 
     public <T> T fromYayTree(YayNode node, Class<T> cls) {
+        try {
 
         if (cls.isInterface() && cls.isSealed()) {
 
@@ -95,9 +97,18 @@ public class YayMapper {
                                 buildFromSealedInterface(yo.value().get(jsonName), rc.getType(), parameterizedType) :
                                 buildFromClass(yo.value().get(jsonName), rc.getType(), parameterizedType);
                         } catch (Exception e) {
-                            System.out.println("Failure while looking for " + jsonName + " of type " +
+                            System.err.println("Failure while looking for " + jsonName + " of type " +
                                     rc.getType() + " with (possibly) parameterized type " + parameterizedType);
-                            e.printStackTrace();
+                            System.err.println("""
+                                    Failed: T fromYayTree(YayNode node, Class<T> cls)
+                                    e.getMessage(): %s
+                                    cls.getName(): %s
+                                    node:
+                                    =======================
+                                    %s
+                                    =======================
+                                    """.formatted(e.getMessage(), cls.getName(), node));
+                            e.printStackTrace(System.err);
                         }
                         return obj;
                     })
@@ -133,13 +144,27 @@ public class YayMapper {
                 return t;
             }
         }
+
+        } catch (Exception e) {
+            System.err.println("""
+                    Failed: T fromYayTree(YayNode node, Class<T> cls)
+                    e.getMessage(): %s
+                    cls.getName(): %s
+                    node:
+                    =======================
+                    %s
+                    =======================
+            """.formatted(e.getMessage(), cls.getName(), node));
+            e.printStackTrace(System.err);
+        }
         return null;
     }
 
     private <T> T buildFromSealedInterface(YayNode node, Class<T> cls, Optional<ParameterizedType> parameterizedType) {
 
         if (node instanceof YayEmpty empty) {
-            var opt = Arrays.stream(cls.getPermittedSubclasses())
+            List<Class<?>> permittedRecordSubclasses = permittedRecordClassesOfSealedInterfaceHierarchy(cls);
+            var opt = permittedRecordSubclasses.stream()
                 .filter(p -> p.getRecordComponents().length == 0)
                 .findFirst();
             if (opt.isPresent()) {
@@ -159,8 +184,10 @@ public class YayMapper {
         }
         var jsonFieldNames = yo.value().keySet();
 
+        List<Class<?>> permittedRecordSubclasses = permittedRecordClassesOfSealedInterfaceHierarchy(cls);
+
         record ClassFieldMatches(Class<?> c, Long count) {}
-        var bestMatch = Arrays.stream(cls.getPermittedSubclasses())
+        var bestMatch = permittedRecordSubclasses.stream()
             .map(c -> new ClassFieldMatches(c,
                         Arrays.stream(c.getRecordComponents())
                         .map(rc -> rc.getName())
@@ -184,6 +211,26 @@ public class YayMapper {
             return null;
         }
         return cls.cast(result);
+    }
+
+    private List<Class<?>> permittedRecordClassesOfSealedInterfaceHierarchy(Class<?> cls) {
+
+        boolean resolvedAllClasses = false;
+        List<Class<?>> permittedRecordSubclasses = new ArrayList<>();
+        List<Class<?>> sealedInterfaces = List.of(cls);
+
+        while (! resolvedAllClasses) {
+            var subClasses = sealedInterfaces.stream().flatMap(sealed -> Arrays.stream(sealed.getPermittedSubclasses())).toList();
+            var recordClasses = subClasses.stream().filter(Class::isRecord).toList();
+            var subSealedInterfaces = subClasses.stream().filter(Class::isSealed).filter(Class::isInterface).toList();
+            permittedRecordSubclasses.addAll(recordClasses);
+            if (subSealedInterfaces.isEmpty()) {
+                resolvedAllClasses = true;
+            } else {
+                sealedInterfaces = subSealedInterfaces;
+            }
+        }
+        return permittedRecordSubclasses;
     }
 
     private <T> T buildFromClass(YayNode node, Class<T> cls, Optional<ParameterizedType> parameterizedType) {
@@ -242,14 +289,14 @@ public class YayMapper {
             }
             return cls.cast(Map.of());
         } else if (cls.isEnum()) {
-            if (node instanceof YayValue.YayString string) {
+            if (node instanceof YayString string) {
                 for (var constant : cls.getEnumConstants()) {
                     if (String.valueOf(constant).equals(string.value())) {
                         return constant;
                     }
                 }
                 return null;
-            } else if (node instanceof YayValue.YayNumber number) {
+            } else if (node instanceof YayNumber number) {
                 try {
                     var mh = MethodHandles.lookup().findStatic(cls, "valueOf", MethodType.methodType(cls, int.class));
                     var o = mh.invoke(number.value().intValue());
@@ -260,11 +307,17 @@ public class YayMapper {
             }
             return null;
         } else {
-
-            if (ZonedDateTime.class.equals(cls)) {
-                if (node instanceof YayValue.YayNumber number) {
+            if (node instanceof YayNumber number) {
+                if (ZonedDateTime.class.equals(cls)) {
                     ZonedDateTime zdt = Util.fromLong(number.value().longValue());
                     return cls.cast(zdt);
+                }
+            }
+
+            if (node instanceof YayString string) {
+                if (java.util.Objects.equals(URI.class, cls)) {
+                    var uri = URI.create(string.value());
+                    return cls.cast(uri);
                 }
             }
 
@@ -301,10 +354,6 @@ public class YayMapper {
 
     // Hiding this hideous thing here at the bottom,
     // where nobody will see it... Hmm, but then who is reading this comment?
-    // Will look better when Project Valhalla arrives with primitive classes
-    // (but possibly before that, when I feel _too_ uncomfortable with knowing
-    // this stuff resides here...)
-    @SuppressWarnings("unchecked")
     private <T> T buildFromPrimitive(YayNode node, Class<T> cls) {
         Object o;
         if (node instanceof YayValue yv) {
@@ -360,7 +409,9 @@ public class YayMapper {
 
         if (o != null) {
             if (cls.isPrimitive()) {
-                return (T) o;
+                @SuppressWarnings("unchecked")
+                T t = (T) o;
+                return t;
             } else {
                 T t = cls.cast(o);
                 return t;

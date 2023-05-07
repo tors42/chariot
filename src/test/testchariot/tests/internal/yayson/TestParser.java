@@ -1,8 +1,7 @@
 package tests.internal.yayson;
 
 import chariot.internal.yayson.Parser;
-import chariot.internal.yayson.Parser.YayNode.*;
-import chariot.internal.yayson.Parser.YayNode.YayValue.*;
+import chariot.internal.yayson.Parser.*;
 import util.Test;
 
 import static util.Assert.*;

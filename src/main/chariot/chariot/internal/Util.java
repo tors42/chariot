@@ -32,7 +32,7 @@ public class Util {
 
     public static ZonedDateTime fromLong(Long time) {
         if (time == null) time = 0l;
-        return ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
+        return ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault()).withNano(0);
     }
 
     public static String urlEncode(String string) {
@@ -321,5 +321,8 @@ public class Util {
         }
     }
 
+    public static <T> Stream<T> filterCast(Collection<? super T> coll, Class<T> cls) {
+        return coll.stream().filter(cls::isInstance).map(cls::cast);
+    }
 
 }

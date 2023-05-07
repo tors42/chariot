@@ -58,8 +58,8 @@ public sealed interface Endpoint<T> {
     default Scope scope()        { return ep().scope(); }
     default ServerType target()  { return ep().target(); }
 
-    public static EPOne<User> accountProfile =
-        Endpoint.of(User.class).endpoint("/api/account").scope(Scope.any).toOne();
+    public static EPOne<UserAuth> accountProfile =
+        Endpoint.of(mapper(UserData.class).andThen(UserAuth.class::cast)).endpoint("/api/account").scope(Scope.any).toOne();
 
     public static EPOne<AccountPreferences> accountPreferences =
         Endpoint.of(AccountPreferences.class).endpoint("/api/account/preferences").scope(Scope.preference_read).toOne();
@@ -99,8 +99,8 @@ public sealed interface Endpoint<T> {
     public static EPOne<Crosstable> crosstableByUserIds =
         Endpoint.of(Crosstable.class).endpoint("/api/crosstable/%s/%s").toOne();
 
-    public static EPOne<User> userById =
-        Endpoint.of(User.class).endpoint("/api/user/%s").toOne();
+    public static EPOne<UserAuth> userById =
+        Endpoint.of(mapper(UserData.class).andThen(UserAuth.class::cast)).endpoint("/api/user/%s").toOne();
 
     public static EPMany<RatingHistory> ratingHistoryById =
         Endpoint.ofArr(RatingHistory.class).endpoint("/api/user/%s/rating-history").toMany();
@@ -119,8 +119,9 @@ public sealed interface Endpoint<T> {
         .streamMapper(Util::toPgnStream)
         .accept(chesspgn).toOne();
 
-    public static EPMany<User> relFollowing =
-        Endpoint.of(User.class).endpoint("/api/rel/following").scope(Scope.follow_read).accept(jsonstream).toMany();
+    public static EPMany<UserAuth> relFollowing =
+        Endpoint.of(mapper(UserData.class).andThen(UserAuth.class::cast))
+        .endpoint("/api/rel/following").scope(Scope.follow_read).accept(jsonstream).toMany();
 
     public static EPOne<Void> followUser =
         Endpoint.of(Void.class).endpoint("/api/rel/follow/%s").post().scope(Scope.follow_write).toOne();
@@ -134,21 +135,24 @@ public sealed interface Endpoint<T> {
     public static EPMany<UserStatus> userStatusByIds =
         Endpoint.ofArr(UserStatus.class).endpoint("/api/users/status").toMany();
 
-    public static EPMany<User> usersByIds =
-        Endpoint.ofArr(User.class).endpoint("/api/users").post(plain).toMany();
+    public static EPMany<UserAuth> usersByIds =
+        Endpoint.ofArr(mapperArr(UserData.class)
+                .andThen(udArr -> Arrays.stream(udArr).map(UserAuth.class::cast)
+                    .toArray(UserAuth[]::new))
+                ).endpoint("/api/users").post(plain).toMany();
 
     public static EPMany<String> usersNamesAutocomplete =
         Endpoint.ofArr(s -> s.substring(1, s.length()-1).replaceAll("\"", "").split(","))
         .endpoint("/api/player/autocomplete").accept(plain).toMany();
 
-    public static EPMany<LightUserWithStatus> usersStatusAutocomplete =
-        Endpoint.ofArr(LightUserWithStatus.class).endpoint("/api/player/autocomplete")
+    public static EPMany<UserStatus> usersStatusAutocomplete =
+        Endpoint.ofArr(UserStatus.class).endpoint("/api/player/autocomplete")
         .streamMapper(stream -> stream.map(mapper(AutocompleteWrapper.class))
                 .filter(Objects::nonNull).flatMap(wrapper -> wrapper.result().stream()))
         .toMany();
 
-    public static EPMany<StreamerStatus> liveStreamers =
-        Endpoint.ofArr(StreamerStatus.class).endpoint("/api/streamer/live").toMany();
+    public static EPMany<LiveStreamer> liveStreamers =
+        Endpoint.ofArr(LiveStreamer.class).endpoint("/api/streamer/live").toMany();
 
     public static EPOne<Team> teamById =
         Endpoint.of(Team.class).endpoint("/api/team/%s").toOne();
@@ -156,8 +160,9 @@ public sealed interface Endpoint<T> {
     public static EPMany<Team> teamsByUserId =
         Endpoint.ofArr(Team.class).endpoint("/api/team/of/%s").toMany();
 
-    public static EPMany<User> teamUsersById =
-        Endpoint.of(User.class).endpoint("/api/team/%s/users").accept(jsonstream).scope(Scope.team_read).toMany();
+    public static EPMany<TeamMemberAuth> teamUsersById =
+        Endpoint.of(mapper(TeamMemberData.class).andThen(TeamMemberAuth.class::cast)).endpoint("/api/team/%s/users")
+        .accept(jsonstream).scope(Scope.team_read).toMany();
 
     public static EPOne<PageTeam> popularTeamsByPage =
         Endpoint.of(PageTeam.class).endpoint("/api/team/all").toOne();
@@ -538,7 +543,7 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Void.class).endpoint("/api/board/game/%s/berserk").scope(Scope.board_play).toOne();
 
     public static EPMany<User> botsOnline =
-        Endpoint.of(User.class).endpoint("/api/bot/online").accept(jsonstream).toMany();
+        Endpoint.of(mapper(UserData.class).andThen(User.class::cast)).endpoint("/api/bot/online").accept(jsonstream).toMany();
 
     public static EPOne<Void> botAccountUpgrade =
         Endpoint.of(Void.class).endpoint("/api/bot/account/upgrade").post().scope(Scope.bot_play).toOne();
@@ -588,7 +593,7 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Void.class).endpoint("/api/external-engine/work/%s").post(plain).target(ServerType.engine).toOne();
 
 
-    static record AutocompleteWrapper(List<LightUserWithStatus> result) {}
+    static record AutocompleteWrapper(List<UserStatus> result) {}
     static record BulkPairingWrapper(List<BulkPairing> bulks) {}
     static record PlayingWrapper(List<MyGameInfo> nowPlaying)  {}
     static record AccountEmail(String email)  {}

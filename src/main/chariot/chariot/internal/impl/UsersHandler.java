@@ -14,12 +14,14 @@ public class UsersHandler implements UsersAuth {
 
     private final RequestHandler requestHandler;
 
-    public UsersHandler(RequestHandler requestHandler) {
+    public UsersHandler(
+            RequestHandler requestHandler
+           ) {
         this.requestHandler = requestHandler;
     }
 
     @Override
-    public One<User> byId(String userId, Consumer<UserParams> consumer) {
+    public One<UserAuth> byId(String userId, Consumer<UserParams> consumer) {
         return Endpoint.userById.newRequest(request -> request
                 .path(userId)
                 .query(MapBuilder.of(UserParams.class)
@@ -31,7 +33,7 @@ public class UsersHandler implements UsersAuth {
     }
 
     @Override
-    public Many<User> byIds(List<String> userIds) {
+    public Many<UserAuth> byIds(List<String> userIds) {
         return Endpoint.usersByIds.newRequest(request -> request
                 .body(userIds.stream().collect(Collectors.joining(","))))
             .process(requestHandler);
@@ -75,7 +77,7 @@ public class UsersHandler implements UsersAuth {
     }
 
     @Override
-    public Many<StreamerStatus> liveStreamers() {
+    public Many<LiveStreamer> liveStreamers() {
         return Endpoint.liveStreamers.newRequest(request -> {})
             .process(requestHandler);
     }
@@ -134,7 +136,7 @@ public class UsersHandler implements UsersAuth {
     }
 
     @Override
-    public Many<LightUserWithStatus> autocompleteUsers(String term) {
+    public Many<UserStatus> autocompleteUsers(String term) {
         return Endpoint.usersStatusAutocomplete.newRequest(request -> request
                 .query(Map.of("term", term, "object", "true")))
             .process(requestHandler);
@@ -171,7 +173,7 @@ public class UsersHandler implements UsersAuth {
     }
 
     @Override
-    public Many<LightUserWithStatus> autocompleteUsers(String term, boolean friend) {
+    public Many<UserStatus> autocompleteUsers(String term, boolean friend) {
         return Endpoint.usersStatusAutocomplete.newRequest(request -> request
                 .query(Map.of("term", term, "object", "true", "friend", Boolean.toString(friend))))
             .process(requestHandler);

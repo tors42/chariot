@@ -14,6 +14,7 @@ public sealed interface ClientAuth extends Client permits chariot.internal.Defau
      * {@inheritDoc} <br>
      * Send messages to users.
      */
+    @SuppressWarnings("unchecked")
     UsersAuth users();
 
     /**
@@ -75,6 +76,7 @@ public sealed interface ClientAuth extends Client permits chariot.internal.Defau
      * <li>Bots cannot play UltraBullet (¼+0) because it requires making too many requests. But 0+1 and ½+0 are allowed.
      * </ul>
      */
+    @SuppressWarnings("unchecked")
     BotAuth bot();
 
     /**
@@ -104,6 +106,7 @@ public sealed interface ClientAuth extends Client permits chariot.internal.Defau
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     TeamsAuth teams();
 
     /**

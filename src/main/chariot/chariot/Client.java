@@ -70,7 +70,7 @@ public sealed interface Client permits ClientAuth {
     /**
      * Access registered users on Lichess.
      */
-    Users users();
+     <T extends User> Users<T> users();
 
     /**
      * Access Lichess cloud evaluations database.
@@ -81,7 +81,7 @@ public sealed interface Client permits ClientAuth {
      * Access Lichess online bots.<br/>
      * For more bot operations, see {@link chariot.ClientAuth#bot}
      */
-    Bot bot();
+    <T extends User> Bot<T> bot();
 
     /**
      * Relay chess events on Lichess.
@@ -138,7 +138,7 @@ public sealed interface Client permits ClientAuth {
     /**
      * Access and manage Lichess teams and their members.
      */
-    Teams teams();
+    <T extends TeamMember> Teams<T> teams();
 
     /**
      * Access Arena and Swiss tournaments played on Lichess.<br/>

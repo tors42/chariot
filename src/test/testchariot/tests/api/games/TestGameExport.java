@@ -8,6 +8,7 @@ import chariot.Client;
 import chariot.model.*;
 import chariot.model.Enums.*;
 import chariot.model.Game.*;
+import chariot.model.UserData.UserPropertyEnum;
 import chariot.internal.Endpoint;
 
 import static util.Assert.*;
@@ -19,14 +20,15 @@ public class TestGameExport {
 
         String gameId = "q7ZvsdUF";
 
+
         // prepare expected response
         var expected = One.entry(
                 new Game("q7ZvsdUF", true, GameVariant.standard, "blitz", "blitz",
                     1514505150384l, 1514505592843l, Status.draw,
                     new Game.Players(
-                        new Player.User(new LightUser("lance5500", "Lance5500", "LM", true), 2389, 4, false,
+                        new Player.User(LightUser.of("lance5500", "Lance5500", "LM", true), 2389, 4, false,
                             Optional.empty(), Optional.empty(), Optional.empty()),
-                        new Player.User(new LightUser("tryinghard87", "TryingHard87", "", false), 2498, -4, false,
+                        new Player.User(LightUser.of("tryinghard87", "TryingHard87", "", false), 2498, -4, false,
                             Optional.empty(), Optional.empty(), Optional.empty())
                         ),
                     "",

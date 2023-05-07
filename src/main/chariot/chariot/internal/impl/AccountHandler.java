@@ -14,7 +14,7 @@ public class AccountHandler implements AccountAuth {
     }
 
     @Override
-    public One<User> profile() {
+    public One<UserAuth> profile() {
         return Endpoint.accountProfile.newRequest(request -> {})
             .process(requestHandler);
     }
@@ -45,7 +45,7 @@ public class AccountHandler implements AccountAuth {
     }
 
     @Override
-    public Many<User> following() {
+    public Many<UserAuth> following() {
         return Endpoint.relFollowing.newRequest(request -> {})
             .process(requestHandler);
     }

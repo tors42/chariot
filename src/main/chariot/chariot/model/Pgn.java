@@ -144,7 +144,7 @@ public sealed interface Pgn {
 
         @Override
         public Map<String, String> tagMap() {
-            return tags.stream().collect(Collectors.toMap(Tag::name, Tag::value));
+            return tags.stream().collect(Collectors.toUnmodifiableMap(Tag::name, Tag::value));
         }
 
         @Override
