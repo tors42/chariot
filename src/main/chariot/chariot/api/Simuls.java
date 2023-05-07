@@ -1,7 +1,7 @@
 package chariot.api;
 
-import chariot.model.One;
+import chariot.model.*;
 
 public interface Simuls {
-    public One<chariot.model.Simuls> simuls();
+    public One<CurrentSimuls> simuls();
 }

@@ -14,7 +14,6 @@ import chariot.internal.Config.ServerType;
 import chariot.internal.RequestParameters.*;
 import chariot.internal.Util.Method;
 import chariot.model.*;
-import chariot.model.Simuls;
 import chariot.model.ChallengeResult.ChallengeInfo;
 
 import static chariot.internal.ModelMapper.mapper;
@@ -340,11 +339,11 @@ public sealed interface Endpoint<T> {
     public static EPOne<StormDashboard> stormDashboard =
         Endpoint.of(StormDashboard.class).endpoint("/api/storm/dashboard/%s").toOne();
 
-    public static EPOne<chariot.model.Simuls> simuls =
-        Endpoint.of(chariot.model.Simuls.class).endpoint("/api/simul").toOne();
+    public static EPOne<CurrentSimuls> simuls =
+        Endpoint.of(CurrentSimuls.class).endpoint("/api/simul").toOne();
 
-    public static EPOne<chariot.model.Analysis> cloudEval =
-        Endpoint.of(chariot.model.Analysis.class).endpoint("/api/cloud-eval").toOne();
+    public static EPOne<CloudEvalCacheEntry> cloudEval =
+        Endpoint.of(CloudEvalCacheEntry.class).endpoint("/api/cloud-eval").toOne();
 
     public static EPMany<Pgn> exportChapter =
         Endpoint.of(Pgn.class).endpoint("/api/study/%s/%s.pgn")

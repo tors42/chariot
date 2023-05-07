@@ -3,9 +3,9 @@ package chariot.internal.impl;
 import chariot.api.Simuls;
 import chariot.internal.Endpoint;
 import chariot.internal.RequestHandler;
-import chariot.model.One;
+import chariot.model.*;
 
-public class SimulsHandler implements chariot.api.Simuls {
+public class SimulsHandler implements Simuls {
     private final RequestHandler requestHandler;
 
     public SimulsHandler(RequestHandler requestHandler) {
@@ -14,7 +14,7 @@ public class SimulsHandler implements chariot.api.Simuls {
 
 
     @Override
-    public One<chariot.model.Simuls> simuls() {
+    public One<CurrentSimuls> simuls() {
         return Endpoint.simuls.newRequest(request -> {})
             .process(requestHandler);
     }

@@ -7,7 +7,7 @@ import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 
-public class AnalysisHandler implements chariot.api.Analysis {
+public class AnalysisHandler implements Analysis {
 
     private final RequestHandler requestHandler;
 
@@ -16,7 +16,7 @@ public class AnalysisHandler implements chariot.api.Analysis {
     }
 
     @Override
-    public One<chariot.model.Analysis> cloudEval(String fen, Consumer<Params> consumer) {
+    public One<CloudEvalCacheEntry> cloudEval(String fen, Consumer<Params> consumer) {
         return Endpoint.cloudEval.newRequest(request -> request
                 .query(MapBuilder.of(Params.class).add("fen", fen).toMap(consumer)))
             .process(requestHandler);

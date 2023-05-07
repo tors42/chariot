@@ -2,13 +2,13 @@ package chariot.api;
 
 import java.util.function.*;
 
-import chariot.model.One;
+import chariot.model.*;
 import chariot.model.Enums.VariantName;
 
 public interface Analysis {
 
-    One<chariot.model.Analysis> cloudEval(String fen, Consumer<Params> params);
-    default One<chariot.model.Analysis> cloudEval(String fen) {
+    One<CloudEvalCacheEntry> cloudEval(String fen, Consumer<Params> params);
+    default One<CloudEvalCacheEntry> cloudEval(String fen) {
         return cloudEval(fen, __ -> {});
     }
 

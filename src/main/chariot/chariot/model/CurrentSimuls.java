@@ -8,7 +8,7 @@ import chariot.internal.Util;
 
 import static chariot.internal.Util.orEmpty;
 
-public record Simuls(
+public record CurrentSimuls(
         List<Simul> pending,
         List<Simul> created,
         List<Simul> started)  {
