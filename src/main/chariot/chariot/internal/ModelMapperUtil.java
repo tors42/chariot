@@ -5,8 +5,8 @@ import java.util.stream.Collectors;
 
 import chariot.model.Enums.PerfTypeNoCorr;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class ModelMapperUtil {
 
@@ -35,35 +35,27 @@ public class ModelMapperUtil {
 
 
     public static Map<String, String> tvChannelsMapping() {
-
-        var perfTypeMap = Arrays.stream(PerfTypeNoCorr.values()).collect(
-                Collectors.toMap(
-                    p -> p.name(),
-                    p -> switch(p) {
-                        case ultraBullet,
-                             bullet,
-                             blitz,
-                             rapid,
-                             classical,
-                             antichess,
-                             horde,
-                             atomic,
-                             crazyhouse,
-                             chess960      -> capitalize(p.name());
-                        case racingKings   -> "Racing Kings";
-                        case threeCheck    -> "Three-check";
-                        case kingOfTheHill -> "King of the Hill";
-                    })
-                );
-
-        var map = new HashMap<String, String>() {{
-            putAll(perfTypeMap);
-            put("topRated", "Top Rated");
-            put("computer", "Computer");
-            put("bot", "Bot");
-        }};
-
-        return map;
+        return Stream.concat(Arrays.stream(PerfTypeNoCorr.values())
+                .map(perfType -> Map.entry(perfType.name(), switch(perfType) {
+                    case ultraBullet,
+                         bullet,
+                         blitz,
+                         rapid,
+                         classical,
+                         antichess,
+                         horde,
+                         atomic,
+                         crazyhouse,
+                         chess960      -> capitalize(perfType.name());
+                    case racingKings   -> "Racing Kings";
+                    case threeCheck    -> "Three-check";
+                    case kingOfTheHill -> "King of the Hill";
+                })),
+                Stream.of(
+                    Map.entry("topRated", "Top Rated"),
+                    Map.entry("computer", "Computer"),
+                    Map.entry("bot", "Bot"))
+                ).collect(Collectors.toUnmodifiableMap(Map.Entry::getKey,  Map.Entry::getValue));
     }
 
     public static Map<String, String> importMapping() {
