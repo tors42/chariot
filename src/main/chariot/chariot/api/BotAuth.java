@@ -1,8 +1,5 @@
 package chariot.api;
 
-import java.util.function.Function;
-
-import chariot.model.Enums.Room;
 import chariot.model.*;
 
 /**
@@ -111,12 +108,18 @@ public interface BotAuth extends ChallengesAuthCommon, Bot {
      One<Ack> move(String gameId, String move);
 
     /**
-     * Post a message to the player or spectator chat, in a game being played with the Bot API.
+     * Post a message to the player chat, in a game being played with the Bot API.
      * @param gameId  Example: 5IrD6Gzz
      * @param text The message to send
-     * @param room Target either player or spectators
      */
-    One<Ack> chat(String gameId, String text, Room room);
+    One<Ack> chat(String gameId, String text);
+
+    /**
+     * Post a message to the spectator chat, in a game being played with the Bot API.
+     * @param gameId  Example: 5IrD6Gzz
+     * @param text The message to send
+     */
+    One<Ack> chatSpectators(String gameId, String text);
 
     /**
      * Abort a game being played with the Bot API.
@@ -130,20 +133,6 @@ public interface BotAuth extends ChallengesAuthCommon, Bot {
      */
     One<Ack> resign(String gameId);
 
-
-    /**
-     * See {@link #chat(String, String, Room) chat(..., room)}
-     */
-    default One<Ack> chat(String gameId, String text) {
-        return chat(gameId, text, Room.player);
-    }
-
-    /**
-     * See {@link #chat(String, String, Room) chat(..., room)}
-     */
-    default One<Ack> chat(String gameId, String text, Function<Room.Provider, Room> room) {
-        return chat(gameId, text, room.apply(Room.provider()));
-    }
 
     /**
      * Get the messages posted in the game chat.

@@ -1,11 +1,11 @@
 package chariot.internal.impl;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 import chariot.Client.Scope;
 import chariot.api.*;
 import chariot.model.*;
-import chariot.model.Enums.*;
 import chariot.internal.*;
 
 public class BotHandler extends ChallengesAuthCommonImpl implements BotAuth {
@@ -14,16 +14,11 @@ public class BotHandler extends ChallengesAuthCommonImpl implements BotAuth {
         super(requestHandler, Scope.bot_play);
     }
 
-    @Override
-    public Many<User> botsOnline(int nb) {
-        return Endpoint.botsOnline.newRequest(request -> request
-                .query(Map.of("nb", nb)))
-            .process(requestHandler);
-    }
+    @Override public Many<User> botsOnline(int nb) { return _botsOnline(request -> request.query(Map.of("nb", nb))); }
+    @Override public Many<User> botsOnline() { return _botsOnline(request -> {}); }
 
-    @Override
-    public Many<User> botsOnline() {
-        return Endpoint.botsOnline.newRequest(request -> {})
+    public Many<User> _botsOnline(Consumer<chariot.internal.RequestParameters.Params> consumer) {
+        return Endpoint.botsOnline.newRequest(consumer)
             .process(requestHandler);
     }
 
@@ -56,12 +51,20 @@ public class BotHandler extends ChallengesAuthCommonImpl implements BotAuth {
             .process(requestHandler);
     }
 
+    @Override
+    public One<Ack> chat(String gameId, String text) {
+        return _chat(gameId, text, "player");
+    }
 
     @Override
-    public One<Ack> chat(String gameId, String text, Room room) {
+    public One<Ack> chatSpectators(String gameId, String text) {
+        return _chat(gameId, text, "spectator");
+    }
+
+    private One<Ack> _chat(String gameId, String text, String room) {
         return Endpoint.botChat.newRequest(request -> request
                 .path(gameId)
-                .body(Map.of("text", text, "room", room.name())))
+                .body(Map.of("text", text, "room", room)))
             .process(requestHandler);
     }
 

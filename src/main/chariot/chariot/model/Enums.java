@@ -50,15 +50,6 @@ public interface Enums {
 
     enum Direction { in, out }
 
-    enum Room {
-        player, spectator;
-        public interface Provider {
-            default Room player()    { return player; }
-            default Room spectator() { return spectator; }
-        }
-        public static Provider provider() {return new Provider(){};}
-    }
-
     enum TournamentState {
         created(10),started(20),finished(30);
         TournamentState(int status) {

@@ -91,12 +91,19 @@ public interface BoardAuth extends ChallengesAuthCommon {
     One<Ack> move(String gameId, String move);
 
     /**
-     * Post a message to the player or spectator chat, in a game being played with the Board API.
+     * Post a message to the player chat, in a game being played with the Board API.
      * @param gameId  Example: 5IrD6Gzz
      * @param text
-     * @param room
      */
-    One<Ack> chat(String gameId, String text, Room room);
+    One<Ack> chat(String gameId, String text);
+
+    /**
+     * Post a message to the spectator chat, in a game being played with the Board API.
+     * @param gameId  Example: 5IrD6Gzz
+     * @param text
+     */
+    One<Ack> chatSpectators(String gameId, String text);
+
 
     /**
      * Abort a game being played with the Board API.
@@ -149,13 +156,6 @@ public interface BoardAuth extends ChallengesAuthCommon {
      * @param gameId  Example: 5IrD6Gzz
      */
     One<Ack> berserk(String gameId);
-
-    /**
-     * See {@link chariot.api.BoardAuth#chat}
-     */
-    default One<Ack> chat(String gameId, String message) {
-        return chat(gameId, message, Room.player);
-    }
 
     /**
      * See {@link chariot.api.BoardAuth#handleDrawOffer}

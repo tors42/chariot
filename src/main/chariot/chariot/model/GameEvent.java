@@ -1,7 +1,5 @@
 package chariot.model;
 
-import chariot.model.Enums.Room;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -62,7 +60,7 @@ public sealed interface GameEvent {
             Type type,
             String username,
             String text,
-            Room room) implements GameEvent {}
+            String room) implements GameEvent {}
 
     record OpponentGone(
             Type type,

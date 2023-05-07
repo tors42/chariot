@@ -56,10 +56,19 @@ public class BoardHandler extends ChallengesAuthCommonImpl implements BoardAuth 
     }
 
     @Override
-    public One<Ack> chat(String gameId, String text, Room room) {
+    public One<Ack> chat(String gameId, String text) {
+        return _chat(gameId, text, "player");
+    }
+
+    @Override
+    public One<Ack> chatSpectators(String gameId, String text) {
+        return _chat(gameId, text, "spectator");
+    }
+
+    private One<Ack> _chat(String gameId, String text, String room) {
         return Endpoint.boardChat.newRequest(request -> request
                 .path(gameId)
-                .body(Map.of("text", text, "room", room.name())))
+                .body(Map.of("text", text, "room", room)))
             .process(requestHandler);
     }
 
