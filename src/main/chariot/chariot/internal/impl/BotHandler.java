@@ -23,7 +23,7 @@ public class BotHandler extends ChallengesAuthCommonImpl implements BotAuth {
     }
 
     @Override
-    public One<Ack> upgradeToBotAccount() {
+    public One<Void> upgradeToBotAccount() {
         return Endpoint.botAccountUpgrade.newRequest(request -> {})
             .process(requestHandler);
      }
@@ -37,7 +37,7 @@ public class BotHandler extends ChallengesAuthCommonImpl implements BotAuth {
     }
 
     @Override
-    public One<Ack> move(String gameId, String move, boolean drawOffer) {
+    public One<Void> move(String gameId, String move, boolean drawOffer) {
         return Endpoint.botMove.newRequest(request -> request
                 .path(gameId, move)
                 .query(Map.of("offeringDraw", drawOffer)))
@@ -45,23 +45,23 @@ public class BotHandler extends ChallengesAuthCommonImpl implements BotAuth {
     }
 
     @Override
-    public One<Ack> move(String gameId, String move) {
+    public One<Void> move(String gameId, String move) {
         return Endpoint.botMove.newRequest(request -> request
                 .path(gameId, move))
             .process(requestHandler);
     }
 
     @Override
-    public One<Ack> chat(String gameId, String text) {
+    public One<Void> chat(String gameId, String text) {
         return _chat(gameId, text, "player");
     }
 
     @Override
-    public One<Ack> chatSpectators(String gameId, String text) {
+    public One<Void> chatSpectators(String gameId, String text) {
         return _chat(gameId, text, "spectator");
     }
 
-    private One<Ack> _chat(String gameId, String text, String room) {
+    private One<Void> _chat(String gameId, String text, String room) {
         return Endpoint.botChat.newRequest(request -> request
                 .path(gameId)
                 .body(Map.of("text", text, "room", room)))
@@ -69,14 +69,14 @@ public class BotHandler extends ChallengesAuthCommonImpl implements BotAuth {
     }
 
     @Override
-    public One<Ack> abort(String gameId) {
+    public One<Void> abort(String gameId) {
         return Endpoint.botAbort.newRequest(request -> request
                 .path(gameId))
             .process(requestHandler);
      }
 
     @Override
-    public One<Ack> resign(String gameId) {
+    public One<Void> resign(String gameId) {
         return Endpoint.botResign.newRequest(request -> request
             .path(gameId))
             .process(requestHandler);

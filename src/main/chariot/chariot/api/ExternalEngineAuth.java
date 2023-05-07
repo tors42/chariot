@@ -17,5 +17,5 @@ public interface ExternalEngineAuth extends ExternalEngine {
     /**
      * @param engineId The external engine id. Example: {@code eei_aTKImBJOnv6j}
      */
-    One<Ack>                 delete(String engineId);
+    One<Void>                 delete(String engineId);
 }

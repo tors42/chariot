@@ -135,8 +135,8 @@ public interface Games {
      * Add new game IDs for an existing stream to watch.<br>
      * The stream will immediately outputs the games that already exists, then emit an event each time a game is started or finished.<br>
      */
-    One<Ack> addGameIdsToStream(String streamId, Set<String> gameIds);
-    default One<Ack> addGameIdsToStream(String streamId, String... gameIds) { return addGameIdsToStream(streamId, Set.of(gameIds)); }
+    One<Void> addGameIdsToStream(String streamId, Set<String> gameIds);
+    default One<Void> addGameIdsToStream(String streamId, String... gameIds) { return addGameIdsToStream(streamId, Set.of(gameIds)); }
 
     /**
      * Stream positions and moves of any ongoing game.<br>

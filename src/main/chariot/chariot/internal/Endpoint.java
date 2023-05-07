@@ -71,16 +71,16 @@ public sealed interface Endpoint<T> {
     public static EPOne<AccountKid> accountKid =
         Endpoint.of(AccountKid.class).endpoint("/api/account/kid").scope(Scope.preference_read).toOne();
 
-    public static EPOne<Ack> accountKidStatus =
-        Endpoint.of(Ack.class).endpoint("/api/account/kid").post().scope(Scope.preference_write).toOne();
+    public static EPOne<Void> accountKidStatus =
+        Endpoint.of(Void.class).endpoint("/api/account/kid").post().scope(Scope.preference_write).toOne();
 
     public static EPMany<MyGameInfo> accountNowPlaying =
         Endpoint.of(MyGameInfo.class).endpoint("/api/account/playing")
         .streamMapper(stream -> stream.map(mapper(PlayingWrapper.class)).filter(Objects::nonNull).flatMap(pw -> pw.nowPlaying().stream()))
         .scope(Scope.any).toMany();
 
-    public static EPOne<Ack> accountOAuthToken =
-        Endpoint.of(Ack.class).endpoint("/account/oauth/token").toOne();
+    public static EPOne<Void> accountOAuthToken =
+        Endpoint.of(Void.class).endpoint("/account/oauth/token").toOne();
 
     public static EPOne<TokenResult> apiToken =
         Endpoint.of(TokenResult.class).endpoint("/api/token").post(wwwform).toOne();
@@ -94,8 +94,8 @@ public sealed interface Endpoint<T> {
     public static EPOne<ChallengeTokens> apiAdminChallengeTokens =
         Endpoint.of(ChallengeTokens.class).endpoint("/api/token/admin-challenge").post(wwwform).scope(Scope.web_mod).toOne();
 
-    public static EPOne<Ack> sendMessage =
-        Endpoint.of(Ack.class).endpoint("/inbox/%s").post(wwwform).scope(Scope.msg_write).toOne();
+    public static EPOne<Void> sendMessage =
+        Endpoint.of(Void.class).endpoint("/inbox/%s").post(wwwform).scope(Scope.msg_write).toOne();
 
     public static EPOne<Crosstable> crosstableByUserIds =
         Endpoint.of(Crosstable.class).endpoint("/api/crosstable/%s/%s").toOne();
@@ -123,11 +123,11 @@ public sealed interface Endpoint<T> {
     public static EPMany<User> relFollowing =
         Endpoint.of(User.class).endpoint("/api/rel/following").scope(Scope.follow_read).accept(jsonstream).toMany();
 
-    public static EPOne<Ack> followUser =
-        Endpoint.of(Ack.class).endpoint("/api/rel/follow/%s").post().scope(Scope.follow_write).toOne();
+    public static EPOne<Void> followUser =
+        Endpoint.of(Void.class).endpoint("/api/rel/follow/%s").post().scope(Scope.follow_write).toOne();
 
-    public static EPOne<Ack> unfollowUser =
-        Endpoint.of(Ack.class).endpoint("/api/rel/unfollow/%s").post().scope(Scope.follow_write).toOne();
+    public static EPOne<Void> unfollowUser =
+        Endpoint.of(Void.class).endpoint("/api/rel/unfollow/%s").post().scope(Scope.follow_write).toOne();
 
     public static EPMany<Tournament> tournamentArenaCreatedByUser =
         Endpoint.of(Tournament.class).endpoint("/api/user/%s/tournament/created").accept(jsonstream).toMany();
@@ -172,26 +172,26 @@ public sealed interface Endpoint<T> {
     public static EPMany<Swiss> teamSwissById =
         Endpoint.of(Swiss.class).endpoint("/api/team/%s/swiss").toMany();
 
-    public static EPOne<Ack> teamJoin =
-        Endpoint.of(Ack.class).endpoint("/team/%s/join").post(wwwform).scope(Scope.team_write).toOne();
+    public static EPOne<Void> teamJoin =
+        Endpoint.of(Void.class).endpoint("/team/%s/join").post(wwwform).scope(Scope.team_write).toOne();
 
-    public static EPOne<Ack> teamQuit =
-        Endpoint.of(Ack.class).endpoint("/team/%s/quit").post().scope(Scope.team_write).toOne();
+    public static EPOne<Void> teamQuit =
+        Endpoint.of(Void.class).endpoint("/team/%s/quit").post().scope(Scope.team_write).toOne();
 
-    public static EPOne<Ack> teamKick =
-        Endpoint.of(Ack.class).endpoint("/team/%s/kick/%s").post().scope(Scope.team_lead).toOne();
+    public static EPOne<Void> teamKick =
+        Endpoint.of(Void.class).endpoint("/team/%s/kick/%s").post().scope(Scope.team_lead).toOne();
 
-    public static EPOne<Ack> teamMessage =
-        Endpoint.of(Ack.class).endpoint("/team/%s/pm-all").post(wwwform).scope(Scope.team_lead).toOne();
+    public static EPOne<Void> teamMessage =
+        Endpoint.of(Void.class).endpoint("/team/%s/pm-all").post(wwwform).scope(Scope.team_lead).toOne();
 
     public static EPMany<TeamRequest> teamRequests =
         Endpoint.ofArr(TeamRequest.class).endpoint("/api/team/%s/requests").scope(Scope.team_read).toMany();
 
-    public static EPOne<Ack> teamAcceptJoin =
-        Endpoint.of(Ack.class).endpoint("/api/team/%s/request/%s/accept").post().scope(Scope.team_lead).toOne();
+    public static EPOne<Void> teamAcceptJoin =
+        Endpoint.of(Void.class).endpoint("/api/team/%s/request/%s/accept").post().scope(Scope.team_lead).toOne();
 
-    public static EPOne<Ack> teamDeclineJoin =
-        Endpoint.of(Ack.class).endpoint("/api/team/%s/request/%s/decline").post().scope(Scope.team_lead).toOne();
+    public static EPOne<Void> teamDeclineJoin =
+        Endpoint.of(Void.class).endpoint("/api/team/%s/request/%s/decline").post().scope(Scope.team_lead).toOne();
 
     public static EPOne<GameImport> gameImport =
         Endpoint.of(GameImport.class).endpoint("/api/import").post(wwwform).toOne();
@@ -202,8 +202,8 @@ public sealed interface Endpoint<T> {
     public static EPMany<GameInfo> streamGamesByStreamIds =
         Endpoint.of(GameInfo.class).endpoint("/api/stream/games/%s").post(plain).accept(jsonstream).toMany();
 
-    public static EPOne<Ack> addGameIdsToStream =
-        Endpoint.of(Ack.class).endpoint("/api/stream/games/%s/add").post(plain).accept(json).toOne();
+    public static EPOne<Void> addGameIdsToStream =
+        Endpoint.of(Void.class).endpoint("/api/stream/games/%s/add").post(plain).accept(json).toOne();
 
     public static EPMany<MoveInfo> streamMoves =
         Endpoint.of(MoveInfo.class).endpoint("/api/stream/game/%s").accept(jsonstream).toMany();
@@ -214,11 +214,11 @@ public sealed interface Endpoint<T> {
     public static EPOne<Arena> createArenaTournament =
         Endpoint.of(Arena.class).endpoint("/api/tournament").post(wwwform).scope(Scope.tournament_write).toOne();
 
-    public static EPOne<Ack> joinArenaTournament =
-        Endpoint.of(Ack.class).endpoint("/api/tournament/%s/join").post(wwwform).scope(Scope.tournament_write).toOne();
+    public static EPOne<Void> joinArenaTournament =
+        Endpoint.of(Void.class).endpoint("/api/tournament/%s/join").post(wwwform).scope(Scope.tournament_write).toOne();
 
-    public static EPOne<Ack> withdrawArenaTournament =
-        Endpoint.of(Ack.class).endpoint("/api/tournament/%s/withdraw").post().scope(Scope.tournament_write).toOne();
+    public static EPOne<Void> withdrawArenaTournament =
+        Endpoint.of(Void.class).endpoint("/api/tournament/%s/withdraw").post().scope(Scope.tournament_write).toOne();
 
     public static EPOne<Arena> updateArenaTournament =
         Endpoint.of(Arena.class).endpoint("/api/tournament/%s").post(wwwform).scope(Scope.tournament_write).toOne();
@@ -226,8 +226,8 @@ public sealed interface Endpoint<T> {
     public static EPOne<Arena> updateTeamBattleTournament =
         Endpoint.of(Arena.class).endpoint("/api/tournament/team-battle/%s").post(wwwform).scope(Scope.tournament_write).toOne();
 
-    public static EPOne<Ack> terminateArenaTournament =
-        Endpoint.of(Ack.class).endpoint("/api/tournament/%s/terminate").post().scope(Scope.tournament_write).toOne();
+    public static EPOne<Void> terminateArenaTournament =
+        Endpoint.of(Void.class).endpoint("/api/tournament/%s/terminate").post().scope(Scope.tournament_write).toOne();
 
     public static EPOne<Arena> tournamentArenaById =
         Endpoint.of(Arena.class).endpoint("/api/tournament/%s").toOne();
@@ -377,11 +377,11 @@ public sealed interface Endpoint<T> {
     public static EPOne<BulkPairing> bulkPairingCreate =
         Endpoint.of(BulkPairing.class).endpoint("/api/bulk-pairing").post(wwwform).scope(Scope.challenge_bulk).toOne();
 
-    public static EPOne<Ack> bulkPairingStart =
-        Endpoint.of(Ack.class).endpoint("/api/bulk-pairing/%s/start-clocks").post().scope(Scope.challenge_bulk).toOne();
+    public static EPOne<Void> bulkPairingStart =
+        Endpoint.of(Void.class).endpoint("/api/bulk-pairing/%s/start-clocks").post().scope(Scope.challenge_bulk).toOne();
 
-    public static EPOne<Ack> bulkPairingCancel =
-        Endpoint.of(Ack.class).endpoint("/api/bulk-pairing/%s").delete().scope(Scope.challenge_bulk).toOne();
+    public static EPOne<Void> bulkPairingCancel =
+        Endpoint.of(Void.class).endpoint("/api/bulk-pairing/%s").delete().scope(Scope.challenge_bulk).toOne();
 
     public static EPOne<PendingChallenges> challenges =
         Endpoint.of(PendingChallenges.class).endpoint("/api/challenge").scope(Scope.challenge_read).toOne();
@@ -412,20 +412,20 @@ public sealed interface Endpoint<T> {
     public static EPOne<ChallengeOpenEnded> challengeOpenEnded =
         Endpoint.of(ChallengeOpenEnded.class).endpoint("/api/challenge/open").post(wwwform).scope(Scope.challenge_write).toOne();
 
-    public static EPOne<Ack> challengeCancel =
-        Endpoint.of(Ack.class).endpoint("/api/challenge/%s/cancel").post().scope(Scope.challenge_write).toOne();
+    public static EPOne<Void> challengeCancel =
+        Endpoint.of(Void.class).endpoint("/api/challenge/%s/cancel").post().scope(Scope.challenge_write).toOne();
 
-    public static EPOne<Ack> challengeAccept =
-        Endpoint.of(Ack.class).endpoint("/api/challenge/%s/accept").post().scope(Scope.challenge_write).toOne();
+    public static EPOne<Void> challengeAccept =
+        Endpoint.of(Void.class).endpoint("/api/challenge/%s/accept").post().scope(Scope.challenge_write).toOne();
 
-    public static EPOne<Ack> challengeDecline =
-        Endpoint.of(Ack.class).endpoint("/api/challenge/%s/decline").post(wwwform).scope(Scope.challenge_write).toOne();
+    public static EPOne<Void> challengeDecline =
+        Endpoint.of(Void.class).endpoint("/api/challenge/%s/decline").post(wwwform).scope(Scope.challenge_write).toOne();
 
-    public static EPOne<Ack> startClocksOfGame =
-        Endpoint.of(Ack.class).endpoint("/api/challenge/%s/start-clocks").post().scope(Scope.challenge_write).toOne();
+    public static EPOne<Void> startClocksOfGame =
+        Endpoint.of(Void.class).endpoint("/api/challenge/%s/start-clocks").post().scope(Scope.challenge_write).toOne();
 
-    public static EPOne<Ack> addTimeToGame =
-        Endpoint.of(Ack.class).endpoint("/api/round/%s/add-time/%s").post().scope(Scope.challenge_write).toOne();
+    public static EPOne<Void> addTimeToGame =
+        Endpoint.of(Void.class).endpoint("/api/round/%s/add-time/%s").post().scope(Scope.challenge_write).toOne();
 
     public static EPOne<Swiss> createSwiss =
         Endpoint.of(Swiss.class).endpoint("/api/swiss/new/%s").post(wwwform).scope(Scope.tournament_write).toOne();
@@ -440,14 +440,14 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Void.class).endpoint("/api/swiss/%s/schedule-next-round").post(wwwform).scope(Scope.tournament_write).toOne();
 
 
-    public static EPOne<Ack> joinSwissTournament =
-        Endpoint.of(Ack.class).endpoint("/api/swiss/%s/join").post(wwwform).scope(Scope.tournament_write).toOne();
+    public static EPOne<Void> joinSwissTournament =
+        Endpoint.of(Void.class).endpoint("/api/swiss/%s/join").post(wwwform).scope(Scope.tournament_write).toOne();
 
-    public static EPOne<Ack> terminateSwiss =
-        Endpoint.of(Ack.class).endpoint("/api/swiss/%s/terminate").post().scope(Scope.tournament_write).toOne();
+    public static EPOne<Void> terminateSwiss =
+        Endpoint.of(Void.class).endpoint("/api/swiss/%s/terminate").post().scope(Scope.tournament_write).toOne();
 
-    public static EPOne<Ack> withdrawSwiss =
-        Endpoint.of(Ack.class).endpoint("/api/swiss/%s/withdraw").post().scope(Scope.tournament_write).toOne();
+    public static EPOne<Void> withdrawSwiss =
+        Endpoint.of(Void.class).endpoint("/api/swiss/%s/withdraw").post().scope(Scope.tournament_write).toOne();
 
     public static EPMany<SwissResult> swissResults =
         Endpoint.of(SwissResult.class).endpoint("/api/swiss/%s/results").accept(jsonstream).toMany();
@@ -478,14 +478,14 @@ public sealed interface Endpoint<T> {
     public static EPOne<Broadcast.Round> roundById =
         Endpoint.of(Broadcast.Round.class).endpoint("/broadcast/-/-/%s").scope(Scope.study_read).toOne();
 
-    public static EPOne<Ack> updateBroadcast =
-        Endpoint.of(Ack.class).endpoint("/broadcast/%s/edit").post(wwwform).scope(Scope.study_write).toOne();
+    public static EPOne<Void> updateBroadcast =
+        Endpoint.of(Void.class).endpoint("/broadcast/%s/edit").post(wwwform).scope(Scope.study_write).toOne();
 
     public static EPOne<Broadcast.Round> updateRound =
         Endpoint.of(Broadcast.Round.class).endpoint("/broadcast/round/%s/edit").post(wwwform).scope(Scope.study_write).toOne();
 
-    public static EPOne<Ack> pushPGNbyRoundId =
-        Endpoint.of(Ack.class).endpoint("/broadcast/round/%s/push").post(plain).scope(Scope.study_write).toOne();
+    public static EPOne<Void> pushPGNbyRoundId =
+        Endpoint.of(Void.class).endpoint("/broadcast/round/%s/push").post(plain).scope(Scope.study_write).toOne();
 
     public static EPMany<Pgn> streamBroadcast =
         Endpoint.of(Pgn.class).endpoint("/api/stream/broadcast/round/%s.pgn")
@@ -511,53 +511,53 @@ public sealed interface Endpoint<T> {
     public static EPMany<GameEvent> streamBoardGameEvents =
         Endpoint.of(GameEvent.class).endpoint("/api/board/game/stream/%s").accept(jsonstream).scope(Scope.board_play).toMany();
 
-    public static EPOne<Ack> boardMove =
-        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/move/%s").post().scope(Scope.board_play).toOne();
+    public static EPOne<Void> boardMove =
+        Endpoint.of(Void.class).endpoint("/api/board/game/%s/move/%s").post().scope(Scope.board_play).toOne();
 
-    public static EPOne<Ack> boardChat =
-        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/chat").post(wwwform).scope(Scope.board_play).toOne();
+    public static EPOne<Void> boardChat =
+        Endpoint.of(Void.class).endpoint("/api/board/game/%s/chat").post(wwwform).scope(Scope.board_play).toOne();
 
-    public static EPOne<Ack> boardAbort =
-        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/abort").post().scope(Scope.board_play).toOne();
+    public static EPOne<Void> boardAbort =
+        Endpoint.of(Void.class).endpoint("/api/board/game/%s/abort").post().scope(Scope.board_play).toOne();
 
-    public static EPOne<Ack> boardResign =
-        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/resign").post().scope(Scope.board_play).toOne();
+    public static EPOne<Void> boardResign =
+        Endpoint.of(Void.class).endpoint("/api/board/game/%s/resign").post().scope(Scope.board_play).toOne();
 
-    public static EPOne<Ack> boardDraw =
-        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/draw/%s").post().scope(Scope.board_play).toOne();
+    public static EPOne<Void> boardDraw =
+        Endpoint.of(Void.class).endpoint("/api/board/game/%s/draw/%s").post().scope(Scope.board_play).toOne();
 
-    public static EPOne<Ack> boardTakeback =
-        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/takeback/%s").post().scope(Scope.board_play).toOne();
+    public static EPOne<Void> boardTakeback =
+        Endpoint.of(Void.class).endpoint("/api/board/game/%s/takeback/%s").post().scope(Scope.board_play).toOne();
 
-    public static EPOne<Ack> boardClaimVictory =
-        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/claim-victory").post().scope(Scope.board_play).toOne();
+    public static EPOne<Void> boardClaimVictory =
+        Endpoint.of(Void.class).endpoint("/api/board/game/%s/claim-victory").post().scope(Scope.board_play).toOne();
 
     public static EPMany<ChatMessage> boardFetchChat =
         Endpoint.ofArr(ChatMessage.class).endpoint("/api/board/game/%s/chat").accept(jsonstream).scope(Scope.board_play).toMany();
 
-    public static EPOne<Ack> boardBerserk =
-        Endpoint.of(Ack.class).endpoint("/api/board/game/%s/berserk").scope(Scope.board_play).toOne();
+    public static EPOne<Void> boardBerserk =
+        Endpoint.of(Void.class).endpoint("/api/board/game/%s/berserk").scope(Scope.board_play).toOne();
 
     public static EPMany<User> botsOnline =
         Endpoint.of(User.class).endpoint("/api/bot/online").accept(jsonstream).toMany();
 
-    public static EPOne<Ack> botAccountUpgrade =
-        Endpoint.of(Ack.class).endpoint("/api/bot/account/upgrade").post().scope(Scope.bot_play).toOne();
+    public static EPOne<Void> botAccountUpgrade =
+        Endpoint.of(Void.class).endpoint("/api/bot/account/upgrade").post().scope(Scope.bot_play).toOne();
 
     public static EPMany<GameEvent> streamBotGameEvents =
         Endpoint.of(GameEvent.class).endpoint("/api/bot/game/stream/%s").accept(jsonstream).scope(Scope.bot_play).toMany();
 
-    public static EPOne<Ack> botMove =
-        Endpoint.of(Ack.class).endpoint("/api/bot/game/%s/move/%s").post().scope(Scope.bot_play).toOne();
+    public static EPOne<Void> botMove =
+        Endpoint.of(Void.class).endpoint("/api/bot/game/%s/move/%s").post().scope(Scope.bot_play).toOne();
 
-    public static EPOne<Ack> botChat =
-        Endpoint.of(Ack.class).endpoint("/api/bot/game/%s/chat").post(wwwform).scope(Scope.bot_play).toOne();
+    public static EPOne<Void> botChat =
+        Endpoint.of(Void.class).endpoint("/api/bot/game/%s/chat").post(wwwform).scope(Scope.bot_play).toOne();
 
-    public static EPOne<Ack> botAbort =
-        Endpoint.of(Ack.class).endpoint("/api/bot/game/%s/abort").post().scope(Scope.bot_play).toOne();
+    public static EPOne<Void> botAbort =
+        Endpoint.of(Void.class).endpoint("/api/bot/game/%s/abort").post().scope(Scope.bot_play).toOne();
 
-    public static EPOne<Ack> botResign =
-        Endpoint.of(Ack.class).endpoint("/api/bot/game/%s/resign").post().scope(Scope.bot_play).toOne();
+    public static EPOne<Void> botResign =
+        Endpoint.of(Void.class).endpoint("/api/bot/game/%s/resign").post().scope(Scope.bot_play).toOne();
 
     public static EPMany<ChatMessage> botFetchChat =
         Endpoint.ofArr(ChatMessage.class).endpoint("/api/bot/game/%s/chat").accept(jsonstream).scope(Scope.bot_play).toMany();
@@ -575,8 +575,8 @@ public sealed interface Endpoint<T> {
     public static EPOne<ExternalEngineInfo> externalEngineUpdate =
         Endpoint.of(ExternalEngineInfo.class).endpoint("/api/external-engine/%s").put(json).scope(Scope.engine_write).toOne();
 
-    public static EPOne<Ack> externalEngineDelete =
-        Endpoint.of(Ack.class).endpoint("/api/external-engine/%s").delete().scope(Scope.engine_write).toOne();
+    public static EPOne<Void> externalEngineDelete =
+        Endpoint.of(Void.class).endpoint("/api/external-engine/%s").delete().scope(Scope.engine_write).toOne();
 
 
     public static EPMany<ExternalEngineAnalysis> externalEngineAnalyse =

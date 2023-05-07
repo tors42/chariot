@@ -142,7 +142,7 @@ public class UsersHandler implements UsersAuth {
 
 
     @Override
-    public One<Ack> sendMessageToUser(String userId, String text) {
+    public One<Void> sendMessageToUser(String userId, String text) {
         return Endpoint.sendMessage.newRequest(request -> request
                 .path(userId)
                 .body(Map.of("text", text)))
@@ -150,14 +150,14 @@ public class UsersHandler implements UsersAuth {
     }
 
     @Override
-    public One<Ack> followUser(String userId) {
+    public One<Void> followUser(String userId) {
         return Endpoint.followUser.newRequest(request -> request
                 .path(userId))
             .process(requestHandler);
     }
 
     @Override
-    public One<Ack> unfollowUser(String userId) {
+    public One<Void> unfollowUser(String userId) {
         return Endpoint.unfollowUser.newRequest(request -> request
                 .path(userId))
             .process(requestHandler);

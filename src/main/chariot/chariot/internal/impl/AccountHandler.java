@@ -32,7 +32,7 @@ public class AccountHandler implements AccountAuth {
     }
 
     @Override
-    public One<Ack> setAccountKidMode(boolean value) {
+    public One<Void> setAccountKidMode(boolean value) {
         return Endpoint.accountKidStatus.newRequest(request -> request
                 .query(java.util.Map.of("v", value)))
             .process(requestHandler);

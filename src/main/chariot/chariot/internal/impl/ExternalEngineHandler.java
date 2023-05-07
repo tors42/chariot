@@ -121,7 +121,7 @@ public class ExternalEngineHandler implements ExternalEngineAuth {
     }
 
     @Override
-    public One<Ack> delete(String engineId) {
+    public One<Void> delete(String engineId) {
         return Endpoint.externalEngineDelete.newRequest(request -> request
                 .path(engineId))
             .process(requestHandler);

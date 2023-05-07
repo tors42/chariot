@@ -74,7 +74,7 @@ public interface BotAuth extends ChallengesAuthCommon, Bot {
      * Upgrade a lichess player account into a Bot account. Only Bot accounts can use the Bot API.<br>
      * The account cannot have played any game before becoming a Bot account. The upgrade is irreversible. The account will only be able to play as a Bot.<br>
      */
-    One<Ack> upgradeToBotAccount();
+    One<Void> upgradeToBotAccount();
 
     /**
      * Stream the state of a game being played with the Bot API
@@ -97,7 +97,7 @@ public interface BotAuth extends ChallengesAuthCommon, Bot {
      *  @param move The move to play, in UCI format. Example: e2e4
      *  @param drawOffer Whether to offer (or agree to) a draw
      */
-    One<Ack> move(String gameId, String move, boolean drawOffer);
+    One<Void> move(String gameId, String move, boolean drawOffer);
     /**
      *  Make a move in a game being played with the Bot API.<br/>
      *  The move can also contain a draw offer/agreement. {@link #move(String, String, boolean) move(..., boolean)}
@@ -105,33 +105,33 @@ public interface BotAuth extends ChallengesAuthCommon, Bot {
      *  @param gameId Example: 5IrD6Gzz
      *  @param move The move to play, in UCI format. Example: e2e4
      */
-     One<Ack> move(String gameId, String move);
+     One<Void> move(String gameId, String move);
 
     /**
      * Post a message to the player chat, in a game being played with the Bot API.
      * @param gameId  Example: 5IrD6Gzz
      * @param text The message to send
      */
-    One<Ack> chat(String gameId, String text);
+    One<Void> chat(String gameId, String text);
 
     /**
      * Post a message to the spectator chat, in a game being played with the Bot API.
      * @param gameId  Example: 5IrD6Gzz
      * @param text The message to send
      */
-    One<Ack> chatSpectators(String gameId, String text);
+    One<Void> chatSpectators(String gameId, String text);
 
     /**
      * Abort a game being played with the Bot API.
      * @param gameId  Example: 5IrD6Gzz
      */
-    One<Ack> abort(String gameId);
+    One<Void> abort(String gameId);
 
     /**
      * Resign a game being played with the Bot API.
      * @param gameId  Example: 5IrD6Gzz
      */
-    One<Ack> resign(String gameId);
+    One<Void> resign(String gameId);
 
 
     /**

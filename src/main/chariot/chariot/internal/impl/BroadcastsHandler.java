@@ -67,7 +67,7 @@ public class BroadcastsHandler implements BroadcastsAuth {
     }
 
     @Override
-    public One<Ack> update(String tourId, Consumer<BroadcastBuilder> params) {
+    public One<Void> update(String tourId, Consumer<BroadcastBuilder> params) {
         return Endpoint.updateBroadcast.newRequest(request -> request
                 .path(tourId)
                 .body(broadastBuilderToMap(params)))
@@ -98,7 +98,7 @@ public class BroadcastsHandler implements BroadcastsAuth {
     }
 
     @Override
-    public One<Ack> pushPgnByRoundId(String roundId, String pgn) {
+    public One<Void> pushPgnByRoundId(String roundId, String pgn) {
         return Endpoint.pushPGNbyRoundId.newRequest(request -> request
                 .path(roundId)
                 .body(pgn))

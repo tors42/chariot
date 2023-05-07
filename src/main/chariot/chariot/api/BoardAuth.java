@@ -80,7 +80,7 @@ public interface BoardAuth extends ChallengesAuthCommon {
      *  @param move The move to play, in UCI format. Example: e2e4
      *  @param drawOffer Whether to offer (or agree to) a draw
      */
-    One<Ack> move(String gameId, String move, boolean drawOffer);
+    One<Void> move(String gameId, String move, boolean drawOffer);
     /**
      *  Make a move in a game being played with the Board API.<br/>
      *  The move can also contain a draw offer/agreement. {@link #move(String, String, boolean) move(..., boolean)}
@@ -88,34 +88,34 @@ public interface BoardAuth extends ChallengesAuthCommon {
      *  @param gameId Example: 5IrD6Gzz
      *  @param move The move to play, in UCI format. Example: e2e4
      */
-    One<Ack> move(String gameId, String move);
+    One<Void> move(String gameId, String move);
 
     /**
      * Post a message to the player chat, in a game being played with the Board API.
      * @param gameId  Example: 5IrD6Gzz
      * @param text
      */
-    One<Ack> chat(String gameId, String text);
+    One<Void> chat(String gameId, String text);
 
     /**
      * Post a message to the spectator chat, in a game being played with the Board API.
      * @param gameId  Example: 5IrD6Gzz
      * @param text
      */
-    One<Ack> chatSpectators(String gameId, String text);
+    One<Void> chatSpectators(String gameId, String text);
 
 
     /**
      * Abort a game being played with the Board API.
      * @param gameId  Example: 5IrD6Gzz
      */
-    One<Ack> abort(String gameId);
+    One<Void> abort(String gameId);
 
     /**
      * Resign a game being played with the Board API.
      * @param gameId  Example: 5IrD6Gzz
      */
-    One<Ack> resign(String gameId);
+    One<Void> resign(String gameId);
 
     /**
      * Create/accept/decline draw offers.
@@ -125,7 +125,7 @@ public interface BoardAuth extends ChallengesAuthCommon {
      * </ul>
      * @param gameId Example: 5IrD6Gzz
      */
-    One<Ack> handleDrawOffer(String gameId, Offer accept);
+    One<Void> handleDrawOffer(String gameId, Offer accept);
 
     /**
      * Create/accept/decline takeback offers.
@@ -135,14 +135,14 @@ public interface BoardAuth extends ChallengesAuthCommon {
      * </ul>
      * @param gameId Example: 5IrD6Gzz
      */
-    One<Ack> handleTakebackOffer(String gameId, Offer accept);
+    One<Void> handleTakebackOffer(String gameId, Offer accept);
 
 
     /**
      * Claim victory when the opponent has left the game for a while.
      * @param gameId  Example: 5IrD6Gzz
      */
-    One<Ack> claimVictory(String gameId);
+    One<Void> claimVictory(String gameId);
 
     /**
      * Get the messages posted in the game chat.
@@ -155,19 +155,19 @@ public interface BoardAuth extends ChallengesAuthCommon {
      * Only available in arena tournaments that allow berserk, and before each player has made a move.
      * @param gameId  Example: 5IrD6Gzz
      */
-    One<Ack> berserk(String gameId);
+    One<Void> berserk(String gameId);
 
     /**
      * See {@link chariot.api.BoardAuth#handleDrawOffer}
      */
-    default One<Ack> handleDrawOffer(String gameId, Function<Offer.Provider, Offer> accept) {
+    default One<Void> handleDrawOffer(String gameId, Function<Offer.Provider, Offer> accept) {
         return handleDrawOffer(gameId, accept.apply(Offer.provider()));
     }
 
     /**
      * See {@link chariot.api.BoardAuth#handleTakebackOffer}
      */
-    default One<Ack> handleTakebackOffer(String gameId, Function<Offer.Provider, Offer> accept) {
+    default One<Void> handleTakebackOffer(String gameId, Function<Offer.Provider, Offer> accept) {
         return handleTakebackOffer(gameId, accept.apply(Offer.provider()));
     }
 

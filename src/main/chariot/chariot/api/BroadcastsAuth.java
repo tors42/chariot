@@ -10,14 +10,14 @@ import chariot.model.Broadcast.Round;
 public interface BroadcastsAuth extends Broadcasts {
 
     One<Broadcast> create(Consumer<BroadcastBuilder> params);
-    One<Ack>       update(String tourId, Consumer<BroadcastBuilder> params);
+    One<Void>       update(String tourId, Consumer<BroadcastBuilder> params);
 
     One<Round>     createRound(String tourId, Consumer<RoundBuilder> params);
     One<Round>     updateRound(String roundId, Consumer<RoundBuilder> params);
 
     One<Broadcast> broadcastById(String tourId);
     One<Round>     roundById(String roundId);
-    One<Ack>       pushPgnByRoundId(String roundId, String pgn);
+    One<Void>       pushPgnByRoundId(String roundId, String pgn);
 
     interface BroadcastBuilder {
 

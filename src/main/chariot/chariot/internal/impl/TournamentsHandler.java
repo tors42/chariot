@@ -152,14 +152,14 @@ public class TournamentsHandler implements TournamentsAuth {
     }
 
     @Override
-    public One<Ack> terminateArena(String id) {
+    public One<Void> terminateArena(String id) {
         return Endpoint.terminateArenaTournament.newRequest(request -> request
                 .path(id))
             .process(requestHandler);
     }
 
     @Override
-    public One<Ack> joinArena(String id, Consumer<JoinArenaParams> consumer) {
+    public One<Void> joinArena(String id, Consumer<JoinArenaParams> consumer) {
         return Endpoint.joinArenaTournament.newRequest(request -> request
             .path(id)
             .body(MapBuilder.of(JoinArenaParams.class)
@@ -168,7 +168,7 @@ public class TournamentsHandler implements TournamentsAuth {
     }
 
     @Override
-    public One<Ack> withdrawArena(String id) {
+    public One<Void> withdrawArena(String id) {
         return Endpoint.withdrawArenaTournament.newRequest(request -> request
             .path(id))
             .process(requestHandler);
@@ -200,21 +200,21 @@ public class TournamentsHandler implements TournamentsAuth {
 
 
     @Override
-    public One<Ack> terminateSwiss(String swissId) {
+    public One<Void> terminateSwiss(String swissId) {
         return Endpoint.terminateSwiss.newRequest(request -> request
                 .path(swissId))
             .process(requestHandler);
     }
 
     @Override
-    public One<Ack> withdrawSwiss(String id) {
+    public One<Void> withdrawSwiss(String id) {
         return Endpoint.withdrawSwiss.newRequest(request -> request
             .path(id))
             .process(requestHandler);
     }
 
     @Override
-    public One<Ack> joinSwiss(String id, Consumer<JoinSwissParams> consumer) {
+    public One<Void> joinSwiss(String id, Consumer<JoinSwissParams> consumer) {
         return Endpoint.joinSwissTournament.newRequest(request -> request
                 .path(id)
                 .body(MapBuilder.of(JoinSwissParams.class)

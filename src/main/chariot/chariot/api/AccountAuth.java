@@ -35,7 +35,7 @@ public interface AccountAuth {
      * Auth {@link chariot.Client.Scope#preference_write}
      * @param value kid mode status
      */
-    One<Ack> setAccountKidMode(boolean value);
+    One<Void> setAccountKidMode(boolean value);
 
     /**
      * Get users followed by logged in user.

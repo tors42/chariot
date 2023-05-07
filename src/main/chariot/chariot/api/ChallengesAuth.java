@@ -15,8 +15,8 @@ import chariot.model.*;
 public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
 
     One<PendingChallenges> challenges();
-    One<Ack>               startClocksOfGame(String gameId, String token1, String token2);
-    One<Ack>               addTimeToGame(String gameId, int seconds);
+    One<Void>               startClocksOfGame(String gameId, String token1, String token2);
+    One<Void>               addTimeToGame(String gameId, int seconds);
 
     /**
      * Get a list of upcoming bulk pairings you created.<br>
@@ -54,8 +54,8 @@ public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
      * Its ID can be used for further operations.
      */
     One<BulkPairing> createBulk(Consumer<BulkBuilder> params);
-    One<Ack>         startBulk(String bulkId);
-    One<Ack>         cancelBulk(String bulkId);
+    One<Void>         startBulk(String bulkId);
+    One<Void>         cancelBulk(String bulkId);
 
 
     interface BulkBuilder extends Clock<BulkParams>, ClockCorrespondence<BulkParams> {}

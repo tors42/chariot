@@ -17,17 +17,17 @@ public interface TournamentsAuth extends Tournaments {
     One<Arena> updateTeamBattle(String id, int nbLeaders, Set<String> teamIds);
     default One<Arena> updateTeamBattle(String id, int nbLeaders, String... teamIds) { return updateTeamBattle(id, nbLeaders, Set.of(teamIds)); }
 
-    One<Ack>   terminateArena(String id);
+    One<Void>   terminateArena(String id);
 
-    One<Ack> joinArena(String id, Consumer<JoinArenaParams> params);
-    default One<Ack> joinArena(String id) { return joinArena(id, __ -> {});}
+    One<Void> joinArena(String id, Consumer<JoinArenaParams> params);
+    default One<Void> joinArena(String id) { return joinArena(id, __ -> {});}
 
     /**
      * Leave a future Arena tournament, or take a break on an ongoing Arena tournament.<br>
      * It's possible to join again later. Points and streaks are preserved.
      * @param id The tournament ID. Example: "hL7vMrFQ"
      */
-    One<Ack> withdrawArena(String id);
+    One<Void> withdrawArena(String id);
 
     One<Swiss> createSwiss(String teamId, Consumer<SwissBuilder> params);
 
@@ -70,17 +70,17 @@ public interface TournamentsAuth extends Tournaments {
         return scheduleNextRoundSwiss(id, date.apply(ZonedDateTime.now()));
     }
 
-    One<Ack> terminateSwiss(String swissId);
+    One<Void> terminateSwiss(String swissId);
 
     /**
      * Leave a future Swiss tournament, or take a break on an ongoing Swiss tournament. It's possible to join again later. Points are preserved.
      * @param id The tournament ID. Example: "hL7vMrFQ"
      */
-    One<Ack> withdrawSwiss(String id);
+    One<Void> withdrawSwiss(String id);
 
 
-    One<Ack> joinSwiss(String id, Consumer<JoinSwissParams> params);
-    default One<Ack> joinSwiss(String id) { return joinSwiss(id, __ -> {}); }
+    One<Void> joinSwiss(String id, Consumer<JoinSwissParams> params);
+    default One<Void> joinSwiss(String id) { return joinSwiss(id, __ -> {}); }
 
     /**
      * Generate user entry codes based on a tournament entry code, for a set of user ids.<br>

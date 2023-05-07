@@ -41,7 +41,7 @@ public class BoardHandler extends ChallengesAuthCommonImpl implements BoardAuth 
     }
 
     @Override
-    public One<Ack> move(String gameId, String move, boolean drawOffer) {
+    public One<Void> move(String gameId, String move, boolean drawOffer) {
         return Endpoint.boardMove.newRequest(request -> request
                 .path(gameId, move)
                 .query(Map.of("offeringDraw", drawOffer)))
@@ -49,23 +49,23 @@ public class BoardHandler extends ChallengesAuthCommonImpl implements BoardAuth 
     }
 
     @Override
-    public One<Ack> move(String gameId, String move) {
+    public One<Void> move(String gameId, String move) {
         return Endpoint.boardMove.newRequest(request -> request
                 .path(gameId, move))
             .process(requestHandler);
     }
 
     @Override
-    public One<Ack> chat(String gameId, String text) {
+    public One<Void> chat(String gameId, String text) {
         return _chat(gameId, text, "player");
     }
 
     @Override
-    public One<Ack> chatSpectators(String gameId, String text) {
+    public One<Void> chatSpectators(String gameId, String text) {
         return _chat(gameId, text, "spectator");
     }
 
-    private One<Ack> _chat(String gameId, String text, String room) {
+    private One<Void> _chat(String gameId, String text, String room) {
         return Endpoint.boardChat.newRequest(request -> request
                 .path(gameId)
                 .body(Map.of("text", text, "room", room)))
@@ -73,14 +73,14 @@ public class BoardHandler extends ChallengesAuthCommonImpl implements BoardAuth 
     }
 
     @Override
-    public One<Ack> abort(String gameId) {
+    public One<Void> abort(String gameId) {
         return Endpoint.boardAbort.newRequest(request -> request
                 .path(gameId))
             .process(requestHandler);
      }
 
     @Override
-    public One<Ack> resign(String gameId) {
+    public One<Void> resign(String gameId) {
         return Endpoint.boardResign.newRequest(request -> request
             .path(gameId))
             .process(requestHandler);
@@ -94,28 +94,28 @@ public class BoardHandler extends ChallengesAuthCommonImpl implements BoardAuth 
     }
 
     @Override
-    public One<Ack> berserk(String gameId) {
+    public One<Void> berserk(String gameId) {
         return Endpoint.boardBerserk.newRequest(request -> request
                 .path(gameId))
             .process(requestHandler);
     }
 
     @Override
-    public One<Ack> handleDrawOffer(String gameId, Offer accept) {
+    public One<Void> handleDrawOffer(String gameId, Offer accept) {
         return Endpoint.boardDraw.newRequest(request -> request
                 .path(gameId, accept.name()))
             .process(requestHandler);
     }
 
     @Override
-    public One<Ack> handleTakebackOffer(String gameId, Offer accept) {
+    public One<Void> handleTakebackOffer(String gameId, Offer accept) {
         return Endpoint.boardTakeback.newRequest(request -> request
                 .path(gameId, accept.name()))
             .process(requestHandler);
     }
 
     @Override
-    public One<Ack> claimVictory(String gameId) {
+    public One<Void> claimVictory(String gameId) {
         return Endpoint.boardClaimVictory.newRequest(request -> request
                 .path(gameId))
             .process(requestHandler);
