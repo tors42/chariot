@@ -55,7 +55,7 @@ public class ModelMapper {
         mapper.setMappings(PerfStat.Stat.DateResult.class, ModelMapperUtil.intMapping());
         mapper.setMappings(Game.class,                     ModelMapperUtil.createdAtAndLastMoveAtMapping());
         mapper.setMappings(MoveInfo.GameSummary.class,     ModelMapperUtil.createdAtMapping());
-        mapper.setMappings(GameEvent.Full.class,           ModelMapperUtil.createdAtMapping());
+        mapper.setMappings(GameStateEvent.Full.class,           ModelMapperUtil.createdAtMapping());
         mapper.setMappings(TVChannels.class,               ModelMapperUtil.tvChannelsMapping());
         mapper.setMappings(User.Count.class,               ModelMapperUtil.importMapping());
         mapper.setMappings(Variant.class,                  ModelMapperUtil.shortMapping());

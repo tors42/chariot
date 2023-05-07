@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import chariot.internal.Util;
 
-public sealed interface GameEvent {
+public sealed interface GameStateEvent {
 
     enum Type { gameFull, gameState, chatLine, opponentGone }
 
@@ -25,7 +25,7 @@ public sealed interface GameEvent {
             LightUser black,
             String initialFen,
             State state
-            ) implements GameEvent {
+            ) implements GameStateEvent {
 
         public java.time.ZonedDateTime createdAt() {
             return Util.fromLong(createdTime());
@@ -48,7 +48,7 @@ public sealed interface GameEvent {
             boolean wtakeback,
             boolean btakeback,
             Game.Status status,
-            String winner) implements GameEvent {
+            String winner) implements GameStateEvent {
 
         public List<String> moveList() {
             return Arrays.stream(moves.split(" ")).filter(s -> ! s.isEmpty()).toList();
@@ -60,12 +60,12 @@ public sealed interface GameEvent {
             Type type,
             String username,
             String text,
-            String room) implements GameEvent {}
+            String room) implements GameStateEvent {}
 
     record OpponentGone(
             Type type,
             boolean gone,
-            Optional<Integer> claimWinInSeconds) implements GameEvent {}
+            Optional<Integer> claimWinInSeconds) implements GameStateEvent {}
 
 
 }

@@ -88,7 +88,7 @@ public interface BotAuth extends ChallengesAuthCommon, Bot {
      * <p> The first event is always of type gameFull
      *  @param gameId Example: 5IrD6Gzz
      */
-    Many<GameEvent> connectToGame(String gameId);
+    Many<GameStateEvent> connectToGame(String gameId);
 
     /**
      *  Make a move in a game being played with the Bot API.<br/>

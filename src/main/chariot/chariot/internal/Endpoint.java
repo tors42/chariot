@@ -507,8 +507,8 @@ public sealed interface Endpoint<T> {
     public static EPOne<SeekAck> boardSeekCorr =
         Endpoint.of(SeekAck.class).endpoint("/api/board/seek").post(wwwform).accept(plain).scope(Scope.board_play).toOne();
 
-    public static EPMany<GameEvent> streamBoardGameEvents =
-        Endpoint.of(GameEvent.class).endpoint("/api/board/game/stream/%s").accept(jsonstream).scope(Scope.board_play).toMany();
+    public static EPMany<GameStateEvent> streamBoardGameEvents =
+        Endpoint.of(GameStateEvent.class).endpoint("/api/board/game/stream/%s").accept(jsonstream).scope(Scope.board_play).toMany();
 
     public static EPOne<Void> boardMove =
         Endpoint.of(Void.class).endpoint("/api/board/game/%s/move/%s").post().scope(Scope.board_play).toOne();
@@ -543,8 +543,8 @@ public sealed interface Endpoint<T> {
     public static EPOne<Void> botAccountUpgrade =
         Endpoint.of(Void.class).endpoint("/api/bot/account/upgrade").post().scope(Scope.bot_play).toOne();
 
-    public static EPMany<GameEvent> streamBotGameEvents =
-        Endpoint.of(GameEvent.class).endpoint("/api/bot/game/stream/%s").accept(jsonstream).scope(Scope.bot_play).toMany();
+    public static EPMany<GameStateEvent> streamBotGameEvents =
+        Endpoint.of(GameStateEvent.class).endpoint("/api/bot/game/stream/%s").accept(jsonstream).scope(Scope.bot_play).toMany();
 
     public static EPOne<Void> botMove =
         Endpoint.of(Void.class).endpoint("/api/bot/game/%s/move/%s").post().scope(Scope.bot_play).toOne();
