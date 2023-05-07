@@ -10,10 +10,10 @@ import chariot.model.Enums.*;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 
-public class BoardAuthImpl extends ChallengesAuthCommonImpl implements BoardAuth {
+public class BoardHandler extends ChallengesAuthCommonImpl implements BoardAuth {
 
-    public BoardAuthImpl(InternalClient client) {
-        super(client, Scope.board_play);
+    public BoardHandler(RequestHandler requestHandler) {
+        super(requestHandler, Scope.board_play);
     }
 
     @Override
@@ -21,7 +21,7 @@ public class BoardAuthImpl extends ChallengesAuthCommonImpl implements BoardAuth
         return Endpoint.boardSeekRealTime.newRequest(request -> request
                 .stream()
                 .body(seekRealTimeBuilderToMap(consumer)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class BoardAuthImpl extends ChallengesAuthCommonImpl implements BoardAuth
         return Endpoint.boardSeekCorr.newRequest(request -> request
                 .stream()
                 .body(seekCorrespondenceBuilderToMap(consumer)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class BoardAuthImpl extends ChallengesAuthCommonImpl implements BoardAuth
         return Endpoint.streamBoardGameEvents.newRequest(request -> request
                 .path(gameId)
                 .stream())
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -45,14 +45,14 @@ public class BoardAuthImpl extends ChallengesAuthCommonImpl implements BoardAuth
         return Endpoint.boardMove.newRequest(request -> request
                 .path(gameId, move)
                 .query(Map.of("offeringDraw", drawOffer)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Ack> move(String gameId, String move) {
         return Endpoint.boardMove.newRequest(request -> request
                 .path(gameId, move))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -60,56 +60,56 @@ public class BoardAuthImpl extends ChallengesAuthCommonImpl implements BoardAuth
         return Endpoint.boardChat.newRequest(request -> request
                 .path(gameId)
                 .body(Map.of("text", text, "room", room.name())))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Ack> abort(String gameId) {
         return Endpoint.boardAbort.newRequest(request -> request
                 .path(gameId))
-            .process(this);
+            .process(requestHandler);
      }
 
     @Override
     public One<Ack> resign(String gameId) {
         return Endpoint.boardResign.newRequest(request -> request
             .path(gameId))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<ChatMessage> fetchChat(String gameId) {
         return Endpoint.boardFetchChat.newRequest(request -> request
                 .path(gameId))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Ack> berserk(String gameId) {
         return Endpoint.boardBerserk.newRequest(request -> request
                 .path(gameId))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Ack> handleDrawOffer(String gameId, Offer accept) {
         return Endpoint.boardDraw.newRequest(request -> request
                 .path(gameId, accept.name()))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Ack> handleTakebackOffer(String gameId, Offer accept) {
         return Endpoint.boardTakeback.newRequest(request -> request
                 .path(gameId, accept.name()))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Ack> claimVictory(String gameId) {
         return Endpoint.boardClaimVictory.newRequest(request -> request
                 .path(gameId))
-            .process(this);
+            .process(requestHandler);
     }
 
     private Map<String, Object> seekRealTimeBuilderToMap(Consumer<SeekRealTimeBuilder> consumer) {

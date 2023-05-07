@@ -3,37 +3,10 @@ package chariot.api;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.prefs.Preferences;
 
-import chariot.Client.Scope;
 import chariot.internal.Config;
 
 public interface Builders {
-
-    interface OAuthHelper {
-        /**
-         * @param preferences A local Preferences node to hold the client authorization token,
-         * to be interactively populated at first run and then automatically
-         * be used for consecutive runs.
-         */
-        OAuthHelper prefs(Preferences preferences);
-
-        /**
-         * @param scopes the scopes, if any, needed for the authorized client
-         */
-        OAuthHelper scopes(Scope... scopes);
-
-        /**
-         * {@snippet :
-         *      Preferences userPrefsNode = Preferences.userRoot().node(preferences); //@highlight regex="preferences"
-         *      return prefs(userPrefsNode);
-         * }
-         * @param preferences the name of a preferences node
-         */
-        default OAuthHelper prefs(String preferences) {
-            return prefs(Preferences.userRoot().node(preferences));
-        }
-    }
 
     interface Clock<T> {
         /**

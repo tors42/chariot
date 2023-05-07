@@ -10,10 +10,12 @@ import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 import chariot.model.Enums.*;
 
-public class UsersImpl extends Base implements Users {
+public class UsersHandler implements UsersAuth {
 
-    public UsersImpl(InternalClient client) {
-        super(client);
+    private final RequestHandler requestHandler;
+
+    public UsersHandler(RequestHandler requestHandler) {
+        this.requestHandler = requestHandler;
     }
 
     @Override
@@ -25,14 +27,14 @@ public class UsersImpl extends Base implements Users {
                         if (args[0] instanceof Boolean b && b.booleanValue()) map.put("trophies", 1);
                     }).toMap(consumer))
                 )
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<User> byIds(List<String> userIds) {
         return Endpoint.usersByIds.newRequest(request -> request
                 .body(userIds.stream().collect(Collectors.joining(","))))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -40,20 +42,20 @@ public class UsersImpl extends Base implements Users {
         return Endpoint.crosstableByUserIds.newRequest(request -> request
                 .path(userId1, userId2)
                 .query(MapBuilder.of(CrosstableParams.class).toMap(consumer)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<Activity> activityById(String userId) {
         return Endpoint.activityById.newRequest(request -> request
                 .path(userId))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<UserTopAll> top10() {
         return Endpoint.usersTopAll.newRequest(request -> {})
-                .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -69,34 +71,34 @@ public class UsersImpl extends Base implements Users {
                     .add("ids", userIds.stream()
                         .collect(Collectors.joining(",")))
                     .toMap(consumer)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<StreamerStatus> liveStreamers() {
         return Endpoint.liveStreamers.newRequest(request -> {})
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Leaderboard> leaderboard(int nb, PerfTypeNoCorr perfType) {
         return Endpoint.usersLeaderboard.newRequest(request -> request
                 .path(nb, perfType.name()))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<RatingHistory> ratingHistoryById(String userId) {
         return Endpoint.ratingHistoryById.newRequest(request -> request
                 .path(userId))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<PerfStat> performanceStatisticsByIdAndType(String userId, PerfType type) {
         return Endpoint.perfStatByIdAndType.newRequest(request -> request
                 .path(userId, type.name()))
-            .process(this);
+            .process(requestHandler);
     }
 
     private Many<UserStatus> autoSplittingStatusByIds(Collection<String> userIds, Consumer<UserStatusParams> consumer, int batchSize) {
@@ -118,7 +120,8 @@ public class UsersImpl extends Base implements Users {
                             .add("ids", ids)
                             .toMap(consumer)
                             ))
-                    .process(this); })
+                .process(requestHandler);
+            })
             .flatMap(Many::stream);
         return Many.entries(userStatusStream);
     }
@@ -127,13 +130,51 @@ public class UsersImpl extends Base implements Users {
     public Many<String> autocompleteNames(String term) {
         return Endpoint.usersNamesAutocomplete.newRequest(request -> request
                 .query(Map.of("term", term, "object", "false")))
-            .process(this);
+                .process(requestHandler);
     }
 
     @Override
     public Many<LightUserWithStatus> autocompleteUsers(String term) {
         return Endpoint.usersStatusAutocomplete.newRequest(request -> request
                 .query(Map.of("term", term, "object", "true")))
-            .process(this);
+            .process(requestHandler);
     }
+
+
+    @Override
+    public One<Ack> sendMessageToUser(String userId, String text) {
+        return Endpoint.sendMessage.newRequest(request -> request
+                .path(userId)
+                .body(Map.of("text", text)))
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<Ack> followUser(String userId) {
+        return Endpoint.followUser.newRequest(request -> request
+                .path(userId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<Ack> unfollowUser(String userId) {
+        return Endpoint.unfollowUser.newRequest(request -> request
+                .path(userId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<String> autocompleteNames(String term, boolean friend) {
+        return Endpoint.usersNamesAutocomplete.newRequest(request -> request
+                .query(Map.of("term", term, "object", "false", "friend", Boolean.toString(friend))))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<LightUserWithStatus> autocompleteUsers(String term, boolean friend) {
+        return Endpoint.usersStatusAutocomplete.newRequest(request -> request
+                .query(Map.of("term", term, "object", "true", "friend", Boolean.toString(friend))))
+            .process(requestHandler);
+    }
+
 }

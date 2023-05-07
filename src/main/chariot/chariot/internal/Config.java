@@ -23,8 +23,10 @@ import chariot.api.Builders.*;
 
 public sealed interface Config {
 
-    record Auth(Basic basic, Supplier<char[]> token)             implements Config {}
-    record Basic(Servers servers, Logging logging, int retries)  implements Config {
+    record Auth(Basic basic, Supplier<char[]> token)            implements Config {
+        @Override public String toString() { return "Auth[%s]".formatted(basic()); }
+    }
+    record Basic(Servers servers, Logging logging, int retries) implements Config {
 
         // boilerplate begin (can be replaced when reconstruction is in place - https://github.com/openjdk/amber-docs/blob/master/eg-drafts/reconstruction-records-and-classes.md)
         sealed interface Component permits Config.Servers, Config.Logging , Retries {}
@@ -126,19 +128,6 @@ public sealed interface Config {
     default int     retries() { return basic().retries(); }
     default Servers servers() { return basic().servers(); }
     default Logging logging() { return basic().logging(); }
-
-    static Auth auth(Consumer<ConfigBuilder> params, String token) {
-        return basic(params).withToken(token);
-    }
-
-    default Auth withToken(Supplier<char[]> token) {
-        var enc = Crypt.encrypt(token.get());
-        return new Auth(basic(), () -> Crypt.decrypt(enc.data(), enc.key()));
-    }
-
-    default Auth withToken(String token) {
-        return withToken(token::toCharArray);
-    }
 
     default void store(Preferences prefs) {
         try{prefs.clear();}catch(BackingStoreException bse){}
@@ -264,4 +253,21 @@ public sealed interface Config {
     }
 
     public static LoggingBuilder loggingBuilder(Logging initial) { return new DefaultLoggingBuilder(initial); }
+
+
+
+
+    static Auth auth(Consumer<ConfigBuilder> params, String token) {
+        return basic(params).withToken(token);
+    }
+
+    default Auth withToken(Supplier<char[]> token) {
+        var enc = Crypt.encrypt(token.get());
+        return new Auth(basic(), () -> Crypt.decrypt(enc.data(), enc.key()));
+    }
+
+    default Auth withToken(String token) {
+        return withToken(token::toCharArray);
+    }
+
 }

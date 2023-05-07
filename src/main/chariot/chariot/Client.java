@@ -9,92 +9,56 @@ import java.util.prefs.Preferences;
 import chariot.api.*;
 import chariot.api.Builders.*;
 import chariot.internal.*;
+import chariot.model.*;
 
 /**
  * Provides access to the <a href="https://lichess.org/api">Lichess API</a>.
  *
  * <p>
- * There are two types of factory methods to create basic non-authenticated clients, {@link chariot.Client}, and authenticated clients, {@link chariot.ClientAuth}.
+ * This interface provides access to the public API of Lichess (which doesn't
+ * need a Lichess account.)<br>
+ * The {@link chariot.ClientAuth} interface provides access to the authenticated
+ * API of Lichess (which needs a Lichess account.)<br>
  *
  * <p>
- * Examples of how to create a client
- *
+ * Example of how to get a reference to a {@link chariot.Client} interface
  * <p>
- * For accessing non-authenticated parts of the <a href="https://lichess.org/api">Lichess API</a>:
- *
  * {@snippet :
- *     Client client = Client.basic();
+ * Client client = Client.basic();
  *
- *     // Tada!
+ * // Tada!
  *
- *     // And then use it...
- *     var user = client.users().byId("lichess");
+ * // And then use it...
+ * var user = client.users().byId("lichess");
  * }
- *
  * <p>
- * For accessing authenticated parts of the <a href="https://lichess.org/api">Lichess API</a>:<br>
- * <i>
- * Note, a valid token must be acquired in order to use the endpoints exposed by
- * {@link chariot.ClientAuth}, either by obtaining a <a
- * href="https://lichess.org/account/oauth/token">Personal Access Token</a> or by
- * integrating a <a href="https://oauth.net/2/pkce/">PKCE Authorization Code flow</a> in the application - see {@link #auth(Consumer, Consumer)}/{@link #withPkce} for more information.
- * </i>
- *
+ * For accessing authenticated parts of the API, one needs a token with
+ * appropriate access rights / scopes. This library support PKCE Authorization
+ * Code flow ({@link #auth(Consumer, Consumer)}), but one can also create a
+ * <a href="https://lichess.org/account/oauth/token">Personal Access Token</a>
+ * manually.
+ * <p>
+ * Example of how to get a reference to a {@link chariot.ClientAuth} interface
+ * <p>
  * {@snippet :
- *     var token = ... // Token with scope email:read
- *     ClientAuth client = Client.auth(token);
+ * String token = ... // Token with scope email:read
+ * ClientAuth client = Client.auth(token);
  *
- *     var email = client.account().emailAddress();
+ * // Tada!
+ *
+ * // And then use it...
+ * var email = client.account().emailAddress();
  * }
- *
  * <p>
- * The responses from the APIs are modelled with {@link chariot.model.One}{@literal <T>} and {@link chariot.model.Many}{@literal <T>} "containers".<br>
- * Its documentation covers the types of responses and various ways of accessing their values.<br>
- * The types of the values (T) used in the APIs are bundled in the {@link chariot.model} package - simple data holders / records.
- *
- * <p>
- * An additional way of creating a client is via the
- * {@link #load(Preferences) load(prefs)}/{@link #store(Preferences) store(prefs)} methods, keeping
- * the configuration in {@link Preferences},
- * {@snippet :
- *     Preferences prefs = Preferences.userRoot().node("myprefs");
- *     Client client = Client.load(prefs);
- *     if (client instanceof ClientAuth clientAuth) {
- *         // We've managed to restore our previously stored configuration,
- *         // so let's get right down to business.
- *         clientAuth.account().setKidModeStatus(true); // lol
- *     } else {
- *         // It seems this was the first time we ran this program,
- *         // we have yet to store its configuration.
- *         // Let's perform the heavy-lifting now.
- *         var urlToken = client.account().oauthPKCE(Scope.preference_write);
- *         System.out.println("Please grant this application access at Lichess: " + urlToken.url());
- *
- *         // Wait for the user to go to Lichess and click Grant. (They wouldn't click Deny, right?)
- *         var token = urlToken.token().get();
- *
- *         var clientAuth = Client.auth(token);
- *
- *         // Now we can store the configuration for quick access next time.
- *         clientAuth.store(prefs);
- *
- *         // Oh yeah, and...
- *         clientAuth.account().setKidModeStatus(true); // lol
- *     }
- * }
- *
- * <p>
- * There are also customizable variants,
- * {@snippet :
- *     // http://localhost:9663
- *     var client = Client.basic(c -> c.local());
- *
- *     var clientAuth = Client.auth(c -> c.api("https://lichess.dev"), "mytoken");
- * }
+ * The responses from the API are modelled with
+ * {@link chariot.model.One}{@literal <T>} and
+ * {@link chariot.model.Many}{@literal <T>} "containers".<br>
+ * Their documentation covers different ways of accessing the contents of the
+ * containers.<br>
+ * The contents of the containers are typically data models from the
+ * {@link chariot.model} package.
  */
-public sealed interface Client permits ClientAuth, Client.Basic {
-
-    sealed interface Basic extends Client permits chariot.internal.BasicClient {}
+public sealed interface Client permits ClientAuth {
 
     /**
      * Creates a default client
@@ -104,22 +68,14 @@ public sealed interface Client permits ClientAuth, Client.Basic {
     }
 
     /**
-     * Creates a default client using the provided token to use the authenticated parts of the API
-     * @param token A token to use for the authenticated parts of the API
+     * Access registered users on Lichess.
      */
-    static ClientAuth auth(String token) {
-        return auth(token::toCharArray);
-    }
-
-    /**
-     * Helps to perform a OAuth 2 PKCE flow or prepare a URL to create a Personal API Token with specified Scope/s.
-     */
-    Account account();
+    Users users();
 
     /**
      * Access Lichess cloud evaluations database.
      */
-    Analysis analysis();
+    chariot.api.Analysis analysis();
 
     /**
      * Access Lichess online bots.<br/>
@@ -167,7 +123,7 @@ public sealed interface Client permits ClientAuth, Client.Basic {
     /**
      * Access simuls played on Lichess.
      */
-    Simuls simuls();
+    chariot.api.Simuls simuls();
 
     /**
      * Access Lichess studies.
@@ -189,11 +145,20 @@ public sealed interface Client permits ClientAuth, Client.Basic {
      */
     Tournaments tournaments();
 
-    /**
-     * Access registered users on Lichess.
-     */
-    Users users();
 
+    /**
+     * Use chariot for custom endpoints
+     */
+    Custom custom();
+
+
+    /**
+     * Creates a default client using the provided token to use the authenticated parts of the API
+     * @param token A token to use for the authenticated parts of the API
+     */
+    static ClientAuth auth(String token) {
+        return auth(token::toCharArray);
+    }
 
     /**
      * Creates a customized client
@@ -205,11 +170,11 @@ public sealed interface Client permits ClientAuth, Client.Basic {
     /**
      * Use a pre-created Personal Access Token to use the authenticated API
      * {@snippet :
-     *      String token = ...
-     *      Client basic = Client.basic();
-     *      ClientAuth auth = basic.withToken(token);
+     * String token = ...
+     * Client basic = Client.basic();
+     * ClientAuth auth = basic.withToken(token);
      *
-     *      var challengeResult = auth.challenges().challenge(...);
+     * var challengeResult = auth.challenges().challenge(...);
      * }
      * @param token pre-created Personal Access Token - @see
      *              <a href="https://lichess.org/account/oauth/token">Personal Access Token</a>
@@ -221,24 +186,21 @@ public sealed interface Client permits ClientAuth, Client.Basic {
     /**
      * Use a pre-created Personal Access Token to use the authenticated API
      * {@snippet :
-     *      Supplier<char[]> token = ...
-     *      Client basic = Client.basic();
-     *      ClientAuth auth = basic.withToken(token);
+     * Supplier<char[]> token = ...
+     * Client basic = Client.basic();
+     * ClientAuth auth = basic.withToken(token);
      *
-     *      var challengeResult = auth.challenges().challenge(...);
+     * var challengeResult = auth.challenges().challenge(...);
      * }
      *
      * @param token pre-created Personal Access Token - @see
      *              <a href="https://lichess.org/account/oauth/token">Personal Access Token</a>
      */
     default ClientAuth withToken(Supplier<char[]> token) {
-        if (this instanceof chariot.internal.DefaultClient dc) {
-            Config config = dc.config();
-            Config.Basic basic = config instanceof Config.Auth auth ? auth.basic() : (Config.Basic) config;
-            Config.Auth auth = new Config.Auth(basic, token);
-            return Client.auth(auth);
-        }
-        return null;
+        if (!(this instanceof Default current)) return null;
+        var config = current.config().withToken(token);
+        var d = Default.of(config);
+        return d;
     }
 
     /**
@@ -312,16 +274,16 @@ public sealed interface Client permits ClientAuth, Client.Basic {
     /**
      * Use OAuth PKCE flow to make it possible for your user to grant access to your application.
      * {@snippet :
-     *      Client basic = Chariot.basic();
+     * Client basic = Chariot.basic();
      *
-     *      AuthResult authResult = basic.withPkce(
-     *          uri -> System.out.format("Visit %s to review and grant access%n", uri),
-     *          pkce -> pkce.scope(Scope.challenge_read, Scope.challenge_write));
+     * AuthResult authResult = basic.withPkce(
+     *     uri -> System.out.format("Visit %s to review and grant access%n", uri),
+     *     pkce -> pkce.scope(Scope.challenge_read, Scope.challenge_write));
      *
-     *      if (! (authResult instanceof AuthOk ok)) return;
+     * if (! (authResult instanceof AuthOk ok)) return;
      *
-     *      ClientAuth auth = ok.client();
-     *      var challengeResult = auth.challenges().challenge(...);
+     * ClientAuth auth = ok.client();
+     * var challengeResult = auth.challenges().challenge(...);
      * }
      * @param uriHandler The generated Lichess URI that your user can visit to review and approve granting access to your application
      * @param pkce Configuration of for instance which scopes if any that the resulting Access Token should include.
@@ -333,14 +295,14 @@ public sealed interface Client permits ClientAuth, Client.Basic {
     /**
      * Use OAuth PKCE flow to make it possible for your user to grant access to your application.
      * {@snippet :
-     *      AuthResult authResult = Client.auth(
-     *          uri -> System.out.format("Visit %s to review and grant access%n", uri),
-     *          pkce -> pkce.scope(Scope.challenge_read, Scope.challenge_write));
+     * AuthResult authResult = Client.auth(
+     *     uri -> System.out.format("Visit %s to review and grant access%n", uri),
+     *     pkce -> pkce.scope(Scope.challenge_read, Scope.challenge_write));
      *
-     *      if (! (authResult instanceof AuthOk ok)) return;
+     * if (! (authResult instanceof AuthOk ok)) return;
      *
-     *      ClientAuth auth = ok.client();
-     *      var challengeResult = auth.challenges().challenge(...);
+     * ClientAuth auth = ok.client();
+     * var challengeResult = auth.challenges().challenge(...);
      * }
      * @param uriHandler The generated Lichess URI that your user can visit to review and approve granting access to your application
      * @param pkce Configuration of for instance which scopes if any that the resulting Access Token should include.
@@ -352,15 +314,15 @@ public sealed interface Client permits ClientAuth, Client.Basic {
     /**
      * Use OAuth PKCE flow to make it possible for your user to grant access to your application.
      * {@snippet :
-     *      AuthResult authResult = Client.auth(
-     *          conf -> conf.api("http://localhost:9663"),
-     *          uri -> System.out.format("Visit %s to review and grant access%n", uri),
-     *          pkce -> pkce.scope(Scope.challenge_read, Scope.challenge_write));
+     * AuthResult authResult = Client.auth(
+     *     conf -> conf.api("http://localhost:9663"),
+     *     uri -> System.out.format("Visit %s to review and grant access%n", uri),
+     *     pkce -> pkce.scope(Scope.challenge_read, Scope.challenge_write));
      *
-     *      if (! (authResult instanceof AuthOk ok)) return;
+     * if (! (authResult instanceof AuthOk ok)) return;
      *
-     *      ClientAuth auth = ok.client();
-     *      var challengeResult = auth.challenges().challenge(...);
+     * ClientAuth auth = ok.client();
+     * var challengeResult = auth.challenges().challenge(...);
      * }
      * @param config Customized client configuration such as enabling logging and number of retries etc.
      * @param uriHandler The generated Lichess URI that your user can visit to review and approve granting access to your application
@@ -403,114 +365,68 @@ public sealed interface Client permits ClientAuth, Client.Basic {
         return load(prefs).withToken(token);
     }
 
-    /**
-     * Helper method for initializing and storing an authorized client
-     * configuration.<br>
-     * If the provided {@link Preferences} node already contains the token for the
-     * needed scopes, the authorized client will be returned immediately. If it
-     * doesn't contain such a token, the Lichess URL for a page to authorize
-     * the scopes will be written to standard output, for the user to grant
-     * access. If access is granted, the authorized client configuration will
-     * be stored in the Preferences node, and the authorized client is
-     * returned.<br>
-     * The implementation of this helper method does this:
-     * {@snippet :
-     *   Preferences prefsNode = Preferences.userRoot().node(prefs);
-     *   var client = Client.load(prefsNode);
-     *   if (client instanceof ClientAuth auth &&
-     *       auth.account().scopes().containsAll(Set.of(scopes)))
-     *       return auth;
-     *
-     *   var oauth = client.account().oauthPKCE(scopes);
-     *   System.out.println("\n\nGrant access at URL:\n" + oauth.url() + "\n");
-     *   var clientAuth = Client.load(prefs, auth -> auth.auth(oauth.token().get()));
-     *   clientAuth.store(prefs);
-     *
-     *   return clientAuth;
-     * }
-     *
-     * @param params a functional interface with configuration, i.e {@code Client.reuseOrInitialize(p -> p.prefs("my-prefs").scopes(Scope.team_read))}
-     * @return a client authorized for the requested scope/s
-     */
-    static ClientAuth reuseOrInitialize(Consumer<OAuthHelper> params) {
-        var helper = new OAuthHelper() {
-            Preferences preferences = null;
-            Scope[] scopes = null;
-            @Override
-            public OAuthHelper prefs(Preferences preferences) {
-                this.preferences = preferences;
-                return this;
-            }
-            @Override
-            public OAuthHelper scopes(Scope... scopes) {
-                Objects.requireNonNull(scopes);
-                this.scopes = scopes;
-                return this;
-            }
-        };
-        params.accept(helper);
-        Objects.requireNonNull(helper.preferences);
-        return reuseOrInitialize(helper.preferences, helper.scopes);
-    }
-
-    /**
-     * See {@link Client#reuseOrInitialize(Consumer)}
-     */
-    static ClientAuth reuseOrInitialize(Preferences prefs, Scope... scopes) {
-        var client = Client.load(prefs);
-        if (client instanceof ClientAuth auth &&
-            auth.account().scopes().containsAll(Set.of(scopes)))
-            return auth;
-
-        @SuppressWarnings(value = {"deprecation"})
-        var oauth = client.account().oauthPKCE(scopes);
-        System.out.println("\n\nGrant access at URL:\n" + oauth.url() + "\n");
-        var clientAuth = Client.load(prefs).withToken(oauth.token().get());
-        clientAuth.store(prefs);
-
-        return clientAuth;
-    }
 
     /**
      * Retrieves an Optional containing a {@code ClientAuth} if this is such a client, otherwise empty.
      */
     default Optional<ClientAuth> asAuth() {
-        return this instanceof chariot.internal.AuthClient auth ? Optional.of(auth) : Optional.empty();
+        return this instanceof Default def && def.config() instanceof Config.Auth a ? Optional.of((ClientAuth)this) : Optional.empty();
     }
 
     /**
      * Configure logging levels
      */
     default void logging(Consumer<LoggingBuilder> params) {
-        var logging = ((chariot.internal.DefaultClient) this).config().logging();
+        var logging = ((Default) this).config().logging();
         var builder = Config.loggingBuilder(logging);
         params.accept(builder);
     }
 
     private static Client load(Config config) {
-        // --enable-preview
-        //return switch(config) {
-        //    case Config.Auth auth -> new AuthClient(auth);
-        //    case Config.Basic basic -> new BasicClient(basic);
-        //};
-
-        if (config instanceof Config.Basic b) {
-            return new chariot.internal.BasicClient(b);
-        } else if (config instanceof Config.Auth a) {
-            return new chariot.internal.AuthClient(a);
-        }
-        throw new RuntimeException("Unknown config type: " + config);
+        return Default.of(config);
     }
 
     private static Client basic(Config.Basic config) {
-        return new chariot.internal.BasicClient(config);
+        return Default.of(config);
     }
 
-    private static ClientAuth auth(Config.Auth config) {
-        return new chariot.internal.AuthClient(config);
-    }
+    /**
+     * Helper method for creating <a href="https://lichess.org/account/oauth/token">Personal Access Tokens</a>
+     * <p>Note, a user must create the token manually.
+     * <p>See also {@link #withPkce(Consumer, Consumer)}
+     * {@snippet :
+     * Client client = Client.basic();
+     * var url = client.personalAccessTokenForm("Token for reading preferences", Scope.preferences_read);
+     *
+     * System.out.println("Please create a token at Lichess,\nusing this pre-filled form: " + url);
+     * System.out.println("Copy and paste the token when done");
+     *
+     * // Wait for the token
+     * String token = System.console().readLine();
+     *
+     * ClientAuth clientAuth = Client.auth(token);
+     * var email = clientAuth.account().emailAddress();
+     * }
+     * @param description A description for the intended use of the token, so the user can easier recognize the token when browsing their security information.
+     * @param scopes The pre-selected scopes for the token
+     * @return A URL where user can create a token, in order to then copy the token and use as input to an application.<br>
+     * Example: https://lichess.org/account/oauth/token/create?scopes[]=challenge:write{@literal &}scopes[]=puzzle:read{@literal &}description=Prefilled+token+example
+     */
+    URI personalAccessTokenForm(String description, Scope... scopes);
 
-    Custom custom();
+
+    One<TokenBulkResult> testTokens(Set<String> tokens);
+    default One<TokenBulkResult> testTokens(String... tokens) { return testTokens(Set.of(tokens)); }
+
+    /**
+     * Read which scopes are available with a token
+     * @param token
+     */
+    Set<Scope> scopes(Supplier<char[]> token);
+
+
+    default Set<Scope> scopes(String token) { return scopes(() -> token.toCharArray()); }
+
 
     /**
      * OAuth scopes representing different permissions
@@ -646,4 +562,5 @@ public sealed interface Client permits ClientAuth, Client.Basic {
             }
         }
     }
+
 }

@@ -25,11 +25,11 @@ public interface ChallengesAuthCommon {
     Many<Challenge> challengeKeepAlive(String userId, Consumer<ChallengeBuilder> params);
 
     One<ChallengeAI> challengeAI(Consumer<ChallengeAIBuilder> params);
-    One<Ack>         cancelChallenge(String challengeId);
-    One<Ack>         cancelChallenge(String challengeId, Supplier<char[]> opponentToken);
-    One<Ack>         acceptChallenge(String challengeId);
-    One<Ack>         declineChallenge(String challengeId);
-    One<Ack>         declineChallenge(String challengeId, DeclineReason reason);
+    One<Ack>     cancelChallenge(String challengeId);
+    One<Ack>     cancelChallenge(String challengeId, Supplier<char[]> opponentToken);
+    One<Ack>     acceptChallenge(String challengeId);
+    One<Ack>     declineChallenge(String challengeId);
+    One<Ack>     declineChallenge(String challengeId, DeclineReason reason);
 
     default One<Ack> declineChallenge(String challengeId, Function<DeclineReason.Provider, DeclineReason> reason) {
         return declineChallenge(challengeId, reason.apply(DeclineReason.provider()));

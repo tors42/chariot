@@ -2,7 +2,6 @@ package chariot.internal.impl;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import chariot.api.*;
@@ -10,68 +9,71 @@ import chariot.internal.*;
 import chariot.internal.RequestParameters.Params;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
-import chariot.model.Enums.Channel;
-import chariot.model.Enums.PerfType;
+import java.util.function.*;
 
-public class GamesImpl extends Base implements Games {
+import chariot.model.Enums.*;
 
-    GamesImpl(InternalClient client) {
-        super(client);
+public class GamesHandler implements GamesAuth {
+
+    private final RequestHandler requestHandler;
+
+    public GamesHandler(RequestHandler requestHandler) {
+        this.requestHandler = requestHandler;
     }
 
     @Override
     public One<Game> byGameId(String gameId, Consumer<GameParams> params) {
         return Endpoint.gameById.newRequest(paramsConsumerByIdGameParams(gameId, params))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Pgn> pgnByGameId(String gameId, Consumer<GameParams> params) {
         return Endpoint.gameByIdPgn.newRequest(paramsConsumerByIdGameParams(gameId, params))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Game> currentByUserId(String userId, Consumer<GameParams> params) {
         return Endpoint.gameCurrentByUserId.newRequest(paramsConsumerByIdGameParams(userId, params))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Pgn> pgnCurrentByUserId(String userId, Consumer<GameParams> params) {
         return Endpoint.gameCurrentByUserIdPgn.newRequest(paramsConsumerByIdGameParams(userId, params))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<Game> byUserId(String userId, Consumer<SearchFilter> params) {
         return Endpoint.gamesByUserId.newRequest(paramsConsumerByUserId(userId, params))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<Pgn> pgnByUserId(String userId, Consumer<SearchFilter> params) {
         return Endpoint.gamesByUserIdPgn.newRequest(paramsConsumerByUserId(userId, params))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<Game> byGameIds(Set<String> gameIds, Consumer<GameParams> params) {
         return Endpoint.gamesByIds.newRequest(paramsConsumerByIdsGameParams(gameIds, params))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<Pgn> pgnByGameIds(Set<String> gameIds, Consumer<GameParams> params) {
         return Endpoint.gamesByIdsPgn.newRequest(paramsConsumerByIdsGameParams(gameIds, params))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<GameImport> importGame(String pgn) {
         return Endpoint.gameImport.newRequest(request -> request
             .body(Map.of("pgn", pgn)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -87,7 +89,7 @@ public class GamesImpl extends Base implements Games {
                     .collect(Collectors.joining(",")))
                 .query(builder.toMap(consumer))
                 .stream())
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -96,7 +98,7 @@ public class GamesImpl extends Base implements Games {
                 .path(streamId)
                 .body(String.join(",", gameIds))
                 .stream())
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -104,7 +106,7 @@ public class GamesImpl extends Base implements Games {
         return Endpoint.addGameIdsToStream.newRequest(request -> request
                 .path(streamId)
                 .body(String.join(",", gameIds)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -112,31 +114,31 @@ public class GamesImpl extends Base implements Games {
         return Endpoint.streamMoves.newRequest(request -> request
             .path(gameId)
             .stream())
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<TVChannels> tvChannels() {
         return Endpoint.gameTVChannels.newRequest(request -> {})
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<TVFeedEvent> tvFeed() {
         return Endpoint.gameTVFeed.newRequest(request -> request.stream())
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<Game> byChannel(Channel channel, Consumer<ChannelFilter> params) {
         return Endpoint.gamesTVChannel.newRequest(paramsConsumerByChannelChannelFilter(channel, params))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<Pgn> pgnByChannel(Channel channel, Consumer<ChannelFilter> params) {
         return Endpoint.gamesTVChannelPgn.newRequest(paramsConsumerByChannelChannelFilter(channel, params))
-            .process(this);
+            .process(requestHandler);
     }
 
     static Consumer<Params> paramsConsumerByChannelChannelFilter(Channel channel, Consumer<ChannelFilter> params) {
@@ -188,4 +190,17 @@ public class GamesImpl extends Base implements Games {
             .query(gameParamsBuilder().toMap(params));
     }
 
+
+    @Override
+    public Many<MyGameInfo> ongoing() {
+        return Endpoint.accountNowPlaying.newRequest(request -> {})
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<MyGameInfo> ongoing(int nb) {
+        return Endpoint.accountNowPlaying.newRequest(request -> request
+                .query(Map.of("nb", nb)))
+            .process(requestHandler);
+    }
 }

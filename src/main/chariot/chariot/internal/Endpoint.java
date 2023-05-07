@@ -14,6 +14,7 @@ import chariot.internal.Config.ServerType;
 import chariot.internal.RequestParameters.*;
 import chariot.internal.Util.Method;
 import chariot.model.*;
+import chariot.model.Simuls;
 import chariot.model.ChallengeResult.ChallengeInfo;
 
 import static chariot.internal.ModelMapper.mapper;
@@ -84,8 +85,8 @@ public sealed interface Endpoint<T> {
     public static EPOne<TokenResult> apiToken =
         Endpoint.of(TokenResult.class).endpoint("/api/token").post(wwwform).toOne();
 
-    public static EPOne<Ack> apiTokenRevoke =
-        Endpoint.of(Ack.class).endpoint("/api/token").delete().scope(Scope.any).toOne();
+    public static EPOne<Void> apiTokenRevoke =
+        Endpoint.of(Void.class).endpoint("/api/token").delete().scope(Scope.any).toOne();
 
     public static EPOne<TokenBulkResult> apiTokenBulkTest =
         Endpoint.of(TokenBulkResult.class).endpoint("/api/token/test").post(plain).toOne();
@@ -339,11 +340,11 @@ public sealed interface Endpoint<T> {
     public static EPOne<StormDashboard> stormDashboard =
         Endpoint.of(StormDashboard.class).endpoint("/api/storm/dashboard/%s").toOne();
 
-    public static EPOne<Simuls> simuls =
-        Endpoint.of(Simuls.class).endpoint("/api/simul").toOne();
+    public static EPOne<chariot.model.Simuls> simuls =
+        Endpoint.of(chariot.model.Simuls.class).endpoint("/api/simul").toOne();
 
-    public static EPOne<Analysis> cloudEval =
-        Endpoint.of(Analysis.class).endpoint("/api/cloud-eval").toOne();
+    public static EPOne<chariot.model.Analysis> cloudEval =
+        Endpoint.of(chariot.model.Analysis.class).endpoint("/api/cloud-eval").toOne();
 
     public static EPMany<Pgn> exportChapter =
         Endpoint.of(Pgn.class).endpoint("/api/study/%s/%s.pgn")

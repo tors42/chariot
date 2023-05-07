@@ -1,13 +1,30 @@
 package chariot;
 
+import java.util.Collection;
+
 import chariot.api.*;
-import chariot.model.Ack;
-import chariot.model.One;
+import chariot.model.*;
 
 /**
  * {@code ClientAuth} provides authenticated access to the <a href="https://lichess.org/api">Lichess API</a>.
  */
-public sealed interface ClientAuth extends Client permits chariot.internal.AuthClient {
+public sealed interface ClientAuth extends Client permits chariot.internal.Default {
+
+    /**
+     * {@inheritDoc} <br>
+     * Send messages to users.
+     */
+    UsersAuth users();
+
+    /**
+     * Read which scopes are available with current token
+     */
+    Collection<Scope> scopes();
+    /**
+     * Revokes the access token sent as Bearer for this request.
+     */
+    One<Void> revokeToken();
+
     /**
      * Read and write account informations and preferences.
      */
@@ -95,15 +112,5 @@ public sealed interface ClientAuth extends Client permits chariot.internal.AuthC
      */
     TournamentsAuth tournaments();
 
-    /**
-     * {@inheritDoc} <br>
-     * Send messages to users.
-     */
-    UsersAuth users();
-
-    /**
-     * Revokes the access token sent as Bearer for this request.
-     */
-    One<Ack> revokeToken();
 
 }

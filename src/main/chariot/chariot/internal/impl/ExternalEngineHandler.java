@@ -8,18 +8,21 @@ import chariot.api.*;
 import chariot.internal.*;
 import chariot.model.*;
 
-public class ExternalEngineImpl extends Base implements ExternalEngine {
+public class ExternalEngineHandler implements ExternalEngineAuth {
 
-    ExternalEngineImpl(InternalClient client) {
-        super(client);
+    private final RequestHandler requestHandler;
+
+    public ExternalEngineHandler(RequestHandler requestHandler) {
+        this.requestHandler = requestHandler;
     }
+
 
     @Override
     public Many<ExternalEngineAnalysis> analyse(String engineId, Consumer<AnalysisParameters> params) {
         return Endpoint.externalEngineAnalyse.newRequest(request -> request
                 .path(engineId)
                 .body(toJson(params)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -28,7 +31,7 @@ public class ExternalEngineImpl extends Base implements ExternalEngine {
                 .body("""
                     {"providerSecret":"%s"}
                     """.formatted(providerSecret)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -37,7 +40,7 @@ public class ExternalEngineImpl extends Base implements ExternalEngine {
                 .path(analysisId)
                 .stream()
                 .body(inputStream))
-            .process(this);
+            .process(requestHandler);
     }
 
     String toJson(Consumer<AnalysisParameters> params) {
@@ -88,4 +91,61 @@ public class ExternalEngineImpl extends Base implements ExternalEngine {
                      ap.work.moves().stream().map(m -> '"' + m + '"').collect(Collectors.joining(",")));
     }
 
+
+    @Override
+    public Many<ExternalEngineInfo> list() {
+        return Endpoint.externalEngineList.newRequest(request -> {})
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<ExternalEngineInfo> create(ExternalEngineRegistration registration) {
+        return Endpoint.externalEngineCreate.newRequest(request -> request
+                .body(toJson(registration)))
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<ExternalEngineInfo> get(String engineId) {
+        return Endpoint.externalEngineGet.newRequest(request -> request
+                .path(engineId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<ExternalEngineInfo> update(String engineId, ExternalEngineRegistration registration) {
+        return Endpoint.externalEngineUpdate.newRequest(request -> request
+                .path(engineId)
+                .body(toJson(registration)))
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<Ack> delete(String engineId) {
+        return Endpoint.externalEngineDelete.newRequest(request -> request
+                .path(engineId))
+            .process(requestHandler);
+    }
+
+    private String toJson(ExternalEngineRegistration registration) {
+        return """
+        {
+            "name": "%s",
+            "maxThreads": %d,
+            "maxHash": %d,
+            "defaultDepth": %d,
+            "providerSecret": "%s"
+            %s
+            %s
+        }
+        """.formatted(
+                registration.name(),
+                registration.maxThreads(),
+                registration.maxHash(),
+                registration.defaultDepth(),
+                registration.providerSecret(),
+                registration.variants().isEmpty() ? "" : ",\"variants\":[" + registration.variants().stream().map(v -> '"' + v + '"').collect(Collectors.joining(",")) + "]",
+                registration.providerData().equals("") ? "" : ",\"providerData\":\"" + registration.providerData() + "\""
+                );
+    }
 }

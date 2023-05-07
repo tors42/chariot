@@ -14,9 +14,8 @@ import com.sun.net.httpserver.HttpServer;
 
 import chariot.Client;
 import chariot.Client.*;
-import chariot.api.Account.*;
+import chariot.internal.impl.TokenHandler;
 import chariot.model.TokenResult;
-import chariot.internal.impl.AccountImpl;
 
 public class PKCE {
 
@@ -51,7 +50,7 @@ public class PKCE {
     }
 
     @SuppressWarnings(value = {"deprecation"})
-    public static UriAndTokenExchange initiateAuthorizationFlowCustom(
+    public static TokenHandler.UriAndTokenExchange initiateAuthorizationFlowCustom(
             Set<Scope> scopes,
             String lichessUri,
             Function<Map<String,String>, TokenResult> apiTokenLookup,
@@ -77,7 +76,7 @@ public class PKCE {
         var frontChannelUrl = URI.create(authUrlWithParameters);
 
 
-        var uriAndToken = new UriAndTokenExchange() {
+        var uriAndToken = new TokenHandler.UriAndTokenExchange() {
             public URI url() {
                 return frontChannelUrl;
             }
@@ -119,7 +118,7 @@ public class PKCE {
 
 
     @SuppressWarnings(value = {"deprecation"})
-    public static UriAndToken initiateAuthorizationFlow(
+    public static TokenHandler.UriAndToken initiateAuthorizationFlow(
             Set<Scope> scopes,
             String lichessUri,
             Function<Map<String,String>, TokenResult> apiTokenLookup,
@@ -184,7 +183,7 @@ public class PKCE {
             }
         };
 
-        var uriAndToken = new UriAndToken(uri, tokenSupplier);
+        var uriAndToken = new TokenHandler.UriAndToken(uri, tokenSupplier);
 
         return uriAndToken;
     }
@@ -227,7 +226,7 @@ public class PKCE {
     }
 
     public static AuthResult pkceAuth(Client client, Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
-        if (! (client instanceof chariot.internal.DefaultClient dc)) return new Client.AuthFail("Internal Error");
+        if (! (client instanceof Default dc)) return new Client.AuthFail("Internal Error");
 
         record Custom(URI redirectUri, Supplier<Client.CodeAndState> codeAndState) {}
         record Data(Optional<Set<Scope>> scope, Optional<Duration> timeout, Optional<String> htmlSuccess, Optional<String> usernameHint, Optional<Custom> custom) {}
@@ -279,7 +278,7 @@ public class PKCE {
                 var uriAndToken = PKCE.initiateAuthorizationFlow(
                         scopes,
                         dc.config().servers().api().toString(),
-                        map -> ((AccountImpl)dc.account()).token(map),
+                        map -> dc.token(map),
                         timeout,
                         html);
 
@@ -293,7 +292,7 @@ public class PKCE {
             Supplier<CodeAndState> codeAndStateSupplier = data.custom().get().codeAndState();
 
             try {
-                var exchange = PKCE.initiateAuthorizationFlowCustom(scopes, dc.config().servers().api().toString(), map -> ((AccountImpl)dc.account()).token(map), redirectUri);
+                var exchange = PKCE.initiateAuthorizationFlowCustom(scopes, dc.config().servers().api().toString(), map -> dc.token(map), redirectUri);
                 @SuppressWarnings(value = {"deprecation"})
                 URI uri = exchange.url();
                 uriHandler.accept(uri);

@@ -11,17 +11,125 @@ import chariot.internal.Util.MapBuilder;
 import chariot.model.Enums.*;
 import chariot.model.*;
 
-public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsAuth {
+import java.util.function.Consumer;
 
-    public TournamentsAuthImpl(InternalClient client) {
-        super(client);
+import chariot.model.Enums.TournamentState;
+import chariot.internal.RequestParameters.Params;
+
+public class TournamentsHandler implements TournamentsAuth {
+
+    private final RequestHandler requestHandler;
+
+    public TournamentsHandler(RequestHandler requestHandler) {
+        this.requestHandler = requestHandler;
     }
+
+    @Override
+    public One<TournamentStatus> currentTournaments() {
+        return Endpoint.tournamentArenas.newRequest(request -> {})
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<Arena> arenaById(String arenaId, int page) {
+        return Endpoint.tournamentArenaById.newRequest(request -> request
+                .path(arenaId)
+                .query(Map.of("page", page)))
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<Arena> arenaById(String arenaId) {
+        return Endpoint.tournamentArenaById.newRequest(request -> request
+                .path(arenaId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<ArenaResult> resultsByArenaId(String tournamentId, Consumer<ArenaResultParams> params) {
+        return Endpoint.tournamentArenaResultsById.newRequest(request -> request
+                .path(tournamentId)
+                .query(MapBuilder.of(ArenaResultParams.class).rename("max", "nb").toMap(params)))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<Tournament> arenasCreatedByUserId(String userId, Set<TournamentState> specificStatus) {
+        Consumer<Params> params = request -> request.path(userId);
+        if (! specificStatus.isEmpty()) {
+            params = params.andThen(request -> request.query(Map.of("status", specificStatus.stream()
+                            .map(s -> String.valueOf(s.status()))
+                            .toArray(String[]::new))));
+        }
+        return Endpoint.tournamentArenaCreatedByUser.newRequest(params)
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<TeamBattleResults> teamBattleResultsById(String tournamentId) {
+        return Endpoint.tournamentTeamBattleResultsById.newRequest(request -> request
+                .path(tournamentId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<Game> gamesByArenaId(String arenaId, Consumer<Games.Filter> params) {
+        return Endpoint.gamesByArenaId.newRequest(paramsConsumerByPathId(arenaId, params))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<Pgn> pgnGamesByArenaId(String arenaId, Consumer<Games.Filter> params) {
+        return Endpoint.gamesByArenaIdPgn.newRequest(paramsConsumerByPathId(arenaId, params))
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<Swiss> swissById(String swissId) {
+        return Endpoint.tournamentSwissById.newRequest(request -> request
+                .path(swissId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<SwissResult> resultsBySwissId(String swissId, Consumer<SwissResultParams> params) {
+        return Endpoint.swissResults.newRequest(request -> request
+                .path(swissId)
+                .query(MapBuilder.of(SwissResultParams.class).rename("max", "nb").toMap(params)))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<String> swissTRF(String swissId) {
+        return Endpoint.swissTRF.newRequest(request -> request
+                .path(swissId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<Game> gamesBySwissId(String swissId, Consumer<Games.Filter> params) {
+        return Endpoint.gamesBySwissId.newRequest(paramsConsumerByPathId(swissId, params))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<Pgn> pgnGamesBySwissId(String swissId, Consumer<Games.Filter> params) {
+        return Endpoint.gamesBySwissIdPgn.newRequest(paramsConsumerByPathId(swissId, params))
+            .process(requestHandler);
+    }
+
+    static Consumer<Params> paramsConsumerByPathId(String pathId, Consumer<Games.Filter> params) {
+        return request -> request
+                .path(pathId)
+                .query(GamesHandler.filterBuilder().toMap(params));
+    }
+
 
     @Override
     public One<Arena> createArena(Consumer<ArenaBuilder> consumer) {
         return Endpoint.createArenaTournament.newRequest(request -> request
                 .body(arenaBuilderToMap(consumer)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -29,7 +137,7 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
         return Endpoint.updateArenaTournament.newRequest(request -> request
                 .path(id)
                 .body(arenaBuilderToMap(consumer)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -40,14 +148,14 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
                         Map.entry("teams", String.join(",", teamIds)),
                         Map.entry("nbLeaders", String.valueOf(nbLeaders))
                         )))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Ack> terminateArena(String id) {
         return Endpoint.terminateArenaTournament.newRequest(request -> request
                 .path(id))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -56,14 +164,14 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
             .path(id)
             .body(MapBuilder.of(JoinArenaParams.class)
                 .rename("entryCode", "password").toMap(consumer)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Ack> withdrawArena(String id) {
         return Endpoint.withdrawArenaTournament.newRequest(request -> request
             .path(id))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -71,7 +179,7 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
         return Endpoint.createSwiss.newRequest(request -> request
                 .path(teamId)
                 .body(swissBuilderToMap(consumer)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -79,7 +187,7 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
         return Endpoint.updateSwissTournament.newRequest(request -> request
                 .path(id)
                 .body(swissBuilderToMap(consumer)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -87,7 +195,7 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
         return Endpoint.scheduleNextRoundSwiss.newRequest(request -> request
                 .path(id)
                 .body(Map.of("date", date.toInstant().toEpochMilli())))
-            .process(this);
+            .process(requestHandler);
     }
 
 
@@ -95,14 +203,14 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
     public One<Ack> terminateSwiss(String swissId) {
         return Endpoint.terminateSwiss.newRequest(request -> request
                 .path(swissId))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Ack> withdrawSwiss(String id) {
         return Endpoint.withdrawSwiss.newRequest(request -> request
             .path(id))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -111,9 +219,8 @@ public class TournamentsAuthImpl extends TournamentsImpl implements TournamentsA
                 .path(id)
                 .body(MapBuilder.of(JoinSwissParams.class)
                     .rename("entryCode", "password").toMap(consumer)))
-            .process(this);
+            .process(requestHandler);
     }
-
 
     private Map<String, Object> arenaBuilderToMap(Consumer<ArenaBuilder> consumer) {
         var builder = MapBuilder.of(ArenaParams.class)

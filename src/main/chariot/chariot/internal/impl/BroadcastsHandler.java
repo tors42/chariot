@@ -9,24 +9,61 @@ import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 import chariot.model.Broadcast.Round;
 
-public class BroadcastsAuthImpl extends BroadcastsImpl implements BroadcastsAuth {
+public class BroadcastsHandler implements BroadcastsAuth {
 
-    public BroadcastsAuthImpl(InternalClient client) {
-        super(client);
+    final RequestHandler requestHandler;
+
+    public BroadcastsHandler(RequestHandler requestHandler) {
+        this.requestHandler = requestHandler;
+    }
+
+    @Override
+    public Many<Broadcast> official(int  nb) {
+        return Endpoint.officialBroadcasts.newRequest(request -> request
+                .query(Map.of("nb", nb)))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<Broadcast> official() {
+        return Endpoint.officialBroadcasts.newRequest(request -> {})
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<Pgn> streamBroadcast(String roundId) {
+        return Endpoint.streamBroadcast.newRequest(request -> request
+                .path(roundId)
+                .stream())
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<Pgn> exportOneRoundPgn(String roundId) {
+        return Endpoint.exportBroadcastOneRoundPgn.newRequest(request -> request
+                .path(roundId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<Pgn> exportPgn(String tourId) {
+        return Endpoint.exportBroadcastAllRoundsPgn.newRequest(request -> request
+                .path(tourId))
+            .process(requestHandler);
     }
 
     @Override
     public One<Broadcast> broadcastById(String tourId) {
         return Endpoint.broadcastById.newRequest(request -> request
                 .path(tourId))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Broadcast> create(Consumer<BroadcastBuilder> params) {
         return Endpoint.createBroadcast.newRequest(request -> request
                 .body(broadastBuilderToMap(params)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -34,14 +71,14 @@ public class BroadcastsAuthImpl extends BroadcastsImpl implements BroadcastsAuth
         return Endpoint.updateBroadcast.newRequest(request -> request
                 .path(tourId)
                 .body(broadastBuilderToMap(params)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Round> roundById(String roundId) {
         return Endpoint.roundById.newRequest(request -> request
                 .path(roundId))
-            .process(this);
+            .process(requestHandler);
      }
 
     @Override
@@ -49,7 +86,7 @@ public class BroadcastsAuthImpl extends BroadcastsImpl implements BroadcastsAuth
         return Endpoint.createRound.newRequest(request -> request
                 .path(tourId)
                 .body(MapBuilder.of(RoundBuilder.class).toMap(params)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -57,7 +94,7 @@ public class BroadcastsAuthImpl extends BroadcastsImpl implements BroadcastsAuth
         return Endpoint.updateRound.newRequest(request -> request
                 .path(roundId)
                 .body(MapBuilder.of(RoundBuilder.class).toMap(params)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -65,7 +102,7 @@ public class BroadcastsAuthImpl extends BroadcastsImpl implements BroadcastsAuth
         return Endpoint.pushPGNbyRoundId.newRequest(request -> request
                 .path(roundId)
                 .body(pgn))
-            .process(this);
+            .process(requestHandler);
     }
 
     private Map<String, Object> broadastBuilderToMap(Consumer<BroadcastBuilder> consumer) {

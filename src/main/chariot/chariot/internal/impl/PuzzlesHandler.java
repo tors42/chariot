@@ -8,10 +8,33 @@ import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 
-public class PuzzlesAuthImpl extends PuzzlesImpl implements PuzzlesAuth {
+public class PuzzlesHandler implements PuzzlesAuth {
 
-    public PuzzlesAuthImpl(InternalClient client) {
-        super(client);
+    private final RequestHandler requestHandler;
+
+    public PuzzlesHandler(RequestHandler requestHandler) {
+        this.requestHandler = requestHandler;
+    }
+
+    @Override
+    public One<Puzzle> dailyPuzzle() {
+        return Endpoint.dailyPuzzle.newRequest(request -> {})
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<Puzzle> byId(String puzzleId) {
+        return Endpoint.puzzleById.newRequest(request -> request
+                .path(puzzleId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<StormDashboard> stormDashboard(String username, Consumer<PuzzleParams> consumer) {
+        return Endpoint.stormDashboard.newRequest(request -> request
+                .path(username)
+                .query(MapBuilder.of(PuzzleParams.class).toMap(consumer)))
+            .process(requestHandler);
     }
 
     @Override
@@ -24,19 +47,20 @@ public class PuzzlesAuthImpl extends PuzzlesImpl implements PuzzlesAuth {
                         map.put("before", zdt.toInstant().toEpochMilli());
                     }).toMap(params))
                 )
-            .process(this);
+            .process(requestHandler);
     }
+
 
     @Override
     public One<PuzzleDashboard> puzzleDashboard(int days) {
         return Endpoint.puzzleDashboard.newRequest(request -> request
                 .path(String.valueOf(days)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<PuzzleRace> createAndJoinRace() {
         return Endpoint.puzzleRace.newRequest(request -> {})
-            .process(this);
+            .process(requestHandler);
     }
 }

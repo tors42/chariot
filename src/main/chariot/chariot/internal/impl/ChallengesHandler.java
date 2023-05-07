@@ -10,16 +10,16 @@ import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 
-public class ChallengesAuthImpl extends ChallengesAuthCommonImpl implements ChallengesAuth {
+public class ChallengesHandler extends ChallengesAuthCommonImpl implements ChallengesAuth {
 
-    public ChallengesAuthImpl(InternalClient client) {
-        super(client, Scope.challenge_write);
+    public ChallengesHandler(RequestHandler requestHandler) {
+        super(requestHandler, Scope.challenge_write);
     }
 
     @Override
     public One<PendingChallenges> challenges() {
         return Endpoint.challenges.newRequest(request -> {})
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -27,41 +27,41 @@ public class ChallengesAuthImpl extends ChallengesAuthCommonImpl implements Chal
         return Endpoint.startClocksOfGame.newRequest(request -> request
                 .path(gameId)
                 .query(Map.of("token1", token1, "token2", token2)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Ack> addTimeToGame(String gameId, int seconds) {
         return Endpoint.addTimeToGame.newRequest(request -> request
                 .path(gameId, seconds))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<BulkPairing> bulks() {
         return Endpoint.bulkPairingGet.newRequest(request -> {})
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<BulkPairing> createBulk(Consumer<BulkBuilder> consumer) {
         return Endpoint.bulkPairingCreate.newRequest(request -> request
                 .body(bulkBuilderToMap(consumer)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Ack> startBulk(String bulkId) {
         return Endpoint.bulkPairingStart.newRequest(request -> request
                 .path(bulkId))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<Ack> cancelBulk(String bulkId) {
         return Endpoint.bulkPairingCancel.newRequest(request -> request
                 .path(bulkId))
-            .process(this);
+            .process(requestHandler);
     }
 
     private Map<String, Object> bulkBuilderToMap(Consumer<BulkBuilder> consumer) {

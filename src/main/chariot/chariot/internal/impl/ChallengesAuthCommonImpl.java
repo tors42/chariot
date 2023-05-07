@@ -1,8 +1,6 @@
 package chariot.internal.impl;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.*;
 
 import chariot.Client.Scope;
@@ -16,8 +14,8 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
 
     private final Scope scope;
 
-    public ChallengesAuthCommonImpl(InternalClient client, Scope scope) {
-        super(client);
+    public ChallengesAuthCommonImpl(RequestHandler requestHandler, Scope scope) {
+        super(requestHandler);
         this.scope = scope;
     }
 
@@ -71,7 +69,7 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
         return Endpoint.streamEvents.newRequest(request -> request
                 .scope(scope)
                 .stream())
-            .process(this);
+            .process(requestHandler);
     }
 
     private One<Challenge> challenge(Scope scope, String userId, Consumer<ChallengeBuilder> consumer) {
@@ -79,7 +77,7 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
                 .scope(scope)
                 .path(userId)
                 .body(challengeBuilderToMap(consumer)))
-            .process(this);
+            .process(requestHandler);
     }
 
     private Many<Challenge> challengeKeepAlive(Scope scope, String userId, Consumer<ChallengeBuilder> consumer) {
@@ -90,14 +88,14 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
                 .path(userId)
                 .body(map)
                 .stream())
-            .process(this);
+            .process(requestHandler);
     }
 
     private One<ChallengeAI> challengeAI(Scope scope, Consumer<ChallengeAIBuilder> consumer) {
         return Endpoint.challengeAI.newRequest(request -> request
                 .scope(scope)
                 .body(challengeAIBuilderToMap(consumer)))
-            .process(this);
+            .process(requestHandler);
     }
 
     private One<Ack> cancelChallenge(Scope scope, String challengeId, Supplier<char[]> opponentToken) {
@@ -105,34 +103,34 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
                 .scope(scope)
                 .path(challengeId)
                 .query(Map.of("opponentToken", String.valueOf(opponentToken.get()))))
-            .process(this);
+            .process(requestHandler);
     }
 
     private One<Ack> cancelChallenge(Scope scope, String challengeId) {
         return Endpoint.challengeCancel.newRequest(request -> request
                 .scope(scope)
                 .path(challengeId))
-            .process(this);
+            .process(requestHandler);
     }
 
     private One<Ack> acceptChallenge(Scope scope, String challengeId) {
         return Endpoint.challengeAccept.newRequest(request -> request
                 .scope(scope)
                 .path(challengeId))
-            .process(this);
+            .process(requestHandler);
     }
 
     private One<Ack> declineChallenge(Scope scope, String challengeId, DeclineReason reason) {
         return Endpoint.challengeDecline.newRequest(request -> request
                 .body(Map.of("reason", reason.name()))
                 .path(challengeId))
-            .process(this);
+            .process(requestHandler);
     }
 
     private One<Ack> declineChallenge(Scope scope, String challengeId) {
         return Endpoint.challengeDecline.newRequest(request -> request
                 .path(challengeId))
-            .process(this);
+            .process(requestHandler);
     }
 
     private Map<String, Object> challengeBuilderToMap(Consumer<ChallengeBuilder> consumer) {

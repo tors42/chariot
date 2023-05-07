@@ -9,10 +9,14 @@ import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 
-public class StudiesImpl extends Base implements Studies {
+public class StudiesHandler implements Studies {
 
-    public StudiesImpl(InternalClient client) {
-        super(client);
+    private final RequestHandler requestHandler;
+    private final InternalClient client;
+
+    public StudiesHandler(InternalClient client, RequestHandler requestHandler) {
+        this.client = client;
+        this.requestHandler = requestHandler;
     }
 
     @Override
@@ -20,7 +24,7 @@ public class StudiesImpl extends Base implements Studies {
         return Endpoint.exportChapter.newRequest(request -> request
                 .path(studyId, chapterId)
                 .query(MapBuilder.of(Params.class).toMap(params)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -28,7 +32,7 @@ public class StudiesImpl extends Base implements Studies {
         return Endpoint.exportChapters.newRequest(request -> request
                 .path(studyId)
                 .query(MapBuilder.of(Params.class).toMap(params)))
-            .process(this);
+            .process(requestHandler);
      }
 
     @Override
@@ -36,7 +40,7 @@ public class StudiesImpl extends Base implements Studies {
         return Endpoint.exportStudies.newRequest(request -> request
                 .path(userId)
                 .query(MapBuilder.of(Params.class).toMap(params)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -54,7 +58,7 @@ public class StudiesImpl extends Base implements Studies {
     public Many<StudyMeta> listStudiesByUser(String user) {
         return Endpoint.listStudiesByUser.newRequest(request -> request
                 .path(user))
-            .process(this);
+            .process(requestHandler);
      }
 
 }

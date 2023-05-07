@@ -10,17 +10,19 @@ import chariot.internal.Util.MapBuilder;
 import chariot.model.ChallengeTokens;
 import chariot.model.One;
 
-public class AdminAuthImpl extends Base implements AdminAuth {
-    public AdminAuthImpl(InternalClient client) {
-        super(client);
-    }
+public class AdminHandler implements AdminAuth {
 
+    private final RequestHandler requestHandler;
+
+    public AdminHandler(RequestHandler requestHandler) {
+        this.requestHandler = requestHandler;
+    }
     @Override
     public One<ChallengeTokens> obtainChallengeTokens(Set<String> userIds, Consumer<Params> consumer) {
         return Endpoint.apiAdminChallengeTokens.newRequest(request -> request
                 .body(MapBuilder.of(Params.class)
                     .add("users", userIds.stream().collect(Collectors.joining(",")))
                     .toMap(consumer)))
-            .process(this);
+            .process(requestHandler);
     }
 }

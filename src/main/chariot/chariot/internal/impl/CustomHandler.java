@@ -13,9 +13,13 @@ import chariot.internal.RequestParameters.Params;
 import chariot.model.Many;
 import chariot.model.One;
 
-public class CustomImpl extends Base implements Custom {
+public class CustomHandler implements Custom {
 
-    public CustomImpl(InternalClient client) { super(client); }
+    private final RequestHandler requestHandler;
+
+    public CustomHandler(RequestHandler requestHandler) {
+        this.requestHandler = requestHandler;
+    }
 
     @Override
     public <T> EndpointBuilder<T> of(Function<String, T> mapper) {
@@ -82,7 +86,7 @@ public class CustomImpl extends Base implements Custom {
                     final EPOne<T> ep = builder.toOne();
                     @Override
                     public One<T> request(Consumer<Request> request) {
-                        return ep.newRequest(consumerAdapter.apply(request)).process(CustomImpl.this);
+                        return ep.newRequest(consumerAdapter.apply(request)).process(requestHandler);
                     }
                 };
             }
@@ -93,7 +97,7 @@ public class CustomImpl extends Base implements Custom {
                     final EPMany<T> ep = builder.toMany();
                     @Override
                     public Many<T> request(Consumer<Request> request) {
-                        return ep.newRequest(consumerAdapter.apply(request)).process(CustomImpl.this);
+                        return ep.newRequest(consumerAdapter.apply(request)).process(requestHandler);
                     }
                 };
             }

@@ -2,58 +2,59 @@ package chariot.internal.impl;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.*;
 
 import chariot.api.*;
 import chariot.model.*;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
+import java.util.stream.*;
 
-public class TeamsImpl extends Base implements Teams {
+public class TeamsHandler implements TeamsAuth {
+    private final RequestHandler requestHandler;
 
-    TeamsImpl(InternalClient client) {
-        super(client);
+    public TeamsHandler(RequestHandler requestHandler) {
+        this.requestHandler = requestHandler;
     }
 
     @Override
     public One<Team> byTeamId(String teamId) {
         return Endpoint.teamById.newRequest(request -> request
                 .path(teamId))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<Team> byUserId(String userId) {
         return Endpoint.teamsByUserId.newRequest(request -> request
                 .path(userId))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<User> usersByTeamId(String teamId) {
         return Endpoint.teamUsersById.newRequest(request -> request
                 .path(teamId))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<PageTeam> popularTeamsByPage(int page) {
         return Endpoint.popularTeamsByPage.newRequest(request -> request
                 .query(Map.of("page", page)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<PageTeam> popularTeamsByPage() {
         return Endpoint.popularTeamsByPage.newRequest(request -> {})
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public One<PageTeam> searchByPage(Consumer<PageParams> consumer) {
         return Endpoint.teamsSearch.newRequest(request -> request
                 .query(MapBuilder.of(PageParams.class).toMap(consumer)))
-            .process(this);
+            .process(requestHandler);
      }
 
     @Override
@@ -61,14 +62,14 @@ public class TeamsImpl extends Base implements Teams {
         return Endpoint.teamArenaById.newRequest(request -> request
                 .path(teamId)
                 .query(Map.of("max", max)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<Tournament> arenaByTeamId(String teamId) {
         return Endpoint.teamArenaById.newRequest(request -> request
                 .path(teamId))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -76,14 +77,14 @@ public class TeamsImpl extends Base implements Teams {
         return Endpoint.teamSwissById.newRequest(request -> request
                 .path(teamId)
                 .query(Map.of("max", max)))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
     public Many<Swiss> swissByTeamId(String teamId) {
         return Endpoint.teamSwissById.newRequest(request -> request
                 .path(teamId))
-            .process(this);
+            .process(requestHandler);
     }
 
     @Override
@@ -120,4 +121,65 @@ public class TeamsImpl extends Base implements Teams {
             return Many.entries(Stream.of());
         }
     }
+
+    @Override
+    public One<Ack> joinTeam(String teamId, Consumer<JoinParams> consumer) {
+        return Endpoint.teamJoin.newRequest(request -> request
+                .body(MapBuilder.of(JoinParams.class)
+                    .rename("entryCode", "password")
+                    .toMap(consumer))
+                .path(teamId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<Ack> leaveTeam(String teamId) {
+        return Endpoint.teamQuit.newRequest(request -> request
+                .path(teamId))
+            .process(requestHandler);
+     }
+
+    @Override
+    public One<Ack> kickFromTeam(String teamId, String userId) {
+        return Endpoint.teamKick.newRequest(request -> request
+                .path(teamId, userId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<Ack> messageTeam(String teamId, String message) {
+        return Endpoint.teamMessage.newRequest(request -> request
+                .path(teamId)
+                .body(Map.of("message", message)))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<TeamRequest> requests(String teamId) {
+        return Endpoint.teamRequests.newRequest(request -> request
+                .path(teamId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<TeamRequest> requestsDeclined(String teamId) {
+        return Endpoint.teamRequests.newRequest(request -> request
+                .path(teamId)
+                .query(Map.of("declined", true)))
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<Ack> requestAccept(String teamId, String userId) {
+        return Endpoint.teamAcceptJoin.newRequest(request -> request
+                .path(teamId, userId))
+            .process(requestHandler);
+     }
+
+    @Override
+    public One<Ack> requestDecline(String teamId, String userId) {
+        return Endpoint.teamDeclineJoin.newRequest(request -> request
+                .path(teamId, userId))
+            .process(requestHandler);
+     }
 }

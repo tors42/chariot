@@ -11,24 +11,27 @@ import chariot.model.ExploreResult.*;
 import chariot.model.*;
 import chariot.model.Enums.*;
 
-public class OpeningExplorerImpl extends Base implements OpeningExplorer {
+public class OpeningExplorerHandler implements OpeningExplorer {
 
-    public OpeningExplorerImpl(InternalClient client) {
-        super(client);
+    private final RequestHandler requestHandler;
+
+    public OpeningExplorerHandler(RequestHandler requestHandler) {
+        this.requestHandler = requestHandler;
     }
+
 
     @Override
     public One<Pgn> pgnByMastersGameId(String gameId) {
         return Endpoint.exploreMasterOTB.newRequest(request -> request
                 .path(gameId))
-                .process(this);
+                .process(requestHandler);
     }
 
     @Override
     public One<OpeningDB> masters(Consumer<MastersBuilder> params) {
         return Endpoint.exploreMasters.newRequest(request -> request
                 .query(MapBuilder.of(MastersBuilder.class).toMap(params)))
-                .process(this);
+                .process(requestHandler);
     }
 
     @Override
@@ -50,7 +53,7 @@ public class OpeningExplorerImpl extends Base implements OpeningExplorer {
                                         .collect(Collectors.joining(",")));
                             }
                         }).toMap(params)))
-                .process(this);
+                .process(requestHandler);
     }
 
     @Override
@@ -75,7 +78,7 @@ public class OpeningExplorerImpl extends Base implements OpeningExplorer {
                             }
                         })
                         .toMap(params)))
-                .process(this);
+                .process(requestHandler);
     }
 
     @Override
@@ -97,6 +100,6 @@ public class OpeningExplorerImpl extends Base implements OpeningExplorer {
                                         .collect(Collectors.joining(",")));
                             }
                         }).toMap(params)))
-                .process(this);
+                .process(requestHandler);
     }
 }

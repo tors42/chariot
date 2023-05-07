@@ -1,14 +1,11 @@
 package chariot.api;
 
-import java.util.Set;
-
-import chariot.Client.Scope;
 import chariot.model.*;
 
 /**
  * Read and write account information and preferences.
  */
-public interface AccountAuth extends Account {
+public interface AccountAuth {
 
     /**
      * Public informations about the logged in user.
@@ -31,31 +28,18 @@ public interface AccountAuth extends Account {
      * Read the kid mode status of the logged in user.<br/>
      * Auth {@link chariot.Client.Scope#preference_read}
      */
-    One<Boolean> getKidModeStatus();
+    One<AccountKid> getAccountKidMode();
 
     /**
      * Set the kid mode status of the logged in user.<br/>
      * Auth {@link chariot.Client.Scope#preference_write}
      * @param value kid mode status
      */
-    One<Ack> setKidModeStatus(boolean value);
-
-    /**
-     * @deprecated Use {@link chariot.ClientAuth#revokeToken} instead.<br>
-     *
-     * Revokes the access token sent as Bearer for this request.
-     */
-    @Deprecated
-    One<Ack> revokeToken();
+    One<Ack> setAccountKidMode(boolean value);
 
     /**
      * Get users followed by logged in user.
      */
     Many<User> following();
-
-    /**
-     * Read which scopes are available with current token
-     */
-    Set<Scope> scopes();
 
 }
