@@ -1,7 +1,9 @@
 package tests.internal.yayson;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 
+import chariot.internal.Util;
 import chariot.internal.yayson.YayMapper;
 import util.Test;
 
@@ -299,6 +301,25 @@ public class TestModel {
         assertFalse(mappedWithFalseField.someField().get().booleanValue());
     }
 
+    @Test
+    public void parseZonedDateTimeFromLong() {
+        var jsonWithLongField = """
+            {
+                "id": "abcdefgh",
+                "createdAt": 1463756350225
+            }""";
+
+        String id = "abcdefgh";
+        long createdAt = 1463756350225l;
+
+        var expected  = new ZDT(id, Util.fromLong(createdAt));
+
+        var actual = mapper.fromString(jsonWithLongField, ZDT.class);
+
+        assertEquals(expected, actual);
+    }
+
+    public record ZDT(String id, ZonedDateTime createdAt) {}
 
     public record Empty() {};
     public record SimpleBool(boolean b) {};
