@@ -50,4 +50,11 @@ public class StudiesImpl extends Base implements Studies {
             .orElse(One.fail(404, Err.from("Maybe 404")));
     }
 
+    @Override
+    public Many<StudyMeta> listStudiesByUser(String user) {
+        return Endpoint.listStudiesByUser.newRequest(request -> request
+                .path(user))
+            .process(this);
+     }
+
 }

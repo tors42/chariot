@@ -359,6 +359,10 @@ public sealed interface Endpoint<T> {
         Endpoint.of(ZonedDateTime.class).endpoint("/api/study/%s.pgn")
         .head().toOne();
 
+    public static EPMany<StudyMeta> listStudiesByUser =
+        Endpoint.of(StudyMeta.class).endpoint("/api/study/by/%s")
+        .accept(jsonstream).scope(Scope.study_read).toMany();
+
     public static EPMany<Pgn> exportStudies =
         Endpoint.of(Pgn.class).endpoint("/study/by/%s/export.pgn")
         .streamMapper(Util::toPgnStream)

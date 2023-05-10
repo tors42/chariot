@@ -29,6 +29,15 @@ public interface Studies {
      */
     One<ZonedDateTime> lastModifiedByStudyId(String studyId);
 
+    /**
+     * Get metadata (name and dates) of all studies of a user.<br>
+     * If authenticated, then all public, unlisted, and private studies are included.<br>
+     * If not, only public, listed studies are included.<br>
+     * @param user user id or username
+     */
+    Many<StudyMeta> listStudiesByUser(String user);
+
+
     interface Params {
         /**
          * Include clock comments in the PGN moves, when available.
