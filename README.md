@@ -58,6 +58,7 @@ client.studies().exportStudiesByUserId()
 client.studies().exportChaptersByStudyId()
 client.studies().exportChapterByStudyAndChapterId()
 client.studies().lastModifiedByStudyId()
+client.studies().listStudiesByUser()
 
 client.tablebase().standard()
 client.tablebase().atomic()
