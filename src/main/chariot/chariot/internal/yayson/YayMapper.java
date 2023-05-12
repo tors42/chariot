@@ -243,13 +243,12 @@ public class YayMapper {
             return cls.cast(Map.of());
         } else if (cls.isEnum()) {
             if (node instanceof YayValue.YayString string) {
-                try {
-                    var mh = MethodHandles.lookup().findStatic(cls, "valueOf", MethodType.methodType(cls, String.class));
-                    var o = mh.invoke(string.value());
-                    return cls.cast(o);
-                } catch (Throwable t) {
-                    t.printStackTrace();
+                for (var constant : cls.getEnumConstants()) {
+                    if (String.valueOf(constant).equals(string.value())) {
+                        return constant;
+                    }
                 }
+                return null;
             } else if (node instanceof YayValue.YayNumber number) {
                 try {
                     var mh = MethodHandles.lookup().findStatic(cls, "valueOf", MethodType.methodType(cls, int.class));

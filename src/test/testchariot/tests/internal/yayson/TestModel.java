@@ -353,16 +353,8 @@ public class TestModel {
     public record This(String string) implements Something {}
     public record That(Integer integer) implements Something {}
     public record GameWithOpt(String id, Optional<Boolean> someField) {}
+    public record Game(String id, Winner winner) {}
 
-    public record Game(
-            String id,
-            //Winner winner
-            chariot.model.Enums.Color winner
-            ) {}
-
-    // todo, figure out if possible to "exports"/"opens" this package,
-    // in order for chariot to be able to use MethodHandles.lookup().findStatic(Winner.class, "valueOf", String.class).
-    // For now using a chariot enum instead of the package local enum class Winner.
-    //public enum Winner { white, black; };
+    public enum Winner { white, black; };
 
 }
