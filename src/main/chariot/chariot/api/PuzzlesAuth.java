@@ -1,14 +1,24 @@
 package chariot.api;
 
+import java.time.ZonedDateTime;
+import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
+
 import chariot.model.*;
 
 public interface PuzzlesAuth extends Puzzles {
 
     /**
-     * @param max How many days of history to return [ 0 .. 365 ]
+     * @param params filter the puzzle activity search. Example {@code params -> params.max(50).before(now -> now.minusDays(5))}
      */
-    Many<PuzzleActivity> activity(int max);
-    Many<PuzzleActivity> activity();
+    Many<PuzzleActivity> activity(Consumer<PuzzleActivityParams> params);
+    default Many<PuzzleActivity> activity() { return activity(__ -> {}); }
+
+    @Deprecated
+    /**
+     * @deprecated Use {@ link #activity(Consumer)}
+     */
+    default Many<PuzzleActivity> activity(int max) { return activity(params -> params.max(max)); }
 
     /**
      * Create and join a Puzzle Race
@@ -20,5 +30,24 @@ public interface PuzzlesAuth extends Puzzles {
      * @param days How many days to look back when aggregating puzzle results. 30 is sensible.
      */
     One<PuzzleDashboard> puzzleDashboard(int days);
+
+    interface PuzzleActivityParams {
+        /**
+         * @param max How many entries to download. Default all entries.
+         */
+        PuzzleActivityParams max(int max);
+
+        /**
+         * @param before Download entries before this timestamp. Defaults to now.
+         */
+        PuzzleActivityParams before(ZonedDateTime before);
+
+        /**
+         * @param now Download entries before this timestamp. Example: {@code now -> now.minusDays(5)}
+         */
+        default PuzzleActivityParams before(UnaryOperator<ZonedDateTime> now) {
+            return before(now.apply(ZonedDateTime.now()));
+        }
+    }
 
 }

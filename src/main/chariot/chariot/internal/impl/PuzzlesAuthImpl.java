@@ -1,9 +1,11 @@
 package chariot.internal.impl;
 
-import java.util.Map;
+import java.time.ZonedDateTime;
+import java.util.function.Consumer;
 
 import chariot.api.*;
 import chariot.internal.*;
+import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 
 public class PuzzlesAuthImpl extends PuzzlesImpl implements PuzzlesAuth {
@@ -13,14 +15,15 @@ public class PuzzlesAuthImpl extends PuzzlesImpl implements PuzzlesAuth {
     }
 
     @Override
-    public Many<PuzzleActivity> activity(int max) {
+    public Many<PuzzleActivity> activity(Consumer<PuzzleActivityParams> params) {
         return Endpoint.puzzleActivity.newRequest(request -> request
-                .query(Map.of("max", max)))
-            .process(this);
-    }
-    @Override
-    public Many<PuzzleActivity> activity() {
-        return Endpoint.puzzleActivity.newRequest(request -> {})
+                .query(
+                    MapBuilder.of(PuzzleActivityParams.class)
+                    .addCustomHandler("before", (args, map) -> {
+                        var zdt = (ZonedDateTime) args[0];
+                        map.put("before", zdt.toInstant().toEpochMilli());
+                    }).toMap(params))
+                )
             .process(this);
     }
 
