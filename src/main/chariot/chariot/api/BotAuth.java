@@ -68,7 +68,7 @@ import chariot.model.*;
  *          });
  * }
  */
-public interface BotAuth extends ChallengesAuthCommon, Bot<User> { //Bot<UserAuth> {
+public interface BotAuth extends ChallengesAuthCommon, Bot { //Bot<UserAuth> {
 
     /**
      * Upgrade a lichess player account into a Bot account. Only Bot accounts can use the Bot API.<br>

@@ -96,5 +96,13 @@ public sealed interface One<T> permits
     default void ifPresentOrElse(Consumer<? super T> consumer, Runnable action) { maybe().ifPresentOrElse(consumer, action); }
     default boolean isPresent() { return maybe().isPresent(); }
     default T get() { return maybe().get(); }
-
+    default <R> One<R> mapOne(Function<T, R> mapper) {
+        if (this instanceof Entry<T> one) {
+            return One.entry(mapper.apply(one.entry()));
+        } else if (this instanceof Fail<T> f) {
+            return One.fail(f.status(), f.info());
+        } else {
+            return One.none();
+        }
+    }
 }

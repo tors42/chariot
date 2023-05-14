@@ -1,40 +1,68 @@
 package chariot;
 
 import java.util.Collection;
+import java.util.prefs.Preferences;
 
+import chariot.Client.Scope;
 import chariot.api.*;
+import chariot.internal.ClientBase;
+import chariot.internal.Config;
+import chariot.internal.impl.*;
 import chariot.model.*;
 
 /**
  * {@code ClientAuth} provides authenticated access to the <a href="https://lichess.org/api">Lichess API</a>.
  */
-public sealed interface ClientAuth extends Client permits chariot.internal.Default {
+public class ClientAuth extends ClientBase  {
+
+    final AccountHandler accountHandler;
+    final AdminHandler adminHandler;
+    final BoardHandler boardHandler;
+
+    ClientAuth(Config config) {
+        super(config);
+        accountHandler = new AccountHandler(requestHandler());
+        adminHandler = new AdminHandler(requestHandler());
+        boardHandler = new BoardHandler(requestHandler());
+    }
 
     /**
      * {@inheritDoc} <br>
      * Send messages to users.
      */
-    @SuppressWarnings("unchecked")
-    UsersAuth users();
+    UsersAuth users() {
+        return UsersHandler.ofAuth(requestHandler());
+    }
 
     /**
      * Read which scopes are available with current token
      */
-    Collection<Scope> scopes();
+    public Collection<Scope> scopes() { return tokenHandler.scopes(); }
     /**
      * Revokes the access token sent as Bearer for this request.
      */
-    One<Void> revokeToken();
+    public One<Void> revokeToken() { return tokenHandler.revokeToken(); }
+
+
+    /**
+     * Clears client token information from preferences.<br>
+     * See {@link Client#load(Preferences)}
+     * @param prefs The preferences node to clear
+     */
+    public void clearAuth(Preferences prefs) { Config.clearAuth(prefs); }
+
+
+
 
     /**
      * Read and write account informations and preferences.
      */
-    AccountAuth account();
+    AccountAuth account() { return accountHandler; }
 
     /**
      * For administrators only, to obtain challenge tokens.
      */
-    AdminAuth admin();
+    AdminAuth admin() { return adminHandler; }
 
     /**
      * Play on Lichess with physical boards and third-party clients.
@@ -55,7 +83,7 @@ public sealed interface ClientAuth extends Client permits chariot.internal.Defau
      * <li>Time controls: Rapid, Classical and Correspondence only (Blitz possible for direct challanges and vs AI)
      * </ul>
      */
-    BoardAuth board();
+    public BoardAuth board() { return boardHandler; }
 
     /**
      * Play on Lichess as a bot.
@@ -76,44 +104,41 @@ public sealed interface ClientAuth extends Client permits chariot.internal.Defau
      * <li>Bots cannot play UltraBullet (¼+0) because it requires making too many requests. But 0+1 and ½+0 are allowed.
      * </ul>
      */
-    @SuppressWarnings("unchecked")
-    BotAuth bot();
+    public BotAuth bot() { return botHandler; }
 
     /**
      * {@inheritDoc}
      */
-    BroadcastsAuth broadcasts();
+    public BroadcastsAuth broadcasts() { return broadcastsHandler; }
 
     /**
      * Send and receive challenges and manage bulk challenges.
      */
-    ChallengesAuth challenges();
+    public ChallengesAuth challenges() { return challengesHandler; }
 
     /**
      * {@inheritDoc}
      */
-    ExternalEngineAuth externalEngine();
+    public ExternalEngineAuth externalEngine() { return externalEngineHandler; }
 
     /**
      * {@inheritDoc}
      */
-    GamesAuth games();
+    public GamesAuth games() { return gamesHandler; }
 
     /**
      * {@inheritDoc}
      */
-    PuzzlesAuth puzzles();
+    public PuzzlesAuth puzzles() { return puzzlesHandler; }
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
-    TeamsAuth teams();
+    public TeamsAuth teams() { return teamsHandler; }
 
     /**
      * {@inheritDoc} <br>
      * Official tournaments are maintained by Lichess, but you can create your own tournaments as well.
      */
-    TournamentsAuth tournaments();
-
+    public TournamentsAuth tournaments() { return tournamentsHandler; }
 
 }

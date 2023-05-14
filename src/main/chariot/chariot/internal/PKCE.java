@@ -226,7 +226,6 @@ public class PKCE {
     }
 
     public static AuthResult pkceAuth(Client client, Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
-        if (! (client instanceof Default dc)) return new Client.AuthFail("Internal Error");
 
         record Custom(URI redirectUri, Supplier<Client.CodeAndState> codeAndState) {}
         record Data(Optional<Set<Scope>> scope, Optional<Duration> timeout, Optional<String> htmlSuccess, Optional<String> usernameHint, Optional<Custom> custom) {}
@@ -270,15 +269,15 @@ public class PKCE {
 
         Set<Scope> scopes = data.scope().orElse(Set.of());
         Duration timeout = data.timeout().orElse(Duration.ofMinutes(2));
-        String html = data.htmlSuccess().orElse(PKCE.successPage(dc.config().servers().api().toString()));
+        String html = data.htmlSuccess().orElse(PKCE.successPage(client.config().servers().api().toString()));
         //String usernameHint = data.usernameHint().orElse(null);
 
         if (data.custom().isEmpty()) {
             try {
                 var uriAndToken = PKCE.initiateAuthorizationFlow(
                         scopes,
-                        dc.config().servers().api().toString(),
-                        map -> dc.token(map),
+                        client.config().servers().api().toString(),
+                        map -> client.token(map),
                         timeout,
                         html);
 
@@ -292,7 +291,11 @@ public class PKCE {
             Supplier<CodeAndState> codeAndStateSupplier = data.custom().get().codeAndState();
 
             try {
-                var exchange = PKCE.initiateAuthorizationFlowCustom(scopes, dc.config().servers().api().toString(), map -> dc.token(map), redirectUri);
+                var exchange = PKCE.initiateAuthorizationFlowCustom(
+                        scopes,
+                        client.config().servers().api().toString(),
+                        map -> client.token(map),
+                        redirectUri);
                 @SuppressWarnings(value = {"deprecation"})
                 URI uri = exchange.url();
                 uriHandler.accept(uri);

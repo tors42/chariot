@@ -31,12 +31,12 @@ public class TeamsHandler implements TeamsAuth {
     }
 
     @Override
-    public Many<TeamMemberAuth> usersByTeamId(String teamId) {
+    public Many<TeamMember> usersByTeamId(String teamId) {
         var result = Endpoint.teamUsersById.newRequest(request -> request
                 .path(teamId))
             .process(requestHandler);
 
-        if (! (result instanceof Entries<TeamMemberAuth> many)) return result;
+        if (! (result instanceof Entries<TeamMember> many)) return result;
 
         return Many.entries(many.stream()
                 .map(member -> new TeamMemberData(member._userData(), teamId)));

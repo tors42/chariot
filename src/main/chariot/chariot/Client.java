@@ -9,7 +9,7 @@ import java.util.prefs.Preferences;
 import chariot.api.*;
 import chariot.api.Builders.*;
 import chariot.internal.*;
-import chariot.model.*;
+import chariot.internal.impl.UsersHandler;
 
 /**
  * Provides access to the <a href="https://lichess.org/api">Lichess API</a>.
@@ -58,105 +58,42 @@ import chariot.model.*;
  * The contents of the containers are typically data models from the
  * {@link chariot.model} package.
  */
-public sealed interface Client permits ClientAuth {
+public class Client extends chariot.internal.ClientBase {
+
+    Client(Config config) {
+        super(config);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public Bot bot() {
+        return botHandler;
+    }
+
+
 
     /**
      * Creates a default client
      */
-    static Client basic() {
+    public static Client basic() {
         return basic(Config.of());
     }
 
     /**
      * Access registered users on Lichess.
      */
-     <T extends User> Users<T> users();
-
-    /**
-     * Access Lichess cloud evaluations database.
-     */
-    chariot.api.Analysis analysis();
-
-    /**
-     * Access Lichess online bots.<br/>
-     * For more bot operations, see {@link chariot.ClientAuth#bot}
-     */
-    <T extends User> Bot<T> bot();
-
-    /**
-     * Relay chess events on Lichess.
-     * <p>Official broadcasts are maintained by Lichess, but you can create your own
-     * broadcasts to cover any live game or chess event. You will need to publish
-     * PGN on a public URL so that Lichess can pull updates from it.
-     * Alternatively, you can push PGN updates to Lichess using this API.
-     * <p>Broadcasts are organized in tournaments, which have several rounds, which
-     * have several games. You must first create a tournament, then you can add
-     * rounds to them.
-     */
-    Broadcasts broadcasts();
-
-    /**
-     * Open-ended challenges. For authenticated challenges, see {@link chariot.api.ChallengesAuth}
-     */
-    Challenges challenges();
-
-    /**
-     * External engine. For engine management, see {@link chariot.api.ExternalEngineAuth}
-     */
-    ExternalEngine externalEngine();
-
-    /**
-     * Access games and TV channels, played on Lichess.
-     */
-    Games games();
-
-    /**
-     * Lookup positions from the Lichess opening explorer.
-     */
-    OpeningExplorer openingExplorer();
-
-    /**
-     * Access Lichess puzzle history and dashboard.
-     */
-    Puzzles puzzles();
-
-    /**
-     * Access simuls played on Lichess.
-     */
-    chariot.api.Simuls simuls();
-
-    /**
-     * Access Lichess studies.
-     */
-    Studies studies();
-
-    /**
-     * Lookup positions from the Lichess tablebase server.
-     */
-    Tablebase tablebase();
-
-    /**
-     * Access and manage Lichess teams and their members.
-     */
-    <T extends TeamMember> Teams<T> teams();
-
-    /**
-     * Access Arena and Swiss tournaments played on Lichess.<br/>
-     */
-    Tournaments tournaments();
-
-
-    /**
-     * Use chariot for custom endpoints
-     */
-    Custom custom();
+     public Users users() {
+         return UsersHandler.of(requestHandler());
+     }
 
 
     /**
      * Creates a default client using the provided token to use the authenticated parts of the API
      * @param token A token to use for the authenticated parts of the API
      */
-    static ClientAuth auth(String token) {
+    public static ClientAuth auth(String token) {
         return auth(token::toCharArray);
     }
 
@@ -164,7 +101,7 @@ public sealed interface Client permits ClientAuth {
      * Creates a customized client
      * @param params A configuration parameters builder
      */
-    static Client basic(Consumer<ConfigBuilder> params){
+    public static Client basic(Consumer<ConfigBuilder> params){
         return basic(Config.basic(params));
     }
     /**
@@ -179,7 +116,7 @@ public sealed interface Client permits ClientAuth {
      * @param token pre-created Personal Access Token - @see
      *              <a href="https://lichess.org/account/oauth/token">Personal Access Token</a>
       */
-    default ClientAuth withToken(String token) {
+    public ClientAuth withToken(String token) {
         return withToken(token::toCharArray);
     }
 
@@ -196,11 +133,9 @@ public sealed interface Client permits ClientAuth {
      * @param token pre-created Personal Access Token - @see
      *              <a href="https://lichess.org/account/oauth/token">Personal Access Token</a>
      */
-    default ClientAuth withToken(Supplier<char[]> token) {
-        if (!(this instanceof Default current)) return null;
-        var config = current.config().withToken(token);
-        var d = Default.of(config);
-        return d;
+    public ClientAuth withToken(Supplier<char[]> token) {
+        var config = config().withToken(token);
+        return new ClientAuth(config);
     }
 
     /**
@@ -222,12 +157,12 @@ public sealed interface Client permits ClientAuth {
      */
     static ClientAuth auth(Supplier<char[]> token) { return auth(c -> {}, token); }
 
-    sealed interface AuthResult {}
-    record AuthOk(ClientAuth client) implements AuthResult {}
-    record AuthFail(String message)  implements AuthResult {}
-    record CodeAndState(String code, String state) {}
+    public sealed interface AuthResult {}
+    public record AuthOk(ClientAuth client) implements AuthResult {}
+    public record AuthFail(String message)  implements AuthResult {}
+    public record CodeAndState(String code, String state) {}
 
-    interface PkceConfig {
+    public interface PkceConfig {
 
         /**
          * @param scopes The scope/s, if any, that the resulting token should be valid for.
@@ -288,7 +223,7 @@ public sealed interface Client permits ClientAuth {
      * @param uriHandler The generated Lichess URI that your user can visit to review and approve granting access to your application
      * @param pkce Configuration of for instance which scopes if any that the resulting Access Token should include.
      */
-    default AuthResult withPkce(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
+    AuthResult withPkce(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
         return PKCE.pkceAuth(this, uriHandler, pkce);
     }
 
@@ -342,19 +277,6 @@ public sealed interface Client permits ClientAuth {
         return load(Config.load(prefs));
     }
 
-    /**
-     * Stores the client configuration into the provided preferences node<br>
-     * See {@link Client#load(Preferences)}
-     * @param prefs The preferences node to store this client configuration to
-     */
-    boolean store(Preferences prefs);
-
-    /**
-     * Clears client token information from preferences.<br>
-     * See {@link Client#load(Preferences)}
-     * @param prefs The preferences node to clear
-     */
-    default void clearAuth(Preferences prefs) { Config.clearAuth(prefs); }
 
     /**
      * Creates an authenticated customized client from a preferences node with provided token<br>
@@ -366,66 +288,30 @@ public sealed interface Client permits ClientAuth {
     }
 
 
-    /**
-     * Retrieves an Optional containing a {@code ClientAuth} if this is such a client, otherwise empty.
-     */
-    default Optional<ClientAuth> asAuth() {
-        return this instanceof Default def && def.config() instanceof Config.Auth a ? Optional.of((ClientAuth)this) : Optional.empty();
-    }
+    ///**
+    // * Retrieves an Optional containing a {@code ClientAuth} if this is such a client, otherwise empty.
+    // */
+    //Optional<ClientAuth> asAuth() {
+    //    return this instanceof Default def && def.config() instanceof Config.Auth a ? Optional.of((ClientAuth)this) : Optional.empty();
+    //}
 
     /**
      * Configure logging levels
      */
-    default void logging(Consumer<LoggingBuilder> params) {
-        var logging = ((Default) this).config().logging();
+    void logging(Consumer<LoggingBuilder> params) {
+        var logging = config().logging();
         var builder = Config.loggingBuilder(logging);
         params.accept(builder);
     }
 
     private static Client load(Config config) {
-        return Default.of(config);
+        // hmm, check if auth?
+        return new Client(config);
     }
 
     private static Client basic(Config.Basic config) {
-        return Default.of(config);
+        return new Client(config);
     }
-
-    /**
-     * Helper method for creating <a href="https://lichess.org/account/oauth/token">Personal Access Tokens</a>
-     * <p>Note, a user must create the token manually.
-     * <p>See also {@link #withPkce(Consumer, Consumer)}
-     * {@snippet :
-     * Client client = Client.basic();
-     * var url = client.personalAccessTokenForm("Token for reading preferences", Scope.preferences_read);
-     *
-     * System.out.println("Please create a token at Lichess,\nusing this pre-filled form: " + url);
-     * System.out.println("Copy and paste the token when done");
-     *
-     * // Wait for the token
-     * String token = System.console().readLine();
-     *
-     * ClientAuth clientAuth = Client.auth(token);
-     * var email = clientAuth.account().emailAddress();
-     * }
-     * @param description A description for the intended use of the token, so the user can easier recognize the token when browsing their security information.
-     * @param scopes The pre-selected scopes for the token
-     * @return A URL where user can create a token, in order to then copy the token and use as input to an application.<br>
-     * Example: https://lichess.org/account/oauth/token/create?scopes[]=challenge:write{@literal &}scopes[]=puzzle:read{@literal &}description=Prefilled+token+example
-     */
-    URI personalAccessTokenForm(String description, Scope... scopes);
-
-
-    One<TokenBulkResult> testTokens(Set<String> tokens);
-    default One<TokenBulkResult> testTokens(String... tokens) { return testTokens(Set.of(tokens)); }
-
-    /**
-     * Read which scopes are available with a token
-     * @param token
-     */
-    Set<Scope> scopes(Supplier<char[]> token);
-
-
-    default Set<Scope> scopes(String token) { return scopes(() -> token.toCharArray()); }
 
 
     /**

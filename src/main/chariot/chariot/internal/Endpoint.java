@@ -99,8 +99,8 @@ public sealed interface Endpoint<T> {
     public static EPOne<Crosstable> crosstableByUserIds =
         Endpoint.of(Crosstable.class).endpoint("/api/crosstable/%s/%s").toOne();
 
-    public static EPOne<UserAuth> userById =
-        Endpoint.of(mapper(UserData.class).andThen(UserAuth.class::cast)).endpoint("/api/user/%s").toOne();
+    public static EPOne<UserData> userById =
+        Endpoint.of(UserData.class).endpoint("/api/user/%s").toOne();
 
     public static EPMany<RatingHistory> ratingHistoryById =
         Endpoint.ofArr(RatingHistory.class).endpoint("/api/user/%s/rating-history").toMany();
@@ -135,11 +135,8 @@ public sealed interface Endpoint<T> {
     public static EPMany<UserStatus> userStatusByIds =
         Endpoint.ofArr(UserStatus.class).endpoint("/api/users/status").toMany();
 
-    public static EPMany<UserAuth> usersByIds =
-        Endpoint.ofArr(mapperArr(UserData.class)
-                .andThen(udArr -> Arrays.stream(udArr).map(UserAuth.class::cast)
-                    .toArray(UserAuth[]::new))
-                ).endpoint("/api/users").post(plain).toMany();
+    public static EPMany<UserData> usersByIds =
+        Endpoint.ofArr(UserData.class).endpoint("/api/users").post(plain).toMany();
 
     public static EPMany<String> usersNamesAutocomplete =
         Endpoint.ofArr(s -> s.substring(1, s.length()-1).replaceAll("\"", "").split(","))
@@ -160,8 +157,8 @@ public sealed interface Endpoint<T> {
     public static EPMany<Team> teamsByUserId =
         Endpoint.ofArr(Team.class).endpoint("/api/team/of/%s").toMany();
 
-    public static EPMany<TeamMemberAuth> teamUsersById =
-        Endpoint.of(mapper(TeamMemberData.class).andThen(TeamMemberAuth.class::cast)).endpoint("/api/team/%s/users")
+    public static EPMany<TeamMember> teamUsersById =
+        Endpoint.of(mapper(TeamMemberData.class).andThen(TeamMember.class::cast)).endpoint("/api/team/%s/users")
         .accept(jsonstream).scope(Scope.team_read).toMany();
 
     public static EPOne<PageTeam> popularTeamsByPage =

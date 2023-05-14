@@ -1,5 +1,6 @@
 package chariot.model;
 
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -69,4 +70,13 @@ import java.util.stream.Stream;
             many.stream() :
             Stream.of();
     }
+
+    default <R> Many<R> mapMany(Function<T, R> mapper) {
+        if (this instanceof Fail<T> f) {
+            return Many.fail(f.status(), f.info());
+        } else {
+            return Many.entries(stream().map(mapper));
+        }
+    }
+
 }

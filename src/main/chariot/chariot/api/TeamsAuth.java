@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import chariot.model.*;
 
-public interface TeamsAuth extends Teams<TeamMemberAuth> {
+public interface TeamsAuth extends Teams {
 
     /**
      * Request to join team {@code teamId}

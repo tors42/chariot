@@ -46,7 +46,7 @@ public sealed interface RequestParameters {
         }
     }
 
-    Parameters parameters();
+    public Parameters parameters();
     default String path() { return parameters().path(); }
     default String data() { return parameters().data(); }
     default InputStream dataInputStream() { return parameters().dataInputStream(); }
