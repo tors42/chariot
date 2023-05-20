@@ -4,70 +4,44 @@ import chariot.model.*;
 
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
-import chariot.internal.*;
-import chariot.internal.Util.MapBuilder;
-import chariot.internal.impl.UsersHandler;
-
-public class Users extends UsersHandler {
-
-    public Users(RequestHandler requestHandler) {
-        super(requestHandler);
-    }
+public interface Users extends UsersBase {
 
     /**
      * Get public user data
      *
      * @param userId
      */
-    public One<User> byId(String userId) { return byId(userId, p -> p.withTrophies(false)); }
+    One<User> byId(String userId);
 
 
-    public Many<User> byIds(String ... userIds) {
-        return byIds(List.of(userIds));
-    }
+    Many<User> byIds(String ... userIds);
 
-    /**
-     * Get public user data
-     *
-     * @param userId
-     * @param params
-     */
-    public One<User> byId(String userId, Consumer<UserParams> params) {
-        var result = Endpoint.userById.newRequest(request -> request
-                .path(userId)
-                .query(MapBuilder.of(UserParams.class)
-                    .addCustomHandler("withTrophies", (args, map) -> {
-                        if (args[0] instanceof Boolean b && b.booleanValue()) map.put("trophies", 1);
-                    }).toMap(params))
-                )
-            .process(super.requestHandler);
-        return result.mapOne(User.class::cast);
+//    /**
+//     * Get public user data
+//     *
+//     * @param userId
+//     * @param params
+//     */
+//    One<User> byId(String userId, Consumer<UserParams> params);
 
-    }
 
     /**
      * Get public user data
      *
      * @param userIds A list of up to 300 user ids
      */
-    public Many<User> byIds(List<String> userIds) {
-        var result = Endpoint.usersByIds.newRequest(request -> request
-                .body(userIds.stream().collect(Collectors.joining(","))))
-            .process(super.requestHandler);
-        return result.mapMany(User.class::cast);
-    }
+    Many<User> byIds(List<String> userIds);
 
 
-    public interface UserParams {
-        /**
-         * Whether or not to include any trophies in the result
-         */
-        UserParams withTrophies(boolean withTrophies);
-
-        default UserParams withTrophies() { return withTrophies(true); }
-    }
+//    public interface UserParams {
+//        /**
+//         * Whether or not to include any trophies in the result
+//         */
+//        UserParams withTrophies(boolean withTrophies);
+//
+//        default UserParams withTrophies() { return withTrophies(true); }
+//    }
 
     public interface CrosstableParams {
         /**
@@ -84,5 +58,4 @@ public class Users extends UsersHandler {
         UserStatusParams withGameIds(boolean withGameIds);
         default UserStatusParams withGameIds() { return withGameIds(true); }
     }
-
 }

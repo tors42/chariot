@@ -1,11 +1,11 @@
 package chariot.model;
 
-public interface UserAuth extends User {
-    // only available if OAuth
-
-    default boolean followable() { return _userData()._followable().orElse(false); }
-    default boolean following()  { return _userData()._following().orElse(false); }
-    default boolean followsYou() { return _userData()._followsYou().orElse(false); }
-    default boolean blocking()   { return _userData()._blocking().orElse(false); }
-    default boolean streaming()  { return _userData()._streaming().orElse(false); }
+public sealed interface UserAuth extends User permits UserProfileAuth {
+    private UserAuthFlags auth() {
+        return ((UserProfileAuth)this).auth();
+    }
+    default boolean followable() { return auth().followable(); }
+    default boolean following()  { return auth().following();  }
+    default boolean followsYou() { return auth().followsYou(); }
+    default boolean blocked()    { return auth().blocking();   }
 }

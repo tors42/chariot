@@ -19,5 +19,5 @@ public record TVChannels (
         TVChannel topRated
         )  {
 
-    public record TVChannel(LightUser user, Integer rating, String gameId) {}
+    public record TVChannel(UserCommon user, Integer rating, String gameId) {}
 }

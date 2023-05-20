@@ -39,7 +39,7 @@ public class TeamsHandler implements TeamsAuth {
         if (! (result instanceof Entries<TeamMember> many)) return result;
 
         return Many.entries(many.stream()
-                .map(member -> new TeamMemberData(member._userData(), teamId)));
+                .map(member -> new TeamMember(member.user(), teamId, member.joinedTeamAt())));
     }
 
     @Override

@@ -8,7 +8,61 @@ import static chariot.model.UserData.UserPropertyEnum.*;
 import static chariot.model.UserData.ProfilePropertyEnum.*;
 import static chariot.model.UserData.StreamerInfoPropertyEnum.*;
 
-public record UserData(Map<UserPropertyEnum, ?> properties) implements UserAuth {
+public record UserData(Map<UserPropertyEnum, ?> properties) {
+
+    public UserCommon toCommon() {
+        if (_disabled().orElse(false)) {
+            return new Disabled(_id(), _name());
+        }
+        LightUser lightUser = new LightUser(_id(), _name(), _patron().orElse(false));
+        UserCommon common = _title().map(title -> (UserCommon) new TitledUser(lightUser, title)).orElse(lightUser);
+        return common;
+    }
+
+    public User toUser() {
+        UserCommon common = toCommon();
+        Provided profile = _profile().orElse(Provided.emptyProfile);
+        UserStats stats = new UserStats(_ratings().orElse(Map.of()), _count().orElse(null));
+        UserTimes times = new UserTimes(_createdAt().orElse(null), _seenAt().orElse(null), _playTime().map(PlayTime::total).orElse(null), _playTime().map(PlayTime::tv).orElse(null));
+        UserFlags flags = new UserFlags(
+                _tosViolation().orElse(false),
+                _disabled().orElse(false),
+                _verified().orElse(false),
+                _streaming().orElse(false));
+        URI url = _url().orElse(null);
+        UserProfile profileUser = new UserProfile(common, profile, stats, times, flags, url);
+        User user = _playing().map(playingUrl -> (User) new PlayingUser(profileUser, playingUrl)).orElse(profileUser);
+        return user;
+    }
+
+    public UserAuth toUserAuth() {
+        User user = toUser();
+        UserAuthFlags auth = new UserAuthFlags(
+                _followable().orElse(false),
+                _following().orElse(false),
+                _followsYou().orElse(false),
+                _blocking().orElse(false));
+        return new UserProfileAuth(user, auth);
+    }
+
+    public UserStatus toUserStatus() {
+        UserCommon common = toCommon();
+        UStatus status = new UStatus(common, _online().orElse(false), _isPlaying().orElse(false));
+        UserStatus userStatus = _playingGameId().map(gameId -> (UserStatus) new PlayingStatus(status, gameId)).orElse(status);
+        return userStatus;
+    }
+
+    public LiveStreamer toLiveStreamer() {
+        UserCommon common = toCommon();
+        return new LiveStreamer(common);
+    }
+
+    public TeamMember toTeamMember() {
+        User user = toUser();
+        TeamMember member = new TeamMember(user, "", _joinedTeamAt().orElse(null));
+        return member;
+    }
+
 
     public UserData _userData() { return this; }
 
@@ -60,7 +114,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) implements UserAuth 
     }
 
     public String     _id()       { return property(id).orElse(null); }
-    public String     _username() { return property(username).orElseGet(() -> name()); }
+    public String     _username() { return property(username).orElseGet(() -> _name()); }
     public String     _name()     { return property(UserPropertyEnum.name).orElseGet(() -> property(username).orElse(null)); }
     Optional<String>  _title() { return property(title); }
     Optional<Boolean> _patron() { return propertyB(patron); }
@@ -71,16 +125,15 @@ public record UserData(Map<UserPropertyEnum, ?> properties) implements UserAuth 
     Optional<String>  _playingGameId() { return property(playingGameId); }
     Optional<Boolean> _tosViolation() { return propertyB(tosViolation); }
     Optional<Boolean> _disabled() { return propertyB(disabled); }
-    Optional<Boolean> _closed() { return propertyB(closed); }
     Optional<Boolean> _verified() { return propertyB(verified); }
     Optional<List<Trophy>> _trophies() { return property(trophies, Trophies.class).map(Trophies::trophies); }
     Optional<PlayTime> _playTime() { return property(playTime, PlayTime.class); }
     Optional<ZonedDateTime> _createdAt() { return property(createdAt, ZonedDateTime.class); }
     Optional<ZonedDateTime> _seenAt() { return property(seenAt, ZonedDateTime.class); }
     Optional<URI>     _url() { return property(url, URI.class); }
-    Optional<Count> _count() { return property(counts, Count.class); }
+    Optional<UserCount> _count() { return property(counts, UserCount.class); }
     Optional<Map<StatsPerfType, StatsPerf>> _ratings() { return property(ratings, Ratings.class).map(Ratings::ratings); }
-    Optional<Profile> _profile() { return property(profile, Profile.class); }
+    Optional<Provided> _profile() { return property(profile, Provided.class); }
     Optional<Boolean> _followable() { return propertyB(followable); }
     Optional<Boolean> _following() { return propertyB(following); }
     Optional<Boolean> _followsYou() { return propertyB(followsYou); }
@@ -102,9 +155,9 @@ public record UserData(Map<UserPropertyEnum, ?> properties) implements UserAuth 
     public record Trophies(List<Trophy> trophies) {}
     public record Ratings(Map<StatsPerfType, StatsPerf> ratings) {}
 
-    public record Profile(Map<ProfilePropertyEnum, ?> properties) {
+    public record Provided(Map<ProfilePropertyEnum, ?> properties) {
 
-        public static final Profile emptyProfile = new Profile(Map.of());
+        public static final Provided emptyProfile = new Provided(Map.of());
 
         public Optional<String> country() { return property(country); }
         public Optional<String> location() { return property(location); }
@@ -129,14 +182,6 @@ public record UserData(Map<UserPropertyEnum, ?> properties) implements UserAuth 
         }
     }
 
-    public record Count(
-            int all, int rated, int ai,
-            int draw, int drawH,
-            int loss, int lossH,
-            int win, int winH,
-            int bookmark, int playing,
-            int imported, // "import"
-            int me) {}
 
     public record PlayTime(Duration total, Duration tv) {}
     public record StreamInfo(String service, String status, String lang) {}

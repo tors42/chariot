@@ -1,17 +1,14 @@
 package chariot.internal;
 
 import java.net.URI;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.prefs.Preferences;
 
 import chariot.Client.Scope;
 import chariot.api.*;
 import chariot.internal.impl.*;
-import chariot.model.One;
-import chariot.model.TokenBulkResult;
-import chariot.model.TokenResult;
+import chariot.model.*;
 
 public abstract class ClientBase {
 
@@ -36,6 +33,7 @@ public abstract class ClientBase {
     protected final TeamsHandler teamsHandler;
     protected final TokenHandler tokenHandler;
     protected final TournamentsHandler tournamentsHandler;
+    protected final UsersHandler usersHandler;
     protected final CustomHandler customHandler;
 
     protected Config config() {
@@ -60,6 +58,7 @@ public abstract class ClientBase {
         teamsHandler = new TeamsHandler(client::request);
         tokenHandler = new TokenHandler(client, requestHandler());
         tournamentsHandler = new TournamentsHandler(client::request);
+        usersHandler = new UsersHandler(client::request);
         customHandler = new CustomHandler(client::request);
     }
 
@@ -143,10 +142,10 @@ public abstract class ClientBase {
      */
     public Custom custom() { return customHandler; }
 
+    //* See {@link Client#load(Preferences)}
 
     /**
      * Stores the client configuration into the provided preferences node<br>
-     * See {@link Client#load(Preferences)}
      * @param prefs The preferences node to store this client configuration to
      */
     public boolean store(Preferences prefs) {
@@ -160,11 +159,11 @@ public abstract class ClientBase {
 
 
 
+     //* <p>See also {@link #withPkce(Consumer, Consumer)}
 
     /**
      * Helper method for creating <a href="https://lichess.org/account/oauth/token">Personal Access Tokens</a>
      * <p>Note, a user must create the token manually.
-     * <p>See also {@link #withPkce(Consumer, Consumer)}
      * {@snippet :
      * Client client = Client.basic();
      * var url = client.personalAccessTokenForm("Token for reading preferences", Scope.preferences_read);

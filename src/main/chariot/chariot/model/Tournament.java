@@ -58,7 +58,7 @@ public sealed interface Tournament {
         Pos position,
         boolean hasMaxRating,
         Long secondsToStart,
-        LightUser winner,
+        UserCommon winner,
 
         Schedule schedule
 
@@ -88,7 +88,7 @@ public sealed interface Tournament {
         Pos position,
         boolean hasMaxRating,
         Long secondsToStart,
-        LightUser winner
+        UserCommon winner
 
         ) implements Tournament {
             public LocalArena {
@@ -112,7 +112,7 @@ public sealed interface Tournament {
         Perf perf,
         boolean hasMaxRating,
         Long secondsToStart,
-        LightUser winner,
+        UserCommon winner,
 
         Teams teamBattle
 

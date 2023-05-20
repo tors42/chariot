@@ -1,0 +1,87 @@
+package chariot.internal.impl;
+
+import chariot.model.*;
+
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import chariot.api.UsersAuth;
+import chariot.internal.*;
+import chariot.internal.Util.MapBuilder;
+
+public class UsersAuthHandler extends UsersBaseHandler implements UsersAuth {
+
+    public UsersAuthHandler(RequestHandler requestHandler) {
+        super(requestHandler);
+    }
+
+    //@Override
+    //public One<UserAuth> byId(String userId) { return byId(userId, p -> p.withTrophies(false)); }
+
+
+    @Override
+    public Many<UserAuth> byIds(String ... userIds) {
+        return byIds(List.of(userIds));
+    }
+
+    @Override
+    public One<UserAuth> byId(String userId) { //, Consumer<UserParams> params) {
+        var result = Endpoint.userById.newRequest(request -> request
+                .path(userId)
+                //.query(MapBuilder.of(UserParams.class)
+                //    .addCustomHandler("withTrophies", (args, map) -> {
+                //        if (args[0] instanceof Boolean b && b.booleanValue()) map.put("trophies", 1);
+                //    }).toMap(params))
+                )
+            .process(super.requestHandler);
+        return result.mapOne(UserData::toUserAuth);
+    }
+
+    @Override
+    public Many<UserAuth> byIds(List<String> userIds) {
+        var result = Endpoint.usersByIds.newRequest(request -> request
+                .body(userIds.stream().collect(Collectors.joining(","))))
+            .process(super.requestHandler);
+        return result.mapMany(UserData::toUserAuth);
+    }
+
+
+    @Override
+    public One<Void> sendMessageToUser(String userId, String text) {
+        return Endpoint.sendMessage.newRequest(request -> request
+                .path(userId)
+                .body(Map.of("text", text)))
+            .process(super.requestHandler);
+    }
+
+    @Override
+    public One<Void> followUser(String userId) {
+        return Endpoint.followUser.newRequest(request -> request
+                .path(userId))
+            .process(super.requestHandler);
+    }
+
+    @Override
+    public One<Void> unfollowUser(String userId) {
+        return Endpoint.unfollowUser.newRequest(request -> request
+                .path(userId))
+            .process(super.requestHandler);
+    }
+
+    @Override
+    public Many<String> autocompleteNames(String term, boolean friend) {
+        return Endpoint.usersNamesAutocomplete.newRequest(request -> request
+                .query(Map.of("term", term, "object", "false", "friend", Boolean.toString(friend))))
+            .process(super.requestHandler);
+    }
+
+    @Override
+    public Many<UserStatus> autocompleteUsers(String term, boolean friend) {
+        return Endpoint.usersStatusAutocomplete.newRequest(request -> request
+                .query(Map.of("term", term, "object", "true", "friend", Boolean.toString(friend))))
+            .process(super.requestHandler);
+    }
+
+
+}

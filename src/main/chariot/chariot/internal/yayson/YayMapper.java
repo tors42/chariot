@@ -39,8 +39,15 @@ public class YayMapper {
 
 
     public <T> T fromString(String json, Class<T> cls) {
+
         try {
             var node = Parser.fromString(json);
+
+            if (config.customMappings().containsKey(cls)) {
+                var f = config.customMappings().get(cls);
+                return cls.cast(f.apply(node));
+            }
+
             // Here be dragons...
             T t = fromYayTree(node, cls);
             return t;
@@ -61,16 +68,16 @@ public class YayMapper {
     public <T> T fromYayTree(YayNode node, Class<T> cls) {
         try {
 
+        if (config.customMappings().containsKey(cls)) {
+            var f = config.customMappings().get(cls);
+            return cls.cast(f.apply(node));
+        }
+
         if (cls.isInterface() && cls.isSealed()) {
 
             return buildFromSealedInterface(node, cls, Optional.empty());
 
         } else if (cls.isRecord()) {
-
-            if (config.customMappings().containsKey(cls)) {
-                var f = config.customMappings().get(cls);
-                return cls.cast(f.apply(node));
-            }
 
             var rcomp = Arrays.asList(cls.getRecordComponents());
 
@@ -162,6 +169,11 @@ public class YayMapper {
 
     private <T> T buildFromSealedInterface(YayNode node, Class<T> cls, Optional<ParameterizedType> parameterizedType) {
 
+        if (config.customMappings().containsKey(cls)) {
+            var f = config.customMappings().get(cls);
+            return cls.cast(f.apply(node));
+        }
+
         if (node instanceof YayEmpty empty) {
             List<Class<?>> permittedRecordSubclasses = permittedRecordClassesOfSealedInterfaceHierarchy(cls);
             var opt = permittedRecordSubclasses.stream()
@@ -234,6 +246,12 @@ public class YayMapper {
     }
 
     private <T> T buildFromClass(YayNode node, Class<T> cls, Optional<ParameterizedType> parameterizedType) {
+
+        if (config.customMappings().containsKey(cls)) {
+            var f = config.customMappings().get(cls);
+            return cls.cast(f.apply(node));
+        }
+
         if (cls.isRecord()) {
             T r = fromYayTree(node, cls);
             return r;

@@ -9,7 +9,6 @@ import java.util.prefs.Preferences;
 import chariot.api.*;
 import chariot.api.Builders.*;
 import chariot.internal.*;
-import chariot.internal.impl.UsersHandler;
 
 /**
  * Provides access to the <a href="https://lichess.org/api">Lichess API</a>.
@@ -64,15 +63,29 @@ public class Client extends chariot.internal.ClientBase {
         super(config);
     }
 
-
-    /**
-     * {@inheritDoc}
-     */
-    public Bot bot() {
-        return botHandler;
+    /** Access registered users on Lichess. */
+    public Users users() {
+        return super.usersHandler;
     }
 
+    /** {@inheritDoc} */ @Override public Analysis analysis() { return super.analysis(); }
+    /** {@inheritDoc} */ @Override public Bot bot() { return super.bot(); }
+    /** {@inheritDoc} */ @Override public Broadcasts broadcasts() { return super.broadcasts(); }
+    /** {@inheritDoc} */ @Override public Challenges challenges() { return super.challenges(); }
+    /** {@inheritDoc} */ @Override public ExternalEngine externalEngine() { return super.externalEngine(); }
+    /** {@inheritDoc} */ @Override public Games games() { return super.games(); }
+    /** {@inheritDoc} */ @Override public OpeningExplorer openingExplorer() { return super.openingExplorer(); }
+    /** {@inheritDoc} */ @Override public Puzzles puzzles() { return super.puzzles();}
+    /** {@inheritDoc} */ @Override public Simuls simuls() { return super.simuls(); }
+    /** {@inheritDoc} */ @Override public Studies studies() { return super.studies(); }
+    /** {@inheritDoc} */ @Override public Tablebase tablebase() { return super.tablebase(); }
+    /** {@inheritDoc} */ @Override public Teams teams() { return teamsHandler; }
+    /** {@inheritDoc} */ @Override public Tournaments tournaments() { return super.tournaments(); }
+    /** {@inheritDoc} */ @Override public Custom custom() { return super.custom(); }
 
+
+
+    /** {@inheritDoc} */ @Override public boolean store(Preferences prefs) { return super.store(prefs); }
 
     /**
      * Creates a default client
@@ -80,13 +93,6 @@ public class Client extends chariot.internal.ClientBase {
     public static Client basic() {
         return basic(Config.of());
     }
-
-    /**
-     * Access registered users on Lichess.
-     */
-     public Users users() {
-         return UsersHandler.of(requestHandler());
-     }
 
 
     /**

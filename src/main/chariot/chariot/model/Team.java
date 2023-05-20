@@ -5,7 +5,7 @@ public record Team (
         String name,
         String description,
         boolean open,
-        LightUser leader,
-        java.util.List<LightUser> leaders,
+        UserCommon leader,
+        java.util.List<UserCommon> leaders,
         Integer nbMembers
         )  {}

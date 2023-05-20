@@ -55,7 +55,7 @@ public class ModelMapper {
         mapper.setMappings(Game.class,                     ModelMapperUtil.createdAtAndLastMoveAtMapping());
         mapper.setMappings(MoveInfo.GameSummary.class,     ModelMapperUtil.createdAtMapping());
         mapper.setMappings(GameStateEvent.Full.class,      ModelMapperUtil.createdAtMapping());
-        mapper.setMappings(UserData.Count.class,           ModelMapperUtil.importMapping());
+        mapper.setMappings(UserCount.class,                ModelMapperUtil.importMapping());
         mapper.setMappings(TVChannels.class,               ModelMapperUtil.tvChannelsMapping());
         mapper.setMappings(Variant.class,                  ModelMapperUtil.shortMapping());
         mapper.setMappings(Broadcast.Round.class,          ModelMapperUtil.startsAtMapping());
@@ -209,7 +209,7 @@ public class ModelMapper {
                                             Duration.ofSeconds(entry.getValue() instanceof YayObject playYo
                                                 ? playYo.getLong("tv") : 0)));
                     case "count"        -> entry.getValue() instanceof YayObject countYo
-                            ? counts.of(mapper.fromYayTree(countYo, Count.class))
+                            ? counts.of(mapper.fromYayTree(countYo, UserCount.class))
                             : UserPropertyEnum.unmapped.of(entry);
                     case "perfs" -> entry.getValue() instanceof YayObject perfsYo
                             ? ratings.of(new Ratings(perfsYo.value().entrySet().stream().collect(Collectors.toUnmodifiableMap(
@@ -235,7 +235,7 @@ public class ModelMapper {
                                 default           -> ProfilePropertyEnum.unmapped.of(profileEntry);
                             })
                             .collect(Collectors.toUnmodifiableMap(Property::key, Property::value));
-                        yield profile.of(new Profile(map.isEmpty() ? Map.of() : new EnumMap<>(map)));
+                        yield profile.of(new Provided(map.isEmpty() ? Map.of() : new EnumMap<>(map)));
                     }
                     case "stream" -> entry.getValue() instanceof YayObject streamYo
                         ? streamInfo.of(mapper.fromYayTree(streamYo, UserData.StreamInfo.class))
@@ -293,14 +293,9 @@ public class ModelMapper {
             return null;
         });
 
-        mappings.put(TeamMemberData.class, json -> {
-            var userData = mapper.fromString(json, UserData.class);
-            return new TeamMemberData(userData, ""); // teamId will be replaced, see TeamsHandler.usersByTeamId(String teamId)
-        });
-
         Function<YayNode, UserStatus> userStatusMapper = node -> {
             var userData = mapper.fromYayTree(node, UserData.class);
-            return new UserStatus(userData);
+            return userData.toUserStatus();
         };
         mapper.setCustomMapper(UserStatus.class, userStatusMapper);
 
@@ -311,7 +306,7 @@ public class ModelMapper {
 
         Function<YayNode, LiveStreamer> streamerStatusMapper = node -> {
             var userData = mapper.fromYayTree(node, UserData.class);
-            return new LiveStreamer(userData);
+            return userData.toLiveStreamer();
         };
         mapper.setCustomMapper(LiveStreamer.class, streamerStatusMapper);
 
@@ -320,15 +315,98 @@ public class ModelMapper {
             return streamerStatusMapper.apply(node);
         });
 
-        Function<YayNode, LightUser> lightUserMapper = node -> {
-            var userData = mapper.fromYayTree(node, UserData.class);
-            return new LightUser(userData);
+        Function<YayNode, TVFeedEvent.PlayerInfo> playerInfoMapper = node -> {
+            if (node instanceof YayObject yo) {
+                var userData = mapper.fromYayTree(yo.value().get("user"), UserData.class);
+                UserCommon common = userData.toCommon();
+                chariot.model.Enums.Color color = chariot.model.Enums.Color.valueOf(yo.getString("color"));
+                var rating = yo.getNumber("rating").intValue();
+                var seconds = yo.getNumber("seconds").intValue();
+                var pi = new TVFeedEvent.PlayerInfo(common, color, rating, seconds);
+                return pi;
+            }
+            return null;
         };
-        mapper.setCustomMapper(LightUser.class, lightUserMapper);
+        mapper.setCustomMapper(TVFeedEvent.PlayerInfo.class, playerInfoMapper);
 
-        mappings.put(LightUser.class, json -> {
+        mappings.put(TVFeedEvent.PlayerInfo.class, json -> {
             var node = Parser.fromString(json);
-            return lightUserMapper.apply(node);
+            return playerInfoMapper.apply(node);
+        });
+
+        /////
+        Function<YayNode, Player> gamePlayerMapper = node -> {
+            if (node instanceof YayObject yo) {
+                Player player = null;
+                if (yo.value().containsKey("aiLevel")) {
+                    player = new Player.AI(yo.getNumber("aiLevel").intValue());
+                } else if (! yo.value().containsKey("user")) {
+                    player = new Player.Anonymous();
+                } else if (yo.value().get("user") instanceof YayObject userObject) {
+                    var userData = mapper.fromYayTree(userObject, UserData.class);
+                    UserCommon common = userData.toCommon();
+
+                    // rating
+                    // provisional
+                    // Opt berserk
+                    // Opt team
+                    int rating = yo.getNumber("rating").intValue();
+                    boolean provisional = yo.getBool("provisional");
+
+                    player = new Player.Account(common, rating, provisional);
+
+                    Optional<Boolean> berserk = yo.value().containsKey("berserk")
+                        ? Optional.of(yo.getBool("berserk"))
+                        : Optional.empty();
+                    Optional<String> team = yo.value().containsKey("team")
+                        ? Optional.of(yo.getString("team"))
+                        : Optional.empty();
+
+                    if (berserk.isPresent() || team.isPresent()) {
+                        player = new Player.AccountArena(player, berserk, team);
+                    }
+                }
+
+                if (yo.value().containsKey("ratingDiff")) {
+                    player = new Player.AccountDiff(player, yo.getNumber("ratingDiff").intValue());
+                }
+
+                if (yo.value().get("analysis") instanceof YayObject analysisObject) {
+                    var basic = new Player.Base(
+                                analysisObject.getNumber("inaccuracy").intValue(),
+                                analysisObject.getNumber("mistake").intValue(),
+                                analysisObject.getNumber("blunder").intValue(),
+                                analysisObject.getNumber("acpl").intValue());
+
+                    Player.Analysis analysis = basic;
+                    if (analysisObject.value().containsKey("accuracy")) {
+                        analysis = new Player.Accuracy(basic, analysisObject.getNumber("accuracy").intValue());
+                    }
+
+                    player = new Player.Analyzed(player, analysis);
+                }
+                return player;
+            }
+            return null;
+        };
+        mapper.setCustomMapper(Player.class, gamePlayerMapper);
+
+        mappings.put(Player.class, json -> {
+            var node = Parser.fromString(json);
+            return gamePlayerMapper.apply(node);
+        });
+
+
+        Function<YayNode, UserCommon> userCommonMapper = node -> {
+            var userData = mapper.fromYayTree(node, UserData.class);
+            var common = userData.toCommon();
+            return common;
+        };
+        mapper.setCustomMapper(UserCommon.class, userCommonMapper);
+
+        mappings.put(UserCommon.class, json -> {
+            var node = Parser.fromString(json);
+            return userCommonMapper.apply(node);
         });
 
         mappingsArr.put(UserStatus.class, json -> {
@@ -345,12 +423,12 @@ public class ModelMapper {
             }
             return streamerStatusMapper.apply(node);
         });
-        mappingsArr.put(LightUser.class, json -> {
+        mappingsArr.put(UserCommon.class, json -> {
             var node = Parser.fromString(json);
             if (node instanceof YayArray yarr) {
-                return yarr.value().stream().map(lightUserMapper).toArray(LightUser[]::new);
+                return yarr.value().stream().map(userCommonMapper).toArray(UserCommon[]::new);
             }
-            return lightUserMapper.apply(node);
+            return userCommonMapper.apply(node);
         });
 
 

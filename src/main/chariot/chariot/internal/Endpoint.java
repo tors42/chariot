@@ -120,7 +120,7 @@ public sealed interface Endpoint<T> {
         .accept(chesspgn).toOne();
 
     public static EPMany<UserAuth> relFollowing =
-        Endpoint.of(mapper(UserData.class).andThen(UserAuth.class::cast))
+        Endpoint.of(mapper(UserData.class).andThen(UserData::toUserAuth))
         .endpoint("/api/rel/following").scope(Scope.follow_read).accept(jsonstream).toMany();
 
     public static EPOne<Void> followUser =
@@ -145,7 +145,9 @@ public sealed interface Endpoint<T> {
     public static EPMany<UserStatus> usersStatusAutocomplete =
         Endpoint.ofArr(UserStatus.class).endpoint("/api/player/autocomplete")
         .streamMapper(stream -> stream.map(mapper(AutocompleteWrapper.class))
-                .filter(Objects::nonNull).flatMap(wrapper -> wrapper.result().stream()))
+                .filter(Objects::nonNull)
+                .flatMap(wrapper -> wrapper.result().stream())
+                .map(UserData::toUserStatus))
         .toMany();
 
     public static EPMany<LiveStreamer> liveStreamers =
@@ -158,7 +160,7 @@ public sealed interface Endpoint<T> {
         Endpoint.ofArr(Team.class).endpoint("/api/team/of/%s").toMany();
 
     public static EPMany<TeamMember> teamUsersById =
-        Endpoint.of(mapper(TeamMemberData.class).andThen(TeamMember.class::cast)).endpoint("/api/team/%s/users")
+        Endpoint.of(mapper(UserData.class).andThen(UserData::toTeamMember)).endpoint("/api/team/%s/users")
         .accept(jsonstream).scope(Scope.team_read).toMany();
 
     public static EPOne<PageTeam> popularTeamsByPage =
@@ -540,7 +542,7 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Void.class).endpoint("/api/board/game/%s/berserk").scope(Scope.board_play).toOne();
 
     public static EPMany<User> botsOnline =
-        Endpoint.of(mapper(UserData.class).andThen(User.class::cast)).endpoint("/api/bot/online").accept(jsonstream).toMany();
+        Endpoint.of(mapper(UserData.class).andThen(UserData::toUser)).endpoint("/api/bot/online").accept(jsonstream).toMany();
 
     public static EPOne<Void> botAccountUpgrade =
         Endpoint.of(Void.class).endpoint("/api/bot/account/upgrade").post().scope(Scope.bot_play).toOne();
@@ -590,7 +592,7 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Void.class).endpoint("/api/external-engine/work/%s").post(plain).target(ServerType.engine).toOne();
 
 
-    static record AutocompleteWrapper(List<UserStatus> result) {}
+    static record AutocompleteWrapper(List<UserData> result) {}
     static record BulkPairingWrapper(List<BulkPairing> bulks) {}
     static record PlayingWrapper(List<MyGameInfo> nowPlaying)  {}
     static record AccountEmail(String email)  {}

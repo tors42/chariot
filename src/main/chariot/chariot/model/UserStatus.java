@@ -2,8 +2,20 @@ package chariot.model;
 
 import java.util.Optional;
 
-public record UserStatus(UserData _userData) implements UserCommon {
-    public boolean          online()        { return _userData()._online().orElse(false); }
-    public boolean          playing()       { return _userData()._isPlaying().orElse(false); }
-    public Optional<String> playingGameId() { return _userData()._playingGameId(); }
+public sealed interface UserStatus extends UserCommon permits UStatus, PlayingStatus {
+
+    private UStatus ustatus() {
+        if (this instanceof UStatus ustatus) return ustatus;
+        if (this instanceof PlayingStatus playingStatus) return playingStatus.status();
+        return null;
+    }
+
+    default boolean          online() { return ustatus().online(); }
+    default boolean          playing() { return ustatus().playing(); }
+    default Optional<String> playingGameId() {
+        if (this instanceof PlayingStatus playingStatus) {
+            return Optional.of(playingStatus.gameId());
+        }
+        return Optional.empty();
+    }
 }

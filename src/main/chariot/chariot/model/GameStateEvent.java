@@ -21,8 +21,8 @@ public sealed interface GameStateEvent {
             String speed,
             Perf perf,
             Long createdTime,
-            LightUser white,
-            LightUser black,
+            UserCommon white,
+            UserCommon black,
             String initialFen,
             State state
             ) implements GameStateEvent {

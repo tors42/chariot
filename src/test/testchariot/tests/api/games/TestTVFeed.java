@@ -22,11 +22,11 @@ public class TestTVFeed {
         var expected = List.of(
                 new TVFeedEvent("featured", new Featured(
                         "qVSOPtMc", Color.black, List.of(
-                            new TVFeedEvent.PlayerInfo(LightUser.of(
-                                    "lizen9", "lizen9", "GM", false),
+                            new TVFeedEvent.PlayerInfo(new TitledUser(new LightUser(
+                                    "lizen9", "lizen9", false), "GM"),
                                 Color.white, 2531, 600),
-                            new TVFeedEvent.PlayerInfo(LightUser.of(
-                                    "lizen29", "lizen29", "WGM", false),
+                            new TVFeedEvent.PlayerInfo(new TitledUser(new LightUser(
+                                    "lizen29", "lizen29", false), "WGM"),
                                 Color.black, 2594, 600)),
                         "rnbqk1r1/ppp1ppbp/8/N2p2p1/8/1PQPP3/P1P2PPn/R1B1K1NR")),
                 new TVFeedEvent("fen", new Fen(

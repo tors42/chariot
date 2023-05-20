@@ -1,6 +1,6 @@
 package chariot.model;
 
-public record LiveStreamer(UserData _userData) implements UserCommon {
+public record LiveStreamer(UserCommon user) {
     public boolean streaming() { return true; }
     public boolean online()    { return true; }
 }

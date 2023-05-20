@@ -1,32 +1,45 @@
 package chariot.model;
 
 import java.net.URI;
-import java.time.Duration;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.*;
+import java.util.*;
 
-import chariot.model.UserData.Count;
-import chariot.model.UserData.PlayTime;
-import chariot.model.UserData.Profile;
+import chariot.model.UserData.Provided;
 
-public interface User extends UserCommon {
-    default boolean           tosViolation()   { return _userData()._tosViolation().orElse(false); }
-    default boolean           closed()         { return _userData()._closed().orElse(false); }
-    default boolean           disabled()       { return _userData()._disabled().orElse(false); }
-    default boolean           verified()       { return _userData()._verified().orElse(false); }
-    default Map<StatsPerfType, StatsPerf> ratings() { return _userData()._ratings().orElse(Map.of()); }
-    default ZonedDateTime     createdAt()      { return _userData()._createdAt().orElse(null); }
-    default ZonedDateTime     seenAt()         { return _userData()._seenAt().orElse(null); }
-    default URI               url()            { return _userData()._url().orElse(null); }
-    default Duration          playTimeTotal()  { return _userData()._playTime().map(PlayTime::total).orElse(null); }
-    default Duration          playTimeTv()     { return _userData()._playTime().map(PlayTime::tv).orElse(null); }
-    default Count             accountStats()   { return _userData()._count().orElse(null); }
-    default Profile           profile()        { return _userData()._profile().orElse(Profile.emptyProfile); }
-    default Optional<URI>     playingUri()     { return _userData()._playing(); }
-    // only available if requested trophies,
-    // so using Optional instead of empty list,
-    // as an empty list could be interpreted as the user hasn't earned any trophies.
-    default Optional<List<Trophy>> trophies() { return _userData()._trophies(); }
+public sealed interface User extends UserCommon permits UserAuth, UserProfile, PlayingUser {
+
+    private User user() {
+        if (this instanceof PlayingUser playingUser) return playingUser.user();
+        if (this instanceof UserProfileAuth userProfileAuth) return userProfileAuth.user();
+        return this;
+    }
+
+    private UserProfile userProfile() {
+        var user = user();
+        if (user instanceof UserProfile userProfile) return userProfile;
+        if (user instanceof PlayingUser playingUser) return playingUser.user();
+        if (user instanceof UserProfileAuth userProfileAuth) return userProfileAuth.user().userProfile();
+        return null;
+    }
+
+    default boolean           tosViolation()  { return userProfile().flags().tosViolation(); }
+    default boolean           disabled()      { return userProfile().flags().disabled();     }
+    default boolean           verified()      { return userProfile().flags().verified();     }
+    default Map<StatsPerfType, StatsPerf> ratings() { return userProfile().stats().ratings();}
+    default ZonedDateTime     createdAt()     { return userProfile().times().created();      }
+    default ZonedDateTime     seenAt()        { return userProfile().times().seen();         }
+    default Duration          playTimeTotal() { return userProfile().times().played();       }
+    default Duration          playTimeTv()    { return userProfile().times().featured();     }
+    default UserCount         accountStats()  { return userProfile().stats().counts();       }
+    default Provided          profile()       { return userProfile().profile();              }
+    default URI               url()           { return userProfile().url();                  }
+
+    default Optional<URI>     playingUri() {
+        var user = user();
+        if (user instanceof UserProfileAuth userProfileAuth) {
+            user = userProfileAuth.user();
+        }
+        if (user instanceof PlayingUser playingUser) return Optional.of(playingUser.url());
+        return Optional.empty();
+    }
 }
