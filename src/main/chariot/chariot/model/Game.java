@@ -2,8 +2,7 @@ package chariot.model;
 
 import java.util.List;
 
-import chariot.model.Enums.Color;
-import chariot.model.Enums.GameVariant;
+import chariot.model.Enums.*;
 import chariot.internal.Util;
 import static chariot.internal.Util.orEmpty;
 
@@ -43,7 +42,6 @@ public record Game (
         daysPerTurn = daysPerTurn == null ? 0 : daysPerTurn;
     }
 
-    public enum Status { created, started, aborted, mate, resign, stalemate, timeout, draw, outoftime, cheat, noStart, unknownFinish, variantEnd }
 
     public java.time.ZonedDateTime createdAt() {
         return Util.fromLong(createdTime());

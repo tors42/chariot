@@ -10,6 +10,10 @@ import java.util.stream.*;
 import chariot.internal.yayson.*;
 import chariot.internal.yayson.Parser.*;
 import chariot.model.*;
+import chariot.model.Enums.Color;
+import chariot.model.Enums.ColorPref;
+import chariot.model.Enums.Speed;
+import chariot.model.Enums.Status;
 import chariot.model.UserData.*;
 import static chariot.model.UserData.UserPropertyEnum.name;
 import static chariot.model.UserData.UserPropertyEnum.*;
@@ -176,6 +180,7 @@ public class ModelMapper {
             if (! (yayNode instanceof YayObject yo)) return data;
 
             var mappedUserProperties = yo.value().entrySet().stream()
+                .filter(entry -> ! (entry.getValue() instanceof YayNull)) // Skip null-entries from Lichess
                 .map(entry -> switch(entry.getKey()) {
                     case "id"           -> id.of(yo.getString(entry.getKey()));
                     case "username"     -> username.of(yo.getString(entry.getKey()));
@@ -320,8 +325,8 @@ public class ModelMapper {
                 var userData = mapper.fromYayTree(yo.value().get("user"), UserData.class);
                 UserCommon common = userData.toCommon();
                 chariot.model.Enums.Color color = chariot.model.Enums.Color.valueOf(yo.getString("color"));
-                var rating = yo.getNumber("rating").intValue();
-                var seconds = yo.getNumber("seconds").intValue();
+                var rating = yo.getInteger("rating");
+                var seconds = yo.getInteger("seconds");
                 var pi = new TVFeedEvent.PlayerInfo(common, color, rating, seconds);
                 return pi;
             }
@@ -339,7 +344,7 @@ public class ModelMapper {
             if (node instanceof YayObject yo) {
                 Player player = null;
                 if (yo.value().containsKey("aiLevel")) {
-                    player = new Player.AI(yo.getNumber("aiLevel").intValue());
+                    player = new Player.AI(yo.getInteger("aiLevel"));
                 } else if (! yo.value().containsKey("user")) {
                     player = new Player.Anonymous();
                 } else if (yo.value().get("user") instanceof YayObject userObject) {
@@ -350,7 +355,7 @@ public class ModelMapper {
                     // provisional
                     // Opt berserk
                     // Opt team
-                    int rating = yo.getNumber("rating").intValue();
+                    int rating = yo.getInteger("rating");
                     boolean provisional = yo.getBool("provisional");
 
                     player = new Player.Account(common, rating, provisional);
@@ -368,19 +373,19 @@ public class ModelMapper {
                 }
 
                 if (yo.value().containsKey("ratingDiff")) {
-                    player = new Player.AccountDiff(player, yo.getNumber("ratingDiff").intValue());
+                    player = new Player.AccountDiff(player, yo.getInteger("ratingDiff"));
                 }
 
                 if (yo.value().get("analysis") instanceof YayObject analysisObject) {
                     var basic = new Player.Base(
-                                analysisObject.getNumber("inaccuracy").intValue(),
-                                analysisObject.getNumber("mistake").intValue(),
-                                analysisObject.getNumber("blunder").intValue(),
-                                analysisObject.getNumber("acpl").intValue());
+                                analysisObject.getInteger("inaccuracy"),
+                                analysisObject.getInteger("mistake"),
+                                analysisObject.getInteger("blunder"),
+                                analysisObject.getInteger("acpl"));
 
                     Player.Analysis analysis = basic;
                     if (analysisObject.value().containsKey("accuracy")) {
-                        analysis = new Player.Accuracy(basic, analysisObject.getNumber("accuracy").intValue());
+                        analysis = new Player.Accuracy(basic, analysisObject.getInteger("accuracy"));
                     }
 
                     player = new Player.Analyzed(player, analysis);
@@ -430,6 +435,228 @@ public class ModelMapper {
             }
             return userCommonMapper.apply(node);
         });
+
+
+
+
+
+        Function<YayNode, Event> eventMapper = node -> {
+
+            if (! (node instanceof YayObject yo)) return null;
+
+            String eventType = yo.getString("type");
+            Event event = switch(eventType) {
+
+                case "gameStart",
+                     "gameFinish" -> {
+
+                    Event.GameEvent gameEvent = null;
+
+                    if (! (yo.value().get("game") instanceof YayObject gameYo)) yield gameEvent;
+
+                    var gameId = gameYo.getString("gameId");
+                    var fullId = gameYo.getString("fullId");
+                    var fen = gameYo.getString("fen");
+                    var color = Color.valueOf(gameYo.getString("color"));
+                    var lastMove = gameYo.getString("lastMove");
+                    var status = Status.valueOf(((YayObject) gameYo.value().get("status")).getInteger("id"));
+
+                    VariantType variantType = null;
+                    if (gameYo.value().get("variant") instanceof YayObject varYo) {
+                        String key = varYo.getString("key");
+                        variantType = switch(key) {
+                            case "fromPosition" -> new VariantType.FromPosition(
+                                            "gameStart".equals(eventType) ? gameYo.getString("fen") : ""); // gameFinish unknown fen
+                            default -> VariantType.Variant.valueOf(key);
+                        };
+                    }
+
+                    var speed = Speed.valueOf(gameYo.getString("speed"));
+                    var secondsLeft = gameYo.getInteger("secondsLeft");
+                    GameInfo.TimeInfo timeInfo = secondsLeft == null
+                        ? new GameInfo.Basic(speed) : new GameInfo.SecondsLeft(speed, secondsLeft);
+
+                    var rated = gameYo.getBool("rated");
+
+                    var hasMoved = gameYo.getBool("hasMoved");
+                    var isMyTurn = gameYo.getBool("isMyTurn");
+
+                    // opponent
+
+                    GameInfo.Opponent opponent = null;
+                    if (gameYo.value().get("opponent") instanceof YayObject oppYo) {
+                        Integer aiLevel = oppYo.getInteger("ai");
+                        String id = oppYo.getString("id");
+                        String username = oppYo.getString("username");
+                        if (aiLevel != null) {
+                            opponent = username == null ? new GameInfo.AI(aiLevel, "Level %d".formatted(aiLevel)) : new GameInfo.AI(aiLevel, username);
+                        } else if(id == null) {
+                            opponent = new GameInfo.Anonymous();
+                        } else {
+                            int rating = oppYo.getInteger("rating");
+                            Integer ratingDiff = oppYo.getInteger("ratingDiff");
+                            var account = new GameInfo.Account(id, username, rating);
+                            opponent = ratingDiff == null ? account : new GameInfo.AccountDiff(account, ratingDiff);
+                        }
+                    }
+
+                    var source = gameYo.getString("source");
+
+                    GameInfo.TournamentInfo tournamentInfo = new GameInfo.None();
+                    String swissId = gameYo.getString("swissId");
+                    String arenaId = gameYo.getString("tournamentId");
+                    if (swissId != null) {
+                        tournamentInfo = new GameInfo.SwissId(swissId);
+                    } else if(arenaId != null) {
+                        tournamentInfo = new GameInfo.ArenaId(arenaId);
+                    }
+
+                    var gameInfo = new GameInfo(fullId, gameId, fen,
+                            color, status, variantType, timeInfo,
+                            rated, hasMoved, isMyTurn, opponent,
+                            source, tournamentInfo);
+
+                    Event.Compat compat = null;
+                    if (gameYo.value().get("compat") instanceof YayObject compatYo) {
+                        compat = new Event.Compat(compatYo.getBool("bot"), compatYo.getBool("board"));
+                    }
+
+                    gameEvent = switch(eventType) {
+                        case "gameStart" -> new Event.GameStartEvent(gameInfo, compat);
+                        case "gameFinish" -> {
+                            var ratingDiff = gameYo.getInteger("ratingDiff");
+                            Enums.Outcome outcome = status.status() > 25 ? Enums.Outcome.draw : Enums.Outcome.none;
+                            String winner = gameYo.getString("winner");
+                            if (winner != null) {
+                                outcome  = Color.valueOf(winner) == color ? Enums.Outcome.win : Enums.Outcome.loss;
+                            }
+                            Event.Result result = ratingDiff == null ? new Event.Casual(outcome) : new Event.Rated(outcome, ratingDiff);
+
+                            yield new Event.GameStopEvent(gameInfo, lastMove, result, compat);
+                        }
+                        default -> null;
+                    };
+
+
+                    yield gameEvent;
+                }
+
+                case "challenge",
+                     "challengeCanceled",
+                     "challengeDeclined" -> {
+
+                    Event.ChallengeEvent challengeEvent = null;
+
+                    if (! (yo.value().get("challenge") instanceof YayObject challengeYo)) yield challengeEvent;
+
+                    String id = challengeYo.getString("id");
+                    URI url = URI.create(challengeYo.getString("url"));
+
+                    var challengerYo = (YayObject) challengeYo.value().get("challenger");
+
+                    var challenger = new ChallengeInfo.Player(
+                            userCommonMapper.apply(challengerYo),
+                            challengerYo.getNumber("rating").intValue(),
+                            challengerYo.getBool("provisional"),
+                            challengerYo.getBool("online"));
+
+                    var challengedYo = (YayObject) challengeYo.value().get("challenged");
+
+                    var challenged = challengedYo == null
+                        ? null
+                        : new ChallengeInfo.Player(
+                                userCommonMapper.apply(challengedYo),
+                                challengedYo.getNumber("rating").intValue(),
+                                challengedYo.getBool("provisional"),
+                                challengedYo.getBool("online"));
+
+                    ChallengeInfo.Players players = challenged == null
+                        ? new ChallengeInfo.Open(challenger)
+                        : new ChallengeInfo.Targeted(challenger, challenged);
+
+                    boolean rated = challengeYo.getBool("rated");
+                    Speed speed = Speed.valueOf(challengeYo.getString("speed"));
+
+                    ChallengeInfo.TimeControl timeControl = null;
+
+                    if (challengeYo.value().get("timeControl") instanceof YayObject timeYo) {
+                        timeControl = switch(timeYo.getString("type")) {
+                            case "unlimited" -> new ChallengeInfo.Unlimited();
+                            case "correspondence" -> new ChallengeInfo.Correspondence(timeYo.getNumber("daysPerTurn").intValue());
+                            case "clock" -> new ChallengeInfo.RealTime(
+                                    timeYo.getNumber("limit").intValue(),
+                                    timeYo.getNumber("increment").intValue(),
+                                    timeYo.getString("show"),
+                                    speed);
+                            default -> null;
+                        };
+                    }
+
+                    VariantType variantType = null;
+                    if (challengeYo.value().get("variant") instanceof YayObject varYo) {
+                        String key = varYo.getString("key");
+                        variantType = switch(key) {
+                            case "fromPosition" -> new VariantType.FromPosition(challengeYo.getString("initialFen"));
+                            default -> VariantType.Variant.valueOf(key);
+                        };
+                    }
+
+                    var gameType = new ChallengeInfo.GameType(rated, variantType, timeControl);
+
+                    var colorInfo = new ChallengeInfo.ColorInfo(
+                            ColorPref.valueOf(challengeYo.getString("color")),
+                            Color.valueOf(challengeYo.getString("finalColor")));
+
+                    var challengeInfo = new ChallengeInfo(id, url, players, gameType, colorInfo);
+
+
+                    Event.Compat compat = null;
+
+                    if (yo.value().get("compat") instanceof YayObject compatYo) {
+                        compat = new Event.Compat(compatYo.getBool("bot"), compatYo.getBool("board"));
+                    }
+
+                    challengeEvent = switch(eventType) {
+                        case "challenge" -> {
+                            String rematchOf = challengeYo.getString("rematchOf");
+                            yield rematchOf == null
+                                ? new Event.ChallengeCreatedEvent(challengeInfo, compat)
+                                : new Event.ChallengeRematchEvent(challengeInfo, rematchOf, compat);
+                        }
+                        case "challengeCanceled" -> new Event.ChallengeCanceledEvent(challengeInfo);
+                        case "challengeDeclined" -> new Event.ChallengeDeclinedEvent(challengeInfo,
+                                            new Event.DeclineReason(
+                                                challengeYo.getString("declineReasonKey"),
+                                                challengeYo.getString("declineReason")));
+                        default -> null;
+                    };
+
+                    yield challengeEvent;
+                }
+
+                default -> null;
+            };
+
+            return event;
+        };
+        mapper.setCustomMapper(Event.class, eventMapper);
+
+        mappings.put(Event.class, json -> {
+            var node = Parser.fromString(json);
+            return eventMapper.apply(node);
+        });
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         mappingsArr.put(RatingHistory.class, json -> {

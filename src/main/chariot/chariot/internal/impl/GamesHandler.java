@@ -77,7 +77,7 @@ public class GamesHandler implements GamesAuth {
     }
 
     @Override
-    public Many<GameInfo> gameInfosByUserIds(Set<String> userIds, Consumer<GamesParameters> consumer) {
+    public Many<GameMeta> gameInfosByUserIds(Set<String> userIds, Consumer<GamesParameters> consumer) {
         var builder = MapBuilder.of(GamesParameters.class)
             .addCustomHandler("withCurrentGames", (args, map) -> {
                 if (args[0] instanceof Boolean b && b.booleanValue()) map.put("withCurrentGames", 1);
@@ -93,7 +93,7 @@ public class GamesHandler implements GamesAuth {
     }
 
     @Override
-    public Many<GameInfo> gameInfosByGameIds(String streamId, Set<String> gameIds) {
+    public Many<GameMeta> gameInfosByGameIds(String streamId, Set<String> gameIds) {
         return Endpoint.streamGamesByStreamIds.newRequest(request -> request
                 .path(streamId)
                 .body(String.join(",", gameIds))

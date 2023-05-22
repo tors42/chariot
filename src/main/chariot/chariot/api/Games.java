@@ -116,9 +116,9 @@ public interface Games {
      * @param userIds
      * @param params
      */
-    Many<GameInfo> gameInfosByUserIds(Set<String> userIds, Consumer<GamesParameters> params);
-    default Many<GameInfo> gameInfosByUserIds(Set<String> userIds) { return gameInfosByUserIds(userIds, __ -> {}); }
-    default Many<GameInfo> gameInfosByUserIds(String... userIds) { return gameInfosByUserIds(Set.of(userIds)); }
+    Many<GameMeta> gameInfosByUserIds(Set<String> userIds, Consumer<GamesParameters> params);
+    default Many<GameMeta> gameInfosByUserIds(Set<String> userIds) { return gameInfosByUserIds(userIds, __ -> {}); }
+    default Many<GameMeta> gameInfosByUserIds(String... userIds) { return gameInfosByUserIds(Set.of(userIds)); }
 
     /**
      * Creates a stream of games from an arbitrary streamId, and a list of game IDs.<br>
@@ -128,8 +128,8 @@ public interface Games {
      * @param streamId Arbitrary stream ID that you can later use to add game IDs to the stream. Example: myAppName-someRandomId
      * @param gameIds The IDs of the games (more can be added at a later point with {@link #addGameIdsToStream(String, String...)}
      */
-    Many<GameInfo> gameInfosByGameIds(String streamId, Set<String> gameIds);
-    default Many<GameInfo> gameInfosByGameIds(String streamId, String... gameIds) { return gameInfosByGameIds(streamId, Set.of(gameIds)); }
+    Many<GameMeta> gameInfosByGameIds(String streamId, Set<String> gameIds);
+    default Many<GameMeta> gameInfosByGameIds(String streamId, String... gameIds) { return gameInfosByGameIds(streamId, Set.of(gameIds)); }
 
     /**
      * Add new game IDs for an existing stream to watch.<br>

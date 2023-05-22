@@ -1,28 +1,58 @@
 package chariot.model;
 
-import chariot.model.Enums.VariantName;
-import chariot.internal.Util;
+import java.util.Optional;
 
-public record GameInfo (
-     String id,
-     VariantName variant,
-     String speed,
-     String perf,
-     boolean rated,
-     Integer status,
-     String statusName,
-     Long createdTime,
-     Clock clock,
-     Players players
-     )  {
+import chariot.model.Enums.Color;
+import chariot.model.Enums.Speed;
+import chariot.model.Enums.Status;
 
-    public java.time.ZonedDateTime createdAt() {
-        return Util.fromLong(createdTime());
+public record GameInfo(
+        String fullId,
+        String gameId,
+        String fen,
+        Color color,
+        Status status,
+        VariantType variant,
+        TimeInfo time,
+        boolean rated,
+        boolean hasMoved,
+        boolean isMyTurn,
+        Opponent opponent,
+        String source,
+        TournamentInfo tournament
+        ) {
+
+    public sealed interface TimeInfo permits Basic, SecondsLeft {
+        Speed speed();
+        default Optional<Integer> secondsLeftOpt() { return this instanceof SecondsLeft sl
+            ? Optional.of(sl.secondsLeft()) : Optional.empty();
+        }
     }
+    public record Basic(Speed speed) implements TimeInfo {}
+    public record SecondsLeft(Speed speed, int secondsLeft) implements TimeInfo {}
 
-    public record Clock(Integer initial, Integer increment, Integer totalTime) {}
+    public sealed interface TournamentInfo permits ArenaId, SwissId, None {}
+    public record ArenaId(String id) implements TournamentInfo {}
+    public record SwissId(String id) implements TournamentInfo {}
+    public record None()             implements TournamentInfo {}
 
-    public record Players(Player white, Player black) {
-        public record Player(String userId, Integer rating) {}
+    public sealed interface Opponent permits AI, Anonymous, Account, AccountDiff {
+        default String id() {
+            if (this instanceof Account acc) return acc.id();
+            if (this instanceof AccountDiff acc) return acc.account().id();
+            return "";
+        }
+        default String name() {
+            if (this instanceof AI ai) return ai.name();
+            if (this instanceof Anonymous) return "Anonymous.";
+            if (this instanceof Account acc) return acc.username();
+            if (this instanceof AccountDiff acc) return acc.account().username();
+            return "";
+        }
     }
+    public record AI(int level, String name)                      implements Opponent {}
+    public record Anonymous()                                     implements Opponent {}
+    public record Account(String id, String username, int rating) implements Opponent {}
+    public record AccountDiff(Account account, int ratingDiff)    implements Opponent {}
+
 }

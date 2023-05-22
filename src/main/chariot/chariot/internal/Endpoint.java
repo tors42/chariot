@@ -59,7 +59,7 @@ public sealed interface Endpoint<T> {
     default ServerType target()  { return ep().target(); }
 
     public static EPOne<UserAuth> accountProfile =
-        Endpoint.of(mapper(UserData.class).andThen(UserAuth.class::cast)).endpoint("/api/account").scope(Scope.any).toOne();
+        Endpoint.of(mapper(UserData.class).andThen(UserData::toUserAuth)).endpoint("/api/account").scope(Scope.any).toOne();
 
     public static EPOne<AccountPreferences> accountPreferences =
         Endpoint.of(AccountPreferences.class).endpoint("/api/account/preferences").scope(Scope.preference_read).toOne();
@@ -199,11 +199,11 @@ public sealed interface Endpoint<T> {
     public static EPOne<GameImport> gameImport =
         Endpoint.of(GameImport.class).endpoint("/api/import").post(wwwform).toOne();
 
-    public static EPMany<GameInfo> streamGamesByUsers =
-        Endpoint.of(GameInfo.class).endpoint("/api/stream/games-by-users").post(plain).accept(jsonstream).toMany();
+    public static EPMany<GameMeta> streamGamesByUsers =
+        Endpoint.of(GameMeta.class).endpoint("/api/stream/games-by-users").post(plain).accept(jsonstream).toMany();
 
-    public static EPMany<GameInfo> streamGamesByStreamIds =
-        Endpoint.of(GameInfo.class).endpoint("/api/stream/games/%s").post(plain).accept(jsonstream).toMany();
+    public static EPMany<GameMeta> streamGamesByStreamIds =
+        Endpoint.of(GameMeta.class).endpoint("/api/stream/games/%s").post(plain).accept(jsonstream).toMany();
 
     public static EPOne<Void> addGameIdsToStream =
         Endpoint.of(Void.class).endpoint("/api/stream/games/%s/add").post(plain).accept(json).toOne();

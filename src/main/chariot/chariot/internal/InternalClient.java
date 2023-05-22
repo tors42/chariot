@@ -111,7 +111,7 @@ public class InternalClient {
             config.logging().request().info(() -> "%s".formatted(httpResponse));
 
             var stream = httpResponse.body()
-                .peek(string -> config.logging().response().info(() -> string))
+                .peek(string -> { if (! string.isEmpty()) config.logging().response().info(() -> string); })
                 .filter(Predicate.not("{}"::equals)); // Filter out any keep-alive messages
 
             return new RequestResult.Success(stream);

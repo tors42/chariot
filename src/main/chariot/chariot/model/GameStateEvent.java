@@ -4,16 +4,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import chariot.model.Enums.Status;
 import chariot.internal.Util;
 
 public sealed interface GameStateEvent {
 
     enum Type { gameFull, gameState, chatLine, opponentGone }
 
-    Type type();
+    default Type type() {
+        if (this instanceof Full) return Type.gameFull;
+        if (this instanceof State) return Type.gameState;
+        if (this instanceof Chat) return Type.chatLine;
+        return Type.opponentGone;
+    }
 
     record Full(
-            Type type,
             String id,
             boolean rated,
             Variant variant,
@@ -37,7 +42,6 @@ public sealed interface GameStateEvent {
     }
 
     record State(
-            Type type,
             String moves,
             long wtime,
             long btime,
@@ -47,7 +51,7 @@ public sealed interface GameStateEvent {
             boolean bdraw,
             boolean wtakeback,
             boolean btakeback,
-            Game.Status status,
+            Status status,
             String winner) implements GameStateEvent {
 
         public List<String> moveList() {
@@ -57,13 +61,11 @@ public sealed interface GameStateEvent {
 
 
     record Chat(
-            Type type,
             String username,
             String text,
             String room) implements GameStateEvent {}
 
     record OpponentGone(
-            Type type,
             boolean gone,
             Optional<Integer> claimWinInSeconds) implements GameStateEvent {}
 

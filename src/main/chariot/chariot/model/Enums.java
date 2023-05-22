@@ -38,6 +38,8 @@ public interface Enums {
         public static Provider provider() {return new Provider(){};}
     }
 
+    enum Outcome { win, draw, loss, none }
+
     enum Offer {
         yes,no;
         public interface Provider {
@@ -47,6 +49,47 @@ public interface Enums {
         public static Provider provider() {return new Provider(){};}
     }
 
+    public enum Status {
+        created(10),
+        started(20),
+        aborted(25),
+        mate(30),
+        resign(31),
+        stalemate(32),
+        timeout(33),
+        draw(34),
+        outoftime(35),
+        cheat(36),
+        noStart(37),
+        unknownFinish(38),
+        variantEnd(60);
+
+        Status(int status) {
+            this.status = status;
+        }
+        final int status;
+        public int status() {
+            return status;
+        }
+        public static Status valueOf(int status) {
+            return switch(status) {
+                case 10 -> created;
+                case 20 -> started;
+                case 25 -> aborted;
+                case 30 -> mate;
+                case 31 -> resign;
+                case 32 -> stalemate;
+                case 33 -> timeout;
+                case 34 -> draw;
+                case 35 -> outoftime;
+                case 36 -> cheat;
+                case 37 -> noStart;
+                case 38 -> unknownFinish;
+                case 60 -> variantEnd;
+                default -> throw new IllegalArgumentException("Unknown tournament status: " + status);
+            };
+        }
+    }
 
     enum Direction { in, out }
 

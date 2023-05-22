@@ -7,11 +7,13 @@ public sealed interface Player {
     default String name() {
         if (this instanceof Anonymous) return "Anonymous";
         if (this instanceof Account account) return account.user().name();
-        if (this instanceof AI ai) return "Level " + ai.aiLevel();
+        if (this instanceof AI ai) return ai.name();
         return "<unknown user>";
     }
 
-    record AI(int aiLevel)                                           implements Player {}
+    record AI(int aiLevel, String name)                              implements Player {
+        public AI(int level) { this(level, "Level " + level); }
+    }
     record Anonymous()                                               implements Player {}
     record Account(UserCommon user, int rating, boolean provisional) implements Player {}
     record AccountArena(Player account,
