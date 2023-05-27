@@ -148,20 +148,20 @@ public class Client extends chariot.internal.ClientBase {
      * Creates a customizable client using the provided configuration parameters builder.<br>
      * @param params A configuration parameters builder
      */
-    static ClientAuth auth(Consumer<ConfigBuilder> params, Supplier<char[]> token) { return basic(params).withToken(token); }
+    public static ClientAuth auth(Consumer<ConfigBuilder> params, Supplier<char[]> token) { return basic(params).withToken(token); }
 
 
     /**
      * Creates a customizable client using the provided configuration parameters builder.<br>
      * @param params A configuration parameters builder
      */
-    static ClientAuth auth(Consumer<ConfigBuilder> params, String token) { return auth(params, token::toCharArray); }
+    public static ClientAuth auth(Consumer<ConfigBuilder> params, String token) { return auth(params, token::toCharArray); }
 
     /**
      * Creates a default client using the provided token to use the authenticated parts of the API
      * @param token A token to use for the authenticated parts of the API
      */
-    static ClientAuth auth(Supplier<char[]> token) { return auth(c -> {}, token); }
+    public static ClientAuth auth(Supplier<char[]> token) { return auth(c -> {}, token); }
 
     public sealed interface AuthResult {}
     public record AuthOk(ClientAuth client) implements AuthResult {}
@@ -229,7 +229,7 @@ public class Client extends chariot.internal.ClientBase {
      * @param uriHandler The generated Lichess URI that your user can visit to review and approve granting access to your application
      * @param pkce Configuration of for instance which scopes if any that the resulting Access Token should include.
      */
-    AuthResult withPkce(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
+    public AuthResult withPkce(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
         return PKCE.pkceAuth(this, uriHandler, pkce);
     }
 
@@ -248,7 +248,7 @@ public class Client extends chariot.internal.ClientBase {
      * @param uriHandler The generated Lichess URI that your user can visit to review and approve granting access to your application
      * @param pkce Configuration of for instance which scopes if any that the resulting Access Token should include.
      */
-    static AuthResult auth(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
+    public static AuthResult auth(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
         return auth(c -> c.production(), uriHandler, pkce);
     }
 
@@ -269,7 +269,7 @@ public class Client extends chariot.internal.ClientBase {
      * @param uriHandler The generated Lichess URI that your user can visit to review and approve granting access to your application
      * @param pkce Configuration of for instance which scopes if any that the resulting Access Token should include.
      */
-    static AuthResult auth(Consumer<ConfigBuilder> config, Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
+    public static AuthResult auth(Consumer<ConfigBuilder> config, Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
         return basic(config).withPkce(uriHandler, pkce);
     }
 
@@ -279,7 +279,7 @@ public class Client extends chariot.internal.ClientBase {
      * @param prefs A configuration preferences node<br>
      * {@code if (client instanceof ClientAuth auth) ...}
      */
-    static Client load(Preferences prefs) {
+    public static Client load(Preferences prefs) {
         return load(Config.load(prefs));
     }
 
@@ -289,7 +289,7 @@ public class Client extends chariot.internal.ClientBase {
      * @param prefs A configuration preferences node
      * @param token A token to use for the authenticated parts of the API
      */
-    static ClientAuth load(Preferences prefs, String token) {
+    public static ClientAuth load(Preferences prefs, String token) {
         return load(prefs).withToken(token);
     }
 
@@ -304,7 +304,7 @@ public class Client extends chariot.internal.ClientBase {
     /**
      * Configure logging levels
      */
-    void logging(Consumer<LoggingBuilder> params) {
+    public void logging(Consumer<LoggingBuilder> params) {
         var logging = config().logging();
         var builder = Config.loggingBuilder(logging);
         params.accept(builder);
