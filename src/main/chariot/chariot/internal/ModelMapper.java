@@ -474,7 +474,7 @@ public class ModelMapper {
                     var speed = Speed.valueOf(gameYo.getString("speed"));
                     var secondsLeft = gameYo.getInteger("secondsLeft");
                     GameInfo.TimeInfo timeInfo = secondsLeft == null
-                        ? new GameInfo.Basic(speed) : new GameInfo.SecondsLeft(speed, secondsLeft);
+                        ? speed : new GameInfo.Time(speed, secondsLeft);
 
                     var rated = gameYo.getBool("rated");
 

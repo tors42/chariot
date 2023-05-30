@@ -22,14 +22,13 @@ public record GameInfo(
         TournamentInfo tournament
         ) {
 
-    public sealed interface TimeInfo permits Basic, SecondsLeft {
-        Speed speed();
-        default Optional<Integer> secondsLeftOpt() { return this instanceof SecondsLeft sl
+    public sealed interface TimeInfo permits Enums.Speed, Time {
+        default Speed speed() { return this instanceof Time sl ? sl.speed() : (Speed) this; }
+        default Optional<Integer> secondsLeftOpt() { return this instanceof Time sl
             ? Optional.of(sl.secondsLeft()) : Optional.empty();
         }
     }
-    public record Basic(Speed speed) implements TimeInfo {}
-    public record SecondsLeft(Speed speed, int secondsLeft) implements TimeInfo {}
+    public record Time(Speed speed, int secondsLeft) implements TimeInfo {}
 
     public sealed interface TournamentInfo permits ArenaId, SwissId, None {}
     public record ArenaId(String id) implements TournamentInfo {}
