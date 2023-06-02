@@ -1,3 +1,3 @@
 package chariot.model;
 
-public record TitledUser(LightUser user, String title) implements UserCommon {}
+public record TitledUser(String title, LightUser user) implements UserCommon {}

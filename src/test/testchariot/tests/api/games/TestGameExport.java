@@ -26,7 +26,7 @@ public class TestGameExport {
                 new Game("q7ZvsdUF", true, GameVariant.standard, "blitz", "blitz",
                     1514505150384l, 1514505592843l, Status.draw,
                     new Game.Players(
-                        new Player.AccountDiff(new Player.Account(new TitledUser(new LightUser("lance5500", "Lance5500", true), "LM"), 2389, false), 4),
+                        new Player.AccountDiff(new Player.Account(new TitledUser("LM", new LightUser("lance5500", "Lance5500", true)), 2389, false), 4),
                         new Player.AccountDiff(new Player.Account(new LightUser("tryinghard87", "TryingHard87", false), 2498, false), -4)
                         ),
                     "",
