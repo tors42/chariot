@@ -1,8 +1,9 @@
 package chariot.model;
 
-import chariot.internal.Util;
 import chariot.model.Enums.Color;
 import static chariot.internal.Util.orEmpty;
+
+import java.time.ZonedDateTime;
 
 public sealed interface MoveInfo {
 
@@ -17,7 +18,7 @@ public sealed interface MoveInfo {
             String lastMove,
             int turns,
             int startedAtTurn,
-            Long createdTime,
+            ZonedDateTime createdAt,
             boolean rated,
             Variant variant,
             Color player,
@@ -27,10 +28,6 @@ public sealed interface MoveInfo {
         public GameSummary {
             lastMove = orEmpty(lastMove);
             initialFen = orEmpty(initialFen);
-        }
-
-        public java.time.ZonedDateTime createdAt() {
-            return Util.fromLong(createdTime());
         }
     }
 

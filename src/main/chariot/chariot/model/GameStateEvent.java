@@ -1,11 +1,11 @@
 package chariot.model;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import chariot.model.Enums.Status;
-import chariot.internal.Util;
 
 public sealed interface GameStateEvent {
 
@@ -25,16 +25,13 @@ public sealed interface GameStateEvent {
             Clock clock,
             String speed,
             Perf perf,
-            Long createdTime,
+            ZonedDateTime createdAt,
             UserCommon white,
             UserCommon black,
             String initialFen,
             State state
             ) implements GameStateEvent {
 
-        public java.time.ZonedDateTime createdAt() {
-            return Util.fromLong(createdTime());
-        }
 
         public record Clock (Integer initial, Integer increment) {}
         public record Perf (String name) {}

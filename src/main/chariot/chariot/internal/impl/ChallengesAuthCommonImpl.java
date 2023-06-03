@@ -2,6 +2,8 @@ package chariot.internal.impl;
 
 import java.util.*;
 import java.util.function.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import chariot.Client.Scope;
 import chariot.api.*;
@@ -83,12 +85,57 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
     private Many<Challenge> challengeKeepAlive(Scope scope, String userId, Consumer<ChallengeBuilder> consumer) {
         var map = challengeBuilderToMap(consumer);
         map.put("keepAliveStream", Boolean.valueOf(true));
-        return Endpoint.challengeCreateKeepAlive.newRequest(request -> request
+        Many<Challenge> result = Endpoint.challengeCreateKeepAlive.newRequest(request -> request
                 .scope(scope)
                 .path(userId)
                 .body(map)
                 .stream())
             .process(requestHandler);
+
+        if (! (result instanceof Entries<Challenge> entries)) return result;
+
+        final Stream<Challenge> serverStream = entries.stream();
+
+        var spliteratorAwaitingChallengedPlayer = new Spliterator<Challenge>() {
+            boolean processed = false;
+
+            @Override
+            public boolean tryAdvance(Consumer<? super Challenge> action) {
+                if (processed) return false;
+                processed = true;
+                try {
+                    // User might close the StreamSupport stream we've returned to them,
+                    // upon which our listener will call close on this stream we are reading from,
+                    // causing an exception. All fine.
+                    List<Challenge> list = serverStream.toList();
+
+                    if (list.isEmpty()) return false;
+
+                    if (list.size() == 1) {
+                        action.accept(list.get(0));
+                        return true;
+                    } else if (list.size() == 2) {
+                        var challenge = list.get(0);
+                        var declined = (Challenge.DeclinedChallenge) list.get(1);
+                        action.accept(new Challenge.DeclinedChallenge(declined.key(), declined.reason(), challenge));
+                        return true;
+                    }
+                } catch (Exception e) {}
+                return false;
+            }
+
+            @Override public Spliterator<Challenge> trySplit() { return null; }
+            @Override public long estimateSize() { return 2l; }
+            @Override public int characteristics() { return ORDERED; }
+        };
+
+        Stream<Challenge> userInterruptibleStream = StreamSupport.stream(spliteratorAwaitingChallengedPlayer, false);
+
+        // Close the original stream when user closes userStream,
+        // so Lichess knows to abort the challenge
+        userInterruptibleStream.onClose(() -> serverStream.close());
+
+        return Many.entries(userInterruptibleStream);
     }
 
     private One<ChallengeAI> challengeAI(Scope scope, Consumer<ChallengeAIBuilder> consumer) {

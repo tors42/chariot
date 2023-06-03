@@ -1,39 +1,14 @@
 package chariot.model;
 
 import java.util.List;
-import java.util.Optional;
 
-import chariot.internal.Util;
-import chariot.model.ChallengeResult.Perf;
-import chariot.model.ChallengeResult.Player;
-import chariot.model.ChallengeResult.TimeControl;
-import chariot.model.Enums.*;
+public sealed interface Challenge permits
+    ChallengeInfo,
+    Challenge.ChallengeWithRules,
+    Challenge.DeclinedChallenge,
+    Challenge.RematchChallenge {
 
-public record Challenge(
-        String id,
-        String speed,
-        String url,
-        String status,
-        boolean rated,
-        Direction direction,
-        TimeControl timeControl,
-        ColorPref color,
-        Color finalColor,
-        Variant variant,
-        Player challenger,
-        Player destUser,
-        Perf perf,
-        /** Human readable, possibly translated reason why the challenge was declined. **/
-        Optional<String> declineReason,
-        /** Untranslated, computer-matchable reason why the challenge was declined. **/
-        Optional<String> declineReasonKey,
-        Optional<String> rematchOf,
-        List<String> rules) {
-
-    public record Variant (GameVariant key, String name) {}
-
-    public Challenge {
-        status = Util.orEmpty(status);
-    }
+        record ChallengeWithRules(List<String> rules, Challenge challenge) implements Challenge {}
+        record RematchChallenge(String rematchOf, Challenge challenge) implements Challenge {}
+        record DeclinedChallenge(String key, String reason, Challenge challenge) implements Challenge {}
 }
-

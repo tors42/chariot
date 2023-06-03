@@ -14,7 +14,6 @@ import chariot.internal.Config.ServerType;
 import chariot.internal.RequestParameters.*;
 import chariot.internal.Util.Method;
 import chariot.model.*;
-import chariot.model.ChallengeResult.ChallengeInfo;
 
 import static chariot.internal.ModelMapper.mapper;
 import static chariot.internal.ModelMapper.mapperArr;
@@ -391,25 +390,14 @@ public sealed interface Endpoint<T> {
 
     public static EPOne<Challenge> challengeCreate =
         Endpoint.of(Challenge.class).endpoint("/api/challenge/%s")
-        .streamMapper(stream -> stream.map(mapper(ChallengeResult.class))
-                .filter(ChallengeInfo.class::isInstance)
-                .map(ChallengeInfo.class::cast)
-                .map(ChallengeInfo::challenge))
         .post(wwwform).scope(Scope.challenge_write).toOne();
 
     public static EPMany<Challenge> challengeCreateKeepAlive =
         Endpoint.of(Challenge.class).endpoint("/api/challenge/%s")
-        .streamMapper(stream -> stream.map(mapper(ChallengeResult.class))
-                .filter(ChallengeInfo.class::isInstance)
-                .map(ChallengeInfo.class::cast)
-                .map(ChallengeInfo::challenge))
-         .post(wwwform).scope(Scope.challenge_write).toMany();
+        .post(wwwform).scope(Scope.challenge_write).toMany();
 
     public static EPOne<ChallengeAI> challengeAI =
         Endpoint.of(ChallengeAI.class).endpoint("/api/challenge/ai")
-        .streamMapper(stream -> stream.map(mapper(ChallengeResult.class))
-                .filter(ChallengeAI.class::isInstance)
-                .map(ChallengeAI.class::cast))
         .post(wwwform).scope(Scope.challenge_write).toOne();
 
     public static EPOne<ChallengeOpenEnded> challengeOpenEnded =

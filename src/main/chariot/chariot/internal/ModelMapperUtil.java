@@ -20,20 +20,6 @@ public class ModelMapperUtil {
         return Map.of("value", "int");
     }
 
-    public static Map<String, String> createdAtAndLastMoveAtMapping() {
-        return Map.of("createdTime",  "createdAt",
-                      "lastMoveTime", "lastMoveAt");
-    }
-
-    public static Map<String, String> createdAtMapping() {
-        return Map.of("createdTime",  "createdAt");
-    }
-
-    public static Map<String, String> startsAtMapping() {
-        return Map.of("startsTime",  "startsAt");
-    }
-
-
     public static Map<String, String> tvChannelsMapping() {
         return Stream.concat(Arrays.stream(PerfTypeNoCorr.values())
                 .map(perfType -> Map.entry(perfType.name(), switch(perfType) {

@@ -1,9 +1,9 @@
 package chariot.model;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import chariot.model.Enums.*;
-import chariot.internal.Util;
 import static chariot.internal.Util.orEmpty;
 
 public record Game (
@@ -12,8 +12,8 @@ public record Game (
     GameVariant variant,
     String speed,
     String perf,
-    long createdTime,
-    long lastMoveTime,
+    ZonedDateTime createdAt,
+    ZonedDateTime lastMoveAt,
     Status status,
     Players players,
 
@@ -42,14 +42,6 @@ public record Game (
         daysPerTurn = daysPerTurn == null ? 0 : daysPerTurn;
     }
 
-
-    public java.time.ZonedDateTime createdAt() {
-        return Util.fromLong(createdTime());
-    }
-
-    public java.time.ZonedDateTime lastMoveAt() {
-        return Util.fromLong(lastMoveTime());
-    }
 
     public record Players (Player white, Player black) { }
 
