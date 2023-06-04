@@ -14,8 +14,8 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
         if (_disabled().orElse(false)) {
             return new Disabled(_id(), _name());
         }
-        LightUser lightUser = new LightUser(_id(), _name(), _patron().orElse(false));
-        UserCommon common = _title().map(title -> (UserCommon) new TitledUser(title, lightUser)).orElse(lightUser);
+        LightUser lightUser = new LightUser(_id(), Opt.of(_title().orElse(null)), _name(), _patron().orElse(false));
+        UserCommon common = lightUser;
         return common;
     }
 

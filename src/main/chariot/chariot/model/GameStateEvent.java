@@ -1,10 +1,11 @@
 package chariot.model;
 
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
+import chariot.model.Enums.Color;
 import chariot.model.Enums.Status;
 
 public sealed interface GameStateEvent {
@@ -18,53 +19,58 @@ public sealed interface GameStateEvent {
         return Type.opponentGone;
     }
 
+    public sealed interface Side permits Anonymous, AI, Account {
+        String name();
+    }
+
+    public record Account(UserInfo user, int rating, boolean provisional) implements Side {
+        @Override public String name() { return user.name(); }
+    }
+
     record Full(
             String id,
-            boolean rated,
-            Variant variant,
-            Clock clock,
-            String speed,
-            Perf perf,
+            GameType gameType,
             ZonedDateTime createdAt,
-            UserCommon white,
-            UserCommon black,
-            String initialFen,
+            Side white,
+            Side black,
+            Opt<TournamentId> tournament,
             State state
             ) implements GameStateEvent {
-
-
-        public record Clock (Integer initial, Integer increment) {}
-        public record Perf (String name) {}
-
     }
 
     record State(
             String moves,
-            long wtime,
-            long btime,
-            long winc,
-            long binc,
-            boolean wdraw,
-            boolean bdraw,
-            boolean wtakeback,
-            boolean btakeback,
+            Duration wtime,
+            Duration btime,
+            Duration winc,
+            Duration binc,
             Status status,
-            String winner) implements GameStateEvent {
+            Opt<Color> winner,
+            Opt<Color> drawOffer,
+            Opt<Color> takebackOffer,
+            Opt<String> rematch
+            ) implements GameStateEvent {
+
+        public State {
+            moves = moves == null ? "" : moves;
+        }
 
         public List<String> moveList() {
             return Arrays.stream(moves.split(" ")).filter(s -> ! s.isEmpty()).toList();
         }
     }
 
+    record Chat(String username, String text, String room) implements GameStateEvent {}
 
-    record Chat(
-            String username,
-            String text,
-            String room) implements GameStateEvent {}
+    record OpponentGone(boolean gone, Claim claimable) implements GameStateEvent {
+        public boolean canClaim() {
+            return claimable() instanceof Yes;
+        }
+    }
 
-    record OpponentGone(
-            boolean gone,
-            Optional<Integer> claimWinInSeconds) implements GameStateEvent {}
-
+    sealed interface Claim permits No, Soon, Yes {}
+    record No() implements Claim {}
+    record Soon(Duration timeUntilClaimable) implements Claim {}
+    record Yes() implements Claim {}
 
 }

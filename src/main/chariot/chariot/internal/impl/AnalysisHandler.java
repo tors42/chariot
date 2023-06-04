@@ -2,7 +2,7 @@ package chariot.internal.impl;
 
 import java.util.function.Consumer;
 
-import chariot.api.*;
+import chariot.api.Analysis;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;

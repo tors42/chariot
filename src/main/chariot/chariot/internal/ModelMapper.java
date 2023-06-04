@@ -10,10 +10,8 @@ import java.util.stream.*;
 import chariot.internal.yayson.*;
 import chariot.internal.yayson.Parser.*;
 import chariot.model.*;
-import chariot.model.Enums.Color;
-import chariot.model.Enums.ColorPref;
-import chariot.model.Enums.Speed;
-import chariot.model.Enums.Status;
+import chariot.model.Enums.*;
+import chariot.model.GameStateEvent.Side;
 import chariot.model.UserData.*;
 import static chariot.model.UserData.UserPropertyEnum.name;
 import static chariot.model.UserData.UserPropertyEnum.*;
@@ -87,17 +85,54 @@ public class ModelMapper {
             return null;
         });
 
-        Function<YayNode, UserCommon> userCommonMapper = node -> {
-            var userData = mapper.fromYayTree(node, UserData.class);
-            var common = userData.toCommon();
-            return common;
-        };
-        mapper.setCustomMapper(UserCommon.class, userCommonMapper);
+        Function<YayNode, GameType> gameTypeMapper = node -> {
 
-        mappings.put(UserCommon.class, json -> {
-            var node = Parser.fromString(json);
-            return userCommonMapper.apply(node);
-        });
+            if (! (node instanceof YayObject yo)) return null;
+
+            boolean rated = yo.getBool("rated");
+            Speed speed = Speed.valueOf(yo.getString("speed"));
+
+            TimeControl timeControl = null;
+
+            if (yo.value().get("timeControl") instanceof YayObject timeYo) {
+                timeControl = switch(timeYo.getString("type")) {
+                    case "unlimited"      -> new Unlimited();
+                    case "correspondence" -> new Correspondence(timeYo.getInteger("daysPerTurn"));
+                    case "clock"          -> new RealTime(
+                                                    Duration.ofSeconds(timeYo.getInteger("limit")),
+                                                    Duration.ofSeconds(timeYo.getInteger("increment")),
+                                                    timeYo.getString("show"),
+                                                    speed);
+                    default -> null;
+                };
+            } else {
+                if (yo.value().get("clock") instanceof YayObject millisClockYo) {
+                    var initial = Duration.ofMillis(millisClockYo.getLong("initial"));
+                    var increment = Duration.ofMillis(millisClockYo.getLong("increment"));
+                    timeControl = new RealTime(
+                                         initial,
+                                         increment,
+                                         "%d+%d".formatted(initial.toMinutes(), increment.toSeconds()),
+                                         speed);
+                } else if (yo.value().get("daysPerTurn") instanceof YayNumber yayNum) {
+                    timeControl = new Correspondence(yayNum.value().intValue());
+                } else {
+                    timeControl = new Unlimited(); // guess.
+                }
+            }
+
+            VariantType variantType = null;
+            if (yo.value().get("variant") instanceof YayObject varYo) {
+                String key = varYo.getString("key");
+                variantType = switch(key) {
+                    case "fromPosition" -> new VariantType.FromPosition(Opt.of(yo.getString("initialFen")));
+                    default             -> VariantType.Variant.valueOf(key);
+                };
+            }
+
+            var gameType = new GameType(rated, variantType, timeControl);
+            return gameType;
+        };
 
         Function<YayNode, ChallengeInfo> challengeInfoMapper = node -> {
 
@@ -109,8 +144,14 @@ public class ModelMapper {
             ChallengeInfo.Players players = new ChallengeInfo.OpenEnded();
 
             if (challengeYo.value().get("challenger") instanceof YayObject challengerYo ) {
+                String challengerId = challengerYo.getString("id");
+                String challengerName = challengerYo.getString("name");
+                String challengerTitle = challengerYo.getString("title");
+                var challengerInfo = challengerTitle == null
+                    ? new IdName(challengerName, challengerName)
+                    : new IdNameTitle(challengerId, challengerName, challengerTitle);
                 var challenger = new ChallengeInfo.Player(
-                        userCommonMapper.apply(challengerYo),
+                        challengerInfo,
                         challengerYo.getNumber("rating").intValue(),
                         challengerYo.getBool("provisional"),
                         challengerYo.getBool("online"));
@@ -118,8 +159,14 @@ public class ModelMapper {
                 players = new ChallengeInfo.From(challenger);
 
                 if (challengeYo.value().get("destUser") instanceof YayObject challengedYo) {
+                    String challengedId = challengedYo.getString("id");
+                    String challengedName = challengedYo.getString("name");
+                    String challengedTitle = challengedYo.getString("title");
+                    var challengedInfo = challengedTitle == null
+                        ? new IdName(challengedName, challengedName)
+                        : new IdNameTitle(challengedId, challengedName, challengedTitle);
                     var challenged = new ChallengeInfo.Player(
-                            userCommonMapper.apply(challengedYo),
+                            challengedInfo,
                             challengedYo.getNumber("rating").intValue(),
                             challengedYo.getBool("provisional"),
                             challengedYo.getBool("online"));
@@ -128,34 +175,7 @@ public class ModelMapper {
                 }
             }
 
-            boolean rated = challengeYo.getBool("rated");
-            Speed speed = Speed.valueOf(challengeYo.getString("speed"));
-
-            ChallengeInfo.TimeControl timeControl = null;
-
-            if (challengeYo.value().get("timeControl") instanceof YayObject timeYo) {
-                timeControl = switch(timeYo.getString("type")) {
-                    case "unlimited"      -> new ChallengeInfo.Unlimited();
-                    case "correspondence" -> new ChallengeInfo.Correspondence(timeYo.getNumber("daysPerTurn").intValue());
-                    case "clock"          -> new ChallengeInfo.RealTime(
-                                                    timeYo.getNumber("limit").intValue(),
-                                                    timeYo.getNumber("increment").intValue(),
-                                                    timeYo.getString("show"),
-                                                    speed);
-                    default -> null;
-                };
-            }
-
-            VariantType variantType = null;
-            if (challengeYo.value().get("variant") instanceof YayObject varYo) {
-                String key = varYo.getString("key");
-                variantType = switch(key) {
-                    case "fromPosition" -> new VariantType.FromPosition(challengeYo.getString("initialFen"));
-                    default             -> VariantType.Variant.valueOf(key);
-                };
-            }
-
-            var gameType = new ChallengeInfo.GameType(rated, variantType, timeControl);
+            GameType gameType = gameTypeMapper.apply(challengeYo);
 
             ChallengeInfo.ColorInfo colorInfo = new ChallengeInfo.ColorRequest(ColorPref.valueOf(challengeYo.getString("color")));
 
@@ -168,10 +188,7 @@ public class ModelMapper {
             return challengeInfo;
         };
 
-        mappings.put(ChallengeInfo.class, json -> {
-            var node = Parser.fromString(json);
-            return challengeInfoMapper.apply(node);
-        });
+        mappings.put(ChallengeInfo.class, json -> challengeInfoMapper.apply(Parser.fromString(json)));
 
         mappings.put(ChallengeOpenEnded.class, json -> {
             var node = Parser.fromString(json);
@@ -205,9 +222,6 @@ public class ModelMapper {
             openEnded = new ChallengeOpenEnded(challengeInfo, urlWhite, urlBlack, players, rules);
             return openEnded;
         });
-
-
-
 
         Function<YayNode, Challenge> challengeMapper = node -> {
             Challenge challenge = null;
@@ -271,13 +285,9 @@ public class ModelMapper {
             return challenge;
         };
 
-        mappings.put(Challenge.class, json -> {
-            var node = Parser.fromString(json);
-            return challengeMapper.apply(node);
-        });
+        mappings.put(Challenge.class, json -> challengeMapper.apply(Parser.fromString(json)));
 
         mapper.setCustomMapper(Challenge.class, challengeMapper);
-
 
         // Some guidance for the correcte tournament type to be modelled...
         mappings.put(Tournament.class, json -> {
@@ -445,11 +455,8 @@ public class ModelMapper {
         };
 
         mapper.setCustomMapper(UserData.class, userDataMapper);
-        mappings.put(UserData.class, json -> {
-            var node = Parser.fromString(json);
-            var userData = userDataMapper.apply(node);
-            return userData;
-        });
+        mappings.put(UserData.class, json -> userDataMapper.apply(Parser.fromString(json)));
+
         mappingsArr.put(UserData.class, json -> {
             var node = Parser.fromString(json);
             if (node instanceof YayArray yarr) {
@@ -459,33 +466,20 @@ public class ModelMapper {
             return null;
         });
 
-        Function<YayNode, UserStatus> userStatusMapper = node -> {
-            var userData = mapper.fromYayTree(node, UserData.class);
-            return userData.toUserStatus();
-        };
+        Function<YayNode, UserStatus> userStatusMapper = node -> mapper.fromYayTree(node, UserData.class).toUserStatus();
+        Function<YayNode, LiveStreamer> streamerStatusMapper = node -> mapper.fromYayTree(node, UserData.class).toLiveStreamer();
+
         mapper.setCustomMapper(UserStatus.class, userStatusMapper);
-
-        mappings.put(UserStatus.class, json -> {
-            var node = Parser.fromString(json);
-            return userStatusMapper.apply(node);
-        });
-
-        Function<YayNode, LiveStreamer> streamerStatusMapper = node -> {
-            var userData = mapper.fromYayTree(node, UserData.class);
-            return userData.toLiveStreamer();
-        };
         mapper.setCustomMapper(LiveStreamer.class, streamerStatusMapper);
 
-        mappings.put(LiveStreamer.class, json -> {
-            var node = Parser.fromString(json);
-            return streamerStatusMapper.apply(node);
-        });
+        mappings.put(UserStatus.class, json -> userStatusMapper.apply(Parser.fromString(json)));
+        mappings.put(LiveStreamer.class, json -> streamerStatusMapper.apply(Parser.fromString(json)));
 
         Function<YayNode, TVFeedEvent.PlayerInfo> playerInfoMapper = node -> {
             if (node instanceof YayObject yo) {
                 var userData = mapper.fromYayTree(yo.value().get("user"), UserData.class);
                 UserCommon common = userData.toCommon();
-                chariot.model.Enums.Color color = chariot.model.Enums.Color.valueOf(yo.getString("color"));
+                Color color = Color.valueOf(yo.getString("color"));
                 var rating = yo.getInteger("rating");
                 var seconds = yo.getInteger("seconds");
                 var pi = new TVFeedEvent.PlayerInfo(common, color, rating, seconds);
@@ -495,60 +489,39 @@ public class ModelMapper {
         };
         mapper.setCustomMapper(TVFeedEvent.PlayerInfo.class, playerInfoMapper);
 
-        mappings.put(TVFeedEvent.PlayerInfo.class, json -> {
-            var node = Parser.fromString(json);
-            return playerInfoMapper.apply(node);
-        });
+        mappings.put(TVFeedEvent.PlayerInfo.class, json -> playerInfoMapper.apply(Parser.fromString(json)));
 
         /////
         Function<YayNode, Player> gamePlayerMapper = node -> {
             if (node instanceof YayObject yo) {
                 Player player = null;
                 if (yo.value().containsKey("aiLevel")) {
-                    player = new Player.AI(yo.getInteger("aiLevel"));
+                    player = new AI(yo.getInteger("aiLevel"));
                 } else if (! yo.value().containsKey("user")) {
-                    player = new Player.Anonymous();
+                    player = new Anonymous();
                 } else if (yo.value().get("user") instanceof YayObject userObject) {
                     var userData = mapper.fromYayTree(userObject, UserData.class);
                     UserCommon common = userData.toCommon();
-
-                    // rating
-                    // provisional
-                    // Opt berserk
-                    // Opt team
                     int rating = yo.getInteger("rating");
                     boolean provisional = yo.getBool("provisional");
+                    var ratingDiff = Opt.of(yo.getInteger("ratingDiff"));
+                    Opt<Boolean> berserk = yo.value().containsKey("berserk") ? Opt.of(yo.getBool("berserk")) : Opt.empty();
+                    var team = Opt.of(yo.getString("team"));
+                    Opt<Player.ArenaInfo> arenaInfo = berserk instanceof Some || team instanceof Some
+                        ? Opt.of(new Player.ArenaInfo(berserk, team))
+                        : Opt.empty();
 
-                    player = new Player.Account(common, rating, provisional);
-
-                    Optional<Boolean> berserk = yo.value().containsKey("berserk")
-                        ? Optional.of(yo.getBool("berserk"))
-                        : Optional.empty();
-                    Optional<String> team = yo.value().containsKey("team")
-                        ? Optional.of(yo.getString("team"))
-                        : Optional.empty();
-
-                    if (berserk.isPresent() || team.isPresent()) {
-                        player = new Player.AccountArena(player, berserk, team);
-                    }
-                }
-
-                if (yo.value().containsKey("ratingDiff")) {
-                    player = new Player.AccountDiff(player, yo.getInteger("ratingDiff"));
+                    player = new Player.Account(common, rating, provisional, ratingDiff, arenaInfo);
                 }
 
                 if (yo.value().get("analysis") instanceof YayObject analysisObject) {
-                    var basic = new Player.Base(
-                                analysisObject.getInteger("inaccuracy"),
-                                analysisObject.getInteger("mistake"),
-                                analysisObject.getInteger("blunder"),
-                                analysisObject.getInteger("acpl"));
-
-                    Player.Analysis analysis = basic;
-                    if (analysisObject.value().containsKey("accuracy")) {
-                        analysis = new Player.Accuracy(basic, analysisObject.getInteger("accuracy"));
-                    }
-
+                    var accuracy = Opt.of(analysisObject.getInteger("accuracy"));
+                    var analysis = new Analysis(
+                            analysisObject.getInteger("inaccuracy"),
+                            analysisObject.getInteger("mistake"),
+                            analysisObject.getInteger("blunder"),
+                            analysisObject.getInteger("acpl"),
+                            accuracy);
                     player = new Player.Analyzed(player, analysis);
                 }
                 return player;
@@ -557,11 +530,13 @@ public class ModelMapper {
         };
         mapper.setCustomMapper(Player.class, gamePlayerMapper);
 
-        mappings.put(Player.class, json -> {
-            var node = Parser.fromString(json);
-            return gamePlayerMapper.apply(node);
-        });
+        mappings.put(Player.class, json -> gamePlayerMapper.apply(Parser.fromString(json)));
 
+        Function<YayNode, UserCommon> userCommonMapper = node -> mapper.fromYayTree(node, UserData.class).toCommon();
+
+        mapper.setCustomMapper(UserCommon.class, userCommonMapper);
+
+        mappings.put(UserCommon.class, json -> userCommonMapper.apply(Parser.fromString(json)));
 
         mappingsArr.put(UserStatus.class, json -> {
             var node = Parser.fromString(json);
@@ -603,30 +578,26 @@ public class ModelMapper {
                     var fullId = gameYo.getString("fullId");
                     var fen = gameYo.getString("fen");
                     var color = Color.valueOf(gameYo.getString("color"));
-                    var lastMove = gameYo.getString("lastMove");
+                    String lm = gameYo.getString("lastMove");
+                    Opt<String> lastMove = (lm != null && ! lm.isBlank()) ? Opt.of(lm) : Opt.empty();
                     var status = Status.valueOf(((YayObject) gameYo.value().get("status")).getInteger("id"));
 
                     VariantType variantType = null;
                     if (gameYo.value().get("variant") instanceof YayObject varYo) {
                         String key = varYo.getString("key");
                         variantType = switch(key) {
-                            case "fromPosition" -> new VariantType.FromPosition(
-                                            "gameStart".equals(eventType) ? gameYo.getString("fen") : ""); // gameFinish unknown fen
+                            case "fromPosition" -> new VariantType.FromPosition(Opt.of(gameYo.getString("initialFen")));
                             default -> VariantType.Variant.valueOf(key);
                         };
                     }
 
                     var speed = Speed.valueOf(gameYo.getString("speed"));
-                    var secondsLeft = gameYo.getInteger("secondsLeft");
-                    GameInfo.TimeInfo timeInfo = secondsLeft == null
-                        ? speed : new GameInfo.Time(speed, secondsLeft);
+                    var timeInfo = new GameInfo.TimeInfo(speed, Opt.of(gameYo.getInteger("secondsLeft")).map(Duration::ofSeconds));
 
                     var rated = gameYo.getBool("rated");
 
                     var hasMoved = gameYo.getBool("hasMoved");
                     var isMyTurn = gameYo.getBool("isMyTurn");
-
-                    // opponent
 
                     GameInfo.Opponent opponent = null;
                     if (gameYo.value().get("opponent") instanceof YayObject oppYo) {
@@ -635,33 +606,31 @@ public class ModelMapper {
                         String username = oppYo.getString("username");
                         if (aiLevel != null) {
                             opponent = username == null
-                                ? new GameInfo.AI(aiLevel, "Level %d".formatted(aiLevel))
-                                : new GameInfo.AI(aiLevel, username);
+                                ? new AI(aiLevel, "Level %d".formatted(aiLevel))
+                                : new AI(aiLevel, username);
                         } else if(id == null) {
-                            opponent = new GameInfo.Anonymous();
+                            opponent = new Anonymous();
                         } else {
                             int rating = oppYo.getInteger("rating");
-                            Integer ratingDiff = oppYo.getInteger("ratingDiff");
-                            var account = new GameInfo.Account(id, username, rating);
-                            opponent = ratingDiff == null ? account : new GameInfo.AccountDiff(account, ratingDiff);
+                            opponent = new GameInfo.Account(id, username, rating, Opt.of(oppYo.getInteger("ratingDiff")));
                         }
                     }
-
                     var source = gameYo.getString("source");
 
-                    GameInfo.TournamentInfo tournamentInfo = new GameInfo.None();
-                    String swissId = gameYo.getString("swissId");
-                    String arenaId = gameYo.getString("tournamentId");
+                    TournamentId tournamentInfo = null;
+                    var swissId = gameYo.getString("swissId");
+                    var arenaId = gameYo.getString("tournamentId");
                     if (swissId != null) {
-                        tournamentInfo = new GameInfo.SwissId(swissId);
+                        tournamentInfo = TournamentId.swiss(swissId);
                     } else if(arenaId != null) {
-                        tournamentInfo = new GameInfo.ArenaId(arenaId);
+                        tournamentInfo = TournamentId.arena(arenaId);
                     }
 
                     var gameInfo = new GameInfo(fullId, gameId, fen,
                             color, status, variantType, timeInfo,
                             rated, hasMoved, isMyTurn, opponent,
-                            source, tournamentInfo);
+                            source, lastMove,
+                            Opt.of(gameYo.getInteger("ratingDiff")), Opt.of(tournamentInfo));
 
                     Event.Compat compat = null;
                     if (gameYo.value().get("compat") instanceof YayObject compatYo) {
@@ -669,21 +638,22 @@ public class ModelMapper {
                     }
 
                     gameEvent = switch(eventType) {
-                        case "gameStart" -> new Event.GameStartEvent(gameInfo, compat);
+                        case "gameStart"  -> new Event.GameStartEvent(gameInfo, compat);
                         case "gameFinish" -> {
-                            var ratingDiff = gameYo.getInteger("ratingDiff");
-                            Enums.Outcome outcome = status.status() > 25 ? Enums.Outcome.draw : Enums.Outcome.none;
+                            Enums.Outcome outcome = status.status() > 25
+                                ? Enums.Outcome.draw
+                                : Enums.Outcome.none;
                             String winner = gameYo.getString("winner");
                             if (winner != null) {
-                                outcome  = Color.valueOf(winner) == color ? Enums.Outcome.win : Enums.Outcome.loss;
+                                outcome = Color.valueOf(winner) == color
+                                    ? Enums.Outcome.win
+                                    : Enums.Outcome.loss;
                             }
-                            Event.Result result = ratingDiff == null ? new Event.Casual(outcome) : new Event.Rated(outcome, ratingDiff);
 
-                            yield new Event.GameStopEvent(gameInfo, lastMove, result, compat);
+                            yield new Event.GameStopEvent(gameInfo, outcome, compat);
                         }
                         default -> null;
                     };
-
 
                     yield gameEvent;
                 }
@@ -705,17 +675,13 @@ public class ModelMapper {
                     }
 
                     challengeEvent = switch(eventType) {
-                        case "challenge" -> {
-                            String rematchOf = challengeYo.getString("rematchOf");
-                            yield rematchOf == null
-                                ? new Event.ChallengeCreatedEvent(challengeInfo, compat)
-                                : new Event.ChallengeRematchEvent(challengeInfo, rematchOf, compat);
-                        }
+                        case "challenge"         -> new Event.ChallengeCreatedEvent(challengeInfo,
+                                                        Opt.of(challengeYo.getString("rematchOf")), compat);
                         case "challengeCanceled" -> new Event.ChallengeCanceledEvent(challengeInfo);
                         case "challengeDeclined" -> new Event.ChallengeDeclinedEvent(challengeInfo,
-                                            new Event.DeclineReason(
-                                                challengeYo.getString("declineReasonKey"),
-                                                challengeYo.getString("declineReason")));
+                                                        new Event.DeclineReason(
+                                                            challengeYo.getString("declineReasonKey"),
+                                                            challengeYo.getString("declineReason")));
                         default -> null;
                     };
 
@@ -731,10 +697,84 @@ public class ModelMapper {
 
         mapper.setCustomMapper(Event.class, eventMapper);
 
-        mappings.put(Event.class, json -> {
-            var node = Parser.fromString(json);
-            return eventMapper.apply(node);
-        });
+        mappings.put(Event.class, json -> eventMapper.apply(Parser.fromString(json)));
+
+        Function<YayNode, GameStateEvent.State> gameStateEventStateMapper = node -> {
+            if (! (node instanceof YayObject stateYo)) return null;
+            return new GameStateEvent.State(
+                    stateYo.getString("moves"),
+                    Duration.ofMillis(stateYo.getLong("wtime")),
+                    Duration.ofMillis(stateYo.getLong("btime")),
+                    Duration.ofMillis(stateYo.getLong("winc")),
+                    Duration.ofMillis(stateYo.getLong("binc")),
+                    Status.valueOf(stateYo.getString("status")),
+                    Opt.of(stateYo.getString("winner")).map(Color::valueOf),
+                    stateYo.getBool("wdraw")
+                        ? Opt.of(Color.white)
+                        : stateYo.getBool("bdraw")
+                          ? Opt.of(Color.black)
+                          : Opt.empty(),
+                    stateYo.getBool("wtakeback")
+                        ? Opt.of(Color.white)
+                        : stateYo.getBool("btakeback")
+                          ? Opt.of(Color.black)
+                          : Opt.empty(),
+                    Opt.of(stateYo.getString("rematch"))
+                    );
+        };
+
+        Function<YayNode, Side> sideMapper = node -> {
+            if (! (node instanceof YayObject yo)) return new Anonymous();
+            Integer aiLevel = yo.getInteger("aiLevel");
+            if (aiLevel != null) {
+                return new AI(aiLevel);
+            }
+            String id = yo.getString("id");
+            if (id == null) return new Anonymous();
+            String name = yo.getString("name");
+            String title = yo.getString("title");
+            var userInfo = title == null
+                ? UserInfo.of(id, name)
+                : UserInfo.of(id, name, title);
+            int rating = yo.getInteger("rating");
+            boolean provisional = yo.getBool("provisional");
+            return new GameStateEvent.Account(userInfo, rating, provisional);
+        };
+
+        Function<YayNode, GameStateEvent> gameStateEventMapper = node -> {
+            if (! (node instanceof YayObject yo)) return null;
+            String eventType = yo.getString("type");
+            GameStateEvent event = switch(eventType) {
+                case "gameFull" -> {
+                    String id = yo.getString("id");
+                    GameType gameType = gameTypeMapper.apply(yo);
+                    ZonedDateTime createdAt = Util.fromLong(yo.getLong("createdAt"));
+                    GameStateEvent.Side white = sideMapper.apply(yo.value().get("white"));
+                    GameStateEvent.Side black = sideMapper.apply(yo.value().get("black"));
+                    Opt<TournamentId> tournamentId = Opt.of(yo.getString("tournamentId")).map(TournamentId.ArenaId::new);
+                    var state = gameStateEventStateMapper.apply(yo.value().get("state"));
+
+                    yield new GameStateEvent.Full(id, gameType, createdAt, white, black, tournamentId, state);
+                }
+                case "gameState" -> gameStateEventStateMapper.apply(yo);
+                case "chatLine" -> new GameStateEvent.Chat(yo.getString("username"), yo.getString("text"), yo.getString("room"));
+                case "opponentGone" -> {
+                    boolean gone = yo.getBool("gone");
+                    GameStateEvent.Claim claim = new GameStateEvent.No();
+                    Integer claimWinInSeconds = yo.getInteger("claimWinInSeconds");
+                    if (claimWinInSeconds != null) {
+                        claim = claimWinInSeconds <= 0
+                            ? new GameStateEvent.Yes()
+                            : new GameStateEvent.Soon(Duration.ofSeconds(claimWinInSeconds));
+                    }
+                    yield new GameStateEvent.OpponentGone(gone, claim);
+                }
+                default -> null;
+            };
+            return event;
+        };
+
+        mappings.put(GameStateEvent.class, json -> gameStateEventMapper.apply(Parser.fromString(json)));
 
         mappingsArr.put(RatingHistory.class, json -> {
             var helper = (Function<YayNode, List<RatingHistory.DateResult>>)

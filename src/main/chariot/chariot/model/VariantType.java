@@ -15,6 +15,5 @@ public sealed interface VariantType {
         threeCheck;
     }
 
-    record FromPosition(String fen) implements VariantType {}
-
+    record FromPosition(Opt<String> fen) implements VariantType {}
 }

@@ -23,10 +23,10 @@ public class TestTVFeed {
                 new TVFeedEvent("featured", new Featured(
                         "qVSOPtMc", Color.black, List.of(
                             new TVFeedEvent.PlayerInfo(
-                                new TitledUser("GM", new LightUser("lizen9", "lizen9", false)),
+                                new LightUser("lizen9", Opt.of("GM"), "lizen9", false),
                                 Color.white, 2531, 600),
                             new TVFeedEvent.PlayerInfo(
-                                new TitledUser("WGM", new LightUser("lizen29", "lizen29", false)),
+                                new LightUser("lizen29", Opt.of("WGM"), "lizen29", false),
                                 Color.black, 2594, 600)),
                         "rnbqk1r1/ppp1ppbp/8/N2p2p1/8/1PQPP3/P1P2PPn/R1B1K1NR")),
                 new TVFeedEvent("fen", new Fen(

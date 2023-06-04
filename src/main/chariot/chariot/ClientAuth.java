@@ -5,6 +5,7 @@ import java.util.prefs.Preferences;
 
 import chariot.Client.Scope;
 import chariot.api.*;
+import chariot.api.Analysis;
 import chariot.internal.*;
 import chariot.internal.impl.*;
 import chariot.model.*;

@@ -1,17 +1,11 @@
 package chariot.model;
 
-import java.util.Optional;
-
-public sealed interface UserCommon permits User, UserStatus, LightUser, TitledUser, Disabled {
+public sealed interface UserCommon permits User, UserStatus, LightUser, Disabled {
 
     default String id() { return lightUser().id(); }
     default String name() { return lightUser().name(); }
     default boolean patron() { return lightUser().patron(); }
-    default Optional<String> titleOpt() {
-        return userCommon() instanceof TitledUser tu
-            ? Optional.of(tu.title())
-            : Optional.empty();
-    }
+    default Opt<String> title() { return lightUser().title(); }
 
     private UserCommon userCommon() {
         if (this instanceof UserAuth auth) {
@@ -46,8 +40,7 @@ public sealed interface UserCommon permits User, UserStatus, LightUser, TitledUs
     private LightUser lightUser() {
         var userCommon = userCommon();
         if (userCommon instanceof LightUser lightUser) return lightUser;
-        if (userCommon instanceof TitledUser titledUser) return titledUser.user();
-        if (userCommon instanceof Disabled disabled) return new LightUser(disabled.id(), disabled.name(), false);
+        if (userCommon instanceof Disabled disabled) return new LightUser(disabled.id(), Opt.empty(), disabled.name(), false);
         return null;
     }
 }
