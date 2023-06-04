@@ -3,7 +3,6 @@ package chariot;
 import java.util.Collection;
 import java.util.prefs.Preferences;
 
-import chariot.Client.Scope;
 import chariot.api.*;
 import chariot.api.Analysis;
 import chariot.internal.*;
@@ -13,7 +12,7 @@ import chariot.model.*;
 /**
  * {@code ClientAuth} provides authenticated access to the <a href="https://lichess.org/api">Lichess API</a>.
  */
-public class ClientAuth extends ClientBase  {
+public class ClientAuth extends Client {
 
     final AccountHandler accountHandler;
     final AdminHandler adminHandler;
@@ -29,10 +28,10 @@ public class ClientAuth extends ClientBase  {
     }
 
     /**
-     * {@inheritDoc} <br>
+     * Access registered users on Lichess.
      * Send messages to users.
      */
-    public UsersAuth users() {
+    public UsersAuth usersAuth() {
         return usersHandler;
     }
 

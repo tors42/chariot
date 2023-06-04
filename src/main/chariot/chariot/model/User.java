@@ -33,6 +33,7 @@ public sealed interface User extends UserCommon permits UserAuth, UserProfile, P
     default UserCount         accountStats()  { return userProfile().stats().counts();       }
     default Provided          profile()       { return userProfile().profile();              }
     default URI               url()           { return userProfile().url();                  }
+    default Opt<List<Trophy>> trophies()      { return userProfile().trophies();             }
 
     default Optional<URI>     playingUri() {
         var user = user();

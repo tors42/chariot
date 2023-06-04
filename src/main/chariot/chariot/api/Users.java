@@ -17,13 +17,13 @@ public interface Users extends UsersBase {
 
     Many<User> byIds(String ... userIds);
 
-//    /**
-//     * Get public user data
-//     *
-//     * @param userId
-//     * @param params
-//     */
-//    One<User> byId(String userId, Consumer<UserParams> params);
+    /**
+     * Get public user data
+     *
+     * @param userId
+     * @param params
+     */
+    One<User> byId(String userId, Consumer<UserParams> params);
 
 
     /**
@@ -34,14 +34,14 @@ public interface Users extends UsersBase {
     Many<User> byIds(List<String> userIds);
 
 
-//    public interface UserParams {
-//        /**
-//         * Whether or not to include any trophies in the result
-//         */
-//        UserParams withTrophies(boolean withTrophies);
-//
-//        default UserParams withTrophies() { return withTrophies(true); }
-//    }
+    public interface UserParams {
+        /**
+         * Whether or not to include any trophies in the result
+         */
+        UserParams withTrophies(boolean withTrophies);
+
+        default UserParams withTrophies() { return withTrophies(true); }
+    }
 
     public interface CrosstableParams {
         /**

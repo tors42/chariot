@@ -20,6 +20,10 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     }
 
     public User toUser() {
+        return toUser(false);
+    }
+
+    public User toUser(boolean includeTrophies) {
         UserCommon common = toCommon();
         Provided profile = _profile().orElse(Provided.emptyProfile);
         UserStats stats = new UserStats(_ratings().orElse(Map.of()), _count().orElse(null));
@@ -30,13 +34,18 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
                 _verified().orElse(false),
                 _streaming().orElse(false));
         URI url = _url().orElse(null);
-        UserProfile profileUser = new UserProfile(common, profile, stats, times, flags, url);
+        Opt<List<Trophy>> trophies = includeTrophies ? Opt.of(_trophies().orElse(List.of())) : Opt.empty();
+        UserProfile profileUser = new UserProfile(common, profile, stats, times, flags, trophies, url);
         User user = _playing().map(playingUrl -> (User) new PlayingUser(profileUser, playingUrl)).orElse(profileUser);
         return user;
     }
 
     public UserAuth toUserAuth() {
-        User user = toUser();
+        return toUserAuth(false);
+    }
+
+    public UserAuth toUserAuth(boolean includeTrophies) {
+        User user = toUser(includeTrophies);
         UserAuthFlags auth = new UserAuthFlags(
                 _followable().orElse(false),
                 _following().orElse(false),

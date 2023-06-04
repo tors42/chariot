@@ -9,6 +9,7 @@ import java.util.prefs.Preferences;
 import chariot.api.*;
 import chariot.api.Builders.*;
 import chariot.internal.*;
+import chariot.model.Opt;
 
 /**
  * Provides access to the <a href="https://lichess.org/api">Lichess API</a>.
@@ -294,12 +295,12 @@ public class Client extends chariot.internal.ClientBase {
     }
 
 
-    ///**
-    // * Retrieves an Optional containing a {@code ClientAuth} if this is such a client, otherwise empty.
-    // */
-    //Optional<ClientAuth> asAuth() {
-    //    return this instanceof Default def && def.config() instanceof Config.Auth a ? Optional.of((ClientAuth)this) : Optional.empty();
-    //}
+    /**
+     * Retrieves an Opt containing a {@code ClientAuth} if this is such a client, otherwise empty.
+     */
+    public Opt<ClientAuth> asAuth() {
+        return this instanceof ClientAuth ca ? Opt.of(ca) : Opt.empty();
+    }
 
     /**
      * Configure logging levels
@@ -311,8 +312,7 @@ public class Client extends chariot.internal.ClientBase {
     }
 
     private static Client load(Config config) {
-        // hmm, check if auth?
-        return new Client(config);
+        return config instanceof Config.Auth authConfig ? new ClientAuth(authConfig) : new Client(config);
     }
 
     private static Client basic(Config.Basic config) {

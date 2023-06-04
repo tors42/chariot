@@ -16,8 +16,8 @@ public class UsersHandler extends UsersBaseHandler implements Users {
         super(requestHandler);
     }
 
-//    @Override
-//    public One<User> byId(String userId) { return byId(userId, p -> p.withTrophies(false)); }
+    @Override
+    public One<User> byId(String userId) { return byId(userId, p -> p.withTrophies(false)); }
 
     @Override
     public Many<User> byIds(String ... userIds) {
@@ -25,16 +25,21 @@ public class UsersHandler extends UsersBaseHandler implements Users {
     }
 
     @Override
-    public One<User> byId(String userId) { //, Consumer<UserParams> params) {
+    public One<User> byId(String userId, Consumer<UserParams> params) {
+        var parameterMap = MapBuilder.of(UserParams.class)
+            .addCustomHandler("withTrophies", (args, map) -> {
+                if (args[0] instanceof Boolean b && b.booleanValue()) map.put("trophies", 1);
+            }).toMap(params);
+
         var result = Endpoint.userById.newRequest(request -> request
                 .path(userId)
-                //.query(MapBuilder.of(UserParams.class)
-                //    .addCustomHandler("withTrophies", (args, map) -> {
-                //        if (args[0] instanceof Boolean b && b.booleanValue()) map.put("trophies", 1);
-                //    }).toMap(params))
+                .query(parameterMap)
                 )
             .process(super.requestHandler);
-        return result.mapOne(UserData::toUser);
+
+        boolean trophies = parameterMap.containsKey("trophies");
+
+        return result.mapOne(ud -> ud.toUser(trophies));
     }
 
     @Override

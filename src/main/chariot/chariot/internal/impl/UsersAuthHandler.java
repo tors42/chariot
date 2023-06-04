@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import chariot.api.UsersAuth;
+import chariot.api.Users.UserParams;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 
@@ -16,8 +17,8 @@ public class UsersAuthHandler extends UsersBaseHandler implements UsersAuth {
         super(requestHandler);
     }
 
-    //@Override
-    //public One<UserAuth> byId(String userId) { return byId(userId, p -> p.withTrophies(false)); }
+    @Override
+    public One<UserAuth> byId(String userId) { return byId(userId, p -> p.withTrophies(false)); }
 
 
     @Override
@@ -26,16 +27,21 @@ public class UsersAuthHandler extends UsersBaseHandler implements UsersAuth {
     }
 
     @Override
-    public One<UserAuth> byId(String userId) { //, Consumer<UserParams> params) {
+    public One<UserAuth> byId(String userId, Consumer<UserParams> params) {
+        var parameterMap = MapBuilder.of(UserParams.class)
+            .addCustomHandler("withTrophies", (args, map) -> {
+                if (args[0] instanceof Boolean b && b.booleanValue()) map.put("trophies", 1);
+            }).toMap(params);
+
         var result = Endpoint.userById.newRequest(request -> request
                 .path(userId)
-                //.query(MapBuilder.of(UserParams.class)
-                //    .addCustomHandler("withTrophies", (args, map) -> {
-                //        if (args[0] instanceof Boolean b && b.booleanValue()) map.put("trophies", 1);
-                //    }).toMap(params))
+                .query(parameterMap)
                 )
             .process(super.requestHandler);
-        return result.mapOne(UserData::toUserAuth);
+
+        boolean trophies = parameterMap.containsKey("trophies");
+
+        return result.mapOne(ud -> ud.toUserAuth(trophies));
     }
 
     @Override
