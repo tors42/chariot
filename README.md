@@ -46,7 +46,6 @@ client.games().importGame()
 client.openingExplorer().masters()
 client.openingExplorer().lichess()
 client.openingExplorer().player()
-client.openingExplorer().lichessHistory()
 
 client.puzzles().dailyPuzzle()
 client.puzzles().byId()
