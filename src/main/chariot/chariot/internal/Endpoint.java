@@ -72,8 +72,8 @@ public sealed interface Endpoint<T> {
     public static EPOne<Void> accountKidStatus =
         Endpoint.of(Void.class).endpoint("/api/account/kid").post().scope(Scope.preference_write).toOne();
 
-    public static EPMany<MyGameInfo> accountNowPlaying =
-        Endpoint.of(MyGameInfo.class).endpoint("/api/account/playing")
+    public static EPMany<GameInfo> accountNowPlaying =
+        Endpoint.of(GameInfo.class).endpoint("/api/account/playing")
         .streamMapper(stream -> stream.map(mapper(PlayingWrapper.class)).filter(Objects::nonNull).flatMap(pw -> pw.nowPlaying().stream()))
         .scope(Scope.any).toMany();
 
@@ -579,7 +579,7 @@ public sealed interface Endpoint<T> {
 
     static record AutocompleteWrapper(List<UserData> result) {}
     static record BulkPairingWrapper(List<BulkPairing> bulks) {}
-    static record PlayingWrapper(List<MyGameInfo> nowPlaying)  {}
+    static record PlayingWrapper(List<GameInfo> nowPlaying)  {}
     static record AccountEmail(String email)  {}
     static record AccountKid(boolean kid)  {}
 

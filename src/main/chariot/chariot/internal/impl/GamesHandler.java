@@ -192,13 +192,13 @@ public class GamesHandler implements GamesAuth {
 
 
     @Override
-    public Many<MyGameInfo> ongoing() {
+    public Many<GameInfo> ongoing() {
         return Endpoint.accountNowPlaying.newRequest(request -> {})
             .process(requestHandler);
     }
 
     @Override
-    public Many<MyGameInfo> ongoing(int nb) {
+    public Many<GameInfo> ongoing(int nb) {
         return Endpoint.accountNowPlaying.newRequest(request -> request
                 .query(Map.of("nb", nb)))
             .process(requestHandler);
