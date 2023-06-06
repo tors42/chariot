@@ -475,21 +475,51 @@ public class ModelMapper {
         mappings.put(UserStatus.class, json -> userStatusMapper.apply(Parser.fromString(json)));
         mappings.put(LiveStreamer.class, json -> streamerStatusMapper.apply(Parser.fromString(json)));
 
-        Function<YayNode, TVFeedEvent.PlayerInfo> playerInfoMapper = node -> {
-            if (node instanceof YayObject yo) {
-                var userData = mapper.fromYayTree(yo.value().get("user"), UserData.class);
-                UserCommon common = userData.toCommon();
-                Color color = Color.valueOf(yo.getString("color"));
-                var rating = yo.getInteger("rating");
-                var seconds = yo.getInteger("seconds");
-                var pi = new TVFeedEvent.PlayerInfo(common, color, rating, seconds);
-                return pi;
-            }
-            return null;
+        Function<YayNode, TVFeedEvent.Featured> tvFeedEventFeaturedMapper = node -> {
+            if (! (node instanceof YayObject yo)) return null;
+            String id = yo.getString("id");
+            Color orientation = Color.valueOf(yo.getString("orientation"));
+            List<TVFeedEvent.PlayerInfo> players = yo.value().get("players") instanceof YayArray yarr
+                ? yarr.value().stream()
+                    .filter(YayObject.class::isInstance)
+                    .map(YayObject.class::cast)
+                    .map(playerYo -> {
+                        if (! (playerYo.value().get("user") instanceof YayObject userYo)) return null;
+                        UserInfo userInfo = UserInfo.of(
+                                userYo.getString("id"),
+                                userYo.getString("name"),
+                                userYo.getString("title"));
+                        Color color = Color.valueOf(playerYo.getString("color"));
+                        var rating = playerYo.getInteger("rating");
+                        var seconds = Duration.ofSeconds(playerYo.getInteger("seconds"));
+                        var pi = new TVFeedEvent.PlayerInfo(userInfo, color, rating, seconds);
+                        return pi;
+                    }).toList()
+                : List.of();
+            String fen = yo.getString("fen");
+            return new TVFeedEvent.Featured(id, orientation, players, fen);
         };
-        mapper.setCustomMapper(TVFeedEvent.PlayerInfo.class, playerInfoMapper);
-
-        mappings.put(TVFeedEvent.PlayerInfo.class, json -> playerInfoMapper.apply(Parser.fromString(json)));
+        Function<YayNode, TVFeedEvent.Fen> tvFeedEventFenMapper = node -> {
+            if (! (node instanceof YayObject yo)) return null;
+            var fen = yo.getString("fen");
+            var lastMove = yo.getString("lm");
+            var whiteTime = Duration.ofSeconds(yo.getLong("wc"));
+            var blackTime = Duration.ofSeconds(yo.getLong("bc"));
+            return new TVFeedEvent.Fen(fen, lastMove, whiteTime, blackTime);
+        };
+        Function<YayNode, TVFeedEvent> tvFeedEventMapper = node -> {
+            TVFeedEvent event = null;
+            if (! (node instanceof YayObject nodeYo)) return event;
+            var data = nodeYo.value().get("d");
+            event = switch(nodeYo.getString("t")) {
+                case "featured" -> tvFeedEventFeaturedMapper.apply(data);
+                case "fen" -> tvFeedEventFenMapper.apply(data);
+                default -> null;
+            };
+            return event;
+        };
+        mapper.setCustomMapper(TVFeedEvent.class, tvFeedEventMapper);
+        mappings.put(TVFeedEvent.class, json -> tvFeedEventMapper.apply(Parser.fromString(json)));
 
         /////
         Function<YayNode, Player> gamePlayerMapper = node -> {
@@ -733,9 +763,7 @@ public class ModelMapper {
             if (id == null) return new Anonymous();
             String name = yo.getString("name");
             String title = yo.getString("title");
-            var userInfo = title == null
-                ? UserInfo.of(id, name)
-                : UserInfo.of(id, name, title);
+            var userInfo = UserInfo.of(id, name, title);
             int rating = yo.getInteger("rating");
             boolean provisional = yo.getBool("provisional");
             return new GameStateEvent.Account(userInfo, rating, provisional);

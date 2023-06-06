@@ -2,6 +2,7 @@ package tests.api.games;
 
 import util.*;
 
+import java.time.Duration;
 import java.util.List;
 
 import chariot.Client;
@@ -20,18 +21,12 @@ public class TestTVFeed {
 
         // prepare expected response
         var expected = List.of(
-                new TVFeedEvent("featured", new Featured(
+                new Featured(
                         "qVSOPtMc", Color.black, List.of(
-                            new TVFeedEvent.PlayerInfo(
-                                new LightUser("lizen9", Opt.of("GM"), "lizen9", false),
-                                Color.white, 2531, 600),
-                            new TVFeedEvent.PlayerInfo(
-                                new LightUser("lizen29", Opt.of("WGM"), "lizen29", false),
-                                Color.black, 2594, 600)),
-                        "rnbqk1r1/ppp1ppbp/8/N2p2p1/8/1PQPP3/P1P2PPn/R1B1K1NR")),
-                new TVFeedEvent("fen", new Fen(
-                        "rnbqk1r1/ppp1ppbp/8/N2p2p1/8/1PQPP3/P1P2PPn/R1B1K1NR",
-                        "d2d4", 1, 1)));
+                            new PlayerInfo(UserInfo.of("lizen9","lizen9", "GM"), Color.white, 2531, Duration.ofSeconds(600)),
+                            new PlayerInfo(UserInfo.of("lizen29", "lizen29", "WGM"), Color.black, 2594, Duration.ofSeconds(600))),
+                        "rnbqk1r1/ppp1ppbp/8/N2p2p1/8/1PQPP3/P1P2PPn/R1B1K1NR"),
+                new Fen("rnbqk1r1/ppp1ppbp/8/N2p2p1/8/1PQPP3/P1P2PPn/R1B1K1NR", "d2d4", Duration.ofSeconds(1), Duration.ofSeconds(1)));
 
         var responseBodies = List.of(
             """

@@ -1,14 +1,13 @@
 package chariot.model;
 
+import java.time.Duration;
 import java.util.List;
 
 import chariot.model.Enums.Color;
 
-public record TVFeedEvent(String t, Data d) {
-    public sealed interface Data permits Featured, Fen {}
+public sealed interface TVFeedEvent {
+    public record Featured(String id, Color orientation, List<PlayerInfo> players, String fen) implements TVFeedEvent {}
+    public record Fen(String fen, String lastMove, Duration whiteTime, Duration blackTime) implements TVFeedEvent {}
 
-    public record Featured(String id, Color orientation, List<PlayerInfo> players, String fen) implements Data {}
-    public record Fen(String fen, String lm, Integer wc, Integer bc) implements Data {}
-
-    public record PlayerInfo(UserCommon user, Color color, Integer rating, Integer seconds) {}
+    public record PlayerInfo(UserInfo user, Color color, int rating, Duration time) {}
 }
