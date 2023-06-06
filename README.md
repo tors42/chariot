@@ -248,7 +248,7 @@ Build with latest Java. A JDK archive can be downloaded and unpacked from https:
     OpenJDK 64-Bit Server VM (build 20.0.1+9-29, mixed mode, sharing)
 
     $ java build/Build.java
-    55 successful tests
+    56 successful tests
     0 failed tests
 
 The resulting artifact, `out/modules/chariot-0.0.1-SNAPSHOT.jar`, will be compatible with Java release 17
@@ -269,13 +269,13 @@ System.out.println(client.teams().byTeamId("lichess-swiss")
 ```
 
     $ jshell --module-path out/modules --add-module chariot -q build/example.jsh
-    Team Lichess Swiss has 250795 members!
+    Team Lichess Swiss has 356440 members!
     jshell>
 
 Tip, it is possible to write code interactively in JShell
 
     jshell> client.teams().numberOfTeams();
-    $4 ==> 284025
+    $4 ==> 317840
     jshell> /exit
 
 ### 2. Example.java
