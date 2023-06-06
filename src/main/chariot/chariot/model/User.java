@@ -4,21 +4,10 @@ import java.net.URI;
 import java.time.*;
 import java.util.*;
 
-import chariot.model.UserData.Provided;
+public sealed interface User extends UserCommon permits UserAuth, UserProfileData {
 
-public sealed interface User extends UserCommon permits UserAuth, UserProfile, PlayingUser {
-
-    private User user() {
-        if (this instanceof PlayingUser playingUser) return playingUser.user();
-        if (this instanceof UserProfileAuth userProfileAuth) return userProfileAuth.user();
-        return this;
-    }
-
-    private UserProfile userProfile() {
-        var user = user();
-        if (user instanceof UserProfile userProfile) return userProfile;
-        if (user instanceof PlayingUser playingUser) return playingUser.user();
-        if (user instanceof UserProfileAuth userProfileAuth) return userProfileAuth.user().userProfile();
+    private UserProfileData userProfile() {
+        if (this instanceof UserProfileData userProfile) return userProfile;
         return null;
     }
 
@@ -31,16 +20,8 @@ public sealed interface User extends UserCommon permits UserAuth, UserProfile, P
     default Duration          playTimeTotal() { return userProfile().times().played();       }
     default Duration          playTimeTv()    { return userProfile().times().featured();     }
     default UserCount         accountStats()  { return userProfile().stats().counts();       }
-    default Provided          profile()       { return userProfile().profile();              }
+    default ProvidedProfile   profile()       { return userProfile().profile();              }
     default URI               url()           { return userProfile().url();                  }
+    default Opt<URI>          playingUrl()    { return userProfile().playingUrl(); }
     default Opt<List<Trophy>> trophies()      { return userProfile().trophies();             }
-
-    default Optional<URI>     playingUri() {
-        var user = user();
-        if (user instanceof UserProfileAuth userProfileAuth) {
-            user = userProfileAuth.user();
-        }
-        if (user instanceof PlayingUser playingUser) return Optional.of(playingUser.url());
-        return Optional.empty();
-    }
 }

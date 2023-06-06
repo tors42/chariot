@@ -24,8 +24,20 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     }
 
     public User toUser(boolean includeTrophies) {
+        return toUserProfileData(includeTrophies);
+    }
+
+    public UserAuth toUserAuth() {
+        return toUserAuth(false);
+    }
+
+    public UserAuth toUserAuth(boolean includeTrophies) {
+        return toUserProfileData(includeTrophies);
+    }
+
+    public UserProfileData toUserProfileData(boolean includeTrophies) {
         UserCommon common = toCommon();
-        Provided profile = _profile().orElse(Provided.emptyProfile);
+        ProvidedProfile profile = _profile().orElse(Provided.emptyProfile);
         UserStats stats = new UserStats(_ratings().orElse(Map.of()), _count().orElse(null));
         UserTimes times = new UserTimes(_createdAt().orElse(null), _seenAt().orElse(null), _playTime().map(PlayTime::total).orElse(null), _playTime().map(PlayTime::tv).orElse(null));
         UserFlags flags = new UserFlags(
@@ -35,35 +47,42 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
                 _streaming().orElse(false));
         URI url = _url().orElse(null);
         Opt<List<Trophy>> trophies = includeTrophies ? Opt.of(_trophies().orElse(List.of())) : Opt.empty();
-        UserProfile profileUser = new UserProfile(common, profile, stats, times, flags, trophies, url);
-        User user = _playing().map(playingUrl -> (User) new PlayingUser(profileUser, playingUrl)).orElse(profileUser);
-        return user;
-    }
-
-    public UserAuth toUserAuth() {
-        return toUserAuth(false);
-    }
-
-    public UserAuth toUserAuth(boolean includeTrophies) {
-        User user = toUser(includeTrophies);
-        UserAuthFlags auth = new UserAuthFlags(
+        Opt<UserAuthFlags> authFlags = Opt.empty();
+        if (_followable() instanceof Some<Boolean>) {
+            authFlags = Opt.of(new UserAuthFlags(
                 _followable().orElse(false),
                 _following().orElse(false),
                 _followsYou().orElse(false),
-                _blocking().orElse(false));
-        return new UserProfileAuth(user, auth);
+                _blocking().orElse(false)));
+        }
+        var userProfileData = new UserProfileData(
+                common,
+                profile,
+                stats,
+                times,
+                flags,
+                Opt.of(_playing().orElse(null)),
+                authFlags,
+                trophies,
+                url);
+        return userProfileData;
     }
 
     public UserStatus toUserStatus() {
         UserCommon common = toCommon();
-        UStatus status = new UStatus(common, _online().orElse(false), _isPlaying().orElse(false));
-        UserStatus userStatus = _playingGameId().map(gameId -> (UserStatus) new PlayingStatus(status, gameId)).orElse(status);
-        return userStatus;
+        UserStatusData status = new UserStatusData(
+                common,
+                _online().orElse(false),
+                _isPlaying().orElse(false),
+                Opt.of(_playingGameId().orElse(null)));
+
+        System.out.println(status);
+        return status;
     }
 
     public LiveStreamer toLiveStreamer() {
         UserCommon common = toCommon();
-        return new LiveStreamer(common);
+        return new LiveStreamer(common, _liveStreamInfo().orElse(null), _liveStreamerInfo().orElse(null));
     }
 
     public TeamMember toTeamMember() {
@@ -107,13 +126,13 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
         static <T extends Enum<T>, U> Property<T, U> of(T key, U value) { return new Property<>(key, value); }
     }
 
-    Optional<String> property(UserPropertyEnum key) { return property(key, String.class); }
-    Optional<Boolean> propertyB(UserPropertyEnum key) { return property(key, Boolean.class); }
+    Opt<String> property(UserPropertyEnum key) { return property(key, String.class); }
+    Opt<Boolean> propertyB(UserPropertyEnum key) { return property(key, Boolean.class); }
 
-    <T> Optional<T> property(UserPropertyEnum key, Class<T> cls) {
+    <T> Opt<T> property(UserPropertyEnum key, Class<T> cls) {
         var property = properties().get(key);
-        if (property == null) return Optional.empty();
-        return cls.isInstance(property) ? Optional.of(cls.cast(property)) : Optional.empty();
+        if (property == null) return Opt.empty();
+        return cls.isInstance(property) ? Opt.of(cls.cast(property)) : Opt.empty();
     }
 
     public UserData {
@@ -125,31 +144,31 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     public String     _id()       { return property(id).orElse(null); }
     public String     _username() { return property(username).orElseGet(() -> _name()); }
     public String     _name()     { return property(UserPropertyEnum.name).orElseGet(() -> property(username).orElse(null)); }
-    Optional<String>  _title() { return property(title); }
-    Optional<Boolean> _patron() { return propertyB(patron); }
-    Optional<Boolean> _online() { return propertyB(online); }
-    Optional<Boolean> _streaming() { return propertyB(streaming); }
-    Optional<Boolean> _isPlaying() { return propertyB(playing); }
-    Optional<URI>     _playing() { return property(playingUrl, URI.class); }
-    Optional<String>  _playingGameId() { return property(playingGameId); }
-    Optional<Boolean> _tosViolation() { return propertyB(tosViolation); }
-    Optional<Boolean> _disabled() { return propertyB(disabled); }
-    Optional<Boolean> _verified() { return propertyB(verified); }
-    Optional<List<Trophy>> _trophies() { return property(trophies, Trophies.class).map(Trophies::trophies); }
-    Optional<PlayTime> _playTime() { return property(playTime, PlayTime.class); }
-    Optional<ZonedDateTime> _createdAt() { return property(createdAt, ZonedDateTime.class); }
-    Optional<ZonedDateTime> _seenAt() { return property(seenAt, ZonedDateTime.class); }
-    Optional<URI>     _url() { return property(url, URI.class); }
-    Optional<UserCount> _count() { return property(counts, UserCount.class); }
-    Optional<Map<StatsPerfType, StatsPerf>> _ratings() { return property(ratings, Ratings.class).map(Ratings::ratings); }
-    Optional<Provided> _profile() { return property(profile, Provided.class); }
-    Optional<Boolean> _followable() { return propertyB(followable); }
-    Optional<Boolean> _following() { return propertyB(following); }
-    Optional<Boolean> _followsYou() { return propertyB(followsYou); }
-    Optional<Boolean> _blocking() { return propertyB(blocking); }
-    Optional<ZonedDateTime> _joinedTeamAt() { return property(joinedTeamAt, ZonedDateTime.class); }
-    Optional<StreamInfo> _liveStreamInfo() { return property(streamInfo, StreamInfo.class); }
-    Optional<StreamerInfo> _liveStreamerInfo() { return property(streamerInfo, StreamerInfo.class); }
+    Opt<String>  _title() { return property(title); }
+    Opt<Boolean> _patron() { return propertyB(patron); }
+    Opt<Boolean> _online() { return propertyB(online); }
+    Opt<Boolean> _streaming() { return propertyB(streaming); }
+    Opt<Boolean> _isPlaying() { return propertyB(playing); }
+    Opt<URI>     _playing() { return property(playingUrl, URI.class); }
+    Opt<String>  _playingGameId() { return property(playingGameId); }
+    Opt<Boolean> _tosViolation() { return propertyB(tosViolation); }
+    Opt<Boolean> _disabled() { return propertyB(disabled); }
+    Opt<Boolean> _verified() { return propertyB(verified); }
+    Opt<List<Trophy>> _trophies() { return property(trophies, Trophies.class).map(Trophies::trophies); }
+    Opt<PlayTime> _playTime() { return property(playTime, PlayTime.class); }
+    Opt<ZonedDateTime> _createdAt() { return property(createdAt, ZonedDateTime.class); }
+    Opt<ZonedDateTime> _seenAt() { return property(seenAt, ZonedDateTime.class); }
+    Opt<URI>     _url() { return property(url, URI.class); }
+    Opt<UserCount> _count() { return property(counts, UserCount.class); }
+    Opt<Map<StatsPerfType, StatsPerf>> _ratings() { return property(ratings, Ratings.class).map(Ratings::ratings); }
+    Opt<Provided> _profile() { return property(profile, Provided.class); }
+    Opt<Boolean> _followable() { return propertyB(followable); }
+    Opt<Boolean> _following() { return propertyB(following); }
+    Opt<Boolean> _followsYou() { return propertyB(followsYou); }
+    Opt<Boolean> _blocking() { return propertyB(blocking); }
+    Opt<ZonedDateTime> _joinedTeamAt() { return property(joinedTeamAt, ZonedDateTime.class); }
+    Opt<StreamInfo> _liveStreamInfo() { return property(streamInfo, StreamInfo.class); }
+    Opt<StreamerInfo> _liveStreamerInfo() { return property(streamerInfo, StreamerInfo.class); }
 
     public UserData withProperties(Map<UserPropertyEnum, ?> map) {
         return new UserData(Collections.unmodifiableMap(new EnumMap<>(map)));
@@ -164,51 +183,51 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     public record Trophies(List<Trophy> trophies) {}
     public record Ratings(Map<StatsPerfType, StatsPerf> ratings) {}
 
-    public record Provided(Map<ProfilePropertyEnum, ?> properties) {
+    public record Provided(Map<ProfilePropertyEnum, ?> properties) implements ProvidedProfile {
 
         public static final Provided emptyProfile = new Provided(Map.of());
 
-        public Optional<String> country() { return property(country); }
-        public Optional<String> location() { return property(location); }
-        public Optional<String> bio() { return property(bio); }
-        public Optional<String> firstName() { return property(firstName); }
-        public Optional<String> lastName() { return property(lastName); }
-        public Optional<String> links() { return property(links); }
-        public Optional<Integer> ratingFide() { return propertyI(ratingFide); }
-        public Optional<Integer> ratingUscf() { return propertyI(ratingUscf); }
-        public Optional<Integer> ratingEcf() { return propertyI(ratingEcf); }
-        public Optional<Integer> ratingRcf() { return propertyI(ratingRcf); }
-        public Optional<Integer> ratingCfc() { return propertyI(ratingCfc); }
-        public Optional<Integer> ratingDsb() { return propertyI(ratingDsb); }
+        public Opt<String> country() { return property(country); }
+        public Opt<String> location() { return property(location); }
+        public Opt<String> bio() { return property(bio); }
+        public Opt<String> firstName() { return property(firstName); }
+        public Opt<String> lastName() { return property(lastName); }
+        public Opt<String> links() { return property(links); }
+        public Opt<Integer> ratingFide() { return propertyI(ratingFide); }
+        public Opt<Integer> ratingUscf() { return propertyI(ratingUscf); }
+        public Opt<Integer> ratingEcf() { return propertyI(ratingEcf); }
+        public Opt<Integer> ratingRcf() { return propertyI(ratingRcf); }
+        public Opt<Integer> ratingCfc() { return propertyI(ratingCfc); }
+        public Opt<Integer> ratingDsb() { return propertyI(ratingDsb); }
 
-        Optional<String> property(ProfilePropertyEnum key) { return property(key, String.class); }
-        Optional<Integer> propertyI(ProfilePropertyEnum key) { return property(key, Integer.class); }
+        Opt<String> property(ProfilePropertyEnum key) { return property(key, String.class); }
+        Opt<Integer> propertyI(ProfilePropertyEnum key) { return property(key, Integer.class); }
 
-        <T> Optional<T> property(ProfilePropertyEnum key, Class<T> cls) {
+        <T> Opt<T> property(ProfilePropertyEnum key, Class<T> cls) {
             var property = properties().get(key);
-            if (property == null) return Optional.empty();
-            return cls.isInstance(property) ? Optional.of(cls.cast(property)) : Optional.empty();
+            if (property == null) return Opt.empty();
+            return cls.isInstance(property) ? Opt.of(cls.cast(property)) : Opt.empty();
         }
     }
 
 
     public record PlayTime(Duration total, Duration tv) {}
-    public record StreamInfo(String service, String status, String lang) {}
-    public record StreamerInfo(Map<StreamerInfoPropertyEnum, ?> properties) {
+    public record StreamInfo(String service, String status, String lang) implements chariot.model.StreamInfo {}
+    public record StreamerInfo(Map<StreamerInfoPropertyEnum, ?> properties) implements chariot.model.StreamerInfo {
         public String name()              { return property(StreamerInfoPropertyEnum.name).orElse(null); }
         public String headline()          { return property(headline).orElse(null); }
         public String description()       { return property(description).orElse(null); }
 
-        public Optional<String> twitch()  { return property(twitch); }
-        public Optional<String> youtube() { return property(youtube); }
-        public Optional<String> image()   { return property(image); }
+        public Opt<String> twitch()  { return property(twitch); }
+        public Opt<String> youtube() { return property(youtube); }
+        public Opt<String> image()   { return property(image); }
 
-        Optional<String> property(StreamerInfoPropertyEnum key) { return property(key, String.class); }
+        Opt<String> property(StreamerInfoPropertyEnum key) { return property(key, String.class); }
 
-        <T> Optional<T> property(StreamerInfoPropertyEnum key, Class<T> cls) {
+        <T> Opt<T> property(StreamerInfoPropertyEnum key, Class<T> cls) {
             var property = properties().get(key);
-            if (property == null) return Optional.empty();
-            return cls.isInstance(property) ? Optional.of(cls.cast(property)) : Optional.empty();
+            if (property == null) return Opt.empty();
+            return cls.isInstance(property) ? Opt.of(cls.cast(property)) : Opt.empty();
         }
 
         public StreamerInfo withAddedProperty(Property<StreamerInfoPropertyEnum, ?> property)   {

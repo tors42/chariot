@@ -21,20 +21,18 @@ public sealed interface UserCommon permits User, UserStatus, LightUser, Disabled
     }
 
     private UserCommon userCommon(UserAuth user) {
-        UserProfileAuth profileUserAuth = (UserProfileAuth) user;
-        return userCommon(profileUserAuth.user());
+        UserProfileData profileData = (UserProfileData) user;
+        return profileData.common();
     }
 
     private UserCommon userCommon(User user) {
-        if (user instanceof UserProfile profileUser) return profileUser.common();
-        if (user instanceof PlayingUser playingUser) return playingUser.user().common();
+        if (user instanceof UserProfileData profileUser) return profileUser.common();
         return null;
     }
 
     private UserCommon userCommon(UserStatus userStatus) {
-       if (userStatus instanceof UStatus ustatus) return ustatus.common();
-       if (userStatus instanceof PlayingStatus playingStatus) return playingStatus.status().common();
-       return null;
+        if (userStatus instanceof UserStatusData ustatus) return ustatus.common();
+        return null;
     }
 
     private LightUser lightUser() {

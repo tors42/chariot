@@ -363,7 +363,7 @@ public class ModelMapper {
                     case "playing"      -> entry.getValue() instanceof YayBool bool
                             ? playing.of(bool.value())
                             : playingUrl.of(URI.create(yo.getString(entry.getKey())));
-                    case "playingID"    -> playingGameId.of(yo.getString(entry.getKey()));
+                    case "playingId"    -> playingGameId.of(yo.getString(entry.getKey()));
                     case "tosViolation" -> tosViolation.of(yo.getBool(entry.getKey()));
                     case "disabled"     -> disabled.of(yo.getBool(entry.getKey()));
                     case "closed"       -> closed.of(yo.getBool(entry.getKey()));
@@ -429,7 +429,7 @@ public class ModelMapper {
                                 default            -> StreamerInfoPropertyEnum.unmapped.of(streamerEntry);
                             })
                             .collect(Collectors.toUnmodifiableMap(Property::key, Property::value));
-                         yield streamerInfo.of(new StreamerInfo(map));
+                         yield streamerInfo.of(new UserData.StreamerInfo(map));
                     }
                     default -> UserPropertyEnum.unmapped.of(entry);
                 })

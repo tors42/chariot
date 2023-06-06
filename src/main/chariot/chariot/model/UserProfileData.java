@@ -3,14 +3,14 @@ package chariot.model;
 import java.net.URI;
 import java.util.List;
 
-import chariot.model.UserData.Provided;
-
-public record UserProfile(
+public record UserProfileData(
         UserCommon common,
-        Provided profile,
+        ProvidedProfile profile,
         UserStats stats,
         UserTimes times,
         UserFlags flags,
+        Opt<URI> playingUrl,
+        Opt<UserAuthFlags> authFlags,
         Opt<List<Trophy>> trophies,
-        URI url) implements User {
+        URI url) implements User, UserAuth {
 }
