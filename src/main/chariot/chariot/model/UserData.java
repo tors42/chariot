@@ -76,7 +76,6 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
                 _isPlaying().orElse(false),
                 Opt.of(_playingGameId().orElse(null)));
 
-        System.out.println(status);
         return status;
     }
 
