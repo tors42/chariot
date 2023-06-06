@@ -17,7 +17,7 @@ public record CurrentSimuls(
             String id,
             String text,
             String name,
-            String fullname,
+            String fullName,
             boolean isCreated,
             boolean isFinished,
             boolean isRunning,
@@ -30,7 +30,7 @@ public record CurrentSimuls(
             List<Variant> variants) {
             public Simul {
                 name = orEmpty(name);
-                fullname = orEmpty(fullname);
+                fullName = orEmpty(fullName);
                 text = orEmpty(text);
             }
 
