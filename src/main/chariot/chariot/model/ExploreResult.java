@@ -3,22 +3,25 @@ package chariot.model;
 import java.util.*;
 
 import chariot.model.Enums.Color;
+import chariot.model.Enums.Speed;
 
 public sealed interface ExploreResult {
 
     record OpeningDB (
-            int white,
-            int draws,
-            int black,
+            long white,
+            long draws,
+            long black,
             List<DBMove> moves,
             List<DBGame> topGames,
             List<DBGame> recentGames,
+            List<ERStats> history,
             Optional<EROpening> opening) implements ExploreResult {}
+    record ERStats(String month, long black, long draws, long white) {}
 
     record OpeningPlayer(
-            int white,
-            int draws,
-            int black,
+            long white,
+            long draws,
+            long black,
             List<PlayerMove> moves,
             List<PlayerGame> topGames,
             List<PlayerGame> recentGames,
@@ -28,9 +31,9 @@ public sealed interface ExploreResult {
     record DBMove(
             String uci,
             String san,
-            int white,
-            int draws,
-            int black,
+            long white,
+            long draws,
+            long black,
             int averageRating,
             Optional<DBGame> game) {}
 
@@ -38,6 +41,8 @@ public sealed interface ExploreResult {
             String uci,
             String id,
             Optional<Color> winner,
+            Speed speed,
+            String mode,
             ERPlayer white,
             ERPlayer black,
             int year,
@@ -46,9 +51,9 @@ public sealed interface ExploreResult {
     record PlayerMove(
             String uci,
             String san,
-            int white,
-            int draws,
-            int black,
+            long white,
+            long draws,
+            long black,
             int averageOpponentRating,
             int performance,
             Optional<PlayerGame> game) {}
@@ -64,9 +69,6 @@ public sealed interface ExploreResult {
             int year,
             String month) {}
 
-    record ERPlayer(String name, Integer rating) {}
+    record ERPlayer(String name, int rating) {}
     record EROpening(String eco, String name) {}
-
-    record HistoryStats(List<ERStats> history, EROpening opening) {}
-    record ERStats(String month, int black, int draws, int white) {}
 }

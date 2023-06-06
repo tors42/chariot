@@ -33,13 +33,6 @@ public interface OpeningExplorer {
     default One<ExploreResult.OpeningDB> lichess() { return lichess(__ -> { }); }
 
     /**
-     * Opening statistics of games sampled from all Lichess players, grouped by month. Starts with the first month that has any data, or at since if given.
-     */
-    One<ExploreResult.HistoryStats> lichessHistory(Consumer<HistoryBuilder> params);
-
-    default One<ExploreResult.HistoryStats> lichessHistory() { return lichessHistory(__ -> { }); }
-
-    /**
      * Find Player games from Opening Explorer<br>
      */
     One<ExploreResult.OpeningPlayer> player(String userId, Consumer<PlayerBuilder> params);
@@ -150,6 +143,17 @@ public interface OpeningExplorer {
             return ratings(Set.of(ratings));
         }
 
+        /**
+         * Retrieve history<br>
+         * Default false
+         */
+        default LichessBuilder history() { return history(true); }
+
+        /**
+         * Retrieve history<br>
+         * Default false
+         */
+        LichessBuilder history(boolean history);
     }
 
     interface PlayerBuilder extends CommonOpeningExplorer<PlayerBuilder>, CommonLichessOpeningExplorer<PlayerBuilder> {

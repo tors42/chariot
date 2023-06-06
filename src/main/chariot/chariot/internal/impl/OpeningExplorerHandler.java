@@ -81,25 +81,4 @@ public class OpeningExplorerHandler implements OpeningExplorer {
                 .process(requestHandler);
     }
 
-    @Override
-    public One<HistoryStats> lichessHistory(Consumer<HistoryBuilder> params) {
-        return Endpoint.exploreLichessHistory.newRequest(request -> request
-                .query(MapBuilder.of(HistoryBuilder.class)
-                        .addCustomHandler("speeds", (args, map) -> {
-                            @SuppressWarnings("unchecked")
-                            var speeds = (Set<Speed>) args[0];
-                            if (!speeds.isEmpty()) {
-                                map.put("speeds", speeds.stream().map(Speed::name).collect(Collectors.joining(",")));
-                            }
-                        })
-                        .addCustomHandler("ratings", (args, map) -> {
-                            @SuppressWarnings("unchecked")
-                            var ratings = (Set<RatingGroup>) args[0];
-                            if (!ratings.isEmpty()) {
-                                map.put("ratings", ratings.stream().map(RatingGroup::asString)
-                                        .collect(Collectors.joining(",")));
-                            }
-                        }).toMap(params)))
-                .process(requestHandler);
-    }
 }
