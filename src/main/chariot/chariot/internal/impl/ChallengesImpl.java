@@ -1,8 +1,7 @@
 package chariot.internal.impl;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.time.*;
+import java.util.*;
 import java.util.function.Consumer;
 
 import chariot.api.*;
@@ -30,6 +29,8 @@ public class ChallengesImpl implements Challenges {
         Set<String> rules = new HashSet<>();
         var builder = MapBuilder.of(OpenEndedParams.class)
             .addCustomHandler("users", (args, map) -> map.put("users", args[0] + "," + args[1]))
+            .addCustomHandler("expiresIn",  (args, map) -> map.put("expiresAt",
+                        Instant.now().plus((Duration)args[0]).toEpochMilli()))
             .addCustomHandler("noAbort",    (args, map) -> rules.add("noAbort"))
             .addCustomHandler("noRematch",  (args, map) -> rules.add("noRematch"))
             .addCustomHandler("noGiveTime", (args, map) -> rules.add("noGiveTime"))

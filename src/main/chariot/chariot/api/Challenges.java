@@ -1,5 +1,6 @@
 package chariot.api;
 
+import java.time.Duration;
 import java.util.function.*;
 
 import chariot.model.ChallengeOpenEnded;
@@ -43,5 +44,10 @@ public interface Challenges {
         OpenEndedParams noRematch();
         OpenEndedParams noGiveTime();
         OpenEndedParams noClaimWin();
+
+        /**
+         * Defaults to 24h after creation. Can't be more than 2 weeks after creation.
+         */
+        OpenEndedParams expiresIn(Duration expiresIn);
     }
 }
