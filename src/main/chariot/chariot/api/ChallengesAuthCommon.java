@@ -65,6 +65,7 @@ public interface ChallengesAuthCommon {
         ChallengeParams noRematch();
         ChallengeParams noGiveTime();
         ChallengeParams noClaimWin();
+        ChallengeParams noEarlyDraw();
 
         default ChallengeParams color(Function<ColorPref.Provider, ColorPref> color) { return color(color.apply(ColorPref.provider())); }
         default ChallengeParams variant(Function<VariantName.Provider, VariantName> variant) {return variant(variant.apply(VariantName.provider())); }

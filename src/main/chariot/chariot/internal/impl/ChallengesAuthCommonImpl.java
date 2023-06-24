@@ -186,7 +186,9 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
             .addCustomHandler("noAbort",    (args, map) -> rules.add("noAbort"))
             .addCustomHandler("noRematch",  (args, map) -> rules.add("noRematch"))
             .addCustomHandler("noGiveTime", (args, map) -> rules.add("noGiveTime"))
-            .addCustomHandler("noClaimWin", (args, map) -> rules.add("noClaimWin"));
+            .addCustomHandler("noClaimWin", (args, map) -> rules.add("noClaimWin"))
+            .addCustomHandler("noEarlyDraw", (args, map) -> rules.add("noEarlyDraw"))
+            ;
 
         var challengeBuilder = new ChallengeBuilder() {
             @Override

@@ -44,6 +44,7 @@ public interface Challenges {
         OpenEndedParams noRematch();
         OpenEndedParams noGiveTime();
         OpenEndedParams noClaimWin();
+        OpenEndedParams noEarlyDraw();
 
         /**
          * Defaults to 24h after creation. Can't be more than 2 weeks after creation.

@@ -166,6 +166,7 @@ public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
         BulkParams noRematch();
         BulkParams noGiveTime();
         BulkParams noClaimWin();
+        BulkParams noEarlyDraw();
 
         record Pairing(Supplier<char[]> tokenWhite, Supplier<char[]> tokenBlack) {}
     }
