@@ -183,10 +183,6 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
     private Map<String, Object> challengeBuilderToMap(Consumer<ChallengeBuilder> consumer) {
         Set<String> rules = new HashSet<>();
         var builder = MapBuilder.of(ChallengeParams.class)
-            .addCustomHandler("acceptByToken", (args, map) -> {
-                map.put("acceptByToken", args[0]);
-                if (args.length == 2) map.put("message", args[1]);
-            })
             .addCustomHandler("noAbort",    (args, map) -> rules.add("noAbort"))
             .addCustomHandler("noRematch",  (args, map) -> rules.add("noRematch"))
             .addCustomHandler("noGiveTime", (args, map) -> rules.add("noGiveTime"))

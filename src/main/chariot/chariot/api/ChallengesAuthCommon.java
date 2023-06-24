@@ -61,30 +61,6 @@ public interface ChallengesAuthCommon {
          */
         ChallengeParams fen(String fen);
 
-        /**
-         * Immediately accept the challenge and create the game.
-         * @param acceptByToken Pass in an OAuth token (with the challenge:write scope) for the receiving user.
-         * <p>On success, the response will contain a game field instead of a challenge field.<br/>
-         * Alternatively, consider the bulk pairing API.
-         */
-        ChallengeParams acceptByToken(String acceptByToken);
-
-        /**
-         * Immediately accept the challenge and create the game.
-         * @param acceptByToken Pass in an OAuth token (with the challenge:write scope) for the receiving user.
-         * On success, the response will contain a game field instead of a challenge field.
-         * Alternatively, consider the bulk pairing API.
-         *
-         * @param message Message that is sent to each player, when the game is created.
-         * Default: "Your game with {opponent} is ready: {game}."
-         * It is sent from your user account.
-         * {opponent}, {player} and {game} are placeholders that will be replaced with
-         * the opponent name, player name, and the game URLs.
-         * You can omit this field to send the default message - see <code>acceptByToken(String acceptByToken)</code>,
-         * but if you set your own message, it must at least contain the {game} placeholder.
-         */
-        ChallengeParams acceptByToken(String acceptByToken, String message);
-
         ChallengeParams noAbort();
         ChallengeParams noRematch();
         ChallengeParams noGiveTime();
