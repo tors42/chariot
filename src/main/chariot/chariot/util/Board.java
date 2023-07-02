@@ -987,13 +987,20 @@ public sealed interface Board {
                 }
                 case 'a','b','c','d','e','f','g','h' -> {
                     final char file = chars[0];
+
+                    // a1=Q -> a2a1q
+                    String promotion = "";
+                    if (move.contains("=")) {
+                        promotion = move.substring(move.indexOf("=")+1).toLowerCase();
+                        move = move.substring(0, move.indexOf("="));
+                    }
                     var to = Coordinate.name(move.substring(move.length()-2));
 
                     // d3    d2d3
                     // d4    d2d4 / d3d4
                     // dc6
                     // dc6
-                    yield pieceMap.entrySet().stream()
+                    String uci = pieceMap.entrySet().stream()
                                 .filter(entry -> entry.getValue().type() == PieceType.PAWN)
                                 .filter(entry -> entry.getValue().color() == fen.whoseTurn())
                                 .map(entry -> entry.getKey().name())
@@ -1004,6 +1011,8 @@ public sealed interface Board {
                                 .map(fromName -> fromName + to.name())
                                 .findAny()
                                 .orElse("");
+                    uci += promotion;
+                    yield uci;
                 }
                 default -> "";
             };
