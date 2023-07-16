@@ -2,6 +2,7 @@ package chariot.model;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import chariot.model.Enums.Color;
 import chariot.model.Enums.VariantName;
@@ -24,28 +25,40 @@ public sealed interface Arena {
     Integer nbPlayers();
     List<Duel> duels();
     Standing standing();
+    String description();
 
     record Upcoming(
         String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
 
         Integer secondsToStart,
-        GreatPlayer greatPlayer
+        GreatPlayer greatPlayer,
+        String description
 
-        ) implements Arena { }
+        ) implements Arena {
 
+        public Upcoming {
+            description =  Objects.toString(description, "");
+        }
+    }
 
     record Ongoing(
         String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
 
         boolean isStarted,
         Integer secondsToFinish,
-        Featured featured
+        Featured featured,
+        String description
 
         ) implements Arena {
-            public record Featured(String id, String fen, String orientation, Color color, String lastMove, Player white, Player black, String winner) {
-                public record Player(int rank, String name, int rating) {}
-            }
+
+        public Ongoing {
+            description =  Objects.toString(description, "");
         }
+
+        public record Featured(String id, String fen, String orientation, Color color, String lastMove, Player white, Player black, String winner) {
+            public record Player(int rank, String name, int rating) {}
+        }
+    }
 
     record Finished(
         String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
@@ -54,9 +67,14 @@ public sealed interface Arena {
         boolean isRecentlyFinished,
         boolean pairingsClosed, // When isRecentlyFinished=true vanishes, a pairingsClosed=true shows up...
         List<Podium> podium,
-        Stats stats
+        Stats stats,
+        String description
 
         ) implements Arena {
+
+        public Finished {
+            description =  Objects.toString(description, "");
+        }
 
         public record Podium (String name, Integer rank, Integer rating, Integer score, Sheet sheet, String team, NB nb, Integer performance) {
             public Podium {
@@ -68,7 +86,6 @@ public sealed interface Arena {
         public record Stats ( Integer games, Integer moves, Integer whiteWins, Integer blackWins, Integer draws, Integer berserks, Integer averageRating)  {}
     }
 
-
     record TeamUpcoming(
         String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
 
@@ -77,10 +94,15 @@ public sealed interface Arena {
 
         List<TeamStanding> teamStanding,
         DuelTeams duelTeams,
-        TeamBattle teamBattle
+        TeamBattle teamBattle,
+        String description
 
-        ) implements Arena {}
+        ) implements Arena {
 
+        public TeamUpcoming {
+            description =  Objects.toString(description, "");
+        }
+    }
 
     record TeamOngoing(
         String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
@@ -91,13 +113,18 @@ public sealed interface Arena {
 
         List<TeamStanding> teamStanding,
         DuelTeams duelTeams,
-        TeamBattle teamBattle
+        TeamBattle teamBattle,
+        String description
 
         ) implements Arena {
-            public record Featured(String id, String fen, String orientation, String color, String lastMove, Player white, Player black, String winner) {
-                public record Player(int rank, String name, int rating) {}
-            }
+
+        public TeamOngoing {
+            description =  Objects.toString(description, "");
         }
+        public record Featured(String id, String fen, String orientation, String color, String lastMove, Player white, Player black, String winner) {
+            public record Player(int rank, String name, int rating) {}
+        }
+    }
 
     record TeamFinished(
         String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
@@ -110,9 +137,14 @@ public sealed interface Arena {
 
         List<TeamStanding> teamStanding,
         DuelTeams duelTeams,
-        TeamBattle teamBattle
+        TeamBattle teamBattle,
+        String description
 
         ) implements Arena {
+
+        public TeamFinished {
+            description =  Objects.toString(description, "");
+        }
 
         public record Podium (String name, Integer rank, Integer rating, Integer score, Sheet sheet, String team, NB nb, Integer performance) {
             public Podium {
