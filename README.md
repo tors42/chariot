@@ -243,9 +243,9 @@ order to get things like code completion support and other good stuff.
 Build with latest Java. A JDK archive can be downloaded and unpacked from https://jdk.java.net/
 
     $ java -version
-    openjdk version "20.0.1" 2023-04-18
-    OpenJDK Runtime Environment (build 20.0.1+9-29)
-    OpenJDK 64-Bit Server VM (build 20.0.1+9-29, mixed mode, sharing)
+    openjdk version "20.0.2" 2023-07-18
+    OpenJDK Runtime Environment (build 20.0.2+9-78)
+    OpenJDK 64-Bit Server VM (build 20.0.2+9-78, mixed mode, sharing)
 
     $ java build/Build.java
     56 successful tests
@@ -269,13 +269,13 @@ System.out.println(client.teams().byTeamId("lichess-swiss")
 ```
 
     $ jshell --module-path out/modules --add-module chariot -q build/example.jsh
-    Team Lichess Swiss has 356440 members!
+    Team Lichess Swiss has 371290 members!
     jshell>
 
 Tip, it is possible to write code interactively in JShell
 
     jshell> client.teams().numberOfTeams();
-    $4 ==> 317840
+    $4 ==> 322113
     jshell> /exit
 
 ### 2. Example.java
