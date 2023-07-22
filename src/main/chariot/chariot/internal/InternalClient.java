@@ -108,7 +108,7 @@ public class InternalClient {
 
         var statusCode = httpResponse.statusCode();
         if (statusCode >= 200 && statusCode <= 299) {
-            config.logging().request().info(() -> "%s".formatted(httpResponse));
+            config.logging().response().info(() -> "%s".formatted(httpResponse));
 
             var stream = httpResponse.body()
                 .peek(string -> { if (! string.isEmpty()) config.logging().response().info(() -> string); })
@@ -124,9 +124,9 @@ public class InternalClient {
             };
 
             if (statusCode >= 500)
-                config.logging().request().warning(msg);
+                config.logging().response().warning(msg);
             else
-                config.logging().request().info(msg);
+                config.logging().response().info(msg);
 
             config.logging().response().info(() -> responseBody);
 
@@ -143,7 +143,7 @@ public class InternalClient {
             // Perform a retry in a minute...
             throttle429.set(true);
 
-            config.logging().request().warning(() -> "%s".formatted(response));
+            config.logging().response().warning(() -> "%s".formatted(response));
 
             if (retries > 0) {
                 var builder = HttpRequest.newBuilder(httpRequest, (n, v) -> true);
@@ -272,7 +272,7 @@ public class InternalClient {
             config.logging().auth().info(log);
             return response.headers();
         } else {
-            config.logging().request().warning(log);
+            config.logging().response().warning(log);
             return null;
         }
     }
