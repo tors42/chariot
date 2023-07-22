@@ -144,7 +144,7 @@ public interface TournamentsAuth extends Tournaments {
         default ArenaParams rated() { return rated(true); }
 
         /**
-         * @param position Custom initial position (in FEN) for all games of the tournament. Must be a legal chess position. Only works with standard chess, not variants (except Chess960).
+         * @param position Custom initial position (in FEN). Variant must be `standard`, `fromPosition`, or `chess960` (if a valid 960 starting position), and the game cannot be rated.
          */
         ArenaParams position(String position);
 
@@ -321,7 +321,7 @@ public interface TournamentsAuth extends Tournaments {
         default SwissParams chatFor(Function<ChatFor.Provider, ChatFor> chatFor) { return chatFor(chatFor.apply(ChatFor.provider())); };
 
         /**
-         * @param position Custom initial position (in FEN) for all games of the tournament. Must be a legal chess position. Only works with standard chess, not variants (except Chess960).
+         * @param position Custom initial position (in FEN). Variant must be `standard`, `fromPosition`, or `chess960` (if a valid 960 starting position), and the game cannot be rated.
          */
         SwissParams position(String position);
 
