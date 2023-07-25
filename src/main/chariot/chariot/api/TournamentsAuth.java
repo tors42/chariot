@@ -368,6 +368,25 @@ public interface TournamentsAuth extends Tournaments {
         default SwissParams addManualBye(String player) { return addManualPairing(player, "1"); }
 
         record Pairing(String player1, String player2) {}
+
+        /**
+         * @param conditionMinRating Minimum rating to join. Leave empty to let everyone join the tournament.<br>
+         * Valid values: 1000 1100 1200 1300 1400 1500 1600 1700 1800 1900 2000 2100 2200 2300 2400 2500 2600
+         */
+        SwissParams conditionMinRating(int conditionMinRating);
+
+        /**
+         * @param conditionMaxRating Maximum rating to join. Based on best rating reached in the last 7 days. Leave empty to let everyone join the tournament. <br>
+         * Valid values: 2200 2100 2000 1900 1800 1700 1600 1500 1400 1300 1200 1100 1000 900 800
+         */
+        SwissParams conditionMaxRating(int conditionMaxRating);
+
+        /**
+         * @param conditionMinRatedGames Minimum number of rated games required to join.<br>
+         * Valid values: [ 0 .. 200 ]
+         */
+        SwissParams conditionMinRatedGames(int conditionMinRatedGames);
+
     }
 
     interface JoinSwissParams {

@@ -238,7 +238,7 @@ public class TournamentsHandler implements TournamentsAuth {
             .rename("conditionTeam", "conditions.teamMember.teamId")
             .rename("conditionMinRating", "conditions.minRating.rating")
             .rename("conditionMaxRating", "conditions.maxRating.rating")
-            .rename("conditionMinRatedGames", "conditions.nbRatedGames.nb")
+            .rename("conditionMinRatedGames", "conditions.nbRatedGame.nb")
             .addCustomHandler("allowList", (args, map) -> {
                 @SuppressWarnings("unchecked")
                 List<String> list = (List<String>) args[0];
@@ -262,6 +262,9 @@ public class TournamentsHandler implements TournamentsAuth {
     private Map<String, Object> swissBuilderToMap(Consumer<SwissBuilder> consumer) {
         var builder = MapBuilder.of(SwissParams.class)
             .rename("entryCode", "password")
+            .rename("conditionMinRating", "conditions.minRating.rating")
+            .rename("conditionMaxRating", "conditions.maxRating.rating")
+            .rename("conditionMinRatedGames", "conditions.nbRatedGame.nb")
             .addCustomHandler("chatFor", (args, map) -> map.put("chatFor", ChatFor.class.cast(args[0]).id))
             .addCustomHandler("allowList", (args, map) -> {
                 @SuppressWarnings("unchecked")
