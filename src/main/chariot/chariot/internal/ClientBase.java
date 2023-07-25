@@ -37,7 +37,7 @@ public abstract class ClientBase {
     protected final UsersHandler usersHandler;
     protected final CustomHandler customHandler;
 
-    protected Config config() {
+    public Config config() {
         return config;
     }
 
