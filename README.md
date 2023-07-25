@@ -220,7 +220,7 @@ Checkout the [JavaDoc](https://tors42.github.io/chariot/chariot/chariot/Client.h
 
 ## Use as Dependency
 
-The coordinates are `io.github.tors42:chariot:0.0.69`, so in a Maven project
+The coordinates are `io.github.tors42:chariot:0.0.70`, so in a Maven project
 the following dependency can be added to the `pom.xml`:
 
 ```xml
@@ -228,7 +228,7 @@ the following dependency can be added to the `pom.xml`:
     <dependency>
       <groupId>io.github.tors42</groupId>
       <artifactId>chariot</artifactId>
-      <version>0.0.69</version>
+      <version>0.0.70</version>
     </dependency>
     ...
 ```
