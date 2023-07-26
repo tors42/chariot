@@ -89,13 +89,14 @@ public class InternalClient {
 
         var httpRequest = builder.build();
 
-        config.logging().request().info(() -> "### Request: %s%nHeaders:%n%s%nBody:%n%s".formatted(
+        config.logging().request().info(() -> "### Request: %s %s%nHeaders:%n%s%nBody:%n%s".formatted(
+                    httpRequest.method(),
                     uri,
                     httpRequest.headers().map().entrySet().stream()
                         .flatMap(e -> e.getValue().stream().map(v -> Util.stripSensitive(e.getKey(), v)))
                         .sorted()
                         .collect(Collectors.joining("\n")),
-                    requestBody)
+                    requestBody.isEmpty() ? "<no body>" : requestBody)
                 );
 
         HttpResponse<Stream<String>> httpResponse;
@@ -108,7 +109,15 @@ public class InternalClient {
 
         var statusCode = httpResponse.statusCode();
         if (statusCode >= 200 && statusCode <= 299) {
-            config.logging().response().info(() -> "%s".formatted(httpResponse));
+
+            Supplier<String> msg = () -> {
+                var headers = httpResponse.headers().map().entrySet().stream()
+                        .map(e -> "[%s] [%s]".formatted(e.getKey(), e.getValue()))
+                        .collect(Collectors.joining("\n"));
+                return "### Response: %s%nHeaders:%n%s".formatted(httpResponse, headers);
+            };
+
+            config.logging().response().info(msg);
 
             var stream = httpResponse.body()
                 .peek(string -> { if (! string.isEmpty()) config.logging().response().info(() -> string); })
@@ -119,8 +128,13 @@ public class InternalClient {
             var responseBody = httpResponse.body().collect(Collectors.joining());
 
             Supplier<String> msg = () -> {
-                var headers = httpResponse.headers().map().entrySet().stream().map(e -> "[%s] [%s]".formatted(e.getKey(), e.getValue())).collect(Collectors.joining("\n"));
-                return "### Response: %s%nBody:%n%s%nHeaders:%n%s".formatted(httpResponse, responseBody.isEmpty() ? "<no body>" : responseBody, headers);
+                var headers = httpResponse.headers().map().entrySet().stream()
+                    .map(e -> "[%s] [%s]".formatted(e.getKey(), e.getValue()))
+                    .collect(Collectors.joining("\n"));
+                return "### Response: %s%nBody:%n%s%nHeaders:%n%s".formatted(
+                        httpResponse,
+                        responseBody.isEmpty() ? "<no body>" : responseBody,
+                        headers);
             };
 
             if (statusCode >= 500)
