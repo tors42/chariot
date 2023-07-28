@@ -5,7 +5,6 @@ public sealed interface VariantType {
 
     enum Variant implements VariantType {
         standard,
-        chess960,
         crazyhouse,
         antichess,
         atomic,
@@ -15,5 +14,6 @@ public sealed interface VariantType {
         threeCheck;
     }
 
+    record Chess960(Opt<String> fen) implements VariantType {}
     record FromPosition(Opt<String> fen) implements VariantType {}
 }

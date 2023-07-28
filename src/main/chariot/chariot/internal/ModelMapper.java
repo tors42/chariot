@@ -125,6 +125,7 @@ public class ModelMapper {
             if (yo.value().get("variant") instanceof YayObject varYo) {
                 String key = varYo.getString("key");
                 variantType = switch(key) {
+                    case "chess960"     -> new VariantType.Chess960(Opt.of(yo.getString("initialFen")));
                     case "fromPosition" -> new VariantType.FromPosition(Opt.of(yo.getString("initialFen")));
                     default             -> VariantType.Variant.valueOf(key);
                 };
@@ -604,8 +605,9 @@ public class ModelMapper {
             if (gameYo.value().get("variant") instanceof YayObject varYo) {
                 String key = varYo.getString("key");
                 variantType = switch(key) {
+                    case "chess960"     -> new VariantType.Chess960(Opt.of(gameYo.getString("initialFen")));
                     case "fromPosition" -> new VariantType.FromPosition(Opt.of(gameYo.getString("initialFen")));
-                        default -> VariantType.Variant.valueOf(key);
+                    default             -> VariantType.Variant.valueOf(key);
                 };
             }
 
