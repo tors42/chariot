@@ -159,6 +159,7 @@ public sealed interface Pgn {
         String value();
 
         static Tag parse(String line) {
+            line = line.trim();
             return  of(line.substring(1, line.indexOf(' ')),
                        line.substring(line.indexOf('"')+1, line.length()-2));
         }
