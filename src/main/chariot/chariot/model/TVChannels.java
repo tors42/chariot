@@ -1,5 +1,7 @@
 package chariot.model;
 
+import chariot.model.Enums.Color;
+
 public record TVChannels (
         TVChannel bot,
         TVChannel blitz,
@@ -19,5 +21,5 @@ public record TVChannels (
         TVChannel topRated
         )  {
 
-    public record TVChannel(UserCommon user, Integer rating, String gameId) {}
+    public record TVChannel(UserCommon user, Integer rating, String gameId, Color color) {}
 }
