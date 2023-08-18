@@ -224,6 +224,12 @@ public interface Games {
          * Only games of a particular player. Leave empty to fetch games of all players.
          */
         Filter player(String userId);
+
+        /**
+         * Include analysis evaluation comments in the PGN, when available.
+         */
+        Filter evals(boolean evals);
+        default Filter evals() { return evals(true); }
     }
 
     interface GameParams extends CommonGameParameters<GameParams>, EvalsAndPlayers<GameParams> {
