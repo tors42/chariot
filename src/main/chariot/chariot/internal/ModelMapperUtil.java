@@ -1,12 +1,6 @@
 package chariot.internal;
 
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import chariot.model.Enums.PerfTypeNoCorr;
-
-import java.util.*;
-import java.util.stream.Stream;
 
 public class ModelMapperUtil {
 
@@ -20,30 +14,6 @@ public class ModelMapperUtil {
         return Map.of("value", "int");
     }
 
-    public static Map<String, String> tvChannelsMapping() {
-        return Stream.concat(Arrays.stream(PerfTypeNoCorr.values())
-                .map(perfType -> Map.entry(perfType.name(), switch(perfType) {
-                    case ultraBullet,
-                         bullet,
-                         blitz,
-                         rapid,
-                         classical,
-                         antichess,
-                         horde,
-                         atomic,
-                         crazyhouse,
-                         chess960      -> capitalize(perfType.name());
-                    case racingKings   -> "Racing Kings";
-                    case threeCheck    -> "Three-check";
-                    case kingOfTheHill -> "King of the Hill";
-                })),
-                Stream.of(
-                    Map.entry("topRated", "Top Rated"),
-                    Map.entry("computer", "Computer"),
-                    Map.entry("bot", "Bot"))
-                ).collect(Collectors.toUnmodifiableMap(Map.Entry::getKey,  Map.Entry::getValue));
-    }
-
     public static Map<String, String> importMapping() {
         return Map.of("imported", "import");
     }
@@ -51,9 +21,4 @@ public class ModelMapperUtil {
     public static Map<String, String> shortMapping() {
         return Map.of("shortname", "short");
     }
-
-    private static String capitalize(String string) {
-        return Character.toUpperCase(string.charAt(0)) + string.substring(1);
-    }
-
 }

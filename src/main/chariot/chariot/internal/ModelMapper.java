@@ -55,7 +55,6 @@ public class ModelMapper {
         // so another name must be used in the Java model.
         mapper.setMappings(PerformanceStatistics.DateResult.class, ModelMapperUtil.intMapping());
         mapper.setMappings(UserCount.class,                ModelMapperUtil.importMapping());
-        mapper.setMappings(TVChannels.class,               ModelMapperUtil.tvChannelsMapping());
         mapper.setMappings(Variant.class,                  ModelMapperUtil.shortMapping());
 
         // "Exotic" JSON model...
