@@ -552,7 +552,7 @@ public class ModelMapper {
                             analysisObject.getInteger("blunder"),
                             analysisObject.getInteger("acpl"),
                             accuracy);
-                    player = new Player.Analyzed(player, analysis);
+                    player = new Player.Analysed(player, analysis);
                 }
                 return player;
             }

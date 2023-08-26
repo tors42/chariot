@@ -1,6 +1,6 @@
 package chariot.model;
 
-public sealed interface Player permits Anonymous, AI, Player.Account, Player.Analyzed {
+public sealed interface Player permits Anonymous, AI, Player.Account, Player.Analysed {
 
     String name();
 
@@ -16,8 +16,8 @@ public sealed interface Player permits Anonymous, AI, Player.Account, Player.Ana
         @Override public String name() { return user.name(); }
     }
 
-    // All types (Anon, AI and Accounts) can be analyzed)
-    record Analyzed(Player player, Analysis analysis) implements Player {
+    // All types (Anon, AI and Accounts) can be analysed)
+    record Analysed(Player player, Analysis analysis) implements Player {
         @Override public String name() { return player.name(); }
     }
 

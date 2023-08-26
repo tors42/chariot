@@ -297,8 +297,8 @@ public interface Games {
         /**
          * Only games with or without a computer analysis available
          */
-        SearchFilter analyzed(boolean analyzed);
-        default SearchFilter analyzed() { return analyzed(true); }
+        SearchFilter analysed(boolean analysed);
+        default SearchFilter analysed() { return analysed(true); }
 
         /**
          * Only games in these speeds or variants.<br>
