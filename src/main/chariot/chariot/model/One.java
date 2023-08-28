@@ -19,7 +19,7 @@ import java.util.function.*;
  * One way to access the value is via an {@link Optional} which can be gotten via {@link #maybe()}
  * {@snippet :
  *      Optional<User> goodUser = good.maybe();
- *      Optioanl<User> badUser  = bad.maybe();
+ *      Optional<User> badUser  = bad.maybe();
  *
  *      goodUser.ifPresent(user -> System.out.println(user.username())); // Lichess
  *      badUser.ifPresent(user  -> System.out.println(user.username())); //
