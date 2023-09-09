@@ -33,6 +33,21 @@ public interface UsersAuth extends UsersBase {
 
     One<Void> sendMessageToUser(String userId, String text);
 
+    /**
+     * Add a private note available only to you about this account.
+     * @param userId the user to write a note about
+     * @param text the note content
+     */
+    One<Void> writeNoteAboutUser(String userId, String text);
+
+    /**
+     * Gets the private notes you've written about an account.
+     *
+     * @param userId the user to read your notes about
+     * @return any private notes you've written about the user
+     */
+    Many<Note> readNotesAboutUser(String userId);
+
     One<Void> followUser(String userId);
 
     One<Void> unfollowUser(String userId);

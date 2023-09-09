@@ -149,6 +149,12 @@ public sealed interface Endpoint<T> {
                 .map(UserData::toUserStatus))
         .toMany();
 
+    public static EPOne<Void> writeNote =
+        Endpoint.of(Void.class).endpoint("/api/user/%s/note").post(wwwform).scope(Scope.any).toOne();
+
+    public static EPMany<Note> readNotes =
+        Endpoint.ofArr(Note.class).endpoint("/api/user/%s/note").scope(Scope.any).toMany();
+
     public static EPMany<LiveStreamer> liveStreamers =
         Endpoint.ofArr(LiveStreamer.class).endpoint("/api/streamer/live").toMany();
 

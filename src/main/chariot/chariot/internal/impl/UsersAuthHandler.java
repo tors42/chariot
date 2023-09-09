@@ -89,5 +89,18 @@ public class UsersAuthHandler extends UsersBaseHandler implements UsersAuth {
             .process(super.requestHandler);
     }
 
+    @Override
+    public One<Void> writeNoteAboutUser(String userId, String text) {
+        return Endpoint.writeNote.newRequest(request -> request
+                .path(userId)
+                .body(Map.of("text", text)))
+            .process(super.requestHandler);
+    }
 
+    @Override
+    public Many<Note> readNotesAboutUser(String userId) {
+        return Endpoint.readNotes.newRequest(request -> request
+                .path(userId))
+            .process(super.requestHandler);
+    }
 }
