@@ -210,9 +210,11 @@ client.tournaments().terminateSwiss()
 client.tournaments().generateUserEntryCodes()
 client.tournaments().updateTeamBattle()
 
-client.users().sendMessageToUser()
-client.users().followUser()
-client.users().unfollowUser()
+client.usersAuth().sendMessageToUser()
+client.usersAuth().followUser()
+client.usersAuth().unfollowUser()
+client.usersAuth().writeNoteAboutUser()
+client.usersAuth().readNotesAboutUser()
 ```
 </details>
 
