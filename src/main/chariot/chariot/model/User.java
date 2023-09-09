@@ -22,6 +22,6 @@ public sealed interface User extends UserCommon permits UserAuth, UserProfileDat
     default UserCount         accountStats()  { return userProfile().stats().counts();       }
     default ProvidedProfile   profile()       { return userProfile().profile();              }
     default URI               url()           { return userProfile().url();                  }
-    default Opt<URI>          playingUrl()    { return userProfile().playingUrl(); }
+    default Opt<URI>          playingUrl()    { return userProfile().playingUrl();           }
     default Opt<List<Trophy>> trophies()      { return userProfile().trophies();             }
 }
