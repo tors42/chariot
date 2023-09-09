@@ -418,6 +418,16 @@ public class ModelMapper {
                         : UserPropertyEnum.unmapped.of(entry);
                     case "streamer" -> {
                         if (! (entry.getValue() instanceof YayObject streamerYo)) yield UserPropertyEnum.unmapped.of(entry);
+
+                        if (! streamerYo.value().containsKey("name")) {
+                            var map = new HashMap<String,String>(2);
+                            if (streamerYo.value().get("twitch") instanceof YayObject twitchYo)
+                                map.put("twitch", twitchYo.getString("channel"));
+                            if (streamerYo.value().get("youTube") instanceof YayObject youtubeYo)
+                                map.put("youTube", youtubeYo.getString("channel"));
+                            yield channelInfo.of(new UserData.ChannelInfo(Collections.unmodifiableMap(map)));
+                        }
+
                         var map = streamerYo.value().entrySet().stream()
                             .map(streamerEntry -> switch(streamerEntry.getKey()) {
                                 case "name"        -> StreamerInfoPropertyEnum.name.of(streamerYo.getString(streamerEntry.getKey()));

@@ -55,6 +55,8 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
                 _followsYou().orElse(false),
                 _blocking().orElse(false)));
         }
+        Opt<String> twitch = _channelInfo() instanceof Some<ChannelInfo> some ? some.value().twitch() : Opt.empty();
+        Opt<String> youtube = _channelInfo() instanceof Some<ChannelInfo> some ? some.value().youtube() : Opt.empty();
         var userProfileData = new UserProfileData(
                 common,
                 profile,
@@ -64,6 +66,8 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
                 Opt.of(_playing().orElse(null)),
                 authFlags,
                 trophies,
+                twitch,
+                youtube,
                 url);
         return userProfileData;
     }
@@ -99,7 +103,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
         tosViolation, disabled, closed, verified, trophies,
         playTime, createdAt, seenAt, url, counts, ratings,
         profile, followable, following, followsYou, blocking,
-        joinedTeamAt, streamInfo, streamerInfo,
+        joinedTeamAt, streamInfo, streamerInfo, channelInfo,
 
         unmapped
         ;
@@ -168,6 +172,12 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     Opt<ZonedDateTime> _joinedTeamAt() { return property(joinedTeamAt, ZonedDateTime.class); }
     Opt<StreamInfo> _liveStreamInfo() { return property(streamInfo, StreamInfo.class); }
     Opt<StreamerInfo> _liveStreamerInfo() { return property(streamerInfo, StreamerInfo.class); }
+    Opt<ChannelInfo> _channelInfo() { return property(channelInfo, ChannelInfo.class); }
+
+    public record ChannelInfo(Map<String, String> channels) {
+        Opt<String> twitch() { return Opt.of(channels.get("twitch")); }
+        Opt<String> youtube() { return Opt.of(channels.get("youTube")); }
+    }
 
     public UserData withProperties(Map<UserPropertyEnum, ?> map) {
         return new UserData(Collections.unmodifiableMap(new EnumMap<>(map)));
