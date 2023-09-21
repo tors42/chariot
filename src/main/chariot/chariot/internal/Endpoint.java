@@ -375,6 +375,12 @@ public sealed interface Endpoint<T> {
         .streamMapper(Util::toPgnStream)
         .accept(chesspgn).scope(Scope.any).toMany();
 
+    public static EPMany<ChapterMeta> importStudyChapters =
+        Endpoint.of(ChapterMeta.class).endpoint("/api/study/%s/import-pgn")
+        .streamMapper(stream -> stream.map(mapper(WrappedChapters.class)).filter(Objects::nonNull).flatMap(wc -> wc.chapters().stream()))
+        .scope(Scope.study_write)
+        .post(wwwform).toMany();
+
     public static EPMany<BulkPairing> bulkPairingGet =
         Endpoint.of(BulkPairing.class).endpoint("/api/bulk-pairing")
         .streamMapper(stream -> stream.map(mapper(BulkPairingWrapper.class)).filter(Objects::nonNull).flatMap(w -> w.bulks().stream()))
@@ -593,6 +599,7 @@ public sealed interface Endpoint<T> {
     static record ArenaResultWrappedSheet(Integer rank, Integer score, Integer rating, String username, String title, Integer performance, String team, WrappedSheet sheet) {
         ArenaResult toArenaResult() { return new ArenaResult(rank, score, rating, username, title, performance, team, sheet.scores()); }
     }
+    static record WrappedChapters(List<ChapterMeta> chapters) {}
 
     public static class Builder<T> {
         private String endpoint = "";

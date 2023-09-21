@@ -4,12 +4,12 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
-import chariot.api.Studies;
+import chariot.api.StudiesAuth;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 
-public class StudiesHandler implements Studies {
+public class StudiesHandler implements StudiesAuth {
 
     private final RequestHandler requestHandler;
     private final InternalClient client;
@@ -60,5 +60,19 @@ public class StudiesHandler implements Studies {
                 .path(user))
             .process(requestHandler);
      }
+
+    @Override
+    public Many<ChapterMeta> importPgn(String studyId, Consumer<ImportParams> params) {
+
+        return Endpoint.importStudyChapters.newRequest(request -> request
+                .path(studyId)
+                .body(MapBuilder.of(ImportParams.class)
+                    .addCustomHandler("orientationWhite", (args, map) -> map.put("orientation", "white"))
+                    .addCustomHandler("orientationBlack", (args, map) -> map.put("orientation", "black"))
+                    .toMap(params))
+                )
+            .process(requestHandler);
+
+    }
 
 }

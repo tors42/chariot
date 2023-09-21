@@ -111,6 +111,12 @@ public class ClientAuth extends Client {
      * {@inheritDoc}
      */
     public PuzzlesAuth puzzles() { return puzzlesHandler; }
+
+    /**
+     * {@inheritDoc}
+     **/
+    public StudiesAuth studies() { return studiesHandler; }
+
     /**
      * {@inheritDoc}
      */
@@ -126,7 +132,6 @@ public class ClientAuth extends Client {
     /** {@inheritDoc} */ @Override public Analysis analysis() { return super.analysis(); }
     /** {@inheritDoc} */ @Override public OpeningExplorer openingExplorer() { return super.openingExplorer(); }
     /** {@inheritDoc} */ @Override public Simuls simuls() { return super.simuls(); }
-    /** {@inheritDoc} */ @Override public Studies studies() { return super.studies(); }
     /** {@inheritDoc} */ @Override public Tablebase tablebase() { return super.tablebase(); }
     /** {@inheritDoc} */ @Override public Custom custom() { return super.custom(); }
 
