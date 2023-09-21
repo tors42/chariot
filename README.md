@@ -187,6 +187,8 @@ client.puzzles().activity()
 client.puzzles().createAndJoinRace()
 client.puzzles().puzzleDashboard()
 
+client.studies().importPgn()
+
 client.teams().joinTeam()
 client.teams().leaveTeam()
 client.teams().messageTeam()
