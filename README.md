@@ -247,9 +247,9 @@ order to get things like code completion support and other good stuff.
 Build with latest Java. A JDK archive can be downloaded and unpacked from https://jdk.java.net/
 
     $ java -version
-    openjdk version "20.0.2" 2023-07-18
-    OpenJDK Runtime Environment (build 20.0.2+9-78)
-    OpenJDK 64-Bit Server VM (build 20.0.2+9-78, mixed mode, sharing)
+    openjdk version "21" 2023-09-19
+    OpenJDK Runtime Environment (build 21+35-2513)
+    OpenJDK 64-Bit Server VM (build 21+35-2513, mixed mode, sharing)
 
     $ java build/Build.java
     56 successful tests
