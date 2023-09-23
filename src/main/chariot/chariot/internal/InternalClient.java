@@ -84,7 +84,7 @@ public class InternalClient {
             builder.header("authorization", "Bearer " + String.valueOf(auth.token().get()));
         }
 
-        builder.header("user-agent", "%s %s".formatted(Util.javaVersion, Util.clientVersion));
+        builder.header("user-agent", config.userAgent());
         request.headers().forEach((k,v) -> builder.header(k,v));
 
         var httpRequest = builder.build();

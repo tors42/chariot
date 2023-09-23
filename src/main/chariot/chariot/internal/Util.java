@@ -1,17 +1,17 @@
 package chariot.internal;
 
-import static java.util.function.Predicate.not;
-
 import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.module.ModuleFinder;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.security.*;
 import java.time.*;
 import java.util.*;
@@ -24,7 +24,7 @@ public class Util {
 
     public static final String javaVersion = _javaVersion();
     public static final String clientVersion = _clientVersion();
-    public static final Predicate<String> notNullNotEmpty = not(String::isEmpty).and(Objects::nonNull);
+    public static final Optional<String> mainAppVersion = _mainAppVersion();
 
     public static String orEmpty(String s) {
         return s == null ? "" : s;
@@ -76,20 +76,35 @@ public class Util {
     }
 
     public static String _clientVersion() {
-        var module = Util.class.getModule();
-        var pkg = Util.class.getPackage();
-        if (module.isNamed()) {
-            return String.join("/", module.getName(),
-                    module.getDescriptor().version().map(v -> v.toString())
-                    .orElse(Optional.ofNullable(pkg.getImplementationVersion()).orElse("<unknown>")));
-        } else {
-            return String.join("/", "chariot",
-                    Optional.ofNullable(pkg.getImplementationVersion()).orElse("<unknown>"));
-        }
+        return moduleNameAndVersion("chariot")
+            .orElseGet(() -> {
+                String version = Util.class.getPackage().getImplementationVersion();
+                if (version == null) version = "?";
+                return "chariot/" + version;
+            });
     }
 
     public static String _javaVersion() {
-        return String.join("/", "Java", Runtime.version().version().stream().map(String::valueOf).collect(Collectors.joining(".")));
+        return "Java/" + Runtime.version().version().stream().map(String::valueOf).collect(Collectors.joining("."));
+    }
+
+    public static Optional<String> _mainAppVersion() {
+        String mainModule = System.getProperty("jdk.module.main");
+        if (mainModule != null) return moduleNameAndVersion(mainModule);
+        return Optional.empty();
+    }
+
+    private static Optional<String> moduleNameAndVersion(String module) {
+        try {
+            return ModuleFinder.ofSystem().find(module)
+                .or(() -> {
+                    try { return ModuleFinder.of(Path.of(System.getProperty("java.class.path"))).find(module);
+                    } catch (Exception __) {}
+                    return Optional.empty();
+                })
+            .map(reference -> reference.descriptor().toNameAndVersion());
+        } catch(Exception __) {}
+        return Optional.empty();
     }
 
     public class MediaType {

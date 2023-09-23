@@ -26,15 +26,16 @@ public sealed interface Config {
     record Auth(Basic basic, Supplier<char[]> token)            implements Config {
         @Override public String toString() { return "Auth[%s]".formatted(basic()); }
     }
-    record Basic(Servers servers, Logging logging, int retries) implements Config {
+    record Basic(Servers servers, Logging logging, int retries, UAInfo uaInfo) implements Config {
 
         // boilerplate begin (can be replaced when reconstruction is in place - https://github.com/openjdk/amber-docs/blob/master/eg-drafts/reconstruction-records-and-classes.md)
-        sealed interface Component permits Config.Servers, Config.Logging , Retries {}
+        sealed interface Component permits Config.Servers, Config.Logging , Retries, UAInfo {}
         record Retries(int value) implements Component { Retries { if (value < 0) throw new IllegalArgumentException("Retries (" + value + ") must not be < 0"); } }
         Basic with(Component component) { return new Basic(
-                component instanceof Servers c ? c       : servers,
-                component instanceof Logging c ? c       : logging,
-                component instanceof Retries c ? c.value : retries);
+                component instanceof Servers   c ? c       : servers,
+                component instanceof Logging   c ? c       : logging,
+                component instanceof Retries   c ? c.value : retries,
+                component instanceof UAInfo    c ? c       : uaInfo);
         }
         Basic with(Component... components) {
             var copy = this;
@@ -106,6 +107,8 @@ public sealed interface Config {
         }
     }
 
+    record UAInfo(String identifier, boolean replace) implements Basic.Component { public UAInfo { Objects.requireNonNull(identifier); } }
+
     enum ServerType {
         api,
         explorer,
@@ -125,9 +128,15 @@ public sealed interface Config {
         return this instanceof Basic basic ? basic : ((Auth) this).basic();
     }
 
-    default int     retries() { return basic().retries(); }
-    default Servers servers() { return basic().servers(); }
-    default Logging logging() { return basic().logging(); }
+    default int     retries()   { return basic().retries();   }
+    default Servers servers()   { return basic().servers();   }
+    default Logging logging()   { return basic().logging();   }
+    default String  userAgent() {
+        String identifier = basic().uaInfo().identifier();
+        if (basic().uaInfo().replace()) return identifier;
+        if (identifier.isEmpty()) return defaultUserAgent();
+        return "%s %s".formatted(defaultUserAgent(), identifier);
+    }
 
     default void store(Preferences prefs) {
         try{prefs.clear();}catch(BackingStoreException bse){}
@@ -140,6 +149,8 @@ public sealed interface Config {
         prefs.put("chariot.response", logging().response().getLevel().toString());
         prefs.put("chariot.auth", logging().auth().getLevel().toString());
         prefs.put("retries", String.valueOf(retries()));
+        prefs.put("ua-identifier", basic().uaInfo().identifier());
+        prefs.putBoolean("ua-replace", basic().uaInfo().replace());
         if (this instanceof Auth auth) prefs.put("auth", String.valueOf(auth.token().get()));
 
         try{prefs.flush();}catch(BackingStoreException bse){}
@@ -155,6 +166,10 @@ public sealed interface Config {
         lookup("chariot.response", prefs, value -> builder.logging(l -> l.response().parse(value)));
         lookup("chariot.auth",     prefs, value -> builder.logging(l -> l.auth().parse(value)));
         lookup("retries",          prefs, value -> builder.retries(Integer.parseInt(value)));
+
+        String uaIdentifier = prefs.get("ua-identifier", "");
+        boolean uaReplace = prefs.getBoolean("ua-replace", Boolean.FALSE);
+        builder.userAgent(uaIdentifier, uaReplace);
 
         Config config = builder.basic;
         String value = prefs.get("auth", prefs.get("omni_", null));
@@ -177,9 +192,12 @@ public sealed interface Config {
         try { prefs.flush();} catch (Exception e) {}
     }
 
+    static String defaultUserAgent() {
+        return "%s %s".formatted(Util.javaVersion, Util.clientVersion) + Util.mainAppVersion.map(value -> " " + value).orElse("");
+    }
 
     class BasicConfigBuilder implements ConfigBuilder {
-        Basic basic = new Basic(Servers.of(), Logging.of(), 1 /*retries*/);
+        Basic basic = new Basic(Servers.of(), Logging.of(), 1 /*retries*/, new UAInfo("", false));
 
         @Override
         public ConfigBuilder api(URI uri) {
@@ -206,6 +224,12 @@ public sealed interface Config {
         @Override
         public ConfigBuilder retries(int retries) {
             basic = basic.with(new Config.Basic.Retries(retries));
+            return this;
+        }
+
+        @Override
+        public ConfigBuilder userAgent(String identifier, boolean replaceAll) {
+            basic = basic.with(new Config.Basic.UAInfo(identifier, replaceAll));
             return this;
         }
     }

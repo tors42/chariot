@@ -105,6 +105,32 @@ public interface Builders {
          * Default: 1 retry
          */
         ConfigBuilder retries(int retries);
+
+        /**
+         * Customization of the User-Agent header set in HTTP requests.<br/>
+         *
+         * The default value for the User-Agent header is formatted as:<br/>
+         * {@code Java/<java-version> <chariot-module> [main-app] [identifier]},<br/>
+         * where {@code [main-app]} defaults to the main module name and version, if exists (via System property {@systemProperty jdk.module.main}).<br/>
+         * <br/>
+         * Example of User-Agent values:<br/>
+         * {@code Java/21 chariot@0.0.75 my.app@1.2}<br/>
+         * {@code Java/17.0.8.1 chariot@0.0.75}<br/>
+         * {@code Java/17.0.8.1 chariot@0.0.75 My Identifier}<br/>
+         * {@code My Custom User-Agent}<br/>
+         * <br/>
+         * This method can be used to include a custom identifier for Lichess to identify the application.<br/>
+         * It is also possible to replace the entire contents of the User-Agent header by supplying {@code true} for the {@code replaceAll} parameter.
+         *
+         * @param identifier The identifier to add to the User-Agent string
+         * @param replaceAll Replace the entire User-Agent string if the value is true, otherwise the identifier is added to the default User-Agent string
+         */
+        ConfigBuilder userAgent(String identifier, boolean replaceAll);
+
+        /**
+         * See {@link #userAgent(String, boolean)}
+         */
+        default ConfigBuilder userAgent(String identifier) { return userAgent(identifier, false); }
     }
 
     interface ServerBuilder {
