@@ -597,6 +597,7 @@ public sealed interface Endpoint<T> {
     static record AccountKid(boolean kid)  {}
     static record WrappedSheet(String scores) {}
     static record ArenaResultWrappedSheet(Integer rank, Integer score, Integer rating, String username, String title, Integer performance, String team, WrappedSheet sheet) {
+        public ArenaResultWrappedSheet { sheet = sheet == null ? new WrappedSheet("") : sheet; }
         ArenaResult toArenaResult() { return new ArenaResult(rank, score, rating, username, title, performance, team, sheet.scores()); }
     }
     static record WrappedChapters(List<ChapterMeta> chapters) {}
