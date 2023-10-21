@@ -228,41 +228,41 @@ The coordinates are `io.github.tors42:chariot:0.0.76`, so in a Maven project
 the following dependency can be added to the `pom.xml`:
 
 ```xml
-    ...
     <dependency>
       <groupId>io.github.tors42</groupId>
       <artifactId>chariot</artifactId>
       <version>0.0.76</version>
     </dependency>
-    ...
 ```
 
 Here is a link to a simple example Maven project application
 https://github.com/tors42/chariot-example which can be imported into an IDE in
 order to get things like code completion support and other good stuff.
 
+## Try it out in JShell
 
-## Build Chariot
+JShell is a tool which can be used to interactively execute Java code.  
+The tool is included in JDK archives, which can be downloaded and unpacked from https://jdk.java.net/
 
-Build with latest Java. A JDK archive can be downloaded and unpacked from https://jdk.java.net/
+<pre>
+$ <b>jshell</b>
+|  Welcome to JShell -- Version 21.0.1
+|  For an introduction type: /help intro
 
-    $ java -version
-    openjdk version "21" 2023-09-19
-    OpenJDK Runtime Environment (build 21+35-2513)
-    OpenJDK 64-Bit Server VM (build 21+35-2513, mixed mode, sharing)
+jshell>
+</pre>
 
-    $ java build/Build.java
-    56 successful tests
-    0 failed tests
+Tell JShell to download the latest release of chariot and make it available in the JShell environment,
+<pre>
+jshell> <b>Files.write(Path.of("chariot-0.0.76.jar"), URI.create("https://repo1.maven.org/maven2/io/github/tors42/chariot/0.0.76/chariot-0.0.76.jar").toURL().openStream().readAllBytes());</b>
+$1 ==> chariot-0.0.76.jar
 
-The resulting artifact, `out/modules/chariot-0.0.1-SNAPSHOT.jar`, will be compatible with Java release 17
+jshell> <b>/env --module-path chariot-0.0.76.jar --add-module chariot</b>
+|  Setting new options and restoring state.
 
-## Examples (non-project, single files)
-
-### 1. example.jsh
-
-An example of fetching a team and showing its current member count - using JShell
-
+jshell>
+</pre>
+Copy/paste the following example code,
 ```java
 import chariot.Client;
 
@@ -272,17 +272,54 @@ System.out.println(client.teams().byTeamId("lichess-swiss")
     .orElse("Couldn't find team!"));
 ```
 
-    $ jshell --module-path out/modules --add-module chariot -q build/example.jsh
-    Team Lichess Swiss has 371290 members!
-    jshell>
+<pre>
+jshell> <b>import chariot.Client;</b>
+   ...> 
+   ...> <b>var client = Client.basic();</b>
+   ...> <b>System.out.println(client.teams().byTeamId("lichess-swiss")</b>
+   ...> <b>    .map(team -> "Team %s has %d members!".formatted(team.name(), team.nbMembers()))</b>
+   ...> <b>    .orElse("Couldn't find team!"));</b>
+client ==> chariot.Client@dd8ba08
+Team Lichess Swiss has 401808 members!
 
-Tip, it is possible to write code interactively in JShell
+jshell>
+</pre>
+Tip, it is possible to use the tab key to get code completion to discover the API.  
+For instance, after writing `client.teams().` and pressing the tab key,
+<pre>
+jshell> <b>client.teams().</b><i>&lt;press tab key&gt;</i>
+arenaByTeamId(        byTeamId(             byUserId(             equals(
+getClass()            hashCode()            notify()              notifyAll()
+numberOfTeams()       popularTeams()        popularTeamsByPage(   search(
+searchByPage(         swissByTeamId(        toString()            usersByTeamId(
+wait(
+jshell> client.teams().<b>numberOfTeams();</b>
+$4 ==> 331987
 
-    jshell> client.teams().numberOfTeams();
-    $4 ==> 322113
-    jshell> /exit
+jshell> <b>/exit</b>
+|  Goodbye
+</pre>
 
-### 2. Example.java
+## Build Chariot
+
+Build with latest Java. A JDK archive can be downloaded and unpacked from https://jdk.java.net/
+
+<pre>
+$ <b>java -version</b>
+openjdk version "21.0.1" 2023-10-17
+OpenJDK Runtime Environment (build 21.0.1+12-29)
+OpenJDK 64-Bit Server VM (build 21.0.1+12-29, mixed mode, sharing)
+
+$ <b>java build/Build.java</b>
+56 successful tests
+0 failed tests
+</pre>
+
+The resulting artifact, `out/modules/chariot-0.0.1-SNAPSHOT.jar`, will be compatible with Java release 17
+
+## Examples (non-project, single files)
+
+### 1. Example.java
 
 An example which uses a token to authenticate in order to be able to create a Swiss tournament
 
@@ -315,10 +352,12 @@ class Example {
 }
 ```
 
-    $ java -p out/modules --add-modules chariot build/Example.java
-    Entry[entry=Swiss[id=vLx22Ff1, name=My 5+3 Swiss, createdBy=test, startsAt=2022-03-29T17:00:00.000+02:00, status=created, nbOngoing=0, nbPlayers=0, nbRounds=9, round=0, rated=false, variant=standard, clock=Clock[limit=300, increment=3], greatPlayer=null, nextRound=NextRound[at=2022-03-29T17:00:00.000+02:00, in=62693], quote=null]]
+<pre>
+$ <b>java -p out/modules --add-modules chariot build/Example.java</b>
+Entry[entry=Swiss[id=vLx22Ff1, name=My 5+3 Swiss, createdBy=test, startsAt=2022-03-29T17:00:00.000+02:00, status=created, nbOngoing=0, nbPlayers=0, nbRounds=9, round=0, rated=false, variant=standard, clock=Clock[limit=300, increment=3], greatPlayer=null, nextRound=NextRound[at=2022-03-29T17:00:00.000+02:00, in=62693], quote=null]]
+</pre>
 
-### 3. FEN.java
+### 2. FEN.java
 
 An example which feeds moves to a Board in order to track FEN updates, and "draws" the board with text.
 
@@ -366,49 +405,51 @@ class FEN {
 }
 ```
 
-    $ java -p out/modules --add-modules chariot build/FEN.java
-    Initial FEN: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
-    Initial Board:
-    ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜
-    ♟ ♟ ♟ ♟ ♟ ♟ ♟ ♟
-                   
-                   
-                   
-                   
-    ♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙
-    ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖
-    Valid moves (UCI): [a2a3, a2a4, b1a3, b1c3, b2b3, b2b4, c2c3, c2c4, d2d3, d2d4, e2e3, e2e4, f2f3, f2f4, g1f3, g1h3, g2g3, g2g4, h2h3, h2h4]
-    Valid moves (SAN): [  a3,   a4,  Na3,  Nc3,   b3,   b4,   c3,   c4,   d3,   d4,   e3,   e4,   f3,   f4,  Nf3,  Nh3,   g3,   g4,   h3,   h4]
-    Playing: e4 e5 Nf3 Nc6
-    Resulting FEN: r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3
-    Resulting Board:
-    ♜   ♝ ♛ ♚ ♝ ♞ ♜
-    ♟ ♟ ♟ ♟   ♟ ♟ ♟
-        ♞          
-            ♟      
-            ♙      
-              ♘    
-    ♙ ♙ ♙ ♙   ♙ ♙ ♙
-    ♖ ♘ ♗ ♕ ♔ ♗   ♖
-    Board (letter, frame, coordinates):
-      ┌───┬───┬───┬───┬───┬───┬───┬───┐
-    8 │ r │   │ b │ q │ k │ b │ n │ r │
-      ├───┼───┼───┼───┼───┼───┼───┼───┤
-    7 │ p │ p │ p │ p │   │ p │ p │ p │
-      ├───┼───┼───┼───┼───┼───┼───┼───┤
-    6 │   │   │ n │   │   │   │   │   │
-      ├───┼───┼───┼───┼───┼───┼───┼───┤
-    5 │   │   │   │   │ p │   │   │   │
-      ├───┼───┼───┼───┼───┼───┼───┼───┤
-    4 │   │   │   │   │ P │   │   │   │
-      ├───┼───┼───┼───┼───┼───┼───┼───┤
-    3 │   │   │   │   │   │ N │   │   │
-      ├───┼───┼───┼───┼───┼───┼───┼───┤
-    2 │ P │ P │ P │ P │   │ P │ P │ P │
-      ├───┼───┼───┼───┼───┼───┼───┼───┤
-    1 │ R │ N │ B │ Q │ K │ B │   │ R │
-      └───┴───┴───┴───┴───┴───┴───┴───┘
-        a   b   c   d   e   f   g   h
+<pre>
+$ <b>java -p out/modules --add-modules chariot build/FEN.java</b>
+Initial FEN: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+Initial Board:
+♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜
+♟ ♟ ♟ ♟ ♟ ♟ ♟ ♟
+               
+               
+               
+               
+♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙
+♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖
+Valid moves (UCI): [a2a3, a2a4, b1a3, b1c3, b2b3, b2b4, c2c3, c2c4, d2d3, d2d4, e2e3, e2e4, f2f3, f2f4, g1f3, g1h3, g2g3, g2g4, h2h3, h2h4]
+Valid moves (SAN): [  a3,   a4,  Na3,  Nc3,   b3,   b4,   c3,   c4,   d3,   d4,   e3,   e4,   f3,   f4,  Nf3,  Nh3,   g3,   g4,   h3,   h4]
+Playing: e4 e5 Nf3 Nc6
+Resulting FEN: r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3
+Resulting Board:
+♜   ♝ ♛ ♚ ♝ ♞ ♜
+♟ ♟ ♟ ♟   ♟ ♟ ♟
+    ♞          
+        ♟      
+        ♙      
+          ♘    
+♙ ♙ ♙ ♙   ♙ ♙ ♙
+♖ ♘ ♗ ♕ ♔ ♗   ♖
+Board (letter, frame, coordinates):
+  ┌───┬───┬───┬───┬───┬───┬───┬───┐
+8 │ r │   │ b │ q │ k │ b │ n │ r │
+  ├───┼───┼───┼───┼───┼───┼───┼───┤
+7 │ p │ p │ p │ p │   │ p │ p │ p │
+  ├───┼───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │ n │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │   │ p │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │   │ P │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┼───┤
+3 │   │   │   │   │   │ N │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┼───┤
+2 │ P │ P │ P │ P │   │ P │ P │ P │
+  ├───┼───┼───┼───┼───┼───┼───┼───┤
+1 │ R │ N │ B │ Q │ K │ B │   │ R │
+  └───┴───┴───┴───┴───┴───┴───┴───┘
+    a   b   c   d   e   f   g   h
+</pre>
 
 # Applications
 
