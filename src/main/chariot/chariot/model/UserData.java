@@ -14,7 +14,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
         if (_disabled().orElse(false)) {
             return new Disabled(_id(), _name());
         }
-        LightUser lightUser = new LightUser(_id(), Opt.of(_title().orElse(null)), _name(), _patron().orElse(false));
+        LightUser lightUser = new LightUser(_id(), Opt.of(_title().orElse(null)), _name(), _patron().orElse(false), Opt.of(_flair().orElse(null)));
         UserCommon common = lightUser;
         return common;
     }
@@ -98,7 +98,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     public UserData _userData() { return this; }
 
     public enum UserPropertyEnum {
-        id, name, username, title, patron,
+        id, name, username, title, patron, flair,
         online, streaming, playing, playingUrl, playingGameId,
         tosViolation, disabled, closed, verified, trophies,
         playTime, createdAt, seenAt, url, counts, ratings,
@@ -149,6 +149,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     public String     _name()     { return property(UserPropertyEnum.name).orElseGet(() -> property(username).orElse(null)); }
     Opt<String>  _title() { return property(title); }
     Opt<Boolean> _patron() { return propertyB(patron); }
+    Opt<String>  _flair() { return property(flair); }
     Opt<Boolean> _online() { return propertyB(online); }
     Opt<Boolean> _streaming() { return propertyB(streaming); }
     Opt<Boolean> _isPlaying() { return propertyB(playing); }

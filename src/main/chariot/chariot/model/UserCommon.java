@@ -6,6 +6,7 @@ public sealed interface UserCommon permits User, UserStatus, LightUser, Disabled
     default String name() { return lightUser().name(); }
     default boolean patron() { return lightUser().patron(); }
     default Opt<String> title() { return lightUser().title(); }
+    default Opt<String> flair() { return lightUser().flair(); }
 
     private UserCommon userCommon() {
         if (this instanceof UserAuth auth) {
@@ -38,7 +39,7 @@ public sealed interface UserCommon permits User, UserStatus, LightUser, Disabled
     private LightUser lightUser() {
         var userCommon = userCommon();
         if (userCommon instanceof LightUser lightUser) return lightUser;
-        if (userCommon instanceof Disabled disabled) return new LightUser(disabled.id(), Opt.empty(), disabled.name(), false);
+        if (userCommon instanceof Disabled disabled) return new LightUser(disabled.id(), Opt.empty(), disabled.name(), false, Opt.empty());
         return null;
     }
 }
