@@ -224,14 +224,14 @@ Checkout the [JavaDoc](https://tors42.github.io/chariot/chariot/chariot/Client.h
 
 ## Use as Dependency
 
-The coordinates are `io.github.tors42:chariot:0.0.76`, so in a Maven project
+The coordinates are `io.github.tors42:chariot:0.0.77`, so in a Maven project
 the following dependency can be added to the `pom.xml`:
 
 ```xml
     <dependency>
       <groupId>io.github.tors42</groupId>
       <artifactId>chariot</artifactId>
-      <version>0.0.76</version>
+      <version>0.0.77</version>
     </dependency>
 ```
 
@@ -254,10 +254,10 @@ jshell>
 
 Tell JShell to download the latest release of chariot and make it available in the JShell environment,
 <pre>
-jshell> <b>Files.write(Path.of("chariot-0.0.76.jar"), URI.create("https://repo1.maven.org/maven2/io/github/tors42/chariot/0.0.76/chariot-0.0.76.jar").toURL().openStream().readAllBytes());</b>
-$1 ==> chariot-0.0.76.jar
+jshell> <b>Files.write(Path.of("chariot-0.0.77.jar"), URI.create("https://repo1.maven.org/maven2/io/github/tors42/chariot/0.0.77/chariot-0.0.77.jar").toURL().openStream().readAllBytes());</b>
+$1 ==> chariot-0.0.77.jar
 
-jshell> <b>/env --module-path chariot-0.0.76.jar --add-module chariot</b>
+jshell> <b>/env --module-path chariot-0.0.77.jar --add-module chariot</b>
 |  Setting new options and restoring state.
 
 jshell>
