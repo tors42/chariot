@@ -148,7 +148,7 @@ public class ModelMapper {
                 String challengerName = challengerYo.getString("name");
                 String challengerTitle = challengerYo.getString("title");
                 var challengerInfo = challengerTitle == null
-                    ? new IdName(challengerName, challengerName)
+                    ? new IdName(challengerId, challengerName)
                     : new IdNameTitle(challengerId, challengerName, challengerTitle);
                 var challenger = new ChallengeInfo.Player(
                         challengerInfo,
@@ -163,7 +163,7 @@ public class ModelMapper {
                     String challengedName = challengedYo.getString("name");
                     String challengedTitle = challengedYo.getString("title");
                     var challengedInfo = challengedTitle == null
-                        ? new IdName(challengedName, challengedName)
+                        ? new IdName(challengedId, challengedName)
                         : new IdNameTitle(challengedId, challengedName, challengedTitle);
                     var challenged = new ChallengeInfo.Player(
                             challengedInfo,
