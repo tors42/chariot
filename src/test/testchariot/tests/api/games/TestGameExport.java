@@ -10,8 +10,6 @@ import java.util.*;
 import chariot.Client;
 import chariot.model.*;
 import chariot.model.Enums.*;
-import chariot.model.Game.*;
-import chariot.model.UserData.UserPropertyEnum;
 import chariot.internal.Endpoint;
 
 import static util.Assert.*;
@@ -31,8 +29,8 @@ public class TestGameExport {
                     ZonedDateTime.ofInstant(Instant.ofEpochMilli(1514505592843l), ZoneId.systemDefault()).withNano(0),
                     Status.draw,
                     new Game.Players(
-                        Player.account(new LightUser("lance5500", Opt.of("LM"), "Lance5500", true), 2389, false, 4),
-                        Player.account(new LightUser("tryinghard87", Opt.empty(), "TryingHard87", false), 2498, false, -4)
+                        Player.account(new LightUser("lance5500", Opt.of("LM"), "Lance5500", true, Opt.empty()), 2389, false, 4),
+                        Player.account(new LightUser("tryinghard87", Opt.empty(), "TryingHard87", false, Opt.empty()), 2498, false, -4)
                         ),
                     "",
                     "", "", "",
