@@ -164,27 +164,19 @@ public abstract class UsersBaseHandler implements UsersBase {
     }
 
     private Many<UserStatus> autoSplittingStatusByIds(Collection<String> userIds, Consumer<UserStatusParams> consumer, int batchSize) {
-        String[] arr = userIds.toArray(new String[0]);
+        if (batchSize < 1) return Many.entries(Stream.of());
+        String[] arr = userIds.toArray(String[]::new);
         int batches = (int) Math.ceil(arr.length / (float)batchSize);
-        Stream<UserStatus> userStatusStream = Stream.iterate(0, batch -> batch + 1)
-            .limit(batches)
-            .map(batch -> {
-                if (batch == batches) {
-                    return Arrays.stream(arr, batch * batchSize, batch * batchSize + arr.length % batchSize);
-                } else {
-                    return Arrays.stream(arr, batch * batchSize, batch * batchSize + batchSize);
-                }
-            }
-            )
-            .map(stream -> stream.collect(Collectors.joining(",")))
-            .map(ids -> {
-                return Endpoint.userStatusByIds.newRequest(request -> request
+        Stream<UserStatus> userStatusStream = IntStream.range(0, batches)
+            .mapToObj(batch -> Arrays.stream(arr, batch * batchSize, Math.min(batch*batchSize + batchSize, arr.length))
+                    .collect(Collectors.joining(",")))
+            .map(ids -> Endpoint.userStatusByIds.newRequest(request -> request
                         .query(MapBuilder.of(UserStatusParams.class)
                             .add("ids", ids)
                             .toMap(consumer)
                             ))
-                    .process(requestHandler);
-            })
+                    .process(requestHandler)
+                )
             .flatMap(Many::stream);
         return Many.entries(userStatusStream);
     }
