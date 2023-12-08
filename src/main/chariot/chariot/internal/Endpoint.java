@@ -187,7 +187,7 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Void.class).endpoint("/team/%s/quit").post().scope(Scope.team_write).toOne();
 
     public static EPOne<Void> teamKick =
-        Endpoint.of(Void.class).endpoint("/team/%s/kick/%s").post().scope(Scope.team_lead).toOne();
+        Endpoint.of(Void.class).endpoint("/api/team/%s/kick/%s").post().scope(Scope.team_lead).toOne();
 
     public static EPOne<Void> teamMessage =
         Endpoint.of(Void.class).endpoint("/team/%s/pm-all").post(wwwform).scope(Scope.team_lead).toOne();
