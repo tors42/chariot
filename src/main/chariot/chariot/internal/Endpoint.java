@@ -485,8 +485,8 @@ public sealed interface Endpoint<T> {
     public static EPOne<Broadcast.Round> updateRound =
         Endpoint.of(Broadcast.Round.class).endpoint("/broadcast/round/%s/edit").post(wwwform).scope(Scope.study_write).toOne();
 
-    public static EPOne<Void> pushPGNbyRoundId =
-        Endpoint.of(Void.class).endpoint("/broadcast/round/%s/push").post(plain).scope(Scope.study_write).toOne();
+    public static EPOne<String> pushPGNbyRoundId =
+        Endpoint.of(mapper(PushAck.class).andThen(PushAck::ok)).endpoint("/broadcast/round/%s/push").post(plain).scope(Scope.study_write).toOne();
 
     public static EPMany<Pgn> streamBroadcast =
         Endpoint.of(Pgn.class).endpoint("/api/stream/broadcast/round/%s.pgn")
@@ -601,6 +601,7 @@ public sealed interface Endpoint<T> {
         ArenaResult toArenaResult() { return new ArenaResult(rank, score, rating, username, title, performance, team, sheet.scores()); }
     }
     static record WrappedChapters(List<ChapterMeta> chapters) {}
+    static record PushAck(String ok) {}
 
     public static class Builder<T> {
         private String endpoint = "";

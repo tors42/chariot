@@ -17,7 +17,7 @@ public interface BroadcastsAuth extends Broadcasts {
 
     One<Broadcast> broadcastById(String tourId);
     One<Round>     roundById(String roundId);
-    One<Void>       pushPgnByRoundId(String roundId, String pgn);
+    One<String>    pushPgnByRoundId(String roundId, String pgn);
 
     interface BroadcastBuilder {
 
