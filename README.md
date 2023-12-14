@@ -159,6 +159,7 @@ client.broadcasts().updateRound()
 client.broadcasts().broadcastById()
 client.broadcasts().roundById()
 client.broadcasts().pushPgnByRoundId()
+client.broadcasts().myRounds()
 
 client.challenges().connect()
 client.challenges().challenges()
