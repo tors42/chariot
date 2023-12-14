@@ -19,6 +19,21 @@ public interface BroadcastsAuth extends Broadcasts {
     One<Round>     roundById(String roundId);
     One<String>    pushPgnByRoundId(String roundId, String pgn);
 
+    /**
+     * Stream all broadcast rounds you are a member of.<br>
+     *
+     * Also includes broadcasts rounds you did not create, but were invited to. Also
+     * includes broadcasts rounds where you're a non-writing member. See the
+     * {@code writeable} flag in the response. Rounds are ordered by rank, which is roughly
+     * chronological, most recent first, slightly pondered with popularity.
+     */
+    Many<BCRound> myRounds(Consumer<RoundsBuilder> params);
+
+    /**
+     * See {@link #myRounds(Consumer)}
+     */
+    default Many<BCRound> myRounds() { return myRounds(__ -> {}); }
+
     interface BroadcastBuilder {
 
         /**
@@ -83,4 +98,14 @@ public interface BroadcastsAuth extends Broadcasts {
 
 
     }
+
+    interface RoundsBuilder {
+        /**
+         * @param nb How many rounds to get.<br>
+         *           {@code >= 1}
+         *           Example: {@code nb=20}
+         */
+        RoundsBuilder nb(int nb);
+    }
+
 }

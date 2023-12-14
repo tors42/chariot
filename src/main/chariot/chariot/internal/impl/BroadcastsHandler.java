@@ -105,10 +105,18 @@ public class BroadcastsHandler implements BroadcastsAuth {
             .process(requestHandler);
     }
 
+    @Override
+    public Many<BCRound> myRounds(Consumer<RoundsBuilder> params) {
+        return Endpoint.streamMyRounds.newRequest(request -> request
+                .query(MapBuilder.of(RoundsBuilder.class).toMap(params)))
+            .process(requestHandler);
+    }
+
     private Map<String, Object> broadastBuilderToMap(Consumer<BroadcastBuilder> consumer) {
         return MapBuilder.of(BroadcastBuilder.class)
                     .rename("shortDescription", "description")
                     .rename("longDescription", "markdown")
                     .toMap(consumer);
     }
+
 }

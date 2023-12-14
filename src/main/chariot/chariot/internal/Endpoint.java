@@ -503,6 +503,8 @@ public sealed interface Endpoint<T> {
         .streamMapper(Util::toPgnStream)
         .accept(chesspgn).toMany();
 
+    public static EPMany<BCRound> streamMyRounds = Endpoint.of(mapper(BCRoundConvert.class).andThen(BCRoundConvert::toBCRound)).endpoint("/api/broadcast/my-rounds").accept(jsonstream).scope(Scope.study_read).toMany();
+
     public static EPMany<String> boardSeekRealTime =
         Endpoint.of(Function.identity()).endpoint("/api/board/seek").post(wwwform).accept(plain).scope(Scope.board_play).toMany();
 
@@ -602,6 +604,15 @@ public sealed interface Endpoint<T> {
     }
     static record WrappedChapters(List<ChapterMeta> chapters) {}
     static record PushAck(String ok) {}
+
+    static record BCRoundConvert(BCRound.Tour tour, RoundConvert round, BCRound.Study study) {
+        BCRound toBCRound() { return new BCRound(tour, round.toRound(), study); }
+    }
+    static record RoundConvert(String id, String slug, String name, ZonedDateTime startsAt, boolean finished, java.net.URI url, Integer delay) {
+        BCRound.Round toRound() {
+            return new BCRound.Round(id, slug, name, startsAt, finished, url, delay == null ? Duration.ZERO : Duration.ofSeconds(delay));
+        }
+    }
 
     public static class Builder<T> {
         private String endpoint = "";
