@@ -188,6 +188,6 @@ public sealed interface Arena {
 
     public record DuelTeams() {}
 
-    public record TeamBattle (Map<String,String> teams, Integer nbLeaders) {}
+    public record TeamBattle (Map<String,String[]> teams, Integer nbLeaders) {}
 
 }
