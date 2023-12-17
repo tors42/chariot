@@ -24,6 +24,8 @@ client.broadcasts().official()
 client.broadcasts().exportPgn()
 client.broadcasts().exportOneRoundPgn()
 client.broadcasts().streamBroadcast()
+client.broadcasts().broadcastById()
+client.broadcasts().roundById()
 
 client.challenges().challengeOpenEnded()
 
@@ -156,8 +158,6 @@ client.broadcasts().create()
 client.broadcasts().update()
 client.broadcasts().createRound()
 client.broadcasts().updateRound()
-client.broadcasts().broadcastById()
-client.broadcasts().roundById()
 client.broadcasts().pushPgnByRoundId()
 client.broadcasts().myRounds()
 
