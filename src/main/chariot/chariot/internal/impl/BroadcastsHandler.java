@@ -98,7 +98,7 @@ public class BroadcastsHandler implements BroadcastsAuth {
     }
 
     @Override
-    public One<String> pushPgnByRoundId(String roundId, String pgn) {
+    public One<Integer> pushPgnByRoundId(String roundId, String pgn) {
         return Endpoint.pushPGNbyRoundId.newRequest(request -> request
                 .path(roundId)
                 .body(pgn))
