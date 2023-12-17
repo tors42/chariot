@@ -15,9 +15,6 @@ public interface BroadcastsAuth extends Broadcasts {
     One<Round>     createRound(String tourId, Consumer<RoundBuilder> params);
     One<Round>     updateRound(String roundId, Consumer<RoundBuilder> params);
 
-    One<Broadcast> broadcastById(String tourId);
-    One<Round>     roundById(String roundId);
-
     /**
      * Update your broadcast with new PGN. Only for broadcast without a source URL.<br>
      *

@@ -43,4 +43,17 @@ public interface Broadcasts {
      */
     Many<Pgn> exportPgn(String tourId);
 
+    /**
+     * Get information about a broadcast tournament.
+     *
+     * @param tourId The broadcast tournament ID (8 characters).
+     */
+    One<Broadcast> broadcastById(String tourId);
+
+    /**
+     * Get information about a broadcast round.
+     *
+     * @param The broadcast Round ID (8 characters).
+     */
+    One<Broadcast.Round>     roundById(String roundId);
 }
