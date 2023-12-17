@@ -477,7 +477,7 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Broadcast.class).endpoint("/broadcast/-/%s").scope(Scope.study_read).toOne();
 
     public static EPOne<Broadcast.Round> roundById =
-        Endpoint.of(Broadcast.Round.class).endpoint("/broadcast/-/-/%s").scope(Scope.study_read).toOne();
+        Endpoint.of(Broadcast.Round.class).endpoint("/api/broadcast/-/-/%s").scope(Scope.study_read).toOne();
 
     public static EPOne<Void> updateBroadcast =
         Endpoint.of(Void.class).endpoint("/broadcast/%s/edit").post(wwwform).scope(Scope.study_write).toOne();
