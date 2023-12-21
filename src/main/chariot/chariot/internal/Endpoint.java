@@ -470,14 +470,14 @@ public sealed interface Endpoint<T> {
     public static EPOne<Broadcast> createBroadcast =
         Endpoint.of(Broadcast.class).endpoint("/broadcast/new").post(wwwform).scope(Scope.study_write).toOne();
 
-    public static EPOne<Broadcast.Round> createRound =
-        Endpoint.of(Broadcast.Round.class).endpoint("/broadcast/%s/new").post(wwwform).scope(Scope.study_write).toOne();
+    public static EPOne<MyRound> createRound =
+        Endpoint.of(mapper(MyRoundConvert.class).andThen(MyRoundConvert::toMyRound)).endpoint("/broadcast/%s/new").post(wwwform).scope(Scope.study_write).toOne();
 
     public static EPOne<Broadcast> broadcastById =
         Endpoint.of(Broadcast.class).endpoint("/broadcast/-/%s").scope(Scope.study_read).toOne();
 
-    public static EPOne<Broadcast.Round> roundById =
-        Endpoint.of(Broadcast.Round.class).endpoint("/api/broadcast/-/-/%s").scope(Scope.study_read).toOne();
+    public static EPOne<RoundInfo> roundById =
+        Endpoint.of(RoundInfo.class).endpoint("/api/broadcast/-/-/%s").scope(Scope.study_read).toOne();
 
     public static EPOne<Void> updateBroadcast =
         Endpoint.of(Void.class).endpoint("/broadcast/%s/edit").post(wwwform).scope(Scope.study_write).toOne();
@@ -503,7 +503,7 @@ public sealed interface Endpoint<T> {
         .streamMapper(Util::toPgnStream)
         .accept(chesspgn).toMany();
 
-    public static EPMany<BCRound> streamMyRounds = Endpoint.of(mapper(BCRoundConvert.class).andThen(BCRoundConvert::toBCRound)).endpoint("/api/broadcast/my-rounds").accept(jsonstream).scope(Scope.study_read).toMany();
+    public static EPMany<MyRound> streamMyRounds = Endpoint.of(mapper(MyRoundConvert.class).andThen(MyRoundConvert::toMyRound)).endpoint("/api/broadcast/my-rounds").accept(jsonstream).scope(Scope.study_read).toMany();
 
     public static EPMany<String> boardSeekRealTime =
         Endpoint.of(Function.identity()).endpoint("/api/board/seek").post(wwwform).accept(plain).scope(Scope.board_play).toMany();
@@ -605,12 +605,12 @@ public sealed interface Endpoint<T> {
     static record WrappedChapters(List<ChapterMeta> chapters) {}
     static record PushAck(int moves) {}
 
-    static record BCRoundConvert(BCRound.Tour tour, RoundConvert round, BCRound.Study study) {
-        BCRound toBCRound() { return new BCRound(tour, round.toRound(), study); }
+    static record MyRoundConvert(MyRound.Tour tour, RoundConvert round, MyRound.Study study) {
+        MyRound toMyRound() { return new MyRound(tour, round.toRound(), study); }
     }
-    static record RoundConvert(String id, String slug, String name, ZonedDateTime startsAt, boolean finished, java.net.URI url, Integer delay) {
-        BCRound.Round toRound() {
-            return new BCRound.Round(id, slug, name, startsAt, finished, url, delay == null ? Duration.ZERO : Duration.ofSeconds(delay));
+    static record RoundConvert(String id, String slug, String name, Optional<ZonedDateTime> startsAt, boolean ongoing, boolean finished, java.net.URI url, Integer delay) {
+        MyRound.Round toRound() {
+            return new MyRound.Round(id, slug, name, startsAt, ongoing, finished, url, delay == null ? Duration.ZERO : Duration.ofSeconds(delay));
         }
     }
 

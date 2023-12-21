@@ -53,7 +53,7 @@ public interface Broadcasts {
     /**
      * Get information about a broadcast round.
      *
-     * @param The broadcast Round ID (8 characters).
+     * @param roundId The broadcast round id (8 characters).
      */
-    One<Broadcast.Round>     roundById(String roundId);
+    One<RoundInfo> roundById(String roundId);
 }

@@ -1,5 +1,6 @@
 package chariot.api;
 
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -10,9 +11,9 @@ import chariot.model.Broadcast.Round;
 public interface BroadcastsAuth extends Broadcasts {
 
     One<Broadcast> create(Consumer<BroadcastBuilder> params);
-    One<Void>       update(String tourId, Consumer<BroadcastBuilder> params);
+    One<Void>      update(String tourId, Consumer<BroadcastBuilder> params);
 
-    One<Round>     createRound(String tourId, Consumer<RoundBuilder> params);
+    One<MyRound>   createRound(String tourId, Consumer<RoundBuilder> params);
     One<Round>     updateRound(String roundId, Consumer<RoundBuilder> params);
 
     /**
@@ -32,12 +33,12 @@ public interface BroadcastsAuth extends Broadcasts {
      * {@code writeable} flag in the response. Rounds are ordered by rank, which is roughly
      * chronological, most recent first, slightly pondered with popularity.
      */
-    Many<BCRound> myRounds(Consumer<RoundsBuilder> params);
+    Many<MyRound> myRounds(Consumer<RoundsBuilder> params);
 
     /**
      * See {@link #myRounds(Consumer)}
      */
-    default Many<BCRound> myRounds() { return myRounds(__ -> {}); }
+    default Many<MyRound> myRounds() { return myRounds(__ -> {}); }
 
     interface BroadcastBuilder {
 
@@ -66,6 +67,38 @@ public interface BroadcastsAuth extends Broadcasts {
          * @param tier For Lichess internal usage only. [3 4 5]
          */
         BroadcastBuilder tier(int tier);
+
+        /**
+         * Compute and display a simple leaderboard based on game results
+         */
+        BroadcastBuilder autoLeaderboard(boolean autoLeaderboard);
+
+        /**
+         * Compute and display a simple leaderboard based on game results
+         */
+        default BroadcastBuilder autoLeaderboard() { return autoLeaderboard(true); }
+
+        /**
+         * Replace player names, ratings and titles.<br>
+         *
+         * One line per player, formatted as such:<br>
+         * {@code <Original name>;<Replacement name>;<Optional replacement rating>;<Optional replacement title>}<br>
+         *
+         * {@snippet :
+         *   var broadcast = client.broadcasts().create(params -> params
+         *      .name("Broadcast Name")
+         *      .shortDescription("Short Broadcast Description")
+         *      .longDescription("""
+         *          A longer description,
+         *          with *markdown* support.
+         *          """)
+         *      .players("""
+         *          DrNykterstein;Magnus Carlsen;2863
+         *          AnishGiri;Anish Giri;2764;GM
+         *          """));
+         * }
+         */
+        BroadcastBuilder players(String players);
     }
 
     interface RoundBuilder {
@@ -83,6 +116,16 @@ public interface BroadcastsAuth extends Broadcasts {
          *        Example: https://myserver.org/myevent/round-10/games.pgn
          */
         RoundBuilder syncUrl(String syncUrl);
+
+        /**
+         * @param delay The delay of the broadcast, in seconds
+         */
+        RoundBuilder delay(long delay);
+
+        /**
+         * @param delay The delay duration of the broadcast
+         */
+        default RoundBuilder delay(Duration delay) { return delay(delay.toSeconds()); }
 
         /**
          * @param startsAt Timestamp in milliseconds of broadcast round start.<br/>

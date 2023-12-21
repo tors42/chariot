@@ -75,14 +75,14 @@ public class BroadcastsHandler implements BroadcastsAuth {
     }
 
     @Override
-    public One<Round> roundById(String roundId) {
+    public One<RoundInfo> roundById(String roundId) {
         return Endpoint.roundById.newRequest(request -> request
                 .path(roundId))
             .process(requestHandler);
      }
 
     @Override
-    public One<Broadcast.Round> createRound(String tourId, Consumer<RoundBuilder> params) {
+    public One<MyRound> createRound(String tourId, Consumer<RoundBuilder> params) {
         return Endpoint.createRound.newRequest(request -> request
                 .path(tourId)
                 .body(MapBuilder.of(RoundBuilder.class).toMap(params)))
@@ -106,7 +106,7 @@ public class BroadcastsHandler implements BroadcastsAuth {
     }
 
     @Override
-    public Many<BCRound> myRounds(Consumer<RoundsBuilder> params) {
+    public Many<MyRound> myRounds(Consumer<RoundsBuilder> params) {
         return Endpoint.streamMyRounds.newRequest(request -> request
                 .query(MapBuilder.of(RoundsBuilder.class).toMap(params)))
             .process(requestHandler);
