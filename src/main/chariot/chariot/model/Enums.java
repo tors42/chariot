@@ -40,15 +40,6 @@ public interface Enums {
 
     enum Outcome { win, draw, loss, none }
 
-    enum Offer {
-        yes,no;
-        public interface Provider {
-            default Offer yes() { return yes; }
-            default Offer no()  { return no; }
-        }
-        public static Provider provider() {return new Provider(){};}
-    }
-
     public enum Status {
         created(10),
         started(20),

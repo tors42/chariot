@@ -133,6 +133,28 @@ public interface BotAuth extends ChallengesAuthCommon, Bot { //Bot<UserAuth> {
      */
     One<Void> resign(String gameId);
 
+    /**
+     * Create/accept/decline draw offers.<br>
+     *
+     * Offer a draw, or accept the opponent's draw offer<br>
+     * Decline a draw offer from the opponent<br>
+     *
+     * @param gameId Example: 5IrD6Gzz
+     * @param offerOrAccept true to offer or accept a draw offer, false to decline a draw offer
+     */
+    One<Void> handleDrawOffer(String gameId, boolean offerOrAccept);
+
+    /**
+     * Create/accept/decline takeback offers.<br>
+     *
+     * Offer a draw, or accept the opponent's takeback offer<br>
+     * Decline a takeback offer from the opponent<br>
+     *
+     * @param gameId Example: 5IrD6Gzz
+     * @param offerOrAccept true to offer or accept a takeback offer, false to decline a takeback offer
+     */
+    One<Void> handleTakebackOffer(String gameId, boolean offerOrAccept);
+
 
     /**
      * Get the messages posted in the game chat.

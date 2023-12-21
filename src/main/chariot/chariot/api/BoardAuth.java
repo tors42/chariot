@@ -118,24 +118,26 @@ public interface BoardAuth extends ChallengesAuthCommon {
     One<Void> resign(String gameId);
 
     /**
-     * Create/accept/decline draw offers.
-     * <ul>
-     * <li> yes: Offer a draw, or accept the opponent's draw offer
-     * <li> no: Decline a draw offer from the opponent
-     * </ul>
+     * Create/accept/decline draw offers.<br>
+     *
+     * Offer a draw, or accept the opponent's draw offer<br>
+     * Decline a draw offer from the opponent<br>
+     *
      * @param gameId Example: 5IrD6Gzz
+     * @param offerOrAccept true to offer or accept a draw offer, false to decline a draw offer
      */
-    One<Void> handleDrawOffer(String gameId, Offer accept);
+    One<Void> handleDrawOffer(String gameId, boolean offerOrAccept);
 
     /**
-     * Create/accept/decline takeback offers.
-     * <ul>
-     * <li> yes: Offer a takeback, or accept the opponent's takeback offer
-     * <li> no: Decline a takeback offer from the opponent
-     * </ul>
+     * Create/accept/decline takeback offers.<br>
+     *
+     * Offer a draw, or accept the opponent's takeback offer<br>
+     * Decline a takeback offer from the opponent<br>
+     *
      * @param gameId Example: 5IrD6Gzz
+     * @param offerOrAccept true to offer or accept a takeback offer, false to decline a takeback offer
      */
-    One<Void> handleTakebackOffer(String gameId, Offer accept);
+    One<Void> handleTakebackOffer(String gameId, boolean offerOrAccept);
 
 
     /**
@@ -156,20 +158,6 @@ public interface BoardAuth extends ChallengesAuthCommon {
      * @param gameId  Example: 5IrD6Gzz
      */
     One<Void> berserk(String gameId);
-
-    /**
-     * See {@link chariot.api.BoardAuth#handleDrawOffer}
-     */
-    default One<Void> handleDrawOffer(String gameId, Function<Offer.Provider, Offer> accept) {
-        return handleDrawOffer(gameId, accept.apply(Offer.provider()));
-    }
-
-    /**
-     * See {@link chariot.api.BoardAuth#handleTakebackOffer}
-     */
-    default One<Void> handleTakebackOffer(String gameId, Function<Offer.Provider, Offer> accept) {
-        return handleTakebackOffer(gameId, accept.apply(Offer.provider()));
-    }
 
 
     interface SeekRealTimeBuilder extends ClockMinute<SeekParams> {}

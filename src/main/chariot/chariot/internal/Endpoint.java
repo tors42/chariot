@@ -562,6 +562,13 @@ public sealed interface Endpoint<T> {
     public static EPOne<Void> botResign =
         Endpoint.of(Void.class).endpoint("/api/bot/game/%s/resign").post().scope(Scope.bot_play).toOne();
 
+    public static EPOne<Void> botDraw =
+        Endpoint.of(Void.class).endpoint("/api/bot/game/%s/draw/%s").post().scope(Scope.bot_play).toOne();
+
+    public static EPOne<Void> botTakeback =
+        Endpoint.of(Void.class).endpoint("/api/bot/game/%s/takeback/%s").post().scope(Scope.bot_play).toOne();
+
+
     public static EPMany<ChatMessage> botFetchChat =
         Endpoint.ofArr(ChatMessage.class).endpoint("/api/bot/game/%s/chat").accept(jsonstream).scope(Scope.bot_play).toMany();
 

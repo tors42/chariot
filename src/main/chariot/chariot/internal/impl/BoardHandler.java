@@ -101,16 +101,16 @@ public class BoardHandler extends ChallengesAuthCommonImpl implements BoardAuth 
     }
 
     @Override
-    public One<Void> handleDrawOffer(String gameId, Offer accept) {
+    public One<Void> handleDrawOffer(String gameId, boolean offerOrAccept) {
         return Endpoint.boardDraw.newRequest(request -> request
-                .path(gameId, accept.name()))
+                .path(gameId, offerOrAccept ? "yes" : "no"))
             .process(requestHandler);
     }
 
     @Override
-    public One<Void> handleTakebackOffer(String gameId, Offer accept) {
+    public One<Void> handleTakebackOffer(String gameId, boolean offerOrAccept) {
         return Endpoint.boardTakeback.newRequest(request -> request
-                .path(gameId, accept.name()))
+                .path(gameId, offerOrAccept ? "yes" : "no"))
             .process(requestHandler);
     }
 

@@ -83,9 +83,25 @@ public class BotHandler extends ChallengesAuthCommonImpl implements BotAuth {
     }
 
     @Override
+    public One<Void> handleDrawOffer(String gameId, boolean offerOrAccept) {
+        return Endpoint.botDraw.newRequest(request -> request
+                .path(gameId, offerOrAccept ? "yes" : "no"))
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<Void> handleTakebackOffer(String gameId, boolean offerOrAccept) {
+        return Endpoint.botTakeback.newRequest(request -> request
+                .path(gameId, offerOrAccept ? "yes" : "no"))
+            .process(requestHandler);
+    }
+
+
+    @Override
     public Many<ChatMessage> fetchChat(String gameId) {
         return Endpoint.botFetchChat.newRequest(request -> request
                 .path(gameId))
             .process(requestHandler);
     }
+
 }
