@@ -116,6 +116,7 @@ client.account().following()
 client.account().emailAddress()
 client.account().preferences()
 client.account().kidMode()
+client.account().timeline()
 
 client.board().connect()
 client.board().challenge()
