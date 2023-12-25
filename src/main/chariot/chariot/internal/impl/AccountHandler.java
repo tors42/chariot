@@ -1,8 +1,11 @@
 package chariot.internal.impl;
 
+import java.util.function.Consumer;
+
 import chariot.api.*;
 import chariot.internal.Endpoint;
 import chariot.internal.RequestHandler;
+import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 
 public class AccountHandler implements AccountAuth {
@@ -50,4 +53,10 @@ public class AccountHandler implements AccountAuth {
             .process(requestHandler);
     }
 
+    @Override
+    public Many<TimelineEntry> timeline(Consumer<TimelineParams> params) {
+        return Endpoint.timeline.newRequest(request -> request
+                .query(MapBuilder.of(TimelineParams.class).toMap(params)))
+            .process(requestHandler);
+    }
 }

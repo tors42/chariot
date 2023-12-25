@@ -13,6 +13,7 @@ import chariot.Client.Scope;
 import chariot.internal.Config.ServerType;
 import chariot.internal.RequestParameters.*;
 import chariot.internal.Util.Method;
+import chariot.internal.ModelMapper.Timeline;
 import chariot.model.*;
 
 import static chariot.internal.ModelMapper.mapper;
@@ -76,6 +77,9 @@ public sealed interface Endpoint<T> {
         Endpoint.of(GameInfo.class).endpoint("/api/account/playing")
         .streamMapper(stream -> stream.map(mapper(PlayingWrapper.class)).filter(Objects::nonNull).flatMap(pw -> pw.nowPlaying().stream()))
         .scope(Scope.any).toMany();
+
+    public static EPMany<TimelineEntry> timeline =
+        Endpoint.of(TimelineEntry.class).streamMapper(stream -> stream.map(mapper(Timeline.class)).flatMap(Timeline::toTimelineEntries)).endpoint("/api/timeline").scope(Scope.any).toMany();
 
     public static EPOne<Void> accountOAuthToken =
         Endpoint.of(Void.class).endpoint("/account/oauth/token").toOne();

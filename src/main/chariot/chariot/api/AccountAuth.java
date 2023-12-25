@@ -1,5 +1,9 @@
 package chariot.api;
 
+import java.time.ZonedDateTime;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import chariot.model.*;
 
 /**
@@ -41,5 +45,25 @@ public interface AccountAuth {
      * Get users followed by logged in user.
      */
     Many<UserAuth> following();
+
+    /**
+     * Entries of the timeline
+     */
+    Many<TimelineEntry> timeline(Consumer<TimelineParams> params);
+
+    default Many<TimelineEntry> timeline() { return timeline(__ -> {}); }
+
+    public interface TimelineParams {
+        /**
+         * @param nb How many entries to fetch. Max 30.
+         */
+        TimelineParams nb(int nb);
+        TimelineParams since(long since);
+        default TimelineParams since(ZonedDateTime since) { return since(zdtToMillis(since)); }
+        default TimelineParams since(Function<ZonedDateTime, ZonedDateTime> now) { return since(now.apply(ZonedDateTime.now())); }
+
+        private static long zdtToMillis(ZonedDateTime zdt) { return zdt.toInstant().getEpochSecond() * 1000; }
+    }
+
 
 }
