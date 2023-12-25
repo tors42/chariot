@@ -486,7 +486,7 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Broadcast.Round.class).endpoint("/broadcast/round/%s/edit").post(wwwform).scope(Scope.study_write).toOne();
 
     public static EPOne<Integer> pushPGNbyRoundId =
-        Endpoint.of(mapper(PushAck.class).andThen(PushAck::moves)).endpoint("/broadcast/round/%s/push").post(plain).scope(Scope.study_write).toOne();
+        Endpoint.of(mapper(PushAck.class).andThen(PushAck::moves)).endpoint("/api/broadcast/round/%s/push").post(plain).scope(Scope.study_write).toOne();
 
     public static EPMany<Pgn> streamBroadcast =
         Endpoint.of(Pgn.class).endpoint("/api/stream/broadcast/round/%s.pgn")
