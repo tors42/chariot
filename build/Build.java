@@ -100,6 +100,7 @@ class Build {
                 "-notimestamp",
                 "--module-source-path", mainSrc,
                 "--module", module,
+                "--snippet-path", Path.of("build", "snippets").toString(),
                 "-d", out.resolve("javadoc")
                );
             run(jar,
