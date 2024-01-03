@@ -21,31 +21,8 @@ public interface OpeningExplorer {
     /**
      * Find Masters games from Opening Explorer<br>
      * <br>
-     *
      * Example usage:
-     * {@snippet :
-     * ExploreResult.OpeningDB result = client.openingExplorer().masters(params -> params
-     *     .play("e2e4,d7d6,d2d4,e7e5")
-     *     ).maybe().orElseThrow();
-
-     * String opening = result.opening().map(o -> STR."ECO \{o.eco()} - \{o.name()}").orElse("No matching opening");
-     * // ECO B07 - King's Pawn Game: Maróczy Defense
-     *
-     * long numGames = result.white() + result.draws() + result.black();
-     * // 534
-     *
-     * String topThreeMoves = String.join("\n",
-     *         result.moves().stream()
-     *          .limit(3)
-     *          .map(move -> STR."\{move.san()}: White win count \{move.white()} - Draw count \{move.draws()} - Black win count \{move.black()}")
-     *          .toList());
-     * // Nf3: White win count 192 - Draw count 108 - Black win count: 63
-     * // dxe5: White win count 42 - Draw count 56 - Black win count: 28
-     * // Ne2: White win count 5 - Draw count 5 - Black win count: 3
-     *
-     * String topGameId = result.topGames().getFirst().id();
-     * // p1lHx7rU
-     * }
+     * {@snippet class=OpeningExplorer region=masters }
      */
     One<ExploreResult.OpeningDB> masters(Consumer<MastersBuilder> params);
 
@@ -58,29 +35,7 @@ public interface OpeningExplorer {
      * Find Lichess games from Opening Explorer<br>
      * <br>
      * Example usage:
-     * {@snippet :
-     * ExploreResult.OpeningDB result = client.openingExplorer().lichess(params -> params
-     *     .play("e2e4,d7d6,d2d4,e7e5")
-     *     ).maybe().orElseThrow();
-     *
-     * String opening = result.opening().map(o -> STR."ECO \{o.eco()} - \{o.name()}").orElse("No matching opening");
-     * // ECO B07 - King's Pawn Game: Maróczy Defense
-     *
-     * long numGames = result.white() + result.draws() + result.black();
-     * // 10848227
-     *
-     * String topThreeMoves = String.join("\n",
-     *         result.moves().stream()
-     *          .limit(3)
-     *          .map(move -> STR."\{move.san()}: White win count \{move.white()} - Draw count \{move.draws()} - Black win count \{move.black()}")
-     *          .toList());
-     * // dxe5: White win count 2675681 - Draw count 292613 - Black win count 2175418
-     * // d5: White win count 1289065 - Draw count 90856 - Black win count 1169944
-     * // Nf3: White win count 785463 - Draw count 57343 - Black win count 620240
-     *
-     * String topGameId = result.topGames().getFirst().id();
-     * // g8xbSjJp
-     * }
+     * {@snippet class=OpeningExplorer region=lichess }
      */
     One<ExploreResult.OpeningDB> lichess(Consumer<LichessBuilder> params);
 
@@ -91,6 +46,9 @@ public interface OpeningExplorer {
 
     /**
      * Find Player games from Opening Explorer<br>
+     * <br>
+     * Example usage:
+     * {@snippet class=OpeningExplorer region=player }
      */
     One<ExploreResult.OpeningPlayer> player(String userId, Consumer<PlayerBuilder> params);
 
