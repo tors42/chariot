@@ -387,6 +387,14 @@ public interface TournamentsAuth extends Tournaments {
          */
         SwissParams conditionMinRatedGames(int conditionMinRatedGames);
 
+        /**
+         * To be allowed to join, participants must have played their previous swiss game
+         */
+        SwissParams conditionPlayYourGames(boolean playYourGames);
+        /**
+         * To be allowed to join, participants must have played their previous swiss game
+         */
+        default SwissParams conditionPlayYourGames() { return conditionPlayYourGames(true); }
     }
 
     interface JoinSwissParams {

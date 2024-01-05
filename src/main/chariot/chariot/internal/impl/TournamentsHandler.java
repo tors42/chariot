@@ -265,6 +265,7 @@ public class TournamentsHandler implements TournamentsAuth {
             .rename("conditionMinRating", "conditions.minRating.rating")
             .rename("conditionMaxRating", "conditions.maxRating.rating")
             .rename("conditionMinRatedGames", "conditions.nbRatedGame.nb")
+            .rename("conditionPlayYourGames", "conditions.playYourGames")
             .addCustomHandler("chatFor", (args, map) -> map.put("chatFor", ChatFor.class.cast(args[0]).id))
             .addCustomHandler("allowList", (args, map) -> {
                 @SuppressWarnings("unchecked")
