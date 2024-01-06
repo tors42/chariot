@@ -11,7 +11,7 @@ public sealed interface TimelineEntry {
     record UblogPost(LightUser user, String id, String slug, String title, ZonedDateTime date)                implements TimelineEntry {}
     record TourJoin(LightUser user, String tourId, String tourName, ZonedDateTime date)                       implements TimelineEntry {}
     record GameEnd(String fullId, String perf, Opt<LightUser> opponent, Opt<Boolean> win, ZonedDateTime date) implements TimelineEntry {}
-    record SimulCreate(LightUser userId, String simulId, String simulName, ZonedDateTime date)                implements TimelineEntry {}
+    record SimulCreate(LightUser user, String simulId, String simulName, ZonedDateTime date)                  implements TimelineEntry {}
     record SimulJoin(LightUser user, String simulId, String simulName, ZonedDateTime date)                    implements TimelineEntry {}
     record StudyLike(LightUser user, String studyId, String studyName, ZonedDateTime date)                    implements TimelineEntry {}
     record PlanStart(LightUser user, ZonedDateTime date)                                                      implements TimelineEntry {}
