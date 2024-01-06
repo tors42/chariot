@@ -12,7 +12,10 @@ import chariot.model.*;
 public interface AccountAuth {
 
     /**
-     * Public informations about the logged in user.
+     * Public informations about the logged in user.<br>
+     * <br>
+     * Example usage:
+     * {@snippet class=AccountAuth region=profile }
      */
     One<UserAuth> profile();
 
@@ -47,10 +50,16 @@ public interface AccountAuth {
     Many<UserAuth> following();
 
     /**
-     * Entries of the timeline
+     * Entries of the timeline<br>
+     * <br>
+     * Example usage:
+     * {@snippet class=AccountAuth region=timeline }
      */
     Many<TimelineEntry> timeline(Consumer<TimelineParams> params);
 
+    /**
+     * See {@link #timeline(Consumer)}
+     */
     default Many<TimelineEntry> timeline() { return timeline(__ -> {}); }
 
     public interface TimelineParams {
