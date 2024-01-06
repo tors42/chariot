@@ -147,7 +147,7 @@ public interface BotAuth extends ChallengesAuthCommon, Bot { //Bot<UserAuth> {
     /**
      * Create/accept/decline takeback offers.<br>
      *
-     * Offer a draw, or accept the opponent's takeback offer<br>
+     * Offer a takeback, or accept the opponent's takeback offer<br>
      * Decline a takeback offer from the opponent<br>
      *
      * @param gameId Example: 5IrD6Gzz
