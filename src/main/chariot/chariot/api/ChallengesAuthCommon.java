@@ -51,7 +51,7 @@ public interface ChallengesAuthCommon {
         /**
          * @param variant The variant to use in games
          */
-        ChallengeParams variant(VariantName variant);
+        ChallengeParams variant(GameVariant variant);
 
         /**
          * @param fen Custom initial position (in FEN).
@@ -68,7 +68,7 @@ public interface ChallengesAuthCommon {
         ChallengeParams noEarlyDraw();
 
         default ChallengeParams color(Function<ColorPref.Provider, ColorPref> color) { return color(color.apply(ColorPref.provider())); }
-        default ChallengeParams variant(Function<VariantName.Provider, VariantName> variant) {return variant(variant.apply(VariantName.provider())); }
+        default ChallengeParams variant(Function<GameVariant.Provider, GameVariant> variant) {return variant(variant.apply(GameVariant.provider())); }
     }
 
 
