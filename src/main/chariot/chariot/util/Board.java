@@ -61,6 +61,7 @@ public sealed interface Board {
     GameState gameState();
     Set<Move> validMoves();
     Board play(String move);
+    default Board play(Move move) { return play(move.uci()); }
 
     default boolean ended() {
         return this instanceof BoardData board && board.gameState() != GameState.ongoing;
