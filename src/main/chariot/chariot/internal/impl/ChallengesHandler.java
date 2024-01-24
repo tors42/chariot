@@ -38,8 +38,15 @@ public class ChallengesHandler extends ChallengesAuthCommonImpl implements Chall
     }
 
     @Override
+    public One<BulkPairing> bulk(String bulkId) {
+        return Endpoint.bulkPairingGet.newRequest(request -> request
+                .path(bulkId))
+            .process(requestHandler);
+    }
+
+    @Override
     public Many<BulkPairing> bulks() {
-        return Endpoint.bulkPairingGet.newRequest(request -> {})
+        return Endpoint.bulkPairingGetMany.newRequest(request -> {})
             .process(requestHandler);
     }
 

@@ -19,6 +19,12 @@ public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
     One<Void>               addTimeToGame(String gameId, int seconds);
 
     /**
+     * Show a bulk pairing<br>
+     * @param id The ID of the bulk pairing. Example "5IrD6Gzz"
+     */
+    One<BulkPairing> bulk(String id);
+
+    /**
      * Get a list of upcoming bulk pairings you created.<br>
      * Only bulk pairings that are scheduled in the future, or that have a clock start scheduled in the future, are listed.<br>
      * Bulk pairings are deleted from the server after the pairings are done and the clocks have started.

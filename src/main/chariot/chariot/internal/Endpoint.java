@@ -385,7 +385,11 @@ public sealed interface Endpoint<T> {
         .scope(Scope.study_write)
         .post(wwwform).toMany();
 
-    public static EPMany<BulkPairing> bulkPairingGet =
+    public static EPOne<BulkPairing> bulkPairingGet =
+        Endpoint.of(BulkPairing.class).endpoint("/api/bulk-pairing/%s")
+        .scope(Scope.challenge_bulk).toOne();
+
+    public static EPMany<BulkPairing> bulkPairingGetMany =
         Endpoint.of(BulkPairing.class).endpoint("/api/bulk-pairing")
         .streamMapper(stream -> stream.map(mapper(BulkPairingWrapper.class)).filter(Objects::nonNull).flatMap(w -> w.bulks().stream()))
         .scope(Scope.challenge_bulk).toMany();
