@@ -187,6 +187,7 @@ client.externalEngine().update()
 client.externalEngine().delete()
 
 client.games().ongoing()
+client.games().imported()
 
 client.puzzles().activity()
 client.puzzles().createAndJoinRace()
