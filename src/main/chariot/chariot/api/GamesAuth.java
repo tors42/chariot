@@ -13,4 +13,8 @@ public interface GamesAuth extends Games {
      */
     Many<GameInfo> ongoing();
 
+    /**
+     * Download all games imported by you.
+     */
+    Many<Pgn> imported();
 }

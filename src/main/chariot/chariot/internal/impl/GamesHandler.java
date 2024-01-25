@@ -203,4 +203,10 @@ public class GamesHandler implements GamesAuth {
                 .query(Map.of("nb", nb)))
             .process(requestHandler);
     }
+
+    @Override
+    public Many<Pgn> imported() {
+        return Endpoint.gamesImportedPgn.newRequest(request -> {})
+            .process(requestHandler);
+    }
 }
