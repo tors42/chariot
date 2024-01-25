@@ -24,7 +24,7 @@ public class TestGameExport {
 
         // prepare expected response
         var expected = One.entry(
-                new Game("q7ZvsdUF", true, GameVariant.standard, "blitz", "blitz",
+                new Game("q7ZvsdUF", true, GameVariant.standard, "blitz", "blitz", "pool",
                     ZonedDateTime.ofInstant(Instant.ofEpochMilli(1514505150384l), ZoneId.systemDefault()).withNano(0),
                     ZonedDateTime.ofInstant(Instant.ofEpochMilli(1514505592843l), ZoneId.systemDefault()).withNano(0),
                     Status.draw,
@@ -49,6 +49,7 @@ public class TestGameExport {
           "variant": "standard",
           "speed": "blitz",
           "perf": "blitz",
+          "source": "pool",
           "createdAt": 1514505150384,
           "lastMoveAt": 1514505592843,
           "status": "draw",
