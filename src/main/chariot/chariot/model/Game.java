@@ -12,6 +12,7 @@ public record Game (
     GameVariant variant,
     String speed,
     String perf,
+    String source,
     ZonedDateTime createdAt,
     ZonedDateTime lastMoveAt,
     Status status,
