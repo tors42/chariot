@@ -30,9 +30,9 @@ public record Game (
     Opening opening,
     Clock clock,
     List<Integer> clocks,
-    List<AnalysisEntry> analysis
+    List<AnalysisEntry> analysis,
+    Opt<Division> division
     )  {
-
     public Game {
         moves = orEmpty(moves);
         initialFen = orEmpty(initialFen);
@@ -42,7 +42,6 @@ public record Game (
         swiss = orEmpty(swiss);
         daysPerTurn = daysPerTurn == null ? 0 : daysPerTurn;
     }
-
 
     public record Players (Player white, Player black) { }
 
@@ -82,4 +81,7 @@ public record Game (
         Blunder
     }
 
+    public sealed interface Division {}
+    public record Middle(int middle)             implements Division {}
+    public record MiddleEnd(int middle, int end) implements Division {}
 }
