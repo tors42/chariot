@@ -39,7 +39,8 @@ public class TestGameExport {
                     null,
                     new Game.Clock(300, 3, 420),
                     List.of(),
-                    List.of()
+                    List.of(),
+                    Opt.empty()
                     ));
 
         String responseBody = """
