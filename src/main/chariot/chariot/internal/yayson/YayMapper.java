@@ -10,6 +10,7 @@ import java.time.ZonedDateTime;
 
 import chariot.internal.Util;
 import chariot.internal.yayson.Parser.*;
+import chariot.model.Opt;
 
 public class YayMapper {
 
@@ -172,6 +173,22 @@ public class YayMapper {
         if (config.customMappings().containsKey(cls)) {
             var f = config.customMappings().get(cls);
             return cls.cast(f.apply(node));
+        }
+
+        if (cls.equals(Opt.class)) {
+            if (node != null) {
+                ParameterizedType pt = parameterizedType.get();
+                Type typeArgument = pt.getActualTypeArguments()[0];
+                if (typeArgument instanceof Class<?> typeClass) {
+                    var value = fromYayTree(node, typeClass);
+                    @SuppressWarnings("unchecked")
+                    T t = (T) Opt.of(value);
+                    return t;
+                }
+            }
+            @SuppressWarnings("unchecked")
+            T t = (T) Opt.empty();
+            return t;
         }
 
         if (node instanceof YayEmpty empty) {
