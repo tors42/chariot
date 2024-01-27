@@ -191,6 +191,13 @@ public interface Games {
         default T clocks() { return clocks(true); }
 
         /**
+         * Include plies which mark the beginning of the middlegame and endgame. Not available in {@code pgnBy...}-methods<br>
+         * Default `false` (except in {@link Games#byGameId(String)}, where it is default `true`)
+         */
+        T division(boolean division);
+        default T division() { return division(true); }
+
+        /**
          * Include the opening name.<br>
          * Default `true`
          */
