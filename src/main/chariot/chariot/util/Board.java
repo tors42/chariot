@@ -1036,7 +1036,11 @@ public sealed interface Board {
 
             if (! validMoves.contains(move)) {
                 return validMoves.stream()
-                    .filter(m -> m instanceof Castling c && c.king().equals(move))
+                    .filter(m -> m instanceof Castling castling &&
+                            (castling.king().equals(move) || (
+                                move.from().equals(castling.king().from()) &&
+                                move.to().equals(castling.rook().from()))
+                            ))
                     .findAny().orElseGet(() -> new Invalid("move: " + move + " fen: " + fen));
             }
 
