@@ -286,7 +286,7 @@ jshell> <b>import chariot.Client;</b>
    ...> <b>    .map(team -> "Team %s has %d members!".formatted(team.name(), team.nbMembers()))</b>
    ...> <b>    .orElse("Couldn't find team!"));</b>
 client ==> chariot.Client@dd8ba08
-Team Lichess Swiss has 401808 members!
+Team Lichess Swiss has 438450 members!
 
 jshell>
 </pre>
@@ -300,7 +300,7 @@ numberOfTeams()       popularTeams()        popularTeamsByPage(   search(
 searchByPage(         swissByTeamId(        toString()            usersByTeamId(
 wait(
 jshell> client.teams().<b>numberOfTeams();</b>
-$4 ==> 331987
+$4 ==> 343390
 
 jshell> <b>/exit</b>
 |  Goodbye
@@ -317,7 +317,7 @@ OpenJDK Runtime Environment (build 21.0.2+13-58)
 OpenJDK 64-Bit Server VM (build 21.0.2+13-58, mixed mode, sharing)
 
 $ <b>java build/Build.java</b>
-56 successful tests
+57 successful tests
 0 failed tests
 </pre>
 
