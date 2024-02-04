@@ -659,7 +659,7 @@ public sealed interface Board {
                 return Set.of();
             }
 
-            Set<Castling> castlingMoves = new HashSet<>(2);
+            Set<Castling> castlingMoves = new HashSet<>();
 
             var kingTargetSquareKingSide = Coordinate.name("g" + (king.color() == Side.WHITE ? "1" : "8"));
             var rookTargetSquareKingSide = Coordinate.name("f" + (king.color() == Side.WHITE ? "1" : "8"));
