@@ -44,6 +44,20 @@ public class TestBoard {
     }
 
     @Test
+    public void castlingUciKingToRookOrFinalSquare() {
+        Board boardBeforeCastling = Board.fromFEN("r3kb1r/pbpn1ppp/1p1p4/1P6/P1P2P2/4K2P/8/1q5n b kq - 3 18");
+
+        var kingToRook = "e8c8";
+        var castlingKingToRook = boardBeforeCastling.play(kingToRook);
+
+        var kingToTarget = "e8c8";
+        var castlingKingToTarget = boardBeforeCastling.play(kingToTarget);
+
+        assertEquals("2kr1b1r/pbpn1ppp/1p1p4/1P6/P1P2P2/4K2P/8/1q5n w - - 4 19", castlingKingToTarget.toFEN());
+        assertEquals(castlingKingToRook, castlingKingToTarget);
+    }
+
+    @Test
     public void revokedCastlingRightsWhite() {
         Board whiteToMove = Board.fromFEN("r3k2r/4p3/8/8/8/8/4P3/R3K2R w KQkq - 0 1");
 
