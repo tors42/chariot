@@ -79,6 +79,16 @@ public interface BroadcastsAuth extends Broadcasts {
         default BroadcastBuilder autoLeaderboard() { return autoLeaderboard(true); }
 
         /**
+         * Show a team leaderboard.
+         */
+        BroadcastBuilder teamTable(boolean teamTable);
+
+        /**
+         * Show a team leaderboard.
+         */
+        default BroadcastBuilder teamTable() { return teamTable(true); }
+
+        /**
          * Replace player names, ratings and titles.<br>
          *
          * One line per player, formatted as such:<br>
@@ -99,6 +109,30 @@ public interface BroadcastsAuth extends Broadcasts {
          * }
          */
         BroadcastBuilder players(String players);
+
+        /**
+         * Assign players to teams.<br>
+         * By default the PGN tags WhiteTeam and BlackTeam are used.<br>
+         *
+         * One line per player, formatted as such:<br>
+         * {@code <Team name>;<Player name>}<br>
+         *
+         * {@snippet :
+         *   var broadcast = client.broadcasts().create(params -> params
+         *      .name("Broadcast Name")
+         *      .shortDescription("Short Broadcast Description")
+         *      .longDescription("""
+         *          A longer description,
+         *          with *markdown* support.
+         *          """)
+         *      .teamTable()
+         *      .teams("""
+         *          Offerspill;Magnus Carlsen
+         *          Stavanger;M. Fiskaaen
+         *          """));
+         * }
+         */
+        BroadcastBuilder teams(String teams);
     }
 
     interface RoundBuilder {
