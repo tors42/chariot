@@ -485,7 +485,7 @@ public sealed interface Endpoint<T> {
         Endpoint.of(mapper(MyRoundConvert.class).andThen(MyRoundConvert::toMyRound)).endpoint("/broadcast/%s/new").post(wwwform).scope(Scope.study_write).toOne();
 
     public static EPOne<Broadcast> broadcastById =
-        Endpoint.of(Broadcast.class).endpoint("/broadcast/-/%s").scope(Scope.study_read).toOne();
+        Endpoint.of(Broadcast.class).endpoint("/api/broadcast/%s").scope(Scope.study_read).toOne();
 
     public static EPOne<RoundInfo> roundById =
         Endpoint.of(RoundInfo.class).endpoint("/api/broadcast/-/-/%s").scope(Scope.study_read).toOne();
