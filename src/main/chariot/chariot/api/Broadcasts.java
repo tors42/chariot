@@ -1,5 +1,7 @@
 package chariot.api;
 
+import java.util.function.Consumer;
+
 import chariot.model.*;
 
 public interface Broadcasts {
@@ -7,14 +9,22 @@ public interface Broadcasts {
     /**
      * Get official broadcasts
      * <p>Get all incoming, ongoing, and finished official broadcasts. The broadcasts are sorted by start date, most recent first.
-     * @param nb Max number of broadcasts to fetch. Default 20.
      */
-    Many<Broadcast> official(int nb);
+    Many<Broadcast> official(Consumer<BroadcastParameters> params);
+
+     /**
+     * Get official broadcasts
+     * <p>Get all incoming, ongoing, and finished official broadcasts. The broadcasts are sorted by start date, most recent first.
+     * @param nb Max number of broadcasts to fetch. Default 20.
+     * @deprecated Use {@link #official(Consumer)}
+     */
+    @Deprecated
+    default Many<Broadcast> official(int nb) { return official(p -> p.nb(nb)); }
 
     /**
-     * See {@link #official(int)}
+     * See {@link #official(Consumer)}
      */
-    Many<Broadcast> official();
+    default Many<Broadcast> official() { return official(__ -> {}); }
 
     /**
      * Stream an ongoing broadcast tournament as PGN
@@ -47,8 +57,16 @@ public interface Broadcasts {
      * Get information about a broadcast tournament.
      *
      * @param tourId The broadcast tournament ID (8 characters).
+     * @param params Broadcast parameters
      */
-    One<Broadcast> broadcastById(String tourId);
+    One<Broadcast> broadcastById(String tourId, Consumer<BroadcastParameters> params);
+
+    /**
+     * Get information about a broadcast tournament.
+     *
+     * @param tourId The broadcast tournament ID (8 characters).
+     */
+    default One<Broadcast> broadcastById(String tourId) { return broadcastById(tourId, __ -> {}); }
 
     /**
      * Get information about a broadcast round.
@@ -56,4 +74,24 @@ public interface Broadcasts {
      * @param roundId The broadcast round id (8 characters).
      */
     One<RoundInfo> roundById(String roundId);
+
+
+    interface BroadcastParameters {
+
+        /**
+         * @param nb Max number of broadcasts to fetch. Default 20.
+         */
+        BroadcastParameters nb(int nb);
+
+        /**
+         * @param leaderboard Include the leaderboards, if available
+         */
+        BroadcastParameters leaderboard(boolean leaderboard);
+
+        /**
+         * Include the leaderboards, if available
+         */
+        default BroadcastParameters leaderboard() { return leaderboard(true); }
+
+    }
 }

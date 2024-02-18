@@ -7,7 +7,6 @@ import chariot.api.*;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
-import chariot.model.Broadcast.Round;
 
 public class BroadcastsHandler implements BroadcastsAuth {
 
@@ -18,15 +17,9 @@ public class BroadcastsHandler implements BroadcastsAuth {
     }
 
     @Override
-    public Many<Broadcast> official(int  nb) {
+    public Many<Broadcast> official(Consumer<BroadcastParameters> params) {
         return Endpoint.officialBroadcasts.newRequest(request -> request
-                .query(Map.of("nb", nb)))
-            .process(requestHandler);
-    }
-
-    @Override
-    public Many<Broadcast> official() {
-        return Endpoint.officialBroadcasts.newRequest(request -> {})
+                .query(MapBuilder.of(BroadcastParameters.class).toMap(params)))
             .process(requestHandler);
     }
 
@@ -53,8 +46,9 @@ public class BroadcastsHandler implements BroadcastsAuth {
     }
 
     @Override
-    public One<Broadcast> broadcastById(String tourId) {
+    public One<Broadcast> broadcastById(String tourId,Consumer<BroadcastParameters> params) {
         return Endpoint.broadcastById.newRequest(request -> request
+                .query(MapBuilder.of(BroadcastParameters.class).toMap(params))
                 .path(tourId))
             .process(requestHandler);
     }
@@ -118,5 +112,4 @@ public class BroadcastsHandler implements BroadcastsAuth {
                     .rename("longDescription", "markdown")
                     .toMap(consumer);
     }
-
 }
