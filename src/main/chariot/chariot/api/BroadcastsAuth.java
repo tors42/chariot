@@ -33,7 +33,7 @@ public interface BroadcastsAuth extends Broadcasts {
      * {@code writeable} flag in the response. Rounds are ordered by rank, which is roughly
      * chronological, most recent first, slightly pondered with popularity.
      */
-    Many<MyRound> myRounds(Consumer<RoundsBuilder> params);
+    Many<MyRound> myRounds(Consumer<RoundsParameters> params);
 
     /**
      * See {@link #myRounds(Consumer)}
@@ -181,13 +181,13 @@ public interface BroadcastsAuth extends Broadcasts {
 
     }
 
-    interface RoundsBuilder {
+    interface RoundsParameters {
         /**
          * @param nb How many rounds to get.<br>
          *           {@code >= 1}
          *           Example: {@code nb=20}
          */
-        RoundsBuilder nb(int nb);
+        RoundsParameters nb(int nb);
     }
 
 }

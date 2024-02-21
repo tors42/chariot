@@ -100,9 +100,9 @@ public class BroadcastsHandler implements BroadcastsAuth {
     }
 
     @Override
-    public Many<MyRound> myRounds(Consumer<RoundsBuilder> params) {
+    public Many<MyRound> myRounds(Consumer<RoundsParameters> params) {
         return Endpoint.streamMyRounds.newRequest(request -> request
-                .query(MapBuilder.of(RoundsBuilder.class).toMap(params)))
+                .query(MapBuilder.of(RoundsParameters.class).toMap(params)))
             .process(requestHandler);
     }
 
