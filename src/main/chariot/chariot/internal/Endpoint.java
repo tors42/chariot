@@ -13,6 +13,7 @@ import chariot.Client.Scope;
 import chariot.internal.Config.ServerType;
 import chariot.internal.RequestParameters.*;
 import chariot.internal.Util.Method;
+import chariot.internal.ModelMapper.PushWrapper;
 import chariot.internal.ModelMapper.Timeline;
 import chariot.model.*;
 
@@ -496,8 +497,10 @@ public sealed interface Endpoint<T> {
     public static EPOne<Broadcast.Round> updateRound =
         Endpoint.of(Broadcast.Round.class).endpoint("/broadcast/round/%s/edit").post(wwwform).scope(Scope.study_write).toOne();
 
-    public static EPOne<Integer> pushPGNbyRoundId =
-        Endpoint.of(mapper(PushAck.class).andThen(PushAck::moves)).endpoint("/api/broadcast/round/%s/push").post(plain).scope(Scope.study_write).toOne();
+    public static EPMany<PushResult> pushPGNbyRoundId =
+        Endpoint.of(PushResult.class).endpoint("/api/broadcast/round/%s/push")
+        .streamMapper(stream -> stream.map(mapper(PushWrapper.class)).flatMap(PushWrapper::result))
+        .post(plain).scope(Scope.study_write).toMany();
 
     public static EPMany<Pgn> streamBroadcast =
         Endpoint.of(Pgn.class).endpoint("/api/stream/broadcast/round/%s.pgn")

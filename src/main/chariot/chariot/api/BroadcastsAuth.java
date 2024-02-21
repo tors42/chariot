@@ -21,9 +21,9 @@ public interface BroadcastsAuth extends Broadcasts {
      *
      * @param roundId The broadcast round ID (8 characters).
      * @param pgn The PGN. It can contain up to 64 games, separated by a double new line.
-     * @return The number of new moves accepted.
+     * @return The PGN tags and number of moves which were updated.
      */
-    One<Integer>   pushPgnByRoundId(String roundId, String pgn);
+    Many<PushResult>   pushPgnByRoundId(String roundId, String pgn);
 
     /**
      * Stream all broadcast rounds you are a member of.<br>
