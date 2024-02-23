@@ -13,7 +13,6 @@ import chariot.Client.Scope;
 import chariot.internal.Config.ServerType;
 import chariot.internal.RequestParameters.*;
 import chariot.internal.Util.Method;
-import chariot.internal.ModelMapper.PushWrapper;
 import chariot.internal.ModelMapper.Timeline;
 import chariot.model.*;
 
@@ -632,6 +631,11 @@ public sealed interface Endpoint<T> {
     static record RoundConvert(String id, String slug, String name, ZonedDateTime createdAt, Optional<ZonedDateTime> startsAt, boolean ongoing, boolean finished, java.net.URI url, Integer delay) {
         MyRound.Round toRound() {
             return new MyRound.Round(id, slug, name, createdAt, startsAt, ongoing, finished, url, delay == null ? Duration.ZERO : Duration.ofSeconds(delay));
+        }
+    }
+    static record PushWrapper(List<PushResult> games) {
+        Stream<PushResult> result() {
+            return games.stream();
         }
     }
 

@@ -957,37 +957,6 @@ public class ModelMapper {
             }
             return null;
         });
-
-        mapper.setCustomMapper(PushResult.class, node -> {
-            Map<String, String> t = Map.of();
-            int m = 0;
-            if (node instanceof YayObject game) {
-                if (game.value().get("tags") instanceof YayArray yarr) {
-                    t = yarr.value().stream()
-                        .filter(YayObject.class::isInstance)
-                        .map(YayObject.class::cast)
-                        .map(yo -> {
-                            String key = yo.value().keySet().stream().findAny().orElse("");
-                            String value = yo.getString(key);
-                            return Map.entry(key, value);
-                        })
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                }
-                if (game.value().get("error") instanceof YayString str) {
-                    return new PushResult.Fail(t, str.value());
-                }
-                if (game.value().get("moves") instanceof YayNumber num) {
-                    m = num.value().intValue();
-                }
-            }
-            return new PushResult.Pass(t, m);
-        });
-    }
-
-    public record PushWrapper(List<PushResult> games) {
-        Stream<PushResult> result() {
-            return games.stream();
-        }
     }
 
     public record Timeline(List<TLEntry> entries, TLUsers users) {
