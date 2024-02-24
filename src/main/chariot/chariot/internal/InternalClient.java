@@ -69,15 +69,12 @@ public class InternalClient {
             bodyPublisher = BodyPublishers.ofInputStream(() -> request.dataInputStream());
         }
 
-
         switch(request.method()) {
             case GET    -> builder.GET();
             case DELETE -> builder.DELETE();
             case POST   -> builder.POST(bodyPublisher);
             case PUT    -> builder.PUT(bodyPublisher);
-            //TODO, Java 18 introduced short form .HEAD(),
-            //so update after jumping from Java 17 LTS...
-            case HEAD   -> builder.method("HEAD", BodyPublishers.noBody());
+            case HEAD   -> builder.HEAD();
         };
 
         if (config instanceof Config.Auth auth) {

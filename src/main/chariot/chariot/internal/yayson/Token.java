@@ -1,143 +1,119 @@
 package chariot.internal.yayson;
 
-import java.util.Optional;
+import java.util.*;
 import java.nio.ByteBuffer;
 import java.util.List;
 
 public sealed interface Token {
 
-    // Structural
-    public static final Token BEGIN_OBJECT = new BeginObject('{');
-    public static final Token END_OBJECT = new EndObject('}');
-    public static final Token BEGIN_ARRAY = new BeginArray('[');
-    public static final Token END_ARRAY = new EndArray(']');
-    public static final Token NAME_SEPARATOR = new NameSeparator(':');
-    public static final Token VALUE_SEPARATOR = new ValueSeparator(',');
+    static final Token BEGIN_OBJECT = Structural.BEGIN_OBJECT;
+    static final Token END_OBJECT = Structural.END_OBJECT;
+    static final Token BEGIN_ARRAY = Structural.BEGIN_ARRAY;
+    static final Token END_ARRAY = Structural.END_ARRAY;
+    static final Token NAME_SEPARATOR = Structural.NAME_SEPARATOR;
+    static final Token VALUE_SEPARATOR = Structural.VALUE_SEPARATOR;
+    static final Token NULL = Literal.NULL;
+    static final Token TRUE = Literal.TRUE;
+    static final Token FALSE = Literal.FALSE;
 
-    // Literals
-    public static final Token FALSE = new False();
-    public static final Token TRUE = new True();
-    public static final Token NULL = new Null();
+    int length();
 
+    static enum Structural implements Token {
+        BEGIN_OBJECT('{'),
+        END_OBJECT('}'),
+        BEGIN_ARRAY('['),
+        END_ARRAY(']'),
+        NAME_SEPARATOR(':'),
+        VALUE_SEPARATOR(','),
+        ;
+        final char token;
+        Structural(char token) { this.token = token; }
+        static Structural parse(char token) {
+            return switch(token) {
+                case '{' -> BEGIN_OBJECT;
+                case '}' -> END_OBJECT;
+                case '[' -> BEGIN_ARRAY;
+                case ']' -> END_ARRAY;
+                case ':' -> NAME_SEPARATOR;
+                case ',' -> VALUE_SEPARATOR;
+                default -> null;
+            };
+        }
+        @Override public int length() { return 1; }
+        public char token() { return token; }
+    }
 
-    // Structural
-    record BeginArray(char c)     implements Token {};
-    record BeginObject(char c)    implements Token {};
-    record EndArray(char c)       implements Token {};
-    record EndObject(char c)      implements Token {};
-    record NameSeparator(char c)  implements Token {};
-    record ValueSeparator(char c) implements Token {};
-
-    // Literals
-    record False() implements Token {
-        @Override public int length() { return "false".length(); }
-    };
-    record True()  implements Token {
-        @Override public int length() { return "true".length(); }
-    };
-    record Null()  implements Token {
-        @Override public int length() { return "null".length(); }
-    };
-
-    // Number and String
+    static enum Literal implements Token {
+        TRUE("true"),
+        FALSE("false"),
+        NULL("null"),
+        ;
+        final String literal;
+        final int length;
+        Literal(String literal) {
+            this.literal = literal;
+            length = literal.length();
+        }
+        static Literal parse(String str) {
+            if (str.startsWith("true")) return TRUE;
+            if (str.startsWith("null")) return NULL;
+            if (str.startsWith("false")) return FALSE;
+            return null;
+        }
+        @Override public int length() { return length; }
+        public String literal() { return literal; }
+    }
 
     record JsonNumber(String string, Number number) implements Token {
         @Override public int length() { return string().length(); }
     };
 
     record JsonString(String string, String source) implements Token {
-        public JsonString(String string) {
-            this(string, string);
+        public JsonString(String string) { this(string, string); }
+
+        public static JsonString decode(String json) {
+            return switch(json) {
+                case String str when str.contains("\\") ->
+                    new JsonString(
+                        str.replaceAll("\\\\/", "/")
+                            .transform(Token::decodeUnicode)
+                            .translateEscapes(),
+                        json);
+                default -> new JsonString(json);
+            };
         }
-
-        public static JsonString decode(String raw) {
-
-            if (raw.contains("\\")) {
-                try {
-                    var removedOptionalForwardSlashEscapes = raw.replaceAll("\\\\/", "/");
-                    var decodedUnicode = decodeUnicode(removedOptionalForwardSlashEscapes);
-                    var translatedEscapes = decodedUnicode.translateEscapes();
-                    return new JsonString(translatedEscapes, raw);
-                } catch(Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            return new JsonString(raw, raw);
-        }
-
-        public String raw() {
-            // For now, let's give back the original...
-            return source();
-        }
-
         @Override public int length() { return source.length() + 2; } // +2 for quotation marks
     };
 
 
-    default int length() {
-        return 1;
-    }
-
     record TokenAndTail(Optional<Token> token, String tail) {}
 
-    public static TokenAndTail lex(String json) {
-        char c = json.charAt(0);
-        try {
-            var token = switch (c) {
-                case '[' -> Optional.of(BEGIN_ARRAY);
-                case ']' -> Optional.of(END_ARRAY);
-                case '{' -> Optional.of(BEGIN_OBJECT);
-                case '}' -> Optional.of(END_OBJECT);
-                case ':' -> Optional.of(NAME_SEPARATOR);
-                case ',' -> Optional.of(VALUE_SEPARATOR);
-                case 'n','t','f'                                 -> lexLiteral(json);
-                case '"'                                         -> lexString(json);
-                case '-','0','1','2','3','4','5','6','7','8','9' -> lexNumber(json);
-                default  -> Optional.<Token>empty();
-            };
-            if (token.isPresent()) {
-                var tt = new TokenAndTail(token, json.length() > token.get().length() ? json.substring(token.get().length()).trim() : "");
-
-                return tt;
-            } else {
-
-                // Whitespace
-                // All ok in json.
-                // Skip it, until we reach the beginning of a new token.
-
-                if (c != ' ' && c != '\n') {
-                    // If we are trying to parse something which isn't json,
-                    // for example the string 'game not found' as opposed to the string '{ "message" : "game not found" }',
-                    // we will only have unexpected characters here... 'g' 'a' 'm' 'e'... No token matches.
-
-                    //System.out.println("Unexpected character [" + c + "] [" + (int) c + "], skipping!!!!!!!!!!!!!!!!");
-                    //Thread.sleep(3000);
-                }
-                return new TokenAndTail(Optional.empty(), json.substring(1).trim());
-            }
-        } catch (Exception e) {
-            return new TokenAndTail(Optional.empty(), json.length() > 1 ? json.substring(1).trim() : "");
-        }
+    static TokenAndTail lex(String json) {
+        return switch(parseToken(json)) {
+            case null        -> new TokenAndTail(Optional.empty(),   json.isEmpty() ? "" : json.substring(1).trim());
+            case Token token -> new TokenAndTail(Optional.of(token), json.length() > token.length() ? json.substring(token.length()).trim() : "");
+        };
     }
 
-    private static Optional<Token> lexLiteral(String json) {
-        if (json.startsWith("true")) {
-            return Optional.of(TRUE);
-        } else if (json.startsWith("false")) {
-            return Optional.of(FALSE);
-        } else if (json.startsWith("null")) {
-            return Optional.of(NULL);
-        }
-        return Optional.empty();
+    private static Token parseToken(String str) {
+        return switch(Character.valueOf(str.charAt(0))) {
+            case Character c when Structural.parse(c) instanceof Structural structural
+                -> structural;
+            case Character c when (Character.isDigit(c) || Character.valueOf(c) == '-') && lexNumber(str) instanceof JsonNumber number
+                -> number;
+            case Character c when Set.of('t', 'f', 'n').contains(c) && Literal.parse(str) instanceof Literal literal
+                -> literal;
+            case Character c when c.charValue() == '"' && lexString(str) instanceof JsonString string
+                -> string;
+            default -> null;
+        };
     }
 
-    private static Optional<Token> lexString(String json) {
+    private static Token lexString(String json) {
         int endQuote = 1;
 
         try {
             while((endQuote = json.indexOf('"', endQuote)) != -1) {
-
                 // Check if the " is escaped...
                 if (json.charAt(endQuote-1) == '\\') {
                     // Check if the \ is not escaped...
@@ -156,48 +132,65 @@ public sealed interface Token {
 
                 var parsedString = json.substring(1, endQuote);
                 var string = JsonString.decode(parsedString);
-                return Optional.of(string);
+                return string;
             }
         } catch (Exception e) {
-            // ignore
-            e.printStackTrace();
+            // todo error.log
+            e.printStackTrace(System.err);
         }
 
-        System.out.println("Couldn't find matching [\"], for json [" + json + "]");
-        return Optional.empty();
+        // todo error.log
+        System.err.println("Couldn't find matching [\"], for json [" + json + "]");
+        return null;
     }
 
-    private static Optional<Token> lexNumber(String json) {
-        var chars = List.<Character>of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '+', 'e', 'E', '.');
-        int idx = 0;
-        while (idx < json.length()-1 && chars.contains(json.charAt(idx))) {
-            idx++;
-        }
-        var string = json.substring(0, idx);
+    private static Token lexNumber(String json) {
+        try {
+            var chars = List.<Character>of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '+', 'e', 'E', '.');
+            int idx = 0;
+            while (idx < json.length()-1 && chars.contains(json.charAt(idx))) {
+                idx++;
+            }
+            var string = json.substring(0, idx);
 
-        Number number;
-        if (string.contains(".")) {
-           number = Float.valueOf(string);
-        } else {
-            var n = Long.valueOf(string);
-            if (n >= 0) {
-                if (n <= Integer.MAX_VALUE) {
-                    number = (Integer) n.intValue();
-                } else {
-                    number = n;
-                }
+            Number number;
+            if (string.contains(".")) {
+               number = Float.valueOf(string);
             } else {
-                if (n < Integer.MIN_VALUE) {
-                    number = n;
+                var n = Long.valueOf(string);
+                if (n >= 0) {
+                    if (n <= Integer.MAX_VALUE) {
+                        number = (Integer) n.intValue();
+                    } else {
+                        number = n;
+                    }
                 } else {
-                    number = (Integer) n.intValue();
+                    if (n < Integer.MIN_VALUE) {
+                        number = n;
+                    } else {
+                        number = (Integer) n.intValue();
+                    }
                 }
             }
+            return new JsonNumber(string, number);
+        } catch (Exception e) {
+            // todo error.log
+            e.printStackTrace(System.err);
         }
-        return Optional.of(new JsonNumber(string, number));
+        return null;
     }
 
-    public static String decodeUnicode(String string) throws Exception {
+    static String decodeUnicode(String string) {
+        try {
+            return _decodeUnicode(string);
+        } catch (Exception e) {
+            // todo, logger.errors
+            e.printStackTrace(System.err);
+            return string;
+        }
+    }
+
+    static String _decodeUnicode(String string) throws Exception {
         byte[] bytes = string.getBytes();
         ByteBuffer bb = ByteBuffer.allocate(bytes.length);
         for(int i = 0; i < bytes.length; i++) {
@@ -257,4 +250,3 @@ public sealed interface Token {
     }
 
 }
-

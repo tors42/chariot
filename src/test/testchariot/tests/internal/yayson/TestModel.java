@@ -250,26 +250,37 @@ public class TestModel {
         }
     }
 
+    static sealed interface Fields {}
+    public record One(int field1) implements Fields {}
+    public record Two(int field1, int field2) implements Fields {}
+    public record Three(int field1, int field2, int field3) implements Fields {}
+
+    @Test
+    public void testBestMatch() {
+        var jsonField1Field2Field3 = """
+            {
+                "field1": 1,
+                "field2": 2,
+                "field3": 3
+            }
+            """;
+        assertTrue(mapper.fromString(jsonField1Field2Field3, Fields.class) instanceof Three(int f1, int f2, int f3));
+    }
+
     @Test
     public void parseEnum() {
-
         var json = """
             {
                 "id": "abcdefgh",
                 "winner": "black"
             }""";
-
-
         var mapped = mapper.fromString(json, Game.class);
-
         assertEquals(mapped.id(), "abcdefgh");
         assertEquals(mapped.winner().toString(), "black");
     }
 
     @Test
     public void parseOptional() {
-
-
         var jsonWithTrueField = """
             {
                 "id": "abcdefgh",
@@ -282,12 +293,10 @@ public class TestModel {
                 "someField": false
             }""";
 
-
         var jsonWithoutField = """
             {
                 "id": "abcdefgh"
             }""";
-
 
         var mappedWithTrueField = mapper.fromString(jsonWithTrueField, GameWithOpt.class);
         var mappedWithFalseField = mapper.fromString(jsonWithFalseField, GameWithOpt.class);

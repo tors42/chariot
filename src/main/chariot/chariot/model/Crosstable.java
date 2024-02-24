@@ -1,20 +1,19 @@
 package chariot.model;
 
-import java.util.Optional;
-import java.util.Set;
+public record Crosstable(Results results, Opt<Results> matchup) {
 
-public record Crosstable(Results total, java.util.Optional<Results> matchup)  {
-
-    public record Results(Set<Result> users, Integer nbGames) {
-        public record Result(String user, Double points) {}
+    public record Results(Result user1, Result user2, int nbGames) {
+        public double pointsForUser(String userId) {
+            return switch(this) {
+                case Results(var u1, var u2, var __) when u1.id().equals(userId) -> u1.points;
+                case Results(var u1, var u2, var __) when u2.id().equals(userId) -> u2.points;
+                default -> 0;
+            };
+        }
     }
+    public record Result(String id, double points) {}
 
-    public record Points(Double total, Optional<Double> matchup) {}
-
-    public Points pointsForUser(String user) {
-        return new Points(total().users().stream().filter(r -> r.user().equals(user)).map(r -> r.points()).findAny().orElse(-1d),
-                matchup().isPresent() ?
-                matchup().get().users().stream().filter(r -> r.user().equals(user)).map(r -> r.points()).findAny() :
-                Optional.empty());
+    public double pointsForUser(String userId) {
+        return results.pointsForUser(userId);
     }
 }

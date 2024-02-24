@@ -1,10 +1,9 @@
 package chariot.internal.yayson;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.stream.*;
 
 import chariot.internal.yayson.Token.*;
 
@@ -19,41 +18,53 @@ public class Parser {
     public sealed interface YayNode {}
     public sealed interface YayValue extends YayNode {}
 
-    public record YayWithRaw(YayNode node, String raw)  implements YayNode {}
-    public record YayEmpty()                            implements YayNode {}
-    public record YayArray(List<YayNode> value)         implements YayNode {}
+    public record YayArray(List<YayNode> value)         implements YayNode {
+        public <T,R> List<R> filterCastMap(Function<T, R> mapper, Class<T> cls) {
+            return value.stream()
+                .filter(cls::isInstance)
+                .map(cls::cast)
+                .map(mapper)
+                .toList();
+        }
+    }
+
     public record YayObject(Map<String, YayNode> value) implements YayNode {
         public String getString(String key) {
-            if (value().get(key) instanceof YayString s) {
-                return s.value();
-            }
-            return null;
+            return value().get(key) instanceof YayString(var value) ? value : null;
         }
-
         public Number getNumber(String key) {
-            if (value().get(key) instanceof YayNumber n) {
-                return n.value();
-            }
-            return null;
+            return value().get(key) instanceof YayNumber(var num) ? num : null;
         }
         public Integer getInteger(String key) {
-            if (value().get(key) instanceof YayNumber n) {
-                return n.value().intValue();
-            }
-            return null;
+            return value().get(key) instanceof YayNumber(var num) ? num.intValue() : null;
         }
         public Long getLong(String key) {
-            if (value().get(key) instanceof YayNumber n) {
-                return n.value().longValue();
-            }
-            return null;
+            return value().get(key) instanceof YayNumber(var num) ? num.longValue() : null;
+        }
+        public boolean getBool(String key) {
+            return value().get(key) instanceof YayBool(var bool) ? bool : false;
+        }
+        public List<YayNode> getArray(String key) {
+            return value().get(key) instanceof YayArray(var arr) ? arr : null;
         }
 
-        public boolean getBool(String key) {
-            if (value().get(key) instanceof YayBool b) {
-                return b.value();
-            }
-            return false;
+        public <T,R> Map<String, R> filterCastMap(Function<T, R> mapper, Class<T> cls) {
+            return cast(cls)
+                .map(entry -> Map.entry(entry.getKey(), mapper.apply(entry.getValue())))
+                // want a SequencedMap,
+                // .collect(Collectors.toUnmodifiableMap(keyExtract, valueExtract)) gives unordered :(
+                // so using reduce() with LinkedHashMap to preserve insertion order...
+                .reduce(new LinkedHashMap<String, R>(), (acc, entry) -> {
+                        acc.put(entry.getKey(), entry.getValue());
+                        return acc;
+                    },
+                    (acc1, acc2) -> acc1);
+        }
+
+        private <T> Stream<Entry<String, T>> cast(Class<T> cls) {
+            return value.entrySet().stream()
+                .filter(entry -> cls.isInstance(entry.getValue()))
+                .map(entry -> Map.entry(entry.getKey(), cls.cast(entry.getValue())));
         }
     }
 
@@ -65,45 +76,29 @@ public class Parser {
 
     static YayNode parse(List<Token> tokens) {
         if (tokens.isEmpty()) {
-            return new YayEmpty();
+            return null;
         }
         var token = tokens.remove(0);
-
-        // --enable-preview
-        //return switch(token) {
-        //    case BeginArray  __  -> parseArray(tokens);
-        //    case BeginObject __  -> parseObject(tokens);
-        //    case False       __  -> new YayBool(false);
-        //    case True        __  -> new YayBool(true);
-        //    case Null        __  -> new YayNull();
-        //    case JsonNumber  num -> new YayNumber(num.number());
-        //    case JsonString  str -> new YayString(str.string());
-        //};
-
-        if (token instanceof BeginArray) {
-            return parseArray(tokens);
-        } else if (token instanceof BeginObject) {
-            return parseObject(tokens);
-        } else {
-            if (token instanceof False) {
-                return new YayBool(false);
-            } else if (token instanceof True) {
-                return new YayBool(true);
-            } else if (token instanceof Null) {
-                return new YayNull();
-            } else if (token instanceof JsonNumber n) {
-                return new YayNumber(n.number());
-            } else if (token instanceof JsonString s) {
-                return new YayString(s.string());
-            }
-            return new YayEmpty();
-        }
+        return switch(token) {
+            case Structural structural -> switch(structural) {
+                case BEGIN_ARRAY  -> parseArray(tokens);
+                case BEGIN_OBJECT -> parseObject(tokens);
+                default -> null;
+            };
+            case Literal literal -> switch(literal) {
+                case FALSE -> new YayBool(false);
+                case TRUE  -> new YayBool(true);
+                case NULL  -> new YayNull();
+            };
+            case JsonNumber(var __, var num)    -> new YayNumber(num);
+            case JsonString(String str, var __) -> new YayString(str);
+        };
     }
 
     static YayArray parseArray(List<Token> tokens) {
         var yayArray = new YayArray(new ArrayList<>());
 
-        if (tokens.get(0) instanceof EndArray) {
+        if (tokens.get(0) instanceof Structural s && s == Structural.END_ARRAY) {
             tokens.remove(0);
             return yayArray;
         }
@@ -112,27 +107,28 @@ public class Parser {
             var node = parse(tokens);
             yayArray.value().add(node);
             var t = tokens.remove(0);
-            if (t instanceof EndArray) {
+            if (t instanceof Structural s && s == Structural.END_ARRAY) {
                 return yayArray;
-            } else if (! (t instanceof ValueSeparator)) {
+            } else if (! (t instanceof Structural s && s == Structural.VALUE_SEPARATOR)) {
                 throw new YayException("Expected comma in array");
             }
         }
     }
 
     static YayObject parseObject(List<Token> tokens) {
-        var yayObject = new YayObject(new HashMap<String, YayNode>());
-        if (tokens.get(0) instanceof EndObject) {
+        var yayObject = new YayObject(new LinkedHashMap<String, YayNode>());
+        if (tokens.get(0) instanceof Structural eo && eo == Structural.END_OBJECT) {
             tokens.remove(0);
             return yayObject;
         }
         while (true) {
             var key = tokens.remove(0);
             if (! (key instanceof JsonString js)) {
+                System.out.println("tokens: " + tokens);
                 throw new YayException("Expected the key, in the JSON key-value pair, to be a string - was [%s]".formatted(key));
             }
             var sep = tokens.remove(0);
-            if (! (sep instanceof NameSeparator)) {
+            if (! (sep instanceof Structural ns && ns == Structural.NAME_SEPARATOR)) {
                 throw new YayException("Expected the colon between key-value pair - at key [%s]".formatted(key));
             }
             var node = parse(tokens);
@@ -148,9 +144,9 @@ public class Parser {
             }
 
             var t = tokens.remove(0);
-            if (t instanceof EndObject) {
+            if (t instanceof Structural eo && eo == Structural.END_OBJECT) {
                 return yayObject;
-            } else if (! (t instanceof ValueSeparator)) {
+            } else if (! (t instanceof Structural vs && vs == Structural.VALUE_SEPARATOR)) {
                 throw new YayException("Expected comma after pair in object - at key [%s] - the token:%n%s%n".formatted(key, t));
             }
         }

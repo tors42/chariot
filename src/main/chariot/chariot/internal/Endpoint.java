@@ -13,7 +13,7 @@ import chariot.Client.Scope;
 import chariot.internal.Config.ServerType;
 import chariot.internal.RequestParameters.*;
 import chariot.internal.Util.Method;
-import chariot.internal.ModelMapper.Timeline;
+import chariot.internal.modeladapter.TimelineAdapter.Timeline;
 import chariot.model.*;
 
 import static chariot.internal.ModelMapper.mapper;

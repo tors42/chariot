@@ -4,6 +4,8 @@ import java.util.List;
 
 import chariot.internal.yayson.Lexer;
 import chariot.internal.yayson.Token;
+import chariot.internal.yayson.Token.*;
+
 import util.Test;
 
 import static util.Assert.*;
@@ -25,23 +27,17 @@ public class TestLexer {
 
     @Test
     public void emptyString() {
-        String json = "";
-        var tokens = Lexer.tokenize(json);
-        var expected = List.<Token>of();
-        assertEquals(expected, tokens);
+        assertEquals(List.<Token>of(), Lexer.tokenize(""));
     }
 
     @Test
     public void emptyObject() {
-        String json = """
-            {}
-        """;
-        var tokens = Lexer.tokenize(json);
-        var expected = List.of(
-                Token.BEGIN_OBJECT,
-                Token.END_OBJECT
+        assertEquals(
+                List.of( Token.BEGIN_OBJECT, Token.END_OBJECT),
+                Lexer.tokenize("""
+                               {}
+                               """)
                 );
-        assertEquals(expected, tokens);
     }
 
     @Test
@@ -95,9 +91,9 @@ public class TestLexer {
         var tokens = Lexer.tokenize(json);
         var expected = List.of(
                 Token.BEGIN_OBJECT,
-                new Token.JsonString("key"),
+                new JsonString("key"),
                 Token.NAME_SEPARATOR,
-                new Token.JsonString("value"),
+                new JsonString("value"),
                 Token.END_OBJECT
                 );
 

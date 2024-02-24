@@ -39,15 +39,12 @@ public class YayMapper {
         config.customMappings().put(cls, f);
     }
 
-
     public <T> T fromString(String json, Class<T> cls) {
-
         try {
             var node = Parser.fromString(json);
 
             if (config.customMappings().containsKey(cls)) {
-                var f = config.customMappings().get(cls);
-                return cls.cast(f.apply(node));
+                return cls.cast(config.customMappings().get(cls).apply(node));
             }
 
             // Here be dragons...
@@ -69,91 +66,7 @@ public class YayMapper {
 
     public <T> T fromYayTree(YayNode node, Class<T> cls) {
         try {
-
-        if (config.customMappings().containsKey(cls)) {
-            var f = config.customMappings().get(cls);
-            return cls.cast(f.apply(node));
-        }
-
-        if (cls.isInterface() && cls.isSealed()) {
-
-            return buildFromSealedInterface(node, cls, Optional.empty());
-
-        } else if (cls.isRecord()) {
-
-            var rcomp = Arrays.asList(cls.getRecordComponents());
-
-            if (node instanceof YayObject yo) {
-                List<?> instances = rcomp.stream()
-                    .map(rc -> {
-
-                        // See if we need to swap the json property name to a java friendly name
-                        // json: { "int": 5 }
-                        // java: int int = 5; <- not ok
-                        // java: int intVariable = 5; <- "ok"
-                        // So json "int" -> java "intVariable" mapping
-                        var jsonName = config.fieldMappings().getOrDefault(cls, Map.of())
-                            .getOrDefault(rc.getName(), rc.getName());
-
-                        var parameterizedType = Optional.<ParameterizedType>empty();
-                        if (rc.getGenericType() instanceof ParameterizedType pt) {
-                            parameterizedType = Optional.of(pt);
-                        }
-
-                        Object obj = null;
-                        try {
-                            obj = rc.getType().isInterface() && rc.getType().isSealed() ?
-                                buildFromSealedInterface(yo.value().get(jsonName), rc.getType(), parameterizedType) :
-                                buildFromClass(yo.value().get(jsonName), rc.getType(), parameterizedType);
-                        } catch (Exception e) {
-                            System.err.println("Failure while looking for " + jsonName + " of type " +
-                                    rc.getType() + " with (possibly) parameterized type " + parameterizedType);
-                            System.err.println("""
-                                    Failed: T fromYayTree(YayNode node, Class<T> cls)
-                                    e.getMessage(): %s
-                                    cls.getName(): %s
-                                    node:
-                                    =======================
-                                    %s
-                                    =======================
-                                    """.formatted(e.getMessage(), cls.getName(), node));
-                            e.printStackTrace(System.err);
-                        }
-                        return obj;
-                    })
-                .toList();
-
-                T t;
-                try {
-                    var declaredCtors = cls.getDeclaredConstructors();
-                    var ctor = declaredCtors[0];
-
-                    if (declaredCtors.length > 1) {
-                        var types = rcomp.stream()
-                            .map(RecordComponent::getType)
-                            .toList();
-                        ctor = Arrays.stream(declaredCtors)
-                            .filter(c -> Arrays.asList(c.getParameterTypes()).equals(types))
-                            .findAny()
-                            .orElseThrow();
-                    }
-
-                    // Create the instance!
-                    t = cls.cast(ctor.newInstance(instances.toArray()));
-
-                } catch (InstantiationException |
-                        IllegalAccessException |
-                        IllegalArgumentException |
-                        InvocationTargetException e) {
-                    e.printStackTrace();
-                    System.out.println(" ########  Instances: " + instances);
-                    System.out.println(" ========  node     : " + node);
-                    t = null;
-                        }
-                return t;
-            }
-        }
-
+            return _fromYayTree(node, cls);
         } catch (Exception e) {
             System.err.println("""
                     Failed: T fromYayTree(YayNode node, Class<T> cls)
@@ -165,54 +78,122 @@ public class YayMapper {
                     =======================
             """.formatted(e.getMessage(), cls.getName(), node));
             e.printStackTrace(System.err);
+            return null;
+        }
+    }
+
+    public <T> T _fromYayTree(YayNode node, Class<T> cls) throws Exception {
+        if (config.customMappings().containsKey(cls)) {
+            return cls.cast(config.customMappings().get(cls).apply(node));
+        }
+
+        if (node == null) return null;
+
+        if (cls.isInterface() && cls.isSealed()) {
+            return buildFromSealedInterface(node, cls, null);
+        } else if (cls.isRecord() && node instanceof YayObject yo) {
+            List<RecordComponent> recordComponents = Arrays.asList(cls.getRecordComponents());
+
+            List<?> recordComponentValues = mapValuesForComponents(recordComponents, cls, yo);
+
+            T recordInstance;
+            try {
+                // Create the instance!
+                recordInstance = cls.cast(findConstructor(cls, recordComponents).newInstance(recordComponentValues.toArray()));
+            } catch (InstantiationException |
+                    IllegalAccessException |
+                    IllegalArgumentException |
+                    InvocationTargetException e) {
+                e.printStackTrace(System.err);
+                System.err.println(" ########  Instances: " + recordComponentValues);
+                System.err.println(" ========  node     : " + node);
+                recordInstance = null;
+            }
+            return recordInstance;
         }
         return null;
     }
 
-    private <T> T buildFromSealedInterface(YayNode node, Class<T> cls, Optional<ParameterizedType> parameterizedType) {
+    private Constructor<?> findConstructor(Class<?> cls, List<RecordComponent> recordComponents) {
+        var declaredCtors = cls.getDeclaredConstructors();
+        var ctor = declaredCtors[0];
+        if (declaredCtors.length > 1) {
+            var types = recordComponents.stream()
+                .map(RecordComponent::getType)
+                .toList();
+            ctor = Arrays.stream(declaredCtors)
+                .filter(c -> Arrays.asList(c.getParameterTypes()).equals(types))
+                .findAny()
+                .orElseThrow();
+        }
+        return ctor;
+    }
+
+    private List<Object> mapValuesForComponents(List<RecordComponent> recordComponents, Class<?> cls, YayObject yo) {
+        return recordComponents.stream()
+            .map(rc -> {
+                // See if we need to swap the json property name to a java friendly name
+                // json: { "int": 5 }
+                // java: int int = 5; <- not ok
+                // java: int intVariable = 5; <- "ok"
+                // So json "int" -> java "intVariable" mapping
+                var jsonName = config.fieldMappings().getOrDefault(cls, Map.of())
+                    .getOrDefault(rc.getName(), rc.getName());
+
+
+                // Could for instance be the field "opening" in Game, of type Game$Opening,
+                // which could be missing,
+                // or it could for instance be a field "count" of type "int" -> so would map to 0 if missing...
+                YayNode yayNodeForField = yo.value().get(jsonName);
+
+                var parameterizedType = rc.getGenericType() instanceof ParameterizedType pt
+                    ? pt : null;
+
+                try {
+                    return rc.getType().isInterface() && rc.getType().isSealed()
+                        ? buildFromSealedInterface(yayNodeForField, rc.getType(), parameterizedType)
+                        : buildFromClass(yayNodeForField, rc.getType(), parameterizedType);
+                } catch (Exception e) {
+                    System.err.println("Failure while looking for " + jsonName + " of type " +
+                            rc.getType() + " with (possibly) parameterized type " + parameterizedType);
+                    System.err.println("""
+                            Failed: T fromYayTree(YayNode node, Class<T> cls)
+                            e.getMessage(): %s
+                            cls.getName(): %s
+                            yo:
+                            =======================
+                            %s
+                            =======================
+                            """.formatted(e.getMessage(), cls.getName(), yo));
+                    e.printStackTrace(System.err);
+                }
+                return null;
+            }).toList();
+    }
+
+
+    private <T> T buildFromSealedInterface(YayNode node, Class<T> cls, ParameterizedType parameterizedType) {
 
         if (config.customMappings().containsKey(cls)) {
-            var f = config.customMappings().get(cls);
-            return cls.cast(f.apply(node));
+            return cls.cast(config.customMappings().get(cls).apply(node));
         }
 
         if (cls.equals(Opt.class)) {
-            if (node != null) {
-                ParameterizedType pt = parameterizedType.get();
-                Type typeArgument = pt.getActualTypeArguments()[0];
-                if (typeArgument instanceof Class<?> typeClass) {
-                    var value = buildFromClass(node, typeClass, Optional.empty());
-                    @SuppressWarnings("unchecked")
-                    T t = (T) Opt.of(value);
-                    return t;
-                }
+            if (node != null && typeClass(parameterizedType) instanceof Class<?> typeClass) {
+                var value = buildFromClass(node, typeClass, null);
+                @SuppressWarnings("unchecked")
+                T t = (T) Opt.of(value);
+                return t;
             }
             @SuppressWarnings("unchecked")
             T t = (T) Opt.empty();
             return t;
         }
 
-        if (node instanceof YayEmpty empty) {
-            List<Class<?>> permittedRecordSubclasses = permittedRecordClassesOfSealedInterfaceHierarchy(cls);
-            var opt = permittedRecordSubclasses.stream()
-                .filter(p -> p.getRecordComponents().length == 0)
-                .findFirst();
-            if (opt.isPresent()) {
-                var klass = opt.get();
-
-                var o = buildFromClass(empty, klass, parameterizedType);
-                if (o != null) {
-                    return cls.cast(o);
-                }
-                return null;
-            }
-        }
-
-        if (! (node instanceof YayObject yo)) {
-            // Hmm, can be YayEmpty, I guess...
+        if (! (node instanceof YayObject yo
+            && yo.value().keySet() instanceof Set<String> jsonFieldNames)) {
             return null;
         }
-        var jsonFieldNames = yo.value().keySet();
 
         List<Class<?>> permittedRecordSubclasses = permittedRecordClassesOfSealedInterfaceHierarchy(cls);
 
@@ -285,106 +266,88 @@ public class YayMapper {
         return permittedRecordSubclasses;
     }
 
-    private <T> T buildFromClass(YayNode node, Class<T> cls, Optional<ParameterizedType> parameterizedType) {
+    static Class<?> typeClass(ParameterizedType parameterizedType) {
+        return typeClass(parameterizedType, 0);
+    }
+
+    static Class<?> typeClass(ParameterizedType parameterizedType, int pos) {
+        return parameterizedType != null
+                && parameterizedType.getActualTypeArguments() instanceof Type[] arr
+                && arr.length >= pos
+                && arr[pos] instanceof Class<?> typeClass
+                ? typeClass
+                : null;
+    }
+
+    private <T> T buildFromClass(YayNode node, Class<T> cls, ParameterizedType parameterizedType) {
 
         if (config.customMappings().containsKey(cls)) {
-            var f = config.customMappings().get(cls);
-            return cls.cast(f.apply(node));
+            return cls.cast(config.customMappings().get(cls).apply(node));
         }
 
         if (cls.isRecord()) {
-            T r = fromYayTree(node, cls);
-            return r;
+            return fromYayTree(node, cls);
         } else if (cls.equals(Optional.class)) {
-            if (node != null) {
-                ParameterizedType pt = parameterizedType.get();
-                Type typeArgument = pt.getActualTypeArguments()[0];
-                if (typeArgument instanceof Class<?> typeClass) {
-                    var value = buildFromClass(node, typeClass, Optional.empty());
-                    @SuppressWarnings("unchecked")
-                    T t = (T) Optional.ofNullable(value);
-                    return t;
-                }
+            if (node != null && typeClass(parameterizedType) instanceof Class<?> typeClass) {
+                var value = buildFromClass(node, typeClass, null);
+                @SuppressWarnings("unchecked")
+                T t = (T) Optional.ofNullable(value);
+                return t;
             }
-
             @SuppressWarnings("unchecked")
             T t = (T) Optional.empty();
             return t;
         } else if (cls.isArray()) {
-            Class<?> componentClass = cls.componentType();
-            if (parameterizedType.isPresent()) {
-                var pt = parameterizedType.get();
-                componentClass = (Class<?>) pt.getActualTypeArguments()[0];
-            }
-            var array = buildArray(node, componentClass, cls);
-            return cls.cast(array);
+            Class<?> componentClass = typeClass(parameterizedType) instanceof Class<?> typeClass
+                ? typeClass
+                : cls.componentType();
+            return cls.cast(buildArray(node, componentClass, cls));
         } else if (List.class.isAssignableFrom(cls)) {
-            Class<?> componentClass = Object.class;
-            if (parameterizedType.isPresent()) {
-                var pt = parameterizedType.get();
-                try {
-                    componentClass = (Class<?>) pt.getActualTypeArguments()[0];
-                } catch (ClassCastException cce) {}
-            }
-            var list = buildList(node, componentClass);
-            return cls.cast(list);
+            Class<?> componentClass = typeClass(parameterizedType) instanceof Class<?> typeClass
+                ? typeClass
+                : Object.class;
+            return cls.cast(buildList(node, componentClass));
         } else if (Map.class.isAssignableFrom(cls)) {
-            if (node instanceof YayObject yo) {
-                if (parameterizedType.isPresent()) {
-                    var map = yo.value().entrySet().stream().collect(Collectors.toMap(
-                                e -> e.getKey(),
-                                e -> {
-                                    var ptValueClass = (Class<?>) parameterizedType.get().getActualTypeArguments()[1];
-                                    if (ptValueClass.isInterface() && ptValueClass.isSealed()) {
-                                        return buildFromSealedInterface(node, ptValueClass, Optional.empty());
-                                    } else {
-                                        return buildFromClass(e.getValue(), ptValueClass, Optional.empty());
-                                    }
-                                }
-                                ));
-                    return cls.cast(map);
-                }
-            }
-            return cls.cast(Map.of());
+            return switch(node) {
+                case YayObject yo when typeClass(parameterizedType, 1) instanceof Class<?> mapContentTypeClass
+                    -> cls.cast(yo.value().entrySet().stream()
+                            .collect(Collectors.toMap(
+                                    e -> e.getKey(),
+                                    e -> mapContentTypeClass.isInterface() && mapContentTypeClass.isSealed()
+                                        ? buildFromSealedInterface(node, mapContentTypeClass, null)
+                                        : buildFromClass(e.getValue(), mapContentTypeClass, null)
+                                    )));
+                case null, default -> cls.cast(Map.of());
+            };
         } else if (cls.isEnum()) {
-            if (node instanceof YayString string) {
-                for (var constant : cls.getEnumConstants()) {
-                    if (String.valueOf(constant).equals(string.value())) {
-                        return constant;
+            return switch(node) {
+                case YayString(var string) -> Arrays.stream(cls.getEnumConstants())
+                    .filter(enumConstant -> String.valueOf(enumConstant).equals(string))
+                    .findFirst()
+                    .orElse(null);
+                case YayNumber(var number) -> {
+                    try {
+                        yield cls.cast(MethodHandles.lookup()
+                            .findStatic(cls, "valueOf", MethodType.methodType(cls, int.class))
+                            .invoke(number.intValue()));
+                    } catch (Throwable t) {
+                        t.printStackTrace(System.err);
+                        yield null;
                     }
                 }
-                return null;
-            } else if (node instanceof YayNumber number) {
-                try {
-                    var mh = MethodHandles.lookup().findStatic(cls, "valueOf", MethodType.methodType(cls, int.class));
-                    var o = mh.invoke(number.value().intValue());
-                    return cls.cast(o);
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
-            }
-            return null;
+                case null, default -> null;
+            };
         } else {
-            if (node instanceof YayNumber number) {
-                if (ZonedDateTime.class.equals(cls)) {
-                    ZonedDateTime zdt = Util.fromLong(number.value().longValue());
-                    return cls.cast(zdt);
-                }
-            }
-
-            if (node instanceof YayString string) {
-                if (java.util.Objects.equals(URI.class, cls)) {
-                    var uri = URI.create(string.value());
-                    return cls.cast(uri);
-                }
-                if (ZonedDateTime.class.equals(cls)) {
-                    ZonedDateTime zdt = ZonedDateTime.parse(string.value(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-                    return cls.cast(zdt);
-                }
-             }
-
-            T t = buildFromPrimitive(node, cls);
-            return t;
+            return switch (node) {
+                case YayNumber(var number) when ZonedDateTime.class.equals(cls)
+                    -> cls.cast(Util.fromLong(number.longValue()));
+                case YayString(var string) when ZonedDateTime.class.equals(cls)
+                    -> cls.cast(ZonedDateTime.parse(string, DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+                case YayString(var string) when URI.class.equals(cls)
+                    -> cls.cast(URI.create(string));
+                case null, default
+                    -> buildFromPrimitive(node, cls);
+            };
         }
     }
 
@@ -399,87 +362,74 @@ public class YayMapper {
     }
 
     private <T> List<T> buildList(YayNode node, Class<? extends T> cls) {
-        List<T> list = new ArrayList<>();
-        if (node instanceof YayArray ya) {
-            ya.value().stream().forEach(yn -> {
-                if (cls.isInterface() && cls.isSealed()) {
-                    var o = buildFromSealedInterface(yn, cls, Optional.empty());
-                    list.add(cls.cast(o));
-                } else {
-                    var o = buildFromClass(yn, cls, Optional.empty());
-                    list.add(o);
-                }
-            });
-        }
-        return list;
+        return switch(node) {
+            case YayArray(List<YayNode> list) when (cls.isInterface() && cls.isSealed()) -> list.stream()
+                .map(yn -> (T) cls.cast(buildFromSealedInterface(yn, cls, null)))
+                .toList();
+            case YayArray(List<YayNode> list) -> list.stream()
+                .map(yn -> (T) buildFromClass(yn, cls, null))
+                .toList();
+            case null, default -> List.of();
+        };
     }
 
     // Hiding this hideous thing here at the bottom,
     // where nobody will see it... Hmm, but then who is reading this comment?
     private <T> T buildFromPrimitive(YayNode node, Class<T> cls) {
-        Object o;
-        if (node instanceof YayValue yv) {
-            if (yv instanceof YayNumber yn) {
-                Number number = yn.value();
-                if (cls == Short.class) {
-                    o = number.shortValue();
-                } else if (cls == Integer.class) {
-                    o = number.intValue();
-                } else if (cls == Long.class) {
-                    o = number.longValue();
-                } else if (cls == Float.class) {
-                    o = number.floatValue();
-                } else if (cls == Double.class) {
-                    o = number.doubleValue();
-                } else {
-                    o = number;
+        Object o = switch(node) {
+            case YayValue yv -> switch (yv) {
+                case YayNumber(var number) -> {
+                    if (cls == Short.class) {
+                        yield number.shortValue();
+                    } else if (cls == Integer.class) {
+                        yield number.intValue();
+                    } else if (cls == Long.class) {
+                        yield number.longValue();
+                    } else if (cls == Float.class) {
+                        yield number.floatValue();
+                    } else if (cls == Double.class) {
+                        yield number.doubleValue();
+                    } else {
+                        yield number;
+                    }
                 }
-            } else if (yv instanceof YayString string) {
-                o = string.value();
-            } else if (yv instanceof YayBool bool) {
-                o = bool.value();
-            } else if (yv instanceof YayNull ynull) {
-                o = null;
-            } else {
-                o = null;
-            }
-        } else {
-            if (cls.isPrimitive()) {
-                if (cls == boolean.class) {
-                    o = false;
-                } else if (cls == char.class) {
-                    o = '\u0000';
-                } else if (cls == byte.class) {
-                    o = (byte) 0;
-                } else if (cls == short.class) {
-                    o = (short) 0;
-                } else if (cls == int.class) {
-                    o = (int) 0;
-                } else if (cls == long.class) {
-                    o = (long) 0;
-                } else if (cls == float.class) {
-                    o = (float) 0;
-                } else if (cls == double.class) {
-                    o = (double) 0;
-                } else {
-                    o = null;
+                case YayString(var string) -> string;
+                case YayBool(var bool)     -> bool;
+                case YayNull()             -> null;
+                default                    -> null;
+            };
+            case null, default -> {
+                if (cls.isPrimitive()) {
+                    if (cls == boolean.class) {
+                        yield false;
+                    } else if (cls == char.class) {
+                        yield '\u0000';
+                    } else if (cls == byte.class) {
+                        yield (byte) 0;
+                    } else if (cls == short.class) {
+                        yield (short) 0;
+                    } else if (cls == int.class) {
+                        yield (int) 0;
+                    } else if (cls == long.class) {
+                        yield (long) 0;
+                    } else if (cls == float.class) {
+                        yield (float) 0;
+                    } else if (cls == double.class) {
+                        yield (double) 0;
+                    }
                 }
-            } else {
-                o = null;
+                yield null;
             }
+        };
+        if (o == null) return null;
+
+        if (cls.isPrimitive()) {
+            @SuppressWarnings("unchecked")
+            T t = (T) o;
+            return t;
         }
 
-        if (o != null) {
-            if (cls.isPrimitive()) {
-                @SuppressWarnings("unchecked")
-                T t = (T) o;
-                return t;
-            } else {
-                T t = cls.cast(o);
-                return t;
-            }
-        }
-        return null;
+        T t = cls.cast(o);
+        return t;
     }
 }
-

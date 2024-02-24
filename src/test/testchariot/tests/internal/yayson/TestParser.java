@@ -9,10 +9,10 @@ import static util.Assert.*;
 public class TestParser {
 
     @Test
-    public void emptyString() {
+    public void emptyString() throws Exception {
         String json = "";
         var node = Parser.fromString(json);
-        if (! (node instanceof YayEmpty)) {
+        if (node != null) {
             fail();
         }
     }
