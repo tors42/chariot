@@ -115,7 +115,7 @@ public interface BroadcastsAuth extends Broadcasts {
          * By default the PGN tags WhiteTeam and BlackTeam are used.<br>
          *
          * One line per player, formatted as such:<br>
-         * {@code <Team name>;<Player name>}<br>
+         * {@code <Team name>;<FIDE ID or Player name>}<br>
          *
          * {@snippet :
          *   var broadcast = client.broadcasts().create(params -> params
@@ -127,8 +127,8 @@ public interface BroadcastsAuth extends Broadcasts {
          *          """)
          *      .teamTable()
          *      .teams("""
-         *          Offerspill;Magnus Carlsen
-         *          Stavanger;M. Fiskaaen
+         *          Team Cats;3408230
+         *          Team Dogs;Scooby Doo
          *          """));
          * }
          */
