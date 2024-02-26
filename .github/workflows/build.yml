@@ -38,7 +38,6 @@ jobs:
       - name: Copy pom template
         run: cp actions/pom.template.xml .
 
-      # Fetch tags to be able to figure out the version number
       - name: Fetch tags
         run: cd chariot && git fetch --tags
 
@@ -48,10 +47,6 @@ jobs:
       - name: checksum
         run: sha256sum bundle/*
 
-      # chariot-VERSION.jar
-      # chariot-VERSION-sources.jar
-      # chariot-VERSION-javadoc.jar
-      # chariot-VERSION.pom
       - uses: actions/upload-artifact@v4
         with:
           name: bundle
