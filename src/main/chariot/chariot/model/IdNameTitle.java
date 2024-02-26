@@ -4,7 +4,9 @@ public record IdNameTitle(String id, String name, String title) implements UserI
 
     @Override
     public String toString() {
-        return "[%s] %s (%s)".formatted(title, name, id);
+        return title != null
+            ? "[%s] %s (%s)".formatted(title, name, id)
+            :      "%s (%s)".formatted(name, id);
     }
 
 }
