@@ -1,5 +1,6 @@
 package chariot.model;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,11 +10,11 @@ public record PerformanceStatistics(Perf perf, Integer rank, Float percentile, S
     public record Glicko(Float rating, Float deviation, boolean provisional) {}
 
     public record PerfType(String key, String name) {}
-    public record DateResult( Integer value, /* "int" */ String at, String gameId) {}
+    public record DateResult( Integer value, /* "int" */ ZonedDateTime at, String gameId) {}
 
     public record OpId(String id, String name, Optional<String> title) {}
 
-    public record Result(Integer opInt, OpId opId, String at, String gameId) { }
+    public record Result(Integer opRating, UserInfo opId, ZonedDateTime at, String gameId) { }
     public record Results(List<Result> results) { }
     public record Count(Integer all, Integer rated, Integer win, Integer loss, Integer draw,
             Integer tour, Integer berserk, Integer opAvg, Integer seconds, Integer disconnects) {}
@@ -22,7 +23,7 @@ public record PerformanceStatistics(Perf perf, Integer rank, Float percentile, S
     public record PlayStreak(Streak nb, Streak time, String lastDate) {}
 
     public record Streak(StreakInfo cur, StreakInfo max) {}
-    public record StreakPoint(String at, String gameId) {}
+    public record StreakPoint(ZonedDateTime at, String gameId) {}
 
     public sealed interface StreakInfo permits WithoutStreak, WithStreak { }
     public record WithoutStreak(Integer v) implements StreakInfo {}
