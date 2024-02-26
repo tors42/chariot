@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import chariot.internal.Util;
 import chariot.internal.yayson.Parser.*;
@@ -354,7 +355,11 @@ public class YayMapper {
                     var uri = URI.create(string.value());
                     return cls.cast(uri);
                 }
-            }
+                if (ZonedDateTime.class.equals(cls)) {
+                    ZonedDateTime zdt = ZonedDateTime.parse(string.value(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+                    return cls.cast(zdt);
+                }
+             }
 
             T t = buildFromPrimitive(node, cls);
             return t;
