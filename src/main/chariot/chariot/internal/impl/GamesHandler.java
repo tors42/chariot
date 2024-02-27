@@ -130,6 +130,14 @@ public class GamesHandler implements GamesAuth {
     }
 
     @Override
+    public Many<TVFeedEvent> tvFeed(Channel channel) {
+        return Endpoint.gameTVFeedChannel.newRequest(request -> request
+                .path(channel)
+                .stream())
+            .process(requestHandler);
+    }
+
+    @Override
     public Many<Game> byChannel(Channel channel, Consumer<ChannelFilter> params) {
         return Endpoint.gamesTVChannel.newRequest(paramsConsumerByChannelChannelFilter(channel, params))
             .process(requestHandler);

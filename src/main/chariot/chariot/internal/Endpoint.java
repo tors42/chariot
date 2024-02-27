@@ -320,6 +320,10 @@ public sealed interface Endpoint<T> {
     public static EPMany<TVFeedEvent> gameTVFeed =
         Endpoint.of(TVFeedEvent.class).endpoint("/api/tv/feed").accept(jsonstream).toMany();
 
+    public static EPMany<TVFeedEvent> gameTVFeedChannel =
+        Endpoint.of(TVFeedEvent.class).endpoint("/api/tv/%s/feed").accept(jsonstream).toMany();
+
+
     public static EPMany<Game> gamesTVChannel =
         Endpoint.of(Game.class).endpoint("/api/tv/%s").accept(jsonstream).toMany();
 

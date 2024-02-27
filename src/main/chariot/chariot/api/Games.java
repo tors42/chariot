@@ -103,11 +103,24 @@ public interface Games {
      * Get basic info about the best games being played for each speed and variant, but also computer games and bot games.
      */
     One<TVChannels> tvChannels();
+
     /**
      * Stream positions and moves of the current TV game.<br>
      * A summary of the game is sent as a first message, and when the featured game changes.
      */
     Many<TVFeedEvent> tvFeed();
+
+    /**
+     * Stream positions and moves of the current TV game on the specified channel.<br>
+     * A summary of the game is sent as a first message, and when the featured game changes.
+     */
+    Many<TVFeedEvent> tvFeed(Channel channel);
+
+    /**
+     * Stream positions and moves of the current TV game on the specified channel.<br>
+     * A summary of the game is sent as a first message, and when the featured game changes.
+     */
+    default Many<TVFeedEvent> tvFeed(Function<Channel.Provider, Channel> channel) { return tvFeed(channel.apply(Channel.provider())); }
 
     /**
      * Stream the games played between a list of users, in real time.<br>
