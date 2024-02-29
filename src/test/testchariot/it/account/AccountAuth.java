@@ -1,43 +1,28 @@
 package it.account;
 
-import chariot.Client;
 import chariot.ClientAuth;
-import chariot.model.*;
+import chariot.model.User;
 import util.IntegrationTest;
-import static util.Assert.*;
+import static util.Assert.assertResult;
 
 public class AccountAuth {
 
-    static ClientAuth client = Client.auth(conf -> conf.api("http://lila:9663"), "lip_bobby");
+    static ClientAuth client = ClientAuth.auth(conf -> conf.api("http://lila:9663"), "lip_bobby");
 
     @IntegrationTest
     public void profile() {
-        switch (client.account().profile()) {
-            case Entry(var user) -> assertEquals("bobby", user.id());
-            case NoEntry<?> fail -> fail(() -> fail);
-        }
+        assertResult(client.account().profile(), "bobby", User::id);
     }
 
     @IntegrationTest
     public void emailAddress() {
-        switch(client.account().emailAddress()) {
-            case Entry(var email) -> assertEquals("bobby@localhost", email);
-            case NoEntry<?> fail  -> fail(fail);
-        }
+        assertResult(client.account().emailAddress(), "bobby@localhost");
     }
 
     @IntegrationTest
     public void kidMode() {
-        switch(client.account().kidMode()) {
-            case Entry(var kid)  -> assertFalse(kid, "Expected kid mode disabled");
-            case NoEntry<?> fail -> fail(fail);
-        }
-
+        assertResult(client.account().kidMode(), false);
         client.account().kidMode(true);
-
-        switch(client.account().kidMode()) {
-            case Entry(var kid)  -> assertTrue(kid, "Expected kid mode enabled");
-            case NoEntry<?> fail -> fail(fail);
-        }
+        assertResult(client.account().kidMode(), true);
     }
 }
