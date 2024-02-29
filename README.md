@@ -60,6 +60,7 @@ client.studies().exportChaptersByStudyId()
 client.studies().exportChapterByStudyAndChapterId()
 client.studies().lastModifiedByStudyId()
 client.studies().listStudiesByUser()
+client.studies().deleteStudyChapter()
 
 client.tablebase().standard()
 client.tablebase().atomic()
