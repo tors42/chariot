@@ -3,6 +3,7 @@ name: Lila integration test
 on:
   - push
   - pull_request
+  - workflow_dispatch
 
 jobs:
   lila:
