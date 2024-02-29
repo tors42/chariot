@@ -2,10 +2,26 @@ package util;
 
 import java.lang.StackWalker.Option;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import chariot.model.Entry;
+import chariot.model.NoEntry;
+import chariot.model.One;
+
 public interface Assert {
+
+    static <T> void assertResult(One<T> boxed, T expected) {
+        assertResult(boxed, expected, Function.identity());
+    }
+
+    static <T,R> void assertResult(One<T> boxed, R expected, Function<T, R> mapper) {
+        switch(boxed) {
+            case Entry(T entry)  -> assertEquals(expected, mapper.apply(entry));
+            case NoEntry<?> fail -> fail(fail);
+        }
+    }
 
     static void assertEquals(Object expected, Object actual) {
         assertEquals(expected, actual, Util.formatExpectedActual(expected, actual));
