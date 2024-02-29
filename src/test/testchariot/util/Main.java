@@ -1,5 +1,6 @@
 package util;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.nio.file.*;
@@ -11,8 +12,12 @@ class Main {
 
     public static void main(String[] args) throws Exception {
 
+        var testType = Arrays.stream(args).anyMatch("it"::equals)
+            ? IntegrationTest.class
+            : Test.class;
+
         // 1 Find and run tests
-        var testClasses = lookupTestClasses();
+        var testClasses = lookupTestClasses(testType);
         for (var test : testClasses) {
             for (var method : test.methods()) {
                 method.invoke(test.instance());
@@ -52,7 +57,7 @@ class Main {
 
     record InstanceAndMethods(Object instance, List<Method> methods) {}
 
-    static List<InstanceAndMethods> lookupTestClasses() throws Exception {
+    static List<InstanceAndMethods> lookupTestClasses(Class<? extends Annotation> testType) throws Exception {
         var result = new ArrayList<InstanceAndMethods>();
 
         var packages = Main.class.getModule().getPackages();
@@ -79,7 +84,7 @@ class Main {
                 for (String className : classNames) {
                     var cls = Class.forName(pkgName + "." + className);
                     var testMethods = Arrays.stream(cls.getDeclaredMethods())
-                        .filter(m -> m.isAnnotationPresent(Test.class))
+                        .filter(m -> m.isAnnotationPresent(testType))
                         .toList();
 
                     if (! testMethods.isEmpty()) {

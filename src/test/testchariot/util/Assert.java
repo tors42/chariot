@@ -59,7 +59,8 @@ public interface Assert {
                 //.peek(sf -> System.out.println(sf.getDeclaringClass().getName()))
                 .filter(sf -> {
                     try {
-                        if (sf.getDeclaringClass().getDeclaredMethod(sf.getMethodName()).isAnnotationPresent(Test.class)) return true;
+                        var method = sf.getDeclaringClass().getDeclaredMethod(sf.getMethodName());
+                        return method.isAnnotationPresent(Test.class) || method.isAnnotationPresent(IntegrationTest.class);
                     } catch (Exception ex) {}
                     return false;
                 })
