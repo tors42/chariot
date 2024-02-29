@@ -1,0 +1,64 @@
+name: Lila integration test
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  lila:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+    container: ubuntu:22.04
+    services:
+      lila:
+        image: ghcr.io/lichess-org/lila-docker:ci
+        options: --restart=always
+        env:
+          MONGO_URL: mongodb://mongodb?appName=lila
+          REDIS_URL: redis://redis
+      mongodb:
+        image: mongo:5.0-focal
+      redis:
+        image: redis:7-alpine
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pymongo requests
+      - name: Checkout lila-db-seed
+        uses: actions/checkout@v4
+        with:
+          repository: lichess-org/lila-db-seed
+      - name: Seed database
+        run: |
+          ./spamdb/spamdb.py \
+              --uri=mongodb://mongodb/lichess \
+              --drop-db \
+              --password=password \
+              --su-password=password \
+              --streamers \
+              --coaches \
+              --tokens
+      - name: Checkout chariot
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: chariot
+      - name: Build chariot
+        run: java build/Build.java
+      - name: Run tests
+        run: |
+          java \
+            --add-exports chariot/chariot.internal.yayson=testchariot \
+            -p out/modules \
+            -m testchariot it
