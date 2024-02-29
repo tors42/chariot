@@ -47,7 +47,7 @@ public class TestBoard {
     public void castlingUciKingToRookOrFinalSquare() {
         Board boardBeforeCastling = Board.fromFEN("r3kb1r/pbpn1ppp/1p1p4/1P6/P1P2P2/4K2P/8/1q5n b kq - 3 18");
 
-        var kingToRook = "e8c8";
+        var kingToRook = "e8a8";
         var castlingKingToRook = boardBeforeCastling.play(kingToRook);
 
         var kingToTarget = "e8c8";
