@@ -66,7 +66,7 @@ class Build {
                );
 
             run(javac,
-                "--release", "17",
+                "--release", "21",
                 "--module-path", moduleOut,
                 "--module-source-path", testSrc,
                 "--module", "testchariot",
