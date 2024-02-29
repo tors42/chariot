@@ -55,8 +55,10 @@ jobs:
           ref: main
           path: chariot
       - name: Build chariot
+        working-directory: chariot
         run: java build/Build.java
       - name: Run tests
+        working-directory: chariot
         run: |
           java \
             --add-exports chariot/chariot.internal.yayson=testchariot \
