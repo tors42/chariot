@@ -75,4 +75,12 @@ public class StudiesHandler implements StudiesAuth {
 
     }
 
+    @Override
+    public One<Void> deleteStudyChapter(String studyId, String chapterId) {
+        return Endpoint.deleteStudyChapter.newRequest(request -> request
+                .path(studyId, chapterId)
+                )
+            .process(requestHandler);
+    }
+
 }

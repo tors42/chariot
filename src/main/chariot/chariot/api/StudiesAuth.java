@@ -41,6 +41,14 @@ public interface StudiesAuth extends Studies {
      */
     Many<ChapterMeta> importPgn(String studyId, Consumer<ImportParams> params);
 
+    /**
+     * Delete a chapter of a study
+     *
+     * @param studyId Study id
+     * @param chapterId Chapter id
+     */
+    One<Void> deleteStudyChapter(String studyId, String chapterId);
+
     interface ImportParams {
 
         /**

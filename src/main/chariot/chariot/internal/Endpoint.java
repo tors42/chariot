@@ -392,6 +392,9 @@ public sealed interface Endpoint<T> {
         .scope(Scope.study_write)
         .post(wwwform).toMany();
 
+    public static EPOne<Void> deleteStudyChapter =
+        Endpoint.of(Void.class).endpoint("/api/study/%s/%s").delete().toOne();
+
     public static EPOne<BulkPairing> bulkPairingGet =
         Endpoint.of(BulkPairing.class).endpoint("/api/bulk-pairing/%s")
         .scope(Scope.challenge_bulk).toOne();
