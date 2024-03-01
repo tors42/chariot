@@ -12,11 +12,11 @@ import chariot.model.One;
 
 public interface Assert {
 
-    static <T> void assertResult(One<T> boxed, T expected) {
-        assertResult(boxed, expected, Function.identity());
+    static <T> void unboxEquals(One<T> boxed, T expected) {
+        unboxEquals(boxed, expected, Function.identity());
     }
 
-    static <T,R> void assertResult(One<T> boxed, R expected, Function<T, R> mapper) {
+    static <T,R> void unboxEquals(One<T> boxed, R expected, Function<T, R> mapper) {
         switch(boxed) {
             case Entry(T entry)  -> assertEquals(expected, mapper.apply(entry));
             case NoEntry<?> fail -> fail(fail);

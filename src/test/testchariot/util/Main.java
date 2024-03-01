@@ -8,7 +8,10 @@ import java.util.*;
 
 import static util.Assert.filterCast;
 
-class Main {
+public class Main {
+
+    private final static URI api = URI.create(System.getProperty("LILA_API", "http://lila:9663"));
+    public static final URI itApi() { return api; }
 
     public static void main(String[] args) throws Exception {
 

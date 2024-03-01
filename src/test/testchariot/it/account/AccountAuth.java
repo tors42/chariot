@@ -3,26 +3,31 @@ package it.account;
 import chariot.ClientAuth;
 import chariot.model.User;
 import util.IntegrationTest;
-import static util.Assert.assertResult;
+import util.Main;
+import util.IT;
+import static util.Assert.unboxEquals;
 
 public class AccountAuth {
 
-    static ClientAuth client = ClientAuth.auth(conf -> conf.api("http://lila:9663"), "lip_bobby");
+    static ClientAuth client = IT.bobby();
 
     @IntegrationTest
     public void profile() {
-        assertResult(client.account().profile(), "bobby", User::id);
+        var profile = client.account().profile();
+        unboxEquals(profile, "bobby", User::id);
+        unboxEquals(profile, "Bobby", User::name);
+        //unboxEquals(profile, Main.itApi().resolve("/@/Bobby"), User::url);
     }
 
     @IntegrationTest
     public void emailAddress() {
-        assertResult(client.account().emailAddress(), "bobby@localhost");
+        unboxEquals(client.account().emailAddress(), "bobby@localhost");
     }
 
     @IntegrationTest
     public void kidMode() {
-        assertResult(client.account().kidMode(), false);
+        unboxEquals(client.account().kidMode(), false);
         client.account().kidMode(true);
-        assertResult(client.account().kidMode(), true);
+        unboxEquals(client.account().kidMode(), true);
     }
 }
