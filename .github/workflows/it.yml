@@ -1,14 +1,18 @@
-name: Build
+name: IT
 
 on:
-  push:
-    branches:
-      - gh-actions
-  workflow_dispatch:
+  - push
+  - workflow_dispatch
 
 jobs:
-  build:
+  it:
     runs-on: ubuntu-latest
+
+    container: ubuntu:22.04
+    services:
+      lila:
+        image: ghcr.io/lichess-org/lila-docker:ci
+        options: --restart=always
 
     steps:
       - uses: actions/checkout@v4
@@ -20,10 +24,13 @@ jobs:
           ref: main
           path: chariot
 
+      - name: Install curl
+        run: apt-get update && apt-get install -y curl
+
       - name: Download OpenJDK 21
         run: |
           download_url="https://download.java.net/java/GA/jdk21.0.2/f2283984656d49d69e91c558476027ac/13/GPL/openjdk-21.0.2_linux-x64_bin.tar.gz"
-          wget -O $RUNNER_TEMP/java_package.tar.gz $download_url
+          curl -Lo $RUNNER_TEMP/java_package.tar.gz $download_url
 
       - uses: actions/setup-java@v4
         with:
@@ -35,14 +42,8 @@ jobs:
       - name: Check java version
         run: java -Xinternalversion
 
-      - name: Copy pom template
-        run: cp actions/pom.template.xml .
+      - name: Build
+        run: cd chariot && java build/Build.java && mv out ../actions && cd -
 
-      - name: Fetch tags
-        run: cd chariot && git fetch --tags
-
-      - name: Run the build.sh script
-        run: actions/build.sh
-
-      - name: checksum
-        run: sha256sum bundle/*
+      - name: Run integration script
+        run: cd actions && ./integration/run-tests.sh
