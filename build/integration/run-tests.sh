@@ -1,5 +1,7 @@
 #!/bin/bash
 
+java build/Build.java
+
 attempts=0
 while [ $attempts -lt 30 ]; do
     if curl -s http://lila:9663 >/dev/null; then
