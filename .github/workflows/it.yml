@@ -38,5 +38,5 @@ jobs:
       - name: Check java version
         run: java -Xinternalversion
 
-      - name: Build and run tests
-        run: cd chariot && java build/Build.java && build/integration/run-tests.sh
+      - name: Run integration tests
+        run: chariot/build/integration/run-tests.sh
