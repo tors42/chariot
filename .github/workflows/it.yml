@@ -17,10 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          path: actions
-
-      - uses: actions/checkout@v4
-        with:
           ref: main
           path: chariot
 
@@ -42,8 +38,5 @@ jobs:
       - name: Check java version
         run: java -Xinternalversion
 
-      - name: Build
-        run: cd chariot && java build/Build.java && mv out ../actions && cd -
-
-      - name: Run integration script
-        run: cd actions && ./integration/run-tests.sh
+      - name: Build and run tests
+        run: cd chariot && java build/Build.java && build/integration/run-tests.sh
