@@ -69,6 +69,13 @@ public interface Broadcasts {
     default One<Broadcast> broadcastById(String tourId) { return broadcastById(tourId, __ -> {}); }
 
     /**
+     * Get a broadcast leaderboard, if available
+     *
+     * @param tourId The broadcast tournament ID (8 characters).
+     */
+    Many<LeaderboardEntry> leaderboardById(String tourId);
+
+    /**
      * Get information about a broadcast round.
      *
      * @param roundId The broadcast round id (8 characters).
@@ -82,16 +89,5 @@ public interface Broadcasts {
          * @param nb Max number of broadcasts to fetch. Default 20.
          */
         BroadcastParameters nb(int nb);
-
-        /**
-         * @param leaderboard Include the leaderboards, if available
-         */
-        BroadcastParameters leaderboard(boolean leaderboard);
-
-        /**
-         * Include the leaderboards, if available
-         */
-        default BroadcastParameters leaderboard() { return leaderboard(true); }
-
     }
 }

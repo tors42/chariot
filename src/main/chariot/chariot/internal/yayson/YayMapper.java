@@ -181,7 +181,7 @@ public class YayMapper {
                 ParameterizedType pt = parameterizedType.get();
                 Type typeArgument = pt.getActualTypeArguments()[0];
                 if (typeArgument instanceof Class<?> typeClass) {
-                    var value = fromYayTree(node, typeClass);
+                    var value = buildFromClass(node, typeClass, Optional.empty());
                     @SuppressWarnings("unchecked")
                     T t = (T) Opt.of(value);
                     return t;
