@@ -25,6 +25,7 @@ client.broadcasts().exportPgn()
 client.broadcasts().exportOneRoundPgn()
 client.broadcasts().streamBroadcast()
 client.broadcasts().broadcastById()
+client.broadcasts().leaderboardById()
 client.broadcasts().roundById()
 
 client.challenges().challengeOpenEnded()
