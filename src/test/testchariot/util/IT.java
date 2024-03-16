@@ -1,7 +1,6 @@
 package util;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
@@ -18,7 +17,6 @@ public class IT {
         return userIds.stream().map(IT::clientAuthByUserId);
     }
 
-
     public static Client clientBasicByUserId(String userId) {
         return userIdClientBasic.computeIfAbsent(userId, id -> Client.basic(conf -> conf.api(Main.itApi())));
     }
@@ -30,7 +28,9 @@ public class IT {
     public static ClientAuth admin() { return clientAuthByUserId("admin"); }
 
     public static ClientAuth bobby() { return clientAuthByUserId("bobby"); }
-
+    public static ClientAuth boris() { return clientAuthByUserId("boris"); }
+    public static ClientAuth diego() { return clientAuthByUserId("diego"); }
+    public static ClientAuth yulia() { return clientAuthByUserId("yulia"); }
 
     static final Map<String, Client> userIdClientBasic = new ConcurrentHashMap<>();
     static final Map<String, ClientAuth> userIdClientAuth = new ConcurrentHashMap<>();

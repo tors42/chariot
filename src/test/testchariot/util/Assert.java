@@ -34,6 +34,15 @@ public interface Assert {
         _assert(Objects.equals(expected, actual), message);
     }
 
+
+    @FunctionalInterface interface    ThrowingSupplier<T> { T get() throws InterruptedException; }
+    @FunctionalInterface interface NonThrowingSupplier<T> { T get(); }
+
+    static <T> NonThrowingSupplier<T> wrap(ThrowingSupplier<T> supplier) {
+        return () -> { try { return supplier.get(); } catch(Exception e) { throw new RuntimeException(e); } };
+    }
+
+    static void assertTrue(ThrowingSupplier<Boolean> b)          { assertEquals(true, wrap(b).get()); }
     static void assertTrue(boolean b)                            { assertEquals(true, b); }
     static void assertTrue(boolean b, String message)            { assertEquals(true, b, () -> message); }
     static void assertTrue(boolean b, Supplier<Object> message)  { assertEquals(true, b, message); }
