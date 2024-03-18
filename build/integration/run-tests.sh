@@ -17,3 +17,5 @@ java \
     --add-exports chariot/chariot.internal=testchariot \
     -p out/modules \
     -m testchariot it
+
+rm -rf ./out
