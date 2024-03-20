@@ -20,16 +20,16 @@ jobs:
           ref: main
           path: chariot
 
-      - name: Download OpenJDK 21
+      - name: Download OpenJDK 22
         run: |
-          download_url="https://download.java.net/java/GA/jdk21.0.2/f2283984656d49d69e91c558476027ac/13/GPL/openjdk-21.0.2_linux-x64_bin.tar.gz"
+          download_url="https://download.java.net/java/GA/jdk22/830ec9fcccef480bb3e73fb7ecafe059/36/GPL/openjdk-22_linux-x64_bin.tar.gz"
           wget -O $RUNNER_TEMP/java_package.tar.gz $download_url
 
       - uses: actions/setup-java@v4
         with:
           distribution: 'jdkfile'
           jdkFile: ${{ runner.temp }}/java_package.tar.gz
-          java-version: '21'
+          java-version: '22'
           architecture: x64
 
       - name: Check java version
