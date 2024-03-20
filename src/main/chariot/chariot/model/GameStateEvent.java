@@ -31,6 +31,7 @@ public sealed interface GameStateEvent {
             String id,
             GameType gameType,
             ZonedDateTime createdAt,
+            String initialFen,
             Side white,
             Side black,
             Opt<TournamentId> tournament,

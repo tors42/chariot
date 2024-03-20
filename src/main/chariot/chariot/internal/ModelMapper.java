@@ -806,12 +806,13 @@ public class ModelMapper {
                     String id = yo.getString("id");
                     GameType gameType = gameTypeMapper.apply(yo);
                     ZonedDateTime createdAt = Util.fromLong(yo.getLong("createdAt"));
+                    String initialFen = yo.getString("initialFen");
                     GameStateEvent.Side white = sideMapper.apply(yo.value().get("white"));
                     GameStateEvent.Side black = sideMapper.apply(yo.value().get("black"));
                     Opt<TournamentId> tournamentId = Opt.of(yo.getString("tournamentId")).map(TournamentId.ArenaId::new);
                     var state = gameStateEventStateMapper.apply(yo.value().get("state"));
 
-                    yield new GameStateEvent.Full(id, gameType, createdAt, white, black, tournamentId, state);
+                    yield new GameStateEvent.Full(id, gameType, createdAt, initialFen, white, black, tournamentId, state);
                 }
                 case "gameState" -> gameStateEventStateMapper.apply(yo);
                 case "chatLine" -> new GameStateEvent.Chat(yo.getString("username"), yo.getString("text"), yo.getString("room"));
