@@ -2,6 +2,7 @@ package tests.util;
 
 import chariot.util.Board;
 import chariot.util.Board.GameState;
+import chariot.util.Board.Move;
 import util.Test;
 
 import static util.Assert.*;
@@ -56,6 +57,13 @@ public class TestBoard {
         assertEquals("2kr1b1r/pbpn1ppp/1p1p4/1P6/P1P2P2/4K2P/8/1q5n w - - 4 19", castlingKingToTarget.toFEN());
         assertEquals(castlingKingToRook, castlingKingToTarget);
     }
+
+    @Test
+    public void cantCastleIntoCheck() {
+        assertTrue(Move.parse("e8g8", "rn1qk2r/p1p1p2p/1p1p2Rn/5p1P/2b1P3/3P4/PBP2PP1/RN1QKB2 b Qkq - 0 13") instanceof Board.Invalid);
+        assertTrue(Move.parse("e8h8", "rn1qk2r/p1p1p2p/1p1p2Rn/5p1P/2b1P3/3P4/PBP2PP1/RN1QKB2 b Qkq - 0 13") instanceof Board.Invalid);
+    }
+
 
     @Test
     public void revokedCastlingRightsWhite() {
