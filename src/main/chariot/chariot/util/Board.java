@@ -684,6 +684,7 @@ public sealed interface Board {
                     for (int i = kingDistance; i != 0; i = i - (kingDistance > 0 ? 1 : -1)) {
                         kingTravelSquares.add(Coordinate.rowCol(kingFromCoordinate.row(), kingTargetSquareKingSide.col() + i));
                     }
+                    kingTravelSquares.add(kingTargetSquareKingSide);
 
                     rookTravelSquares.remove(kingFromCoordinate);
                     rookTravelSquares.remove(kingSideRook);
@@ -719,6 +720,7 @@ public sealed interface Board {
                     for (int i = kingDistance; i != 0; i = i - (kingDistance > 0 ? 1 : -1)) {
                         kingTravelSquares.add(Coordinate.rowCol(kingFromCoordinate.row(), kingTargetSquareQueenSide.col() + i));
                     }
+                    kingTravelSquares.add(kingTargetSquareQueenSide);
                     rookTravelSquares.remove(kingFromCoordinate);
                     rookTravelSquares.remove(queenSideRook);
                     kingTravelSquares.remove(kingFromCoordinate);
