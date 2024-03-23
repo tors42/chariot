@@ -3,14 +3,21 @@ package util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpClient.Redirect;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.*;
+import java.time.Duration;
 import java.util.*;
 
 import static util.Assert.filterCast;
 
 public class Main {
 
-    private final static URI api = URI.create(System.getProperty("LILA_API", "http://lila:9663"));
+    private final static URI api = URI.create(System.getenv("LILA_API") instanceof String env
+            ? env
+            : "http://lila:9663");
     public static final URI itApi() { return api; }
 
     public static void main(String[] args) throws Exception {
@@ -21,6 +28,13 @@ public class Main {
 
         // 1 Find and run tests
         var testClasses = lookupTestClasses(testType);
+
+        if (testType == IntegrationTest.class
+            && ! integrationServerReady()) {
+            System.err.println("Integration Server (" + api + ") wasn't ready.");
+            System.exit(1);
+        }
+
         for (var test : testClasses) {
             for (var method : test.methods()) {
                 method.invoke(test.instance());
@@ -31,10 +45,13 @@ public class Main {
         var success = filterCast(Assert.results.stream(), Assert.Success.class).distinct().toList();
         var failure = filterCast(Assert.results.stream(), Assert.Failure.class).toList();
 
-        // 3 Print summary
-        System.out.println("%d successful tests".formatted(success.size()));
-        System.out.println("%d failed tests".formatted(failure.size()));
+        String testTypeName = testType == IntegrationTest.class
+            ? "integration tests"
+            : "basic tests";
 
+        // 3 Print summary
+        System.out.println("%d successful %s".formatted(success.size(), testTypeName));
+        System.out.println("%d failed %s".formatted(failure.size(), testTypeName));
 
         // 4 Check if should fail with non-zero exit code
         if (! failure.isEmpty()) {
@@ -57,6 +74,21 @@ public class Main {
         }
     }
 
+    private static boolean integrationServerReady() {
+        HttpClient http = HttpClient.newHttpClient();
+        HttpRequest aliveRequest = HttpRequest.newBuilder(itApi()).HEAD().build();
+        for (int attempt = 0; attempt < 10; attempt++) {
+            try {
+                var response = http.send(aliveRequest, BodyHandlers.discarding());
+                System.out.println("Response: " + response);
+                return true;
+            } catch (Exception ex) {
+                System.out.println("⌛ Waiting for lila to start...");
+                try { Thread.sleep(Duration.ofSeconds(1)); } catch (InterruptedException ie) {}
+            }
+        }
+        return false;
+    }
 
     record InstanceAndMethods(Object instance, List<Method> methods) {}
 

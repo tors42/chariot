@@ -46,9 +46,12 @@ class Build {
                 Created-By: %s
                 """.formatted(module, version, Runtime.version()));
 
+        boolean skipTests = System.getenv("SKIP_TESTS") != null;
+        boolean itTests = !skipTests && System.getenv("LILA_API") != null;
+
         var executor = Executors.newCachedThreadPool();
 
-        var testResult = executor.submit(() -> {
+        var buildResult = executor.submit(() -> {
             run(javac,
                 "--release", "17",
                 "--module-source-path", mainSrc,
@@ -85,13 +88,28 @@ class Build {
                 "-C", classes.resolve("testchariot"), "."
                );
 
-            return new ProcessBuilder("java",
+            if (skipTests) return 0;
+
+            int basicTests = new ProcessBuilder("java",
                 "--add-exports", "chariot/chariot.internal=testchariot",
                 "--add-exports", "chariot/chariot.internal.yayson=testchariot",
                 "-p", moduleOut.toString(), "-m", "testchariot")
                 .inheritIO()
                 .start()
                 .waitFor();
+
+            if (basicTests != 0) return basicTests;
+
+            if (itTests) {
+                return new ProcessBuilder("java",
+                    "--add-exports", "chariot/chariot.internal=testchariot",
+                    "--add-exports", "chariot/chariot.internal.yayson=testchariot",
+                    "-p", moduleOut.toString(), "-m", "testchariot", "it")
+                    .inheritIO()
+                    .start()
+                    .waitFor();
+            }
+            return 0;
         });
 
         executor.submit(() -> {
@@ -125,10 +143,14 @@ class Build {
 
         executor.shutdown();
 
-        if (testResult.get() != 0) {
-            System.err.println("Test Failure");
-            System.exit(testResult.get());
+        int result = buildResult.get();
+
+        if (System.getenv("CLEANUP") != null) {
+            System.out.println("Deleting " + out);
+            del(out);
         }
+
+        System.exit(result);
     }
 
     static void del(Path dir) {

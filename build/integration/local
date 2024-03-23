@@ -13,7 +13,13 @@ cleanup_containers
 
 docker network create lila-network
 docker run --name lila --network lila-network -d $IMAGE
-docker run --name app --network lila-network -v $(pwd):/app -w /app $IMAGE ./build/integration/run-tests.sh
+docker run --name app  --network lila-network \
+    -e LILA_API="http://lila:9663" \
+    -e CLEANUP=y \
+    -v $(pwd):/app \
+    -w /app \
+    $IMAGE \
+    java ./build/Build.java
 
 cleanup_containers
 echo "✅ Done"
