@@ -143,6 +143,72 @@ public class BroadcastAuth {
                 expectedMatchingPgnString);
     }
 
+    @IntegrationTest
+    public void createWithPushPGN() {
+        if (! (createNewBroadcast() instanceof Entry(var broadcast))) {
+            fail("Failed to create broadcast");
+            return;
+        }
+        String roundName = "Push PGN Round";
+
+        List<Pgn> pgnPush = Pgn.readFromString("""
+                [Event "Integration Test Push"]
+                [Round "Push Round"]
+
+                1. d4 *
+
+                [Event "Integration Test Push"]
+                [Round "Push Round"]
+
+                1. d4 d5 *
+
+                [Event "Integration Test Push"]
+                [Round "Push Round"]
+                [Result "1-0"]
+
+                1. d4 d5 2. a3 1-0
+                """);
+
+        var roundRequest = client.broadcasts().createRound(broadcast.id(), p -> p.name(roundName));
+
+        unboxEquals(roundRequest, false, r -> r.round().finished());
+
+        if (! (roundRequest instanceof Entry(var round))) {
+            fail(roundRequest);
+            return;
+        }
+
+        for (var pgn : pgnPush) {
+            if (! (client.broadcasts().pushPgnByRoundId(round.id(), pgn.toString()) instanceof Entries(var stream))) {
+                fail(pgn);
+                return;
+            }
+            var results = stream.toList();
+            assertEquals(1, results.size());
+            assertEquals(pgn.moveListSAN().size(), results.getFirst().moves());
+        }
+
+        var pgns = client.broadcasts().exportOneRoundPgn(round.id()).stream().toList();
+
+        assertEquals(pgns.size(), 1);
+        Pgn pgn = pgns.getFirst();
+
+        var filteredTags = pgn.tags().stream()
+            .filter(tag -> Set.of("Event", "Round", "Result").contains(tag.name()))
+            .toList();
+        var moves = pgn.moves();
+
+        String expectedMatchingPgnString = Pgn.of(filteredTags, moves).toString();
+
+        assertEquals("""
+                [Event "Integration Test Push"]
+                [Round "Push Round"]
+                [Result "1-0"]
+
+                1. d4 d5 2. a3 1-0""",
+                expectedMatchingPgnString);
+    }
+
     static AtomicInteger broadcastCounter = new AtomicInteger();
     private One<Broadcast> createNewBroadcast() {
         int index = broadcastCounter.incrementAndGet();
