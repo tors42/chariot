@@ -113,7 +113,7 @@ public class BroadcastAuth {
         int neededNumberOfPolls = 4;
         try {
             for (int i = 0; i < neededNumberOfPolls; i++) {
-                System.out.println("Waiting for poll " + (i+1) + "/" + neededNumberOfPolls);
+                System.out.println("Waiting for lila to poll " + (i+1) + "/" + neededNumberOfPolls);
                 if (! threeRequests.tryAcquire(1, 2, TimeUnit.MINUTES)) {
                     fail("Missing poll");
                     return;
@@ -218,7 +218,7 @@ public class BroadcastAuth {
                 .longDescription("Broadcast " + index + " long description (markup) IT"));
     }
 
-    private HttpContext createPgnContext(String path, HttpHandler handler) {
+    static HttpContext createPgnContext(String path, HttpHandler handler) {
         try {
             var server = HttpServer.create(new InetSocketAddress(InetAddress.getLocalHost(), 80), 0);
             var ctx = server.createContext(path, handler);
