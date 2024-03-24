@@ -91,9 +91,21 @@ public interface BroadcastsAuth extends Broadcasts {
         /**
          * Replace player names, ratings and titles.<br>
          *
-         * One line per player, formatted as such:<br>
-         * {@code <Original name>;<Replacement name>;<Optional replacement rating>;<Optional replacement title>}<br>
+         * When broadcast rounds are created with a {@code Sync URL},
+         * it is possible to apply player information replacement when the PGN is fetched.<br>
+         * The replacements are specified in the broadcast with one line per player.<br>
+         * It is possible to replace using either the FIDE ID of a player or by manually providing overriding values.<br>
          *
+         * <b>FIDE ID format</b><br>
+         * {@code <player name> = <FIDE ID>}<br>
+         * <b>Manual format</b><br>
+         * {@code <player name> / <rating> / <title> / <new name>}<br>
+         * <br>
+         * The {@code <rating>}, {@code <title>} and {@code <new name>} are optional and can be left blank.<br>
+         * Player names ignore case and punctuation, and match all possible combinations of 2 words:<br>
+         * "Jorge Rick Vito" will match "Jorge Rick", "jorge vito", "Rick, Vito", etc.<br>
+         *
+         * Example:
          * {@snippet :
          *   var broadcast = client.broadcasts().create(params -> params
          *      .name("Broadcast Name")
@@ -103,8 +115,10 @@ public interface BroadcastsAuth extends Broadcasts {
          *          with *markdown* support.
          *          """)
          *      .players("""
-         *          DrNykterstein;Magnus Carlsen;2863
-         *          AnishGiri;Anish Giri;2764;GM
+         *          Elli = 4641833
+         *          Player One / 2700 / WGM / Numero Uno
+         *          Player Two / / / Deuce
+         *          Player Three / 1300 / /
          *          """));
          * }
          */
