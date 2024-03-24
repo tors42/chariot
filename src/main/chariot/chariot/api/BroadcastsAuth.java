@@ -1,5 +1,6 @@
 package chariot.api;
 
+import java.net.URI;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.function.Consumer;
@@ -163,7 +164,15 @@ public interface BroadcastsAuth extends Broadcasts {
          *                If the syncUrl is missing, then the broadcast needs to be fed by pushing PGN to it.<br/>
          *        Example: https://myserver.org/myevent/round-10/games.pgn
          */
-        RoundBuilder syncUrl(String syncUrl);
+        RoundBuilder syncUrl(URI syncUrl);
+
+        /**
+         * @param syncUrl URL that Lichess will poll to get updates about the games.<br/>
+         *                It must be publicly accessible from the Internet.<br/>
+         *                If the syncUrl is missing, then the broadcast needs to be fed by pushing PGN to it.<br/>
+         *        Example: https://myserver.org/myevent/round-10/games.pgn
+         */
+        default RoundBuilder syncUrl(String syncUrl) { return syncUrl(URI.create(syncUrl)); }
 
         /**
          * @param delay The delay of the broadcast, in seconds
