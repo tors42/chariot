@@ -176,6 +176,18 @@ public interface BroadcastsAuth extends Broadcasts {
         default RoundBuilder delay(Duration delay) { return delay(delay.toSeconds()); }
 
         /**
+         * Only for Admins. Waiting time for each poll, in seconds. Between 2 and 60 seconds.
+         * @param period seconds wait between polls
+         */
+        RoundBuilder period(int period);
+
+        /**
+         * Only for Admins. Waiting time for each poll. Between 2 and 60 seconds.
+         * @param period duration wait time between polls
+         */
+         default RoundBuilder period(Duration period) { return period((int) period.toSeconds()); }
+
+        /**
          * @param startsAt Timestamp in milliseconds of broadcast round start.<br/>
          *                 Leave empty to manually start the broadcast round.
          */
