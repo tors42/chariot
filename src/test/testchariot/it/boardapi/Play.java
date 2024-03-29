@@ -17,7 +17,7 @@ import static util.Assert.*;
 
 public class Play {
 
-    @IntegrationTest
+    @IntegrationTest(expectedSeconds = 60)
     public void playRealTimeGame() {
         var white = IT.boris();
         var black = IT.yulia();

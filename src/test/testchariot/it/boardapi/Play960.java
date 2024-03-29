@@ -19,7 +19,7 @@ import static util.Assert.*;
 
 public class Play960 {
 
-    @IntegrationTest
+    @IntegrationTest(expectedSeconds = 60)
     public void playRealTimeGame960() {
 
         // N B R Q K R B N
