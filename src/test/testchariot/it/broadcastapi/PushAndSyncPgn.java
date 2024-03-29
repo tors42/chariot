@@ -11,44 +11,75 @@ import static util.Assert.*;
 
 import java.net.*;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.stream.*;
 
-public class BroadcastAuthReplacePlayers {
+import com.sun.net.httpserver.*;
+
+public class PushAndSyncPgn {
 
     static ClientAuth client = IT.diego();
 
-    sealed interface Replacement { String name(); }
+    @IntegrationTest
+    public void pushPgn() {
+        List<List<Pgn>> roundPgns = generateRounds();
+        List<String> roundPgnStrings = roundPgns.stream()
+            .map(round -> round.stream()
+                    .map(Pgn::toString)
+                    .collect(Collectors.joining("\n\n")))
+            .toList();
 
+        var broadcast = createBroadcast(List.of());
+        var rounds    = createRoundsForPush(broadcast.id(), roundPgns);
+        for (int i = 0; i < 3; i++) {
+            client.broadcasts().pushPgnByRoundId(rounds.get(i).id(), roundPgnStrings.get(i));
+        }
+        exportedPgnMatchesExpectedPgn(
+                client.broadcasts().exportPgn(broadcast.id()).stream().toList(),
+                roundPgns.stream().flatMap(List::stream).toList(),
+                List.of());
+    }
+
+    sealed interface Replacement { String name(); }
     record FideId(String name, int id) implements Replacement {}
     record Manual(String name, Player replacement) implements Replacement {}
 
-    @IntegrationTest
-    public void replacePlayers() {
-        var player1 = new Player("Player One",   Opt.of(1200), Opt.empty());
-        var player2 = new Player("Player Two",   Opt.empty(),  Opt.empty());
-        var player3 = new Player("Player Three", Opt.of(1800), Opt.of("WFM"));
-        var player4 = new Player("Player Four",  Opt.of(2300), Opt.of("WGM"));
+    List<Replacement> generateReplacements() { return List.of(
+            new Manual("Player One",   new Player("Substitute One", Opt.empty(),  Opt.empty())),
+            new Manual("Player Two",   new Player("Substitute Two", Opt.of(2000), Opt.of("WIM"))),
+            new Manual("Player Three", new Player("Player Three",   Opt.of(1840), Opt.empty())),
+            new FideId("Player Four",  309095));
+    }
 
-        var matchup1 = new Matchup(player1, player2, "1. d4 d5 2. e4 e5 1-0");
-        var matchup2 = new Matchup(player3, player4, "1. a3 e5 2. h3 d5 1/2-1/2");
-        var matchup3 = new Matchup(player3, player1, "1. c4 e5 0-1");
-        var matchup4 = new Matchup(player2, player4, "1. b3 d5 2. Nc3 d4 3. Ne4 1/2-1/2");
-        var matchup5 = new Matchup(player4, player1, "1. f4 1-0");
-        var matchup6 = new Matchup(player2, player3, "1. d4 e6 2. e4 d5 1-0");
+    //@IntegrationTest
+    public void pushPgnReplacements() {
+        List<List<Pgn>> roundPgns = generateRounds();
+        List<String> roundPgnStrings = roundPgns.stream()
+            .map(round -> round.stream()
+                    .map(Pgn::toString)
+                    .collect(Collectors.joining("\n\n")))
+            .toList();
 
-        var round1 = List.of(matchup1, matchup2);
-        var round2 = List.of(matchup3, matchup4);
-        var round3 = List.of(matchup5, matchup6);
+        List<Replacement> replacements = generateReplacements();
 
-        var rounds = List.of(round1, round2, round3);
+        var broadcastReplacement = createBroadcast(replacements);
+        var replaceRounds        = createRoundsForPush(broadcastReplacement.id(), roundPgns);
+        for (int i = 0; i < 3; i++) {
+            client.broadcasts().pushPgnByRoundId(replaceRounds.get(i).id(), roundPgnStrings.get(i));
+        }
+        exportedPgnMatchesExpectedPgn(
+                client.broadcasts().exportPgn(broadcastReplacement.id()).stream().toList(),
+                roundPgns.stream().flatMap(List::stream).toList(),
+                replacements);
+    }
 
-        List<List<Pgn>> roundPgns = roundsAsPgn(rounds);
-
-        // push pgn seems to not be a use-case for player replacement...
-        //createRoundsAndPushPgn(noReplacementsBroadcast.id(), roundPgns);
+    @IntegrationTest(expectedSeconds = 80)
+    public void syncUrlWithAndWithoutReplacements() {
+        List<List<Pgn>> roundPgns = generateRounds();
+        List<Replacement> replacements = generateReplacements();
 
         record PollsAndPgnString(Semaphore poll, String pgn) {}
 
@@ -58,10 +89,9 @@ public class BroadcastAuthReplacePlayers {
                         new RoundNameAndPgn("replace/" + entry.name(), entry.pgn())))
             .collect(Collectors.toMap(
                         RoundNameAndPgn::name,
-                        nameAndPgn -> new PollsAndPgnString(new Semaphore(0), nameAndPgn.pgn()))
-                    );
+                        nameAndPgn -> new PollsAndPgnString(new Semaphore(0), nameAndPgn.pgn())));
 
-        var httpContext = BroadcastAuth.createPgnContext("/it/", exchange -> {
+        var httpContext = createPgnContext("/it/", exchange -> {
             //System.out.println("Request Path: " + exchange.getRequestURI().getPath());
             String decodedPath = URLDecoder.decode(exchange.getRequestURI().getPath(), Charset.defaultCharset());
             String round = decodedPath.substring("/it/".length());
@@ -80,35 +110,18 @@ public class BroadcastAuthReplacePlayers {
         URI syncUrlBaseNormal  = URI.create("http://" + serverAddress.getHostName() + "/it/normal/");
         URI syncUrlBaseReplace = URI.create("http://" + serverAddress.getHostName() + "/it/replace/");
 
-        var replacement1 = new Manual(player1.name(), new Player("Substitute One", Opt.empty(), Opt.empty()));
-        var replacement2 = new Manual(player2.name(), new Player("Substitute Two", Opt.of(2000), Opt.of("WIM")));
-        var replacement3 = new Manual(player3.name(), new Player(player3.name(), Opt.of(1840), Opt.empty()));
-        var replacement4 = new FideId(player4.name(), 309095);
+        var normalBroadcasts = List.of(
+                createBroadcast(List.of()),
+                createBroadcast(List.of()),
+                createBroadcast(List.of()));
 
-        List<Replacement> noReplacements = List.of();
-        List<Replacement> replacements   = List.of(replacement1, replacement2, replacement3, replacement4);
+        var replacementBroadcasts = List.of(
+                createBroadcast(replacements),
+                createBroadcast(replacements),
+                createBroadcast(replacements));
 
-        // 3 active rounds in the same broadcast seems to not be a use-case for polling sync urls
-        //createRoundsForSync(noReplacementsBroadcast.id(), roundPgns, syncUrlBase);
-
-        // Create 1 broadcast per round instead...
-        if (! (createBroadcast(noReplacements) instanceof Entry(var broadcastNormal1)
-            && createBroadcast(noReplacements) instanceof Entry(var broadcastNormal2)
-            && createBroadcast(noReplacements) instanceof Entry(var broadcastNormal3)
-            && createBroadcast(replacements)   instanceof Entry(var broadcastReplacement1)
-            && createBroadcast(replacements)   instanceof Entry(var broadcastReplacement2)
-            && createBroadcast(replacements)   instanceof Entry(var broadcastReplacement3))) {
-            fail("Couldn't create broadcasts");
-            return;
-        }
-
-        var normalBroadcasts = List.of(broadcastNormal1, broadcastNormal2, broadcastNormal3);
-        var replacementBroadcasts = List.of(broadcastReplacement1, broadcastReplacement2, broadcastReplacement3);
-
-        for (int i = 0; i < normalBroadcasts.size(); i++) {
-            createRoundsForSync(normalBroadcasts.get(i).id(), List.of(roundPgns.get(i)), syncUrlBaseNormal);
-        }
-        for (int i = 0; i < replacementBroadcasts.size(); i++) {
+        for (int i = 0; i < 3; i++) {
+            createRoundsForSync(normalBroadcasts.get(i).id(),      List.of(roundPgns.get(i)), syncUrlBaseNormal);
             createRoundsForSync(replacementBroadcasts.get(i).id(), List.of(roundPgns.get(i)), syncUrlBaseReplace);
         }
 
@@ -126,16 +139,14 @@ public class BroadcastAuthReplacePlayers {
         } catch(InterruptedException ie) {}
         httpContext.getServer().stop(0);
 
-        // No replacements
-        for (int i = 0; i < normalBroadcasts.size(); i++) {
+        for (int i = 0; i < 3; i++) {
+            // No replacements
             exportedPgnMatchesExpectedPgn(
                     client.broadcasts().exportPgn(normalBroadcasts.get(i).id()).stream().toList(),
                     roundPgns.get(i),
-                    noReplacements);
-        }
+                    List.of());
 
-        // Replacements
-        for (int i = 0; i < replacementBroadcasts.size(); i++) {
+            // Replacements
             exportedPgnMatchesExpectedPgn(
                     client.broadcasts().exportPgn(replacementBroadcasts.get(i).id()).stream().toList(),
                     roundPgns.get(i),
@@ -143,11 +154,45 @@ public class BroadcastAuthReplacePlayers {
         }
     }
 
-    static Set<String> tagsToValidate = Set.of(
-            "Round", "Board", "Result",
-            "White", "WhiteElo", "WhiteTitle", "WhiteFideId",
-            "Black", "BlackElo", "BlackTitle", "BlackFideId"
-            );
+    List<List<Pgn>> generateRounds() {
+        var player1 = new Player("Player One",   Opt.of(1200), Opt.empty());
+        var player2 = new Player("Player Two",   Opt.empty(),  Opt.empty());
+        var player3 = new Player("Player Three", Opt.of(1800), Opt.of("WFM"));
+        var player4 = new Player("Player Four",  Opt.of(2300), Opt.of("WGM"));
+
+        var matchup1 = new Matchup(player1, player2, "1. d4 d5 2. e4 e5 1-0");
+        var matchup2 = new Matchup(player3, player4, "1. a3 e5 2. h3 d5 1/2-1/2");
+        var matchup3 = new Matchup(player3, player1, "1. c4 e5 0-1");
+        var matchup4 = new Matchup(player2, player4, "1. b3 d5 2. Nc3 d4 3. Ne4 1/2-1/2");
+        var matchup5 = new Matchup(player4, player1, "1. f4 1-0");
+        var matchup6 = new Matchup(player2, player3, "1. d4 e6 2. e4 d5 1-0");
+
+        var round1 = List.of(matchup1, matchup2);
+        var round2 = List.of(matchup3, matchup4);
+        var round3 = List.of(matchup5, matchup6);
+
+        var rounds = List.of(round1, round2, round3);
+
+        return roundsAsPgn(rounds);
+    }
+
+    void createRoundsForSync(String broadcastId, List<List<Pgn>> roundPgns, URI syncUrlBase) {
+        namedPgnRounds(roundPgns).stream()
+            .map(nameAndPgn -> client.broadcasts().createRound(broadcastId, p -> p
+                        .name(nameAndPgn.name())
+                        .syncUrl(syncUrlBase.resolve(URLEncoder.encode(nameAndPgn.name(), Charset.defaultCharset())).toString())
+                        .period(Duration.ofSeconds(2))
+                        .startsAt(now -> now.minusHours(3))))
+            .findFirst().filter(one -> one instanceof Entry).orElseThrow();
+    }
+
+    List<MyRound> createRoundsForPush(String broadcastId, List<List<Pgn>> roundPgns) {
+        return namedPgnRounds(roundPgns).stream()
+            .map(nameAndPgn -> client.broadcasts().createRound(broadcastId, p -> p.name(nameAndPgn.name())))
+            .filter(one -> one instanceof Entry)
+            .map(One::get)
+            .toList();
+    }
 
     void exportedPgnMatchesExpectedPgn(List<Pgn> exportedPgns, List<Pgn> sourcePgns, List<Replacement> replacements) {
         assertEquals(sourcePgns.size(), exportedPgns.size(), "Wrong number of PGNs");
@@ -161,6 +206,12 @@ public class BroadcastAuthReplacePlayers {
             assertEquals(replacedSourcePgn.toString(), filteredExportedPgn.toString());
         }
     }
+
+    static Set<String> tagsToValidate = Set.of(
+            "Round", "Board", "Result",
+            "White", "WhiteElo", "WhiteTitle", "WhiteFideId",
+            "Black", "BlackElo", "BlackTitle", "BlackFideId"
+            );
 
     Pgn filterExportedPgn(Pgn pgn) {
         return Pgn.of(pgn.tags().stream()
@@ -190,15 +241,6 @@ public class BroadcastAuthReplacePlayers {
                 .sorted(Comparator.comparing(Tag::name))
                 .toList(),
                 pgn.moves());
-    }
-
-    void createRoundsForSync(String broadcastId, List<List<Pgn>> roundPgns, URI syncUrlBase) {
-        namedPgnRounds(roundPgns).stream()
-            .map(nameAndPgn -> client.broadcasts().createRound(broadcastId, p -> p
-                        .name(nameAndPgn.name())
-                        .syncUrl(syncUrlBase.resolve(URLEncoder.encode(nameAndPgn.name(), Charset.defaultCharset())).toString())
-                        .startsAt(now -> now.minusHours(3))))
-            .findFirst().filter(one -> one instanceof Entry).orElseThrow();
     }
 
     record RoundNameAndPgn(String name, String pgn) {}
@@ -235,7 +277,7 @@ public class BroadcastAuthReplacePlayers {
         ) .toList();
     }
 
-    One<Broadcast> createBroadcast(List<Replacement> replacements) {
+    Broadcast createBroadcast(List<Replacement> replacements) {
         String suffix = replacements.isEmpty()
             ? "without replacements"
             : "with replacements";
@@ -260,7 +302,7 @@ public class BroadcastAuthReplacePlayers {
                         .collect(Collectors.joining("\n"))));
         }
 
-        return client.broadcasts().create(params);
+        return client.broadcasts().create(params).get();
     }
 
     List<RoundNameAndPgn> namedPgnRounds(List<List<Pgn>> rounds) {
@@ -271,14 +313,15 @@ public class BroadcastAuthReplacePlayers {
 
     }
 
-    void createRoundsAndPushPgn(String broadcastId, List<List<Pgn>> rounds) {
-        record IdAndPgn(String id, String pgn) {}
-        namedPgnRounds(rounds).stream()
-            .map(nameAndPgn -> new IdAndPgn(
-                        client.broadcasts().createRound(broadcastId, p -> p.name(nameAndPgn.name()))
-                        .map(MyRound::id).orElse(""),
-                        nameAndPgn.pgn()))
-            .filter(idAndPgn -> !idAndPgn.id().isEmpty())
-            .forEach(idAndPgn -> client.broadcasts().pushPgnByRoundId(idAndPgn.id(), idAndPgn.pgn()));
+    static HttpContext createPgnContext(String path, HttpHandler handler) {
+        try {
+            var server = HttpServer.create(new InetSocketAddress(InetAddress.getLocalHost(), 80), 0);
+            var ctx = server.createContext(path, handler);
+            server.start();
+            return ctx;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
+
 }
