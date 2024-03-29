@@ -48,6 +48,18 @@ public interface PuzzlesAuth extends Puzzles {
         default PuzzleActivityParams before(UnaryOperator<ZonedDateTime> now) {
             return before(now.apply(ZonedDateTime.now()));
         }
+
+        /**
+         * @param since Download entries since this timestamp.
+         */
+        PuzzleActivityParams since(ZonedDateTime since);
+
+        /**
+         * @param now Download entries since this timestamp. Example: {@code now -> now.minusDays(5)}
+         */
+        default PuzzleActivityParams since(UnaryOperator<ZonedDateTime> now) {
+            return since(now.apply(ZonedDateTime.now()));
+        }
     }
 
 }

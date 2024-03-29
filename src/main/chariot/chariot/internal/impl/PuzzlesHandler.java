@@ -42,10 +42,11 @@ public class PuzzlesHandler implements PuzzlesAuth {
         return Endpoint.puzzleActivity.newRequest(request -> request
                 .query(
                     MapBuilder.of(PuzzleActivityParams.class)
-                    .addCustomHandler("before", (args, map) -> {
-                        var zdt = (ZonedDateTime) args[0];
-                        map.put("before", zdt.toInstant().toEpochMilli());
-                    }).toMap(params))
+                    .addCustomHandler("before", (args, map) -> map.put("before",
+                            ((ZonedDateTime) args[0]).toInstant().toEpochMilli()))
+                    .addCustomHandler("since",  (args, map) -> map.put("since",
+                            ((ZonedDateTime) args[0]).toInstant().toEpochMilli()))
+                    .toMap(params))
                 )
             .process(requestHandler);
     }
