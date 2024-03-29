@@ -5,11 +5,12 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.*;
 import java.time.Duration;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static util.Assert.filterCast;
 
@@ -20,19 +21,37 @@ public class Main {
             : "http://lila:9663");
     public static final URI itApi() { return api; }
 
+    private final static boolean includeLongRunningTests = System.getenv("IT_LONG") instanceof String;
+
     public static void main(String[] args) throws Exception {
+
+        Predicate<Method> skipTestMethod = __ -> false;
+
+        if (! includeLongRunningTests)
+            skipTestMethod = skipTestMethod.or(method -> method
+                    .getAnnotation(IntegrationTest.class) instanceof IntegrationTest it
+                    && it.expectedSeconds() > 3);
+
 
         var testType = Arrays.stream(args).anyMatch("it"::equals)
             ? IntegrationTest.class
             : Test.class;
 
         // 1 Find and run tests
-        var testClasses = lookupTestClasses(testType);
+        var testClasses = lookupTestClasses(testType, skipTestMethod);
 
         if (testType == IntegrationTest.class
             && ! integrationServerReady()) {
             System.err.println("Integration Server (" + api + ") wasn't ready.");
             System.exit(1);
+        }
+
+        var skippedTests = testClasses.stream().flatMap(t -> t.skip().stream()
+                .map(m -> t.instance().getClass().getName() + "#" + m.getName()))
+            .toList();
+        if (! skippedTests.isEmpty()) {
+            System.out.println("Skipping " + skippedTests.size() + " tests, define environment variable IT_LONG to not skip");
+            //skippedTests.forEach(System.out::println);
         }
 
         for (var test : testClasses) {
@@ -90,9 +109,12 @@ public class Main {
         return false;
     }
 
-    record InstanceAndMethods(Object instance, List<Method> methods) {}
+    record InstanceAndMethods(Object instance, List<Method> methods, List<Method> skip) {}
 
-    static List<InstanceAndMethods> lookupTestClasses(Class<? extends Annotation> testType) throws Exception {
+    static List<InstanceAndMethods> lookupTestClasses(
+            Class<? extends Annotation> testType,
+            Predicate<Method> exclusionFilter
+            ) throws Exception {
         var result = new ArrayList<InstanceAndMethods>();
 
         var packages = Main.class.getModule().getPackages();
@@ -120,10 +142,12 @@ public class Main {
                     var cls = Class.forName(pkgName + "." + className);
                     var testMethods = Arrays.stream(cls.getDeclaredMethods())
                         .filter(m -> m.isAnnotationPresent(testType))
-                        .toList();
+                        .collect(Collectors.partitioningBy(Predicate.not(exclusionFilter)));
 
-                    if (! testMethods.isEmpty()) {
-                        result.add(new InstanceAndMethods(cls.getDeclaredConstructor().newInstance(), testMethods));
+                    List<Method> disqualifiedMethods = testMethods.get(false);
+                    List<Method> selectedMethods = testMethods.get(true);
+                    if (! selectedMethods.isEmpty() || !disqualifiedMethods.isEmpty()) {
+                        result.add(new InstanceAndMethods(cls.getDeclaredConstructor().newInstance(), selectedMethods, disqualifiedMethods));
                     }
                 }
             } catch(Exception e) {
@@ -132,5 +156,4 @@ public class Main {
         }
         return result;
     }
-
 }
