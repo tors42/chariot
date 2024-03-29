@@ -42,4 +42,5 @@ jobs:
         run: cd chariot && java build/Build.java
         env:
           LILA_API: http://lila:9663
+          IT_LONG: y
           CLEANUP: y
