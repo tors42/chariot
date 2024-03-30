@@ -2,10 +2,12 @@ package util;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import chariot.Client;
-import chariot.ClientAuth;
+import chariot.*;
+import chariot.model.*;
+import chariot.model.StatsPerf.StatsPerfGame;
 
 public class IT {
 
@@ -34,6 +36,30 @@ public class IT {
 
     static final Map<String, Client> userIdClientBasic = new ConcurrentHashMap<>();
     static final Map<String, ClientAuth> userIdClientAuth = new ConcurrentHashMap<>();
+
+    public record Players(ClientAuth white, ClientAuth black) {}
+    public static Players findPlayers() {
+        record IdAndRating(String id, int rating) {}
+        var candidates = admin().users().byIds(userIds).stream()
+            .map(user -> switch(user) {
+                case User u when u.ratings().get(StatsPerfType.rapid) instanceof StatsPerfGame rapidPerf
+                    && rapidPerf.prov() == false -> new IdAndRating(u.id(), rapidPerf.rating());
+                default -> new IdAndRating(user.id(), -1); })
+            .filter(r -> r.rating() != -1)
+            .sorted(Comparator.comparingInt(IdAndRating::rating))
+            .toList();
+
+        record Candidates(IdAndRating first, IdAndRating second) {}
+        var bestMatch = IntStream.range(0, candidates.size()-1)
+            .mapToObj(i -> new Candidates(
+                        candidates.get(i),
+                        candidates.get(i+1)))
+            .min(Comparator.comparingInt(pair -> Math.abs(pair.first().rating() - pair.second().rating())));
+        return bestMatch.map(pairing -> new Players(
+                    clientAuthByUserId(pairing.first().id()),
+                    clientAuthByUserId(pairing.second().id())))
+            .orElse(null);
+    }
 
     static final List<String> userIds = """
         li

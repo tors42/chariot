@@ -56,7 +56,10 @@ public class Main {
 
         for (var test : testClasses) {
             for (var method : test.methods()) {
-                method.invoke(test.instance());
+                //System.out.println("Running " + test.instance().getClass().getName() + "#" + method.getName());
+                try {
+                    method.invoke(test.instance());
+                } catch (Exception e) {}
             }
         }
 

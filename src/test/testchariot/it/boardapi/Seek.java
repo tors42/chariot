@@ -4,17 +4,20 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import chariot.model.Entries;
+import chariot.model.*;
 import chariot.model.Event.*;
 import util.*;
+import util.IT.Players;
 import static util.Assert.*;
 
 public class Seek {
 
     @IntegrationTest
     public void seekRealTimeGame() {
-        var white = IT.bobby();
-        var black = IT.diego();
+        if (! (IT.findPlayers() instanceof Players(var white, var black))) {
+            fail("Couldn't find similarly rated players");
+            return;
+        }
 
         if (! (black.board().connect() instanceof Entries(var blackEvents)
             && white.board().connect() instanceof Entries(var whiteEvents))) {
