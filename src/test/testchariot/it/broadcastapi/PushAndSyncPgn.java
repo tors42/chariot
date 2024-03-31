@@ -54,7 +54,7 @@ public class PushAndSyncPgn {
             new FideId("Player Four",  309095));
     }
 
-    //@IntegrationTest
+    @IntegrationTest
     public void pushPgnReplacements() {
         List<List<Pgn>> roundPgns = generateRounds();
         List<String> roundPgnStrings = roundPgns.stream()
