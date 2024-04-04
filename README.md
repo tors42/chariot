@@ -60,6 +60,8 @@ client.studies().exportStudiesByUserId()
 client.studies().exportChaptersByStudyId()
 client.studies().exportChapterByStudyAndChapterId()
 client.studies().lastModifiedByStudyId()
+client.studies().byPage()
+client.studies().listStudies()
 client.studies().listStudiesByUser()
 client.studies().deleteStudyChapter()
 
