@@ -467,7 +467,7 @@ A list of applications using Chariot,
 
 [Bobby](https://github.com/teemoo7/bobby) _Chess Engine with Lichess Bot integration (Java)_  
 [Lichess Rating Graph](https://github.com/TBestLittleHelper/SimpleGraphApplication) _Visualize rating (JavaFX)_  
-[Lichess Search Engine Bot](https://github.com/jalpp/LichessSearchEngineBot) _Discord Bot for accessing Lichess features (Discord)_  
+[Chesslise](https://github.com/jalpp/Chesslise) _Discord Bot which allows users to play, learn, and watch chess (Discord)_  
 [Team Check](https://github.com/tors42/teamcheck) _Visualize team members (Swing)_  
 [charibot](https://github.com/tors42/charibot) _Application to control a Lichess BOT account (makes random moves) (Java) [@charibot](https://lichess.org/@/charibot)_  
 [jc](https://github.com/tors42/jc) _Watch the featured LichessTV game in terminal or Play a casual Rapid game with the Board API (Swing/Text)_  
