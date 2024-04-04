@@ -2,7 +2,11 @@ package chariot.internal.impl;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import chariot.api.StudiesAuth;
 import chariot.internal.*;
@@ -81,6 +85,27 @@ public class StudiesHandler implements StudiesAuth {
                 .path(studyId, chapterId)
                 )
             .process(requestHandler);
+    }
+
+
+    @Override
+    public One<PageStudy> byPage(int page) {
+        return Endpoint.studyPage.newRequest(request -> request
+                .query(Map.of("page", page)))
+            .process(requestHandler);
+     }
+
+    @Override
+    public Many<Study> listStudies() {
+        var firstPage = byPage(1);
+        if (firstPage instanceof Entry<PageStudy> one) {
+            var spliterator = Util.PageSpliterator.of(one.entry(),
+                    pageNum -> byPage(pageNum) instanceof Entry<PageStudy> pt ?
+                    pt.entry() : new PageStudy(0,0,List.of(),0,0,0,0));
+            return Many.entries(StreamSupport.stream(spliterator, false));
+        } else {
+            return Many.entries(Stream.of());
+        }
     }
 
 }

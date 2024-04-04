@@ -363,6 +363,10 @@ public sealed interface Endpoint<T> {
     public static EPOne<CloudEvalCacheEntry> cloudEval =
         Endpoint.of(CloudEvalCacheEntry.class).endpoint("/api/cloud-eval").toOne();
 
+    public static EPOne<PageStudy> studyPage =
+        Endpoint.of(mapper(PageStudyWrapper.class).andThen(PageStudyWrapper::paginator))
+        .endpoint("/study").scope(Scope.study_read).toOne();
+
     public static EPMany<Pgn> exportChapter =
         Endpoint.of(Pgn.class).endpoint("/api/study/%s/%s.pgn")
         .streamMapper(Util::toPgnStream)
@@ -648,6 +652,8 @@ public sealed interface Endpoint<T> {
             return games.stream();
         }
     }
+
+    static record PageStudyWrapper(PageStudy paginator) {}
 
     public static class Builder<T> {
         private String endpoint = "";

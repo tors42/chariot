@@ -37,6 +37,8 @@ public interface Studies {
      */
     Many<StudyMeta> listStudiesByUser(String user);
 
+    One<PageStudy> byPage(int page);
+    Many<Study> listStudies();
 
     interface Params {
         /**
