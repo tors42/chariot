@@ -7,5 +7,8 @@ public record Team (
         boolean open,
         UserCommon leader,
         java.util.List<UserCommon> leaders,
-        Integer nbMembers
+        Integer nbMembers,
+        boolean joined,
+        boolean requested,
+        Opt<String> descriptionPrivate
         )  {}
