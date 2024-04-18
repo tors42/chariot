@@ -389,7 +389,8 @@ public class ModelMapper {
                             ? counts.of(mapper.fromYayTree(countYo, UserCount.class))
                             : UserPropertyEnum.unmapped.of(entry);
                     case "perfs" -> entry.getValue() instanceof YayObject perfsYo
-                            ? ratings.of(new Ratings(perfsYo.value().entrySet().stream().collect(Collectors.toUnmodifiableMap(
+                            ? ratings.of(new Ratings(perfsYo.value().entrySet().stream().filter(e -> !e.getKey().equals("standard"))
+                                        .collect(Collectors.toUnmodifiableMap(
                                                      yoMapEntry -> StatsPerfType.valueOf(yoMapEntry.getKey()),
                                                      yoMapEntry -> mapper.fromYayTree(yoMapEntry.getValue(), StatsPerf.class)))))
                             : UserPropertyEnum.unmapped.of(entry);
