@@ -256,7 +256,7 @@ The tool is included in JDK archives, which can be downloaded and unpacked from 
 
 <pre>
 $ <b>jshell</b>
-|  Welcome to JShell -- Version 22
+|  Welcome to JShell -- Version 22.0.1
 |  For an introduction type: /help intro
 
 jshell>
@@ -316,9 +316,9 @@ Build with latest Java. A JDK archive can be downloaded and unpacked from https:
 
 <pre>
 $ <b>java -version</b>
-openjdk version "22" 2024-03-19
-OpenJDK Runtime Environment (build 22+36-2370)
-OpenJDK 64-Bit Server VM (build 22+36-2370, mixed mode, sharing)
+openjdk version "22.0.1" 2024-04-16
+OpenJDK Runtime Environment (build 22.0.1+8-16)
+OpenJDK 64-Bit Server VM (build 22.0.1+8-16, mixed mode, sharing)
 
 $ <b>java build/Build.java</b>
 58 successful basic tests
