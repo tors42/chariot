@@ -1,11 +1,8 @@
 package chariot.model;
 
-import chariot.internal.Util;
+import java.time.ZonedDateTime;
+import java.util.List;
 
-public record PuzzleActivity(String id, long date, boolean win, int puzzleRating)  {
-
-    public java.time.ZonedDateTime dateAt() {
-        return Util.fromLong(date());
-    }
-
+public record PuzzleActivity(ZonedDateTime date, boolean win, Puzzle puzzle)  {
+    public record Puzzle(String id, int rating, int plays, List<String> solution, List<String> themes, String fen, String lastMove) {}
 }
