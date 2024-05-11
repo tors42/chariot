@@ -78,6 +78,19 @@ public interface UsersBase {
      */
     Many<UserStatus> statusByIds(Collection<String> userIds, Consumer<UserStatusParams> consumer);
 
+
+    /**
+     * Read the `online` and `playing` flag of a user.
+     */
+     default One<UserStatus> statusById(String userId, Consumer<UserStatusParams> consumer) {
+        Many<UserStatus> many = statusByIds(List.of(userId), consumer);
+        if (many instanceof Fail<UserStatus> fail) {
+            return fail;
+        } else {
+            return many.stream().findFirst().map(One::entry).orElse(One.none());
+        }
+     }
+
     /**
      * Read the status of current live streamers<br>
      * This API is very fast and cheap on lichess side.<br>
