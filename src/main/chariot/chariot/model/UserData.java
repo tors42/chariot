@@ -78,7 +78,10 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
                 common,
                 _online().orElse(false),
                 _isPlaying().orElse(false),
-                Opt.of(_playingGameId().orElse(null)),
+                _playingGameId() instanceof Some<String> some
+                    ? Opt.of(some.value())
+                    : Opt.of( _playingGameMeta().map(meta -> meta.id()).orElse(null)),
+                _playingGameMeta(),
                 Opt.of(_signal().orElse(null))
                 );
 
@@ -106,7 +109,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
         playTime, createdAt, seenAt, url, counts, ratings,
         profile, followable, following, followsYou, blocking,
         joinedTeamAt, streamInfo, streamerInfo, channelInfo,
-        signal,
+        signal, playingGameMeta,
 
         unmapped
         ;
@@ -155,9 +158,12 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     Opt<String>  _flair() { return property(flair); }
     Opt<Boolean> _online() { return propertyB(online); }
     Opt<Boolean> _streaming() { return propertyB(streaming); }
-    Opt<Boolean> _isPlaying() { return propertyB(playing); }
+    Opt<Boolean> _isPlaying() { return propertyB(playing) instanceof Some<Boolean> some && some.value()
+                                ? some
+                                : Opt.of(_playingGameMeta() instanceof Some<?>); }
     Opt<URI>     _playing() { return property(playingUrl, URI.class); }
     Opt<String>  _playingGameId() { return property(playingGameId); }
+    Opt<UserStatus.GameMeta>  _playingGameMeta() { return property(playingGameMeta, UserStatus.GameMeta.class); }
     Opt<Integer>  _signal() { return property(signal, Integer.class); }
     Opt<Boolean> _tosViolation() { return propertyB(tosViolation); }
     Opt<Boolean> _disabled() { return propertyB(disabled); }

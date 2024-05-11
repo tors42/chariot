@@ -65,5 +65,16 @@ public interface Users extends UsersBase {
          */
         UserStatusParams withSignal(boolean withSignal);
         default UserStatusParams withSignal() { return withSignal(true); }
+
+
+        /**
+         * Also return the id, time control and variant of the game being played, if any, for each player, in a playing field.<br>
+         * Defaults to false to preserve server resources.<br>
+         * Disables withGameIds
+         */
+        UserStatusParams withGameMetas(boolean withGameMetas);
+        default UserStatusParams withGameMetas() { return withGameMetas(true); }
+
+
      }
 }

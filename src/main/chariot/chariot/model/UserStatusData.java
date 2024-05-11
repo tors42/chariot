@@ -5,5 +5,6 @@ public record UserStatusData(
         boolean online,
         boolean playing,
         Opt<String> playingGameId,
+        Opt<UserStatus.GameMeta> playingGameMeta,
         Opt<Integer> signal
         ) implements UserStatus {}

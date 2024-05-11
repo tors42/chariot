@@ -361,9 +361,20 @@ public class ModelMapper {
                     case "flair"        -> flair.of(yo.getString(entry.getKey()));
                     case "online"       -> online.of(yo.getBool(entry.getKey()));
                     case "streaming"    -> streaming.of(yo.getBool(entry.getKey()));
-                    case "playing"      -> entry.getValue() instanceof YayBool bool
-                            ? playing.of(bool.value())
-                            : playingUrl.of(URI.create(yo.getString(entry.getKey())));
+                    case "playing"      -> {
+                        if (entry.getValue() instanceof YayBool bool) {
+                            yield playing.of(bool.value());
+                        } else if (entry.getValue() instanceof YayObject yoGameMetas
+                                && yoGameMetas.value().get("id") instanceof YayString yayId
+                                && yoGameMetas.value().get("clock") instanceof YayString yayClock) {
+                            yield playingGameMeta.of(new UserStatus.GameMeta(yayId.value(), yayClock.value(),
+                                        yoGameMetas.value().get("variant") instanceof YayString yayVariant
+                                            ? Enums.GameVariant.valueOf(yayVariant.value())
+                                            : Enums.GameVariant.standard));
+                        } else {
+                            yield playingUrl.of(URI.create(yo.getString(entry.getKey())));
+                        }
+                    }
                     case "playingId"    -> playingGameId.of(yo.getString(entry.getKey()));
                     case "signal"       -> signal.of(yo.getInteger(entry.getKey()));
                     case "tosViolation" -> tosViolation.of(yo.getBool(entry.getKey()));
