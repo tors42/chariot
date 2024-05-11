@@ -78,7 +78,9 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
                 common,
                 _online().orElse(false),
                 _isPlaying().orElse(false),
-                Opt.of(_playingGameId().orElse(null)));
+                Opt.of(_playingGameId().orElse(null)),
+                Opt.of(_signal().orElse(null))
+                );
 
         return status;
     }
@@ -104,6 +106,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
         playTime, createdAt, seenAt, url, counts, ratings,
         profile, followable, following, followsYou, blocking,
         joinedTeamAt, streamInfo, streamerInfo, channelInfo,
+        signal,
 
         unmapped
         ;
@@ -155,6 +158,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     Opt<Boolean> _isPlaying() { return propertyB(playing); }
     Opt<URI>     _playing() { return property(playingUrl, URI.class); }
     Opt<String>  _playingGameId() { return property(playingGameId); }
+    Opt<Integer>  _signal() { return property(signal, Integer.class); }
     Opt<Boolean> _tosViolation() { return propertyB(tosViolation); }
     Opt<Boolean> _disabled() { return propertyB(disabled); }
     Opt<Boolean> _verified() { return propertyB(verified); }

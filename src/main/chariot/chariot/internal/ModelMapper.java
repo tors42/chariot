@@ -365,6 +365,7 @@ public class ModelMapper {
                             ? playing.of(bool.value())
                             : playingUrl.of(URI.create(yo.getString(entry.getKey())));
                     case "playingId"    -> playingGameId.of(yo.getString(entry.getKey()));
+                    case "signal"       -> signal.of(yo.getInteger(entry.getKey()));
                     case "tosViolation" -> tosViolation.of(yo.getBool(entry.getKey()));
                     case "disabled"     -> disabled.of(yo.getBool(entry.getKey()));
                     case "closed"       -> closed.of(yo.getBool(entry.getKey()));

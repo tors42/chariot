@@ -57,5 +57,13 @@ public interface Users extends UsersBase {
          */
         UserStatusParams withGameIds(boolean withGameIds);
         default UserStatusParams withGameIds() { return withGameIds(true); }
-    }
+
+        /**
+         * Also return the network signal of the player, when available.
+         * It ranges from 1 (poor connection, lag {@literal >} 500ms) to 4 (great connection, lag {@literal <} 150ms)
+         * Defaults to `false` to preserve server resources.
+         */
+        UserStatusParams withSignal(boolean withSignal);
+        default UserStatusParams withSignal() { return withSignal(true); }
+     }
 }

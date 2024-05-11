@@ -12,23 +12,37 @@ import chariot.model.Enums.*;
  */
 public interface UsersBase {
 
-    Many<UserStatus> statusByIds(Collection<String> userIds);
+    default Many<UserStatus> statusByIds(Collection<String> userIds) {
+        return statusByIds(userIds, __ -> {});
+    }
 
     /**
      * {@link #statusByIds(Collection)}
      * @param withGameIds If set to true, the id of the game the users are playing, if any, will be included. Default: false
+     *
+     * @deprecated use {@link #statusByIds(Collection, Consumer)}
      */
-    Many<UserStatus> statusByIds(Collection<String> userIds, boolean withGameIds);
+    @Deprecated
+    default Many<UserStatus> statusByIds(Collection<String> userIds, boolean withGameIds) {
+        return statusByIds(userIds, p -> p.withGameIds(withGameIds));
+    }
+
+    /**
+     * {@link #statusByIds(Collection)}
+     *
+     * @deprecated use {@link #statusByIds(Collection, Consumer)}
+     */
+    @Deprecated
+    default Many<UserStatus> statusByIds(boolean withGameIds, String... userIds) {
+        return statusByIds(Set.of(userIds), p -> p.withGameIds(withGameIds));
+    }
 
     /**
      * {@link #statusByIds(Collection)}
      */
-    Many<UserStatus> statusByIds(boolean withGameIds, String... userIds);
-
-    /**
-     * {@link #statusByIds(Collection)}
-     */
-    Many<UserStatus> statusByIds(String... userIds);
+    default Many<UserStatus> statusByIds(String... userIds) {
+        return statusByIds(Set.of(userIds), __ -> {});
+    }
 
     /**
      * Get total number of games, and current score, of any two users.<br>
@@ -53,7 +67,7 @@ public interface UsersBase {
     One<UserTopAll> top10();
 
     /**
-     * Read the `online`, `playing` and `streaming` flags of several users.<br/>
+     * Read the `online` and `playing` flags of several users.<br/>
      * This API is very fast and cheap on lichess side,
      * so you can call it quite often (like once every 5 seconds).<br>
      * Use it to track players and know when they're connected on lichess and playing games.<br>

@@ -29,33 +29,6 @@ public abstract class UsersBaseHandler implements UsersBase {
         return new UsersAuthHandler(rh);
     }
 
-
-    public Many<UserStatus> statusByIds(Collection<String> userIds) {
-        return statusByIds(userIds, __ -> {});
-    }
-
-    /**
-     * {@link #statusByIds(Collection)}
-     * @param withGameIds If set to true, the id of the game the users are playing, if any, will be included. Default: false
-     */
-    public Many<UserStatus> statusByIds(Collection<String> userIds, boolean withGameIds) {
-        return statusByIds(userIds, p -> p.withGameIds(withGameIds));
-    }
-
-    /**
-     * {@link #statusByIds(Collection)}
-     */
-    public Many<UserStatus> statusByIds(boolean withGameIds, String... userIds) {
-        return statusByIds(Set.of(userIds), withGameIds);
-    }
-
-    /**
-     * {@link #statusByIds(Collection)}
-     */
-    public Many<UserStatus> statusByIds(String... userIds) {
-        return statusByIds(Set.of(userIds));
-    }
-
     /**
      * Get total number of games, and current score, of any two users.<br>
      * If the `matchup` flag is provided, and the users are currently playing, also gets the current match game number and scores.
