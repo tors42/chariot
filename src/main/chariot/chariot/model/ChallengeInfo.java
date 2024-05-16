@@ -1,12 +1,13 @@
 package chariot.model;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 
 import chariot.model.Enums.Color;
 import chariot.model.Enums.ColorPref;
 
-public record ChallengeInfo(String id, URI url, Players players, GameType gameType, ColorInfo colorInfo) implements Challenge {
+public record ChallengeInfo(String id, URI url, Players players, GameType gameType, ColorInfo colorInfo, List<String> rules) implements Challenge {
 
     public sealed interface Players permits OpenEnded, From, FromTo {
         default Optional<Player> challengerOpt() {

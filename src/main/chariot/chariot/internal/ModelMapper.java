@@ -184,7 +184,16 @@ public class ModelMapper {
                 colorInfo = new ChallengeInfo.ColorOutcome(colorInfo.request(), Color.valueOf(colorOutcome));
             }
 
-            var challengeInfo = new ChallengeInfo(id, url, players, gameType, colorInfo);
+            List<String> rules = List.of();
+            if (challengeYo.value().get("rules") instanceof YayArray rulesYarr) {
+                rules = rulesYarr.value().stream()
+                    .filter(YayString.class::isInstance)
+                    .map(YayString.class::cast)
+                    .map(YayString::value)
+                    .toList();
+            }
+
+            var challengeInfo = new ChallengeInfo(id, url, players, gameType, colorInfo, rules);
             return challengeInfo;
         };
 
