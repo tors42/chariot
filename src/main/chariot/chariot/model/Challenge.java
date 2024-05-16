@@ -16,6 +16,8 @@ public sealed interface Challenge permits
             return "";
         }
 
+        default List<String> rules() { return List.of(); }
+
         record ChallengeWithRules(List<String> rules, Challenge challenge) implements Challenge {}
         record RematchChallenge(String rematchOf, Challenge challenge) implements Challenge {}
         record DeclinedChallenge(String key, String reason, Challenge challenge) implements Challenge {}
