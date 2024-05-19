@@ -216,31 +216,53 @@ public class YayMapper {
 
         List<Class<?>> permittedRecordSubclasses = permittedRecordClassesOfSealedInterfaceHierarchy(cls);
 
-        record ClassFieldMatches(Class<?> c, Long count) {}
-        var bestMatch = permittedRecordSubclasses.stream()
-            .map(c -> new ClassFieldMatches(c,
-                        Arrays.stream(c.getRecordComponents())
+        record ClassFieldMatches(Class<?> cls, int hit, int miss) {}
+        var mostHit = Comparator.comparingInt(ClassFieldMatches::hit).reversed();
+        var leastMiss = Comparator.comparingInt(ClassFieldMatches::miss);
+
+        List<ClassFieldMatches> bestMatchList = permittedRecordSubclasses.stream()
+            .map(rec -> {
+                List<String> fieldsInRecord = Arrays.stream(rec.getRecordComponents())
                         .map(rc -> rc.getName())
-                        .map(name -> config.fieldMappings().getOrDefault(c, Map.of()).getOrDefault(name, name))
-                        .filter(jsonFieldNames::contains)
-                        .collect(Collectors.counting()))
-                )
-            .max((cfm1, cfm2) -> Long.compare(cfm1.count(), cfm2.count()));
+                        .map(name -> config.fieldMappings().getOrDefault(rec, Map.of()).getOrDefault(name, name))
+                        .toList();
+                Map<Boolean, Long> hitMiss = fieldsInRecord.stream()
+                    .collect(Collectors.groupingBy(jsonFieldNames::contains, Collectors.counting()));
+                return new ClassFieldMatches(rec,
+                        hitMiss.getOrDefault(true, 0l).intValue(),
+                        hitMiss.getOrDefault(false, 0l).intValue());
+            })
+        .sorted(mostHit.thenComparing(leastMiss))
+        .toList();
 
-
-        Object result = null;
-        if (bestMatch.isPresent()) {
-            var bestMatchClass = bestMatch.get().c();
-            if (config.customMappings().containsKey(bestMatchClass)) {
-                var f = config.customMappings().get(bestMatchClass);
-                result = f.apply(node);
-            } else {
-                result = buildFromClass(node, bestMatchClass, parameterizedType);
-            }
-        } else {
+        if (bestMatchList.isEmpty()) {
             return null;
         }
-        return cls.cast(result);
+
+        var first = bestMatchList.get(0);
+        List<Class<?>> bestClasses = new ArrayList<>();
+        bestClasses.addAll(bestMatchList.stream()
+                .filter(cfm -> cfm.hit() == first.hit() && cfm.miss() == first.miss())
+                .map(ClassFieldMatches::cls)
+                .toList());
+
+        record ClassValue(Class<?> cls, List<Method> getters, Object value) {}
+        Comparator<ClassValue> withNullValuesLast = Comparator.comparing(cv -> cv.value() == null);
+        Comparator<ClassValue> numberOfNonNullComponents = Comparator.comparing(cv -> cv.value() == null ? 0 : cv.getters().stream()
+                        .filter(getter -> { try { return getter.invoke(cv.value()) != null; } catch (Exception e) {} return false; } )
+                        .count());
+        return bestClasses.stream()
+            .map(bestClass -> new ClassValue(
+                        bestClass,
+                        Arrays.stream(bestClass.getRecordComponents()).map(RecordComponent::getAccessor).toList(),
+                        config.customMappings().containsKey(bestClass)
+                        ? config.customMappings().get(bestClass).apply(node)
+                        : buildFromClass(node, bestClass, parameterizedType)))
+            .sorted(withNullValuesLast.thenComparing(numberOfNonNullComponents.reversed()))
+            .findFirst()
+            .map(ClassValue::value)
+            .map(cls::cast)
+            .orElse(null);
     }
 
     private List<Class<?>> permittedRecordClassesOfSealedInterfaceHierarchy(Class<?> cls) {
