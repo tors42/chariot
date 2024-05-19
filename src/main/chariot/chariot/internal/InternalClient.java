@@ -21,7 +21,6 @@ public class InternalClient {
     private final Config config;
     private final int retryMillis = 60_000;
     private final int burstRefillAfterInactivityMillis = 10_000;
-    private final int requestSpacingMillis = 1_000;
 
     private final int NUMBER_OF_PARALLEL_REQUESTS = 1;
     private final int NUMBER_OF_BURST_REQUESTS = 4;
@@ -205,8 +204,8 @@ public class InternalClient {
                     }
                 }
 
-                if (elapsedSincePreviousRequest < requestSpacingMillis) {
-                    long wait = requestSpacingMillis - elapsedSincePreviousRequest;
+                if (elapsedSincePreviousRequest < config.spacing().toMillis()) {
+                    long wait = config.spacing().toMillis() - elapsedSincePreviousRequest;
                     waitingSemaphore.tryAcquire(wait, TimeUnit.MILLISECONDS);
                 }
             }

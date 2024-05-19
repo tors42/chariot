@@ -1,6 +1,7 @@
 package chariot.internal;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.*;
 import java.util.function.*;
 import java.util.logging.*;
@@ -26,15 +27,17 @@ public sealed interface Config {
     record Auth(Basic basic, Supplier<char[]> token)            implements Config {
         @Override public String toString() { return "Auth[%s]".formatted(basic()); }
     }
-    record Basic(Servers servers, Logging logging, int retries, UAInfo uaInfo) implements Config {
+    record Basic(Servers servers, Logging logging, int retries, Duration spacing, UAInfo uaInfo) implements Config {
 
         // boilerplate begin (can be replaced when reconstruction is in place - https://github.com/openjdk/amber-docs/blob/master/eg-drafts/reconstruction-records-and-classes.md)
-        sealed interface Component permits Config.Servers, Config.Logging , Retries, UAInfo {}
+        sealed interface Component permits Config.Servers, Config.Logging, Retries, Spacing, UAInfo {}
         record Retries(int value) implements Component { Retries { if (value < 0) throw new IllegalArgumentException("Retries (" + value + ") must not be < 0"); } }
+        record Spacing(Duration value) implements Component { Spacing { if (value.isNegative()) throw new IllegalArgumentException("Spacing (" + value + ") must not be negative"); } }
         Basic with(Component component) { return new Basic(
                 component instanceof Servers   c ? c       : servers,
                 component instanceof Logging   c ? c       : logging,
                 component instanceof Retries   c ? c.value : retries,
+                component instanceof Spacing   c ? c.value : spacing,
                 component instanceof UAInfo    c ? c       : uaInfo);
         }
         Basic with(Component... components) {
@@ -128,10 +131,11 @@ public sealed interface Config {
         return this instanceof Basic basic ? basic : ((Auth) this).basic();
     }
 
-    default int     retries()   { return basic().retries();   }
-    default Servers servers()   { return basic().servers();   }
-    default Logging logging()   { return basic().logging();   }
-    default String  userAgent() {
+    default int      retries()   { return basic().retries();   }
+    default Duration spacing()   { return basic().spacing();   }
+    default Servers  servers()   { return basic().servers();   }
+    default Logging  logging()   { return basic().logging();   }
+    default String   userAgent() {
         String identifier = basic().uaInfo().identifier();
         if (basic().uaInfo().replace()) return identifier;
         if (identifier.isEmpty()) return defaultUserAgent();
@@ -197,7 +201,7 @@ public sealed interface Config {
     }
 
     class BasicConfigBuilder implements ConfigBuilder {
-        Basic basic = new Basic(Servers.of(), Logging.of(), 1 /*retries*/, new UAInfo("", false));
+        Basic basic = new Basic(Servers.of(), Logging.of(), 1 /*retries*/, Duration.ofSeconds(1) /*spacing*/ ,new UAInfo("", false));
 
         @Override
         public ConfigBuilder api(URI uri) {
@@ -226,6 +230,13 @@ public sealed interface Config {
             basic = basic.with(new Config.Basic.Retries(retries));
             return this;
         }
+
+        @Override
+        public ConfigBuilder spacing(Duration spacing) {
+            basic = basic.with(new Config.Basic.Spacing(spacing));
+            return this;
+        }
+
 
         @Override
         public ConfigBuilder userAgent(String identifier, boolean replaceAll) {

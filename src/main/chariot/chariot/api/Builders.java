@@ -1,6 +1,7 @@
 package chariot.api;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -105,6 +106,13 @@ public interface Builders {
          * Default: 1 retry
          */
         ConfigBuilder retries(int retries);
+
+        /**
+         * Duration to wait after sending a request, until next request can be sent.
+         * Default: 1 second
+         */
+        ConfigBuilder spacing(Duration spacing);
+
 
         /**
          * Customization of the User-Agent header set in HTTP requests.<br/>
