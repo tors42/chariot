@@ -1,5 +1,6 @@
 package util;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
@@ -20,11 +21,11 @@ public class IT {
     }
 
     public static Client clientBasicByUserId(String userId) {
-        return userIdClientBasic.computeIfAbsent(userId, id -> Client.basic(conf -> conf.api(Main.itApi())));
+        return userIdClientBasic.computeIfAbsent(userId, id -> Client.basic(conf -> conf.api(Main.itApi()).spacing(Duration.ZERO)));
     }
 
     public static ClientAuth clientAuthByUserId(String userId) {
-        return userIdClientAuth.computeIfAbsent(userId, id -> Client.auth(conf -> conf.api(Main.itApi()), "lip_" + id));
+        return userIdClientAuth.computeIfAbsent(userId, id -> Client.auth(conf -> conf.api(Main.itApi()).spacing(Duration.ZERO), "lip_" + id));
     }
 
     public static ClientAuth admin() { return clientAuthByUserId("admin"); }
