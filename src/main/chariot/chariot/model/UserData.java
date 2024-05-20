@@ -117,7 +117,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     }
 
     public enum ProfilePropertyEnum {
-        country, location, bio, firstName, lastName, links,
+        flag, location, bio, firstName, lastName, links,
         ratingFide, ratingUscf, ratingEcf, ratingRcf, ratingCfc, ratingDsb,
         unmapped,
         ;
@@ -207,7 +207,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
 
         public static final Provided emptyProfile = new Provided(Map.of());
 
-        public Opt<String> country() { return property(country); }
+        public Opt<String> flag() { return property(flag); }
         public Opt<String> location() { return property(location); }
         public Opt<String> bio() { return property(bio); }
         public Opt<String> firstName() { return property(firstName); }

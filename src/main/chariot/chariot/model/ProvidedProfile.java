@@ -1,7 +1,7 @@
 package chariot.model;
 
 public interface ProvidedProfile {
-    Opt<String> country();
+    Opt<String> flag();
     Opt<String> location();
     Opt<String> bio();
     Opt<String> firstName();
@@ -13,4 +13,13 @@ public interface ProvidedProfile {
     Opt<Integer> ratingRcf();
     Opt<Integer> ratingCfc();
     Opt<Integer> ratingDsb();
+
+    /**
+     * @deprecated
+     * Field contains a "flag" and not a "country"<br>
+     * This method simply returns the value of {@link #flag()}.<br>
+     * This method will be removed in future.<br>
+     */
+    @Deprecated
+    default Opt<String> country() { return flag(); }
 }
