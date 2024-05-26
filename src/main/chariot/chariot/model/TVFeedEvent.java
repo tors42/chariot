@@ -5,7 +5,7 @@ import java.util.List;
 
 import chariot.model.Enums.Color;
 
-public sealed interface TVFeedEvent {
+public sealed interface TVFeedEvent permits TVFeedEvent.Featured, TVFeedEvent.Fen {
     public record Featured(String id, Color orientation, List<PlayerInfo> players, String fen) implements TVFeedEvent {}
     public record Fen(String fen, String lastMove, Duration whiteTime, Duration blackTime) implements TVFeedEvent {}
 
