@@ -69,7 +69,8 @@ public interface ChallengesAdapter {
                     UserInfo.of(id, name, yo.getString("title")),
                     rating.intValue(),
                     yo.getBool("provisional"),
-                    yo.getBool("online"));
+                    yo.getBool("online"),
+                    Opt.of(yo.getInteger("lag")));
         }
         return null;
     }

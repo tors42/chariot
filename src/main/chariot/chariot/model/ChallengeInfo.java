@@ -33,7 +33,7 @@ public record ChallengeInfo(
     public record From(Player challenger)                      implements Players {}
     public record FromTo(Player challenger, Player challenged) implements Players {}
 
-    public record Player(UserInfo user, int rating, boolean provisional, boolean online) {}
+    public record Player(UserInfo user, int rating, boolean provisional, boolean online, Opt<Integer> lag) {}
 
     public sealed interface ColorInfo permits ColorRequest, ColorOutcome {
         ColorPref request();
