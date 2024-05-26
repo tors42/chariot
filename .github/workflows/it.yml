@@ -25,7 +25,7 @@ jobs:
 
       - name: Download OpenJDK 22
         run: |
-          download_url="https://download.java.net/java/GA/jdk22/830ec9fcccef480bb3e73fb7ecafe059/36/GPL/openjdk-22_linux-x64_bin.tar.gz"
+          download_url="https://download.java.net/java/GA/jdk22.0.1/c7ec1332f7bb44aeba2eb341ae18aca4/8/GPL/openjdk-22.0.1_linux-x64_bin.tar.gz"
           curl -Lo $RUNNER_TEMP/java_package.tar.gz $download_url
 
       - uses: actions/setup-java@v4
