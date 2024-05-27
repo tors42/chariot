@@ -97,12 +97,10 @@ public sealed interface One<T> permits
     default boolean isPresent() { return maybe().isPresent(); }
     default T get() { return maybe().get(); }
     default <R> One<R> mapOne(Function<T, R> mapper) {
-        if (this instanceof Entry<T> one) {
-            return One.entry(mapper.apply(one.entry()));
-        } else if (this instanceof Fail<T> f) {
-            return One.fail(f.status(), f.info());
-        } else {
-            return One.none();
-        }
+        return switch(this) {
+            case Entry<T> one  -> One.entry(mapper.apply(one.entry()));
+            case Fail<T> f     -> One.fail(f.status(), f.info());
+            case None<T> __    -> One.none();
+        };
     }
 }

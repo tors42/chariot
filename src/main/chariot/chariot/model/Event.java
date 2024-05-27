@@ -23,18 +23,20 @@ public sealed interface Event {
     record Compat(boolean bot, boolean board) {}
 
     default Type type() {
-        if (this instanceof GameStartEvent) return Type.gameStart;
-        if (this instanceof GameStopEvent) return Type.gameFinish;
-        if (this instanceof ChallengeCreatedEvent) return Type.challenge;
-        if (this instanceof ChallengeCanceledEvent) return Type.challengeCanceled;
-        if (this instanceof ChallengeDeclinedEvent) return Type.challengeDeclined;
-        throw new RuntimeException("Unknown event: " + this);
+        return switch(this) {
+            case GameStartEvent __         -> Type.gameStart;
+            case GameStopEvent __          -> Type.gameFinish;
+            case ChallengeCreatedEvent __  -> Type.challenge;
+            case ChallengeCanceledEvent __ -> Type.challengeCanceled;
+            case ChallengeDeclinedEvent __ -> Type.challengeDeclined;
+        };
     }
 
     default String id() {
-        if (this instanceof GameEvent ge) return ge.gameId();
-        if (this instanceof ChallengeEvent ce) return ce.id();
-        throw new RuntimeException("Unknown event: " + this);
+        return switch(this) {
+            case GameEvent ge -> ge.gameId();
+            case ChallengeEvent ce -> ce.id();
+        };
     }
 
     sealed interface GameEvent      extends Event {

@@ -9,16 +9,12 @@ public sealed interface UserCommon permits User, UserStatus, LightUser, Disabled
     default Opt<String> flair() { return lightUser().flair(); }
 
     private UserCommon userCommon() {
-        if (this instanceof UserAuth auth) {
-            return userCommon(auth);
-        }
-        if (this instanceof User user) {
-            return userCommon(user);
-        }
-        if (this instanceof UserStatus status) {
-            return userCommon(status);
-        }
-        return this;
+        return switch(this) {
+            case UserAuth auth -> userCommon(auth);
+            case User user -> userCommon(user);
+            case UserStatus status -> userCommon(status);
+            default -> this;
+        };
     }
 
     private UserCommon userCommon(UserAuth user) {
@@ -37,9 +33,10 @@ public sealed interface UserCommon permits User, UserStatus, LightUser, Disabled
     }
 
     private LightUser lightUser() {
-        var userCommon = userCommon();
-        if (userCommon instanceof LightUser lightUser) return lightUser;
-        if (userCommon instanceof Disabled disabled) return new LightUser(disabled.id(), Opt.empty(), disabled.name(), false, Opt.empty());
-        return null;
+        return switch(userCommon()) {
+            case LightUser light -> light;
+            case Disabled disabled -> new LightUser(disabled.id(), Opt.empty(), disabled.name(), false, Opt.empty());
+            default -> null;
+        };
     }
 }

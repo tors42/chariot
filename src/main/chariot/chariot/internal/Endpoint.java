@@ -24,20 +24,20 @@ public sealed interface Endpoint<T> {
     public record EPOne<T>(EP ep, Function<Stream<String>, One<T>> mapper) implements Endpoint<T> {
 
         public ReqOne<T> newRequest(Consumer<Params> params) {
-            return RequestParameters.one(toBuilder(params), result -> {
-                if (result instanceof RequestResult.Success s) return mapper.apply(s.stream());
-                if (result instanceof RequestResult.Failure f) return One.fail(f.code(), Err.from(f.body()));
-                return mapper.apply(Stream.of());
+            return RequestParameters.one(toBuilder(params), result -> switch(result) {
+                case null                    -> mapper.apply(Stream.of());
+                case RequestResult.Success s -> mapper.apply(s.stream());
+                case RequestResult.Failure f -> One.fail(f.code(), Err.from(f.body()));
             });
-        }
+         }
     }
 
     public record EPMany<T>(EP ep, Function<Stream<String>, Many<T>> mapper) implements Endpoint<T> {
         public ReqMany<T> newRequest(Consumer<Params> params) {
-            return RequestParameters.many(toBuilder(params), result -> {
-                if (result instanceof RequestResult.Success s) return mapper.apply(s.stream());
-                if (result instanceof RequestResult.Failure f) return Many.fail(f.code(), Err.from(f.body()));
-                return mapper.apply(Stream.of());
+            return RequestParameters.many(toBuilder(params), result -> switch(result) {
+                case null                    -> mapper.apply(Stream.of());
+                case RequestResult.Success s -> mapper.apply(s.stream());
+                case RequestResult.Failure f -> Many.fail(f.code(), Err.from(f.body()));
             });
         }
     }

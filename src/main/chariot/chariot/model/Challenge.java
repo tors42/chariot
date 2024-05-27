@@ -9,11 +9,12 @@ public sealed interface Challenge permits
     Challenge.RematchChallenge {
 
         default String id() {
-            if (this instanceof ChallengeInfo info)           return info.id();
-            if (this instanceof ChallengeWithRules withRules) return withRules.challenge().id();
-            if (this instanceof DeclinedChallenge declined)   return declined.challenge().id();
-            if (this instanceof RematchChallenge rematch)     return rematch.challenge().id();
-            return "";
+            return switch(this) {
+                case ChallengeInfo info -> info.id();
+                case ChallengeWithRules withRules -> withRules.challenge().id();
+                case DeclinedChallenge declined -> declined.challenge().id();
+                case RematchChallenge rematch -> rematch.challenge().id();
+            };
         }
 
         default List<String> rules() { return List.of(); }

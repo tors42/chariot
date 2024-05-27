@@ -13,10 +13,12 @@ public sealed interface GameStateEvent {
     enum Type { gameFull, gameState, chatLine, opponentGone }
 
     default Type type() {
-        if (this instanceof Full) return Type.gameFull;
-        if (this instanceof State) return Type.gameState;
-        if (this instanceof Chat) return Type.chatLine;
-        return Type.opponentGone;
+        return switch(this) {
+            case Full __         -> Type.gameFull;
+            case State __        -> Type.gameState;
+            case Chat __         -> Type.chatLine;
+            case OpponentGone __ -> Type.opponentGone;
+        };
     }
 
     public sealed interface Side permits Anonymous, AI, Account {

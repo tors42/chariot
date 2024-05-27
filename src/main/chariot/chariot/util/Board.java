@@ -1061,12 +1061,13 @@ public sealed interface Board {
         }
 
         default String uci() {
-            if (this instanceof FromTo fromTo) return uci(fromTo.from(), fromTo.to());
-            if (this instanceof Castling castling) return uci(castling.king().from(), castling.king().to());
-            if (this instanceof Promotion promotion) return uci(promotion.pawn().from(), promotion.pawn().to())
-                + Character.toLowerCase(promotion.piece().toChar());
-            if (this instanceof Invalid invalid) return invalid.info();
-            return "gotta catch them all";
+            return switch(this) {
+                case FromTo fromTo       -> uci(fromTo.from(), fromTo.to());
+                case Castling castling   -> uci(castling.king().from(), castling.king().to());
+                case Promotion promotion -> uci(promotion.pawn().from(), promotion.pawn().to())
+                                            + Character.toLowerCase(promotion.piece().toChar());
+                case Invalid invalid     -> invalid.info();
+            };
         }
 
         default String uci(Coordinate from, Coordinate to) {
@@ -1177,16 +1178,18 @@ public sealed interface Board {
         var mutableMap = new HashMap<>(pieceMap);
 
         return possiblyInvalidMoves.stream()
-            .filter(move -> {
-                boolean includeMove = false;
-                if (move instanceof FromTo fromTo) {
+            .filter(move -> switch(move) {
+                case Castling __  -> true;
+                case Invalid __   -> false;
+                case Promotion __ -> false; //?
+                case FromTo fromTo -> {
                     // Check if move would result in current side being in check
 
                     // mutate map
                     Piece from = mutableMap.remove(fromTo.from());
                     Piece to   = mutableMap.put(fromTo.to(), from);
 
-                    includeMove = ! isCoordinateAttacked(
+                    boolean includeMove = ! isCoordinateAttacked(
                             from.type() == PieceType.KING ? fromTo.to() : king,
                             piece.color().other(),
                             mutableMap);
@@ -1198,10 +1201,8 @@ public sealed interface Board {
                     } else {
                         mutableMap.remove(fromTo.to());
                     }
-                } else if (move instanceof Castling castling) {
-                    includeMove = true;
-                } else if (move instanceof Invalid invalid) {}
-                return includeMove;
+                    yield includeMove;
+                }
             }).collect(Collectors.toSet());
     }
 
