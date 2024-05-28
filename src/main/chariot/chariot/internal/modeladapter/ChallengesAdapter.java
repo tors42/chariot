@@ -47,7 +47,7 @@ public interface ChallengesAdapter {
             case YayObject challengeYo -> new ChallengeInfo(
                     challengeYo.getString("id"),
                     URI.create(challengeYo.getString("url")),
-                    nodeToPlayers(challengeYo.value().get("challenger")),
+                    nodeToPlayers(challengeYo),
                     GameTypeAdapter.nodeToGameType(challengeYo),
                     challengeYo.getString("finalColor") instanceof String colorOutcome
                         ? new ChallengeInfo.ColorOutcome(ColorPref.valueOf(challengeYo.getString("color")), Color.valueOf(colorOutcome))
