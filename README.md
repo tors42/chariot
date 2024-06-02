@@ -28,6 +28,7 @@ client.broadcasts().streamBroadcast()
 client.broadcasts().broadcastById()
 client.broadcasts().leaderboardById()
 client.broadcasts().roundById()
+client.broadcasts().byUserId()
 
 client.challenges().challengeOpenEnded()
 
