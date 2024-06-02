@@ -498,6 +498,10 @@ public sealed interface Endpoint<T> {
     public static EPOne<Broadcast> broadcastById =
         Endpoint.of(Broadcast.class).endpoint("/api/broadcast/%s").scope(Scope.study_read).toOne();
 
+    public static EPOne<PageBroadcast> broadcastPageByUser =
+        Endpoint.of(PageBroadcast.class)
+        .endpoint("/api/broadcast/by/%s").scope(Scope.study_read).toOne();
+
     public static EPOne<RoundInfo> roundById =
         Endpoint.of(RoundInfo.class).endpoint("/api/broadcast/-/-/%s").scope(Scope.study_read).toOne();
 
@@ -654,6 +658,9 @@ public sealed interface Endpoint<T> {
     }
 
     static record PageStudyWrapper(PageStudy paginator) {}
+
+    static record PageBroadcast(Integer currentPage, Integer maxPerPage, List<Broadcast.TourWithLastRound> currentPageResults, Integer nbResults, Integer previousPage, Integer nextPage, Integer nbPages) implements Page<Broadcast.TourWithLastRound> {}
+
 
     public static class Builder<T> {
         private String endpoint = "";

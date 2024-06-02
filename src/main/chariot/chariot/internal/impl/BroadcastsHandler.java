@@ -1,7 +1,10 @@
 package chariot.internal.impl;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import chariot.api.*;
 import chariot.internal.*;
@@ -50,6 +53,26 @@ public class BroadcastsHandler implements BroadcastsAuth {
         return Endpoint.broadcastById.newRequest(request -> request
                 .query(MapBuilder.of(BroadcastParameters.class).toMap(params))
                 .path(tourId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<Broadcast.TourWithLastRound> byUserId(String userId) {
+        var firstPage = broadcastPageByUserId(userId, 1);
+        if (firstPage instanceof Entry<Endpoint.PageBroadcast> one) {
+            var spliterator = Util.PageSpliterator.of(one.entry(),
+                    pageNum -> broadcastPageByUserId(userId, pageNum) instanceof Entry<Endpoint.PageBroadcast> pt ?
+                    pt.entry() : new Endpoint.PageBroadcast(0,0,List.of(),0,0,0,0));
+            return Many.entries(StreamSupport.stream(spliterator, false));
+        } else {
+            return Many.entries(Stream.of());
+        }
+    }
+
+    private One<Endpoint.PageBroadcast> broadcastPageByUserId(String userId, int page) {
+        return Endpoint.broadcastPageByUser.newRequest(request -> request
+                .query(Map.of("page", page))
+                .path(userId))
             .process(requestHandler);
     }
 

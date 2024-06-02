@@ -62,6 +62,14 @@ public interface Broadcasts {
     One<Broadcast> broadcastById(String tourId, Consumer<BroadcastParameters> params);
 
     /**
+     * Get information about broadcasts of a user.
+     *
+     * @param userId The user to get broadcasts from
+     */
+    Many<Broadcast.TourWithLastRound> byUserId(String userId);
+
+
+    /**
      * Get information about a broadcast tournament.
      *
      * @param tourId The broadcast tournament ID (8 characters).
