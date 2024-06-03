@@ -3,7 +3,6 @@ package it.account;
 import chariot.ClientAuth;
 import chariot.model.User;
 import util.IntegrationTest;
-import util.Main;
 import util.IT;
 import static util.Assert.unboxEquals;
 
@@ -16,7 +15,7 @@ public class AccountAuth {
         var profile = client.account().profile();
         unboxEquals(profile, "bobby", User::id);
         unboxEquals(profile, "Bobby", User::name);
-        //unboxEquals(profile, Main.itApi().resolve("/@/Bobby"), User::url);
+        unboxEquals(profile, IT.lilaURI().resolve("/@/Bobby"), User::url);
     }
 
     @IntegrationTest
