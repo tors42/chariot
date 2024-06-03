@@ -65,7 +65,8 @@ public interface BroadcastsAuth extends Broadcasts {
         BroadcastBuilder longDescription(String markup);
 
         /**
-         * @param tier For Lichess internal usage only. [3 4 5]
+         * Only for admins.
+         * @param tier Broadcast tier. [3 4 5]. 3 normal, 4 high, 5 best.
          */
         BroadcastBuilder tier(int tier);
 
