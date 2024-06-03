@@ -659,7 +659,14 @@ public sealed interface Endpoint<T> {
 
     static record PageStudyWrapper(PageStudy paginator) {}
 
-    static record PageBroadcast(Integer currentPage, Integer maxPerPage, List<Broadcast.TourWithLastRound> currentPageResults, Integer nbResults, Integer previousPage, Integer nextPage, Integer nbPages) implements Page<Broadcast.TourWithLastRound> {}
+    public static record PageBroadcast(
+            Integer currentPage,
+            Integer maxPerPage,
+            List<Broadcast.TourWithLastRound> currentPageResults,
+            Integer nbResults,
+            Integer previousPage,
+            Integer nextPage,
+            Integer nbPages) implements Page<Broadcast.TourWithLastRound> {}
 
 
     public static class Builder<T> {
