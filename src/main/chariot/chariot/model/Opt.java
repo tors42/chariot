@@ -22,4 +22,13 @@ public sealed interface Opt<T> permits Some, Empty {
         if (this instanceof Some<T> some) return some.value();
         return other.get();
     }
+
+    default boolean isPresent() {
+        return this instanceof Some<?>;
+    }
+
+    default T get() {
+        return this instanceof Some<T> some ? some.value() : null;
+    }
+
 }
