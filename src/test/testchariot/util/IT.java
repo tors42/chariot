@@ -12,6 +12,10 @@ import chariot.model.StatsPerf.StatsPerfGame;
 
 public class IT {
 
+    public static java.net.URI lilaURI() {
+        return superadmin().account().profile().map(u -> u.url().resolve("/")).orElse(Main.itApi());
+    }
+
     public static Stream<Client> usersBasic() {
         return userIds.stream().map(IT::clientBasicByUserId);
     }
@@ -28,7 +32,8 @@ public class IT {
         return userIdClientAuth.computeIfAbsent(userId, id -> Client.auth(conf -> conf.api(Main.itApi()).spacing(Duration.ZERO), "lip_" + id));
     }
 
-    public static ClientAuth admin() { return clientAuthByUserId("admin"); }
+    public static ClientAuth admin()      { return clientAuthByUserId("admin"); }
+    public static ClientAuth superadmin() { return clientAuthByUserId("superadmin"); }
 
     public static ClientAuth bobby() { return clientAuthByUserId("bobby"); }
     public static ClientAuth boris() { return clientAuthByUserId("boris"); }
