@@ -177,11 +177,12 @@ public class PushAndSyncPgn {
     }
 
     void createRoundsForSync(String broadcastId, List<List<Pgn>> roundPgns, URI syncUrlBase) {
+        var superadmin = IT.superadmin(); // to be able to set "period"
         namedPgnRounds(roundPgns).stream()
-            .map(nameAndPgn -> client.broadcasts().createRound(broadcastId, p -> p
+            .map(nameAndPgn -> superadmin.broadcasts().createRound(broadcastId, p -> p
                         .name(nameAndPgn.name())
                         .syncUrl(syncUrlBase.resolve(URLEncoder.encode(nameAndPgn.name(), Charset.defaultCharset())).toString())
-                        .period(Duration.ofSeconds(2))
+                        .period(Duration.ofSeconds(2)) // needs Study/Broadcast Admin
                         .startsAt(now -> now.minusHours(3))))
             .findFirst().filter(one -> one instanceof Entry).orElseThrow();
     }
