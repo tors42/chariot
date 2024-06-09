@@ -29,6 +29,9 @@ client.broadcasts().broadcastById()
 client.broadcasts().leaderboardById()
 client.broadcasts().roundById()
 client.broadcasts().byUserId()
+client.broadcasts().topActive()
+client.broadcasts().topUpcoming()
+client.broadcasts().topPast()
 
 client.challenges().challengeOpenEnded()
 
