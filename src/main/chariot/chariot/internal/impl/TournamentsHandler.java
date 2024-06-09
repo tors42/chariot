@@ -239,6 +239,7 @@ public class TournamentsHandler implements TournamentsAuth {
             .rename("conditionMinRating", "conditions.minRating.rating")
             .rename("conditionMaxRating", "conditions.maxRating.rating")
             .rename("conditionMinRatedGames", "conditions.nbRatedGame.nb")
+            .rename("conditionAccountAge", "conditions.accountAge")
             .addCustomHandler("allowList", (args, map) -> {
                 @SuppressWarnings("unchecked")
                 List<String> list = (List<String>) args[0];
@@ -266,6 +267,7 @@ public class TournamentsHandler implements TournamentsAuth {
             .rename("conditionMaxRating", "conditions.maxRating.rating")
             .rename("conditionMinRatedGames", "conditions.nbRatedGame.nb")
             .rename("conditionPlayYourGames", "conditions.playYourGames")
+            .rename("conditionAccountAge", "conditions.accountAge")
             .addCustomHandler("chatFor", (args, map) -> map.put("chatFor", ChatFor.class.cast(args[0]).id))
             .addCustomHandler("allowList", (args, map) -> {
                 @SuppressWarnings("unchecked")

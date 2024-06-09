@@ -208,6 +208,12 @@ public interface TournamentsAuth extends Tournaments {
         ArenaParams conditionMinRatedGames(int conditionMinRatedGames);
 
         /**
+         * @param days Minimum account age, days.<br>
+         * Valid values: [ 1, 3, 7, 14, 30, 60, 90, 180, 365, 365 * 2, 365 * 3 ]
+         */
+        ArenaParams conditionAccountAge(int days);
+
+        /**
          * @param allowList Predefined list of usernames that are allowed to join. If this list is non-empty, then usernames absent from this list will be forbidden to join. Adding {@code %titled} to the list additionally allows any titled player to join. Example: {@code List.of("thibault", "german11", "%titled")}
          */
         ArenaParams allowList(List<String> allowList);
@@ -395,6 +401,12 @@ public interface TournamentsAuth extends Tournaments {
          * To be allowed to join, participants must have played their previous swiss game
          */
         default SwissParams conditionPlayYourGames() { return conditionPlayYourGames(true); }
+
+        /**
+         * @param days Minimum account age, days.<br>
+         * Valid values: [ 1, 3, 7, 14, 30, 60, 90, 180, 365, 365 * 2, 365 * 3 ]
+         */
+        SwissParams conditionAccountAge(int days);
     }
 
     interface JoinSwissParams {
