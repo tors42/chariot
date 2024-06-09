@@ -489,6 +489,21 @@ public sealed interface Endpoint<T> {
     public static EPMany<Broadcast> officialBroadcasts =
         Endpoint.of(Broadcast.class).endpoint("/api/broadcast").accept(jsonstream).toMany();
 
+
+    public static EPMany<Broadcast.TourWithLastRound> broadcastsTopActive =
+        Endpoint.of(Broadcast.TourWithLastRound.class).endpoint("/api/broadcast/top")
+        .streamMapper(stream -> stream.map(mapper(ActiveAndUpcoming.class)).flatMap(au -> au.active().stream()))
+        .toMany();
+
+    public static EPMany<Broadcast.TourWithLastRound> broadcastsTopUpcoming =
+        Endpoint.of(Broadcast.TourWithLastRound.class).endpoint("/api/broadcast/top")
+        .streamMapper(stream -> stream.map(mapper(ActiveAndUpcoming.class)).flatMap(au -> au.upcoming().stream()))
+        .toMany();
+
+    public static EPOne<PageBroadcast> broadcastsTopPastPage =
+        Endpoint.of(mapper(PageBroadcastWrapper.class).andThen(PageBroadcastWrapper::past))
+        .endpoint("/api/broadcast/top").toOne();
+
     public static EPOne<Broadcast> createBroadcast =
         Endpoint.of(Broadcast.class).endpoint("/broadcast/new").post(wwwform).scope(Scope.study_write).toOne();
 
@@ -657,6 +672,9 @@ public sealed interface Endpoint<T> {
         }
     }
 
+    static record ActiveAndUpcoming(List<Broadcast.TourWithLastRound> active, List<Broadcast.TourWithLastRound> upcoming) {}
+
+    static record PageBroadcastWrapper(PageBroadcast past) {}
     static record PageStudyWrapper(PageStudy paginator) {}
 
     public static record PageBroadcast(

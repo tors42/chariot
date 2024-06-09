@@ -27,6 +27,21 @@ public interface Broadcasts {
     default Many<Broadcast> official() { return official(__ -> {}); }
 
     /**
+     *  Get active top broadcasts.
+     */
+    Many<Broadcast.TourWithLastRound> topActive();
+
+    /**
+     *  Get upcoming top broadcasts.
+     */
+    Many<Broadcast.TourWithLastRound> topUpcoming();
+
+    /**
+     *  Get past top broadcasts.
+     */
+    Many<Broadcast.TourWithLastRound> topPast();
+
+    /**
      * Stream an ongoing broadcast tournament as PGN
      *
      * <p>This streaming endpoint first sends all games of a broadcast tournament in PGN format.

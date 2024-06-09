@@ -27,6 +27,41 @@ public class BroadcastsHandler implements BroadcastsAuth {
     }
 
     @Override
+    public Many<Broadcast.TourWithLastRound> topActive() {
+        return Endpoint.broadcastsTopActive.newRequest(request -> {})
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<Broadcast.TourWithLastRound> topUpcoming() {
+        return Endpoint.broadcastsTopUpcoming.newRequest(request -> {})
+            .process(requestHandler);
+    }
+
+
+    @Override
+    public Many<Broadcast.TourWithLastRound> topPast() {
+        var firstPage = topPastByPage(1);
+        if (firstPage instanceof Entry<Endpoint.PageBroadcast> one) {
+            var spliterator = Util.PageSpliterator.of(
+                    one.entry(),
+                    pageNum -> topPastByPage(pageNum) instanceof Entry<Endpoint.PageBroadcast> pt
+                     ? pt.entry()
+                     : new Endpoint.PageBroadcast(0,0,List.of(),0,0,0,0));
+            return Many.entries(StreamSupport.stream(spliterator, false));
+        } else {
+            return Many.entries(Stream.of());
+        }
+    }
+
+    private One<Endpoint.PageBroadcast> topPastByPage(int page) {
+        return Endpoint.broadcastsTopPastPage.newRequest(request -> request
+                .query(Map.of("page", page)))
+            .process(requestHandler);
+    }
+
+
+    @Override
     public Many<Pgn> streamBroadcast(String roundId) {
         return Endpoint.streamBroadcast.newRequest(request -> request
                 .path(roundId)
