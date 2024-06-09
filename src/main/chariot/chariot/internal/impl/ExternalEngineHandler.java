@@ -70,25 +70,29 @@ public class ExternalEngineHandler implements ExternalEngineAuth {
                     "sessionId":"%s",
                     "threads":%d,
                     "hash":%d,
-                    "infinite":%b,
                     "multiPv":%d,
                     "variant":"%s",
                     "initialFen":"%s",
                     "moves":[
                         %s
-                    ]
+                    ],
+                    "movetime":"%d",
+                    "depth":"%d",
+                    "nodes":"%d"
                 }
             }
             """.formatted(
-                    ap.clientSecret,
+                     ap.clientSecret,
                      ap.work.sessionId(),
                      ap.work.threads(),
                      ap.work.hash(),
-                     ap.work.infinite(),
                      ap.work.multiPv(),
                      ap.work.variant(),
                      ap.work.initialFen(),
-                     ap.work.moves().stream().map(m -> '"' + m + '"').collect(Collectors.joining(",")));
+                     ap.work.moves().stream().map(m -> '"' + m + '"').collect(Collectors.joining(",")),
+                     ap.work.movetime(),
+                     ap.work.depth(),
+                     ap.work.nodes());
     }
 
 
@@ -133,7 +137,6 @@ public class ExternalEngineHandler implements ExternalEngineAuth {
             "name": "%s",
             "maxThreads": %d,
             "maxHash": %d,
-            "defaultDepth": %d,
             "providerSecret": "%s"
             %s
             %s
@@ -142,7 +145,6 @@ public class ExternalEngineHandler implements ExternalEngineAuth {
                 registration.name(),
                 registration.maxThreads(),
                 registration.maxHash(),
-                registration.defaultDepth(),
                 registration.providerSecret(),
                 registration.variants().isEmpty() ? "" : ",\"variants\":[" + registration.variants().stream().map(v -> '"' + v + '"').collect(Collectors.joining(",")) + "]",
                 registration.providerData().equals("") ? "" : ",\"providerData\":\"" + registration.providerData() + "\""

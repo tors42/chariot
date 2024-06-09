@@ -17,10 +17,6 @@ public record ExternalEngineRegistration (
          */
         int maxHash,
         /**
-         * @param defaultDepth Estimated depth of normal search. [ 0 .. 246 ]
-         */
-        int defaultDepth,
-        /**
          * @param variants List of supported chess variants. "chess" "crazyhouse" "antichess" "atomic" "horde" "kingofthehill" "racingkings" "3check"
          */
         List<String> variants,
@@ -34,8 +30,8 @@ public record ExternalEngineRegistration (
         String providerData
         ) {
 
-    public ExternalEngineRegistration(String name, int maxThreads, int maxHash, int defaultDepth, List<String> variants, String providerSecret) {
-        this(name, maxThreads, maxHash, defaultDepth, variants, providerSecret, "");
+    public ExternalEngineRegistration(String name, int maxThreads, int maxHash, List<String> variants, String providerSecret) {
+        this(name, maxThreads, maxHash, variants, providerSecret, "");
     }
 
     public ExternalEngineRegistration {

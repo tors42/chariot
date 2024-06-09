@@ -10,7 +10,6 @@ public record ExternalEngineInfo(
     String userId,
     int maxThreads,
     int maxHash,
-    int defaultDepth,
     List<String> variants,
     String providerData
         ) {

@@ -6,9 +6,11 @@ public record ExternalEngineWork(
         String sessionId,
         int threads,
         int hash,
-        boolean infinite,
         int multiPv,
         String variant,
         String initialFen,
-        List<String> moves
+        List<String> moves,
+        int movetime,
+        int depth,
+        int nodes
         ) {}
