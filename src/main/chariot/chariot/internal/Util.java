@@ -148,7 +148,8 @@ public class Util {
                     currentElementIndex++;
                     return true;
                 } else {
-                    if (page.currentPage() >= page.nbPages()) {
+                    if (page.nbPages() instanceof Integer nbPages && page.currentPage() >= nbPages
+                        || page.nextPage() == null) {
                         return false;
                     }
                     currentElementIndex = 0;
@@ -157,7 +158,7 @@ public class Util {
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
+                // ignore
             }
 
             return false;
@@ -170,12 +171,14 @@ public class Util {
 
         @Override
         public long estimateSize() {
-            return page.nbResults();
+            return page.nbResults() instanceof Integer nb ? nb : Long.MAX_VALUE;
         }
 
         @Override
         public int characteristics() {
-            return ORDERED | SIZED;
+            return page.nbResults() instanceof Integer
+                ? (ORDERED | SIZED)
+                : ORDERED;
         }
     }
 
