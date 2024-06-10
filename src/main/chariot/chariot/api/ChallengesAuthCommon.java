@@ -24,6 +24,13 @@ public interface ChallengesAuthCommon {
      */
     Many<Challenge> challengeKeepAlive(String userId, Consumer<ChallengeBuilder> params);
 
+    /**
+     * Show one challenge.<br>
+     * Get details about a challenge, even if it has been recently accepted, canceled or declined.
+     * @param challengeId the id of the challenge to show
+     */
+    One<ChallengeInfo> show(String challengeId);
+
     One<ChallengeAI> challengeAI(Consumer<ChallengeAIBuilder> params);
     One<Void>     cancelChallenge(String challengeId);
     One<Void>     cancelChallenge(String challengeId, Supplier<char[]> opponentToken);

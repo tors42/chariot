@@ -27,6 +27,13 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
     }
 
     @Override
+    public One<ChallengeInfo> show(String challengeId) {
+        return Endpoint.challengeShow.newRequest(request -> request
+                .path(challengeId))
+            .process(requestHandler);
+    }
+
+    @Override
     public One<Challenge> challenge(String userId, Consumer<ChallengeBuilder> parameters) {
         return challenge(scope, userId, parameters);
     }

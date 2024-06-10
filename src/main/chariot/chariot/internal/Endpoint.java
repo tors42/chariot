@@ -428,6 +428,10 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Challenge.class).endpoint("/api/challenge/%s")
         .post(wwwform).scope(Scope.challenge_write).toMany();
 
+    public static EPOne<ChallengeInfo> challengeShow =
+        Endpoint.of(ChallengeInfo.class).endpoint("/api/challenge/%s/show")
+        .scope(Scope.challenge_read).toOne();
+
     public static EPOne<ChallengeAI> challengeAI =
         Endpoint.of(ChallengeAI.class).endpoint("/api/challenge/ai")
         .post(wwwform).scope(Scope.challenge_write).toOne();
