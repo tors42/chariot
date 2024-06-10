@@ -14,6 +14,7 @@ public record Swiss (
         int nbPlayers,
         int nbRounds,
         int round,
+        Verdict verdicts,
         boolean rated,
         boolean isRecentlyFinished,
         VariantName variant,

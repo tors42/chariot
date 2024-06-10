@@ -172,11 +172,6 @@ public sealed interface Arena {
 
     public record GreatPlayer (String name, String url) {}
 
-    // condition - member of team, minimum rating etc
-    public record Verdict (List<Condition> list, boolean accepted) {
-        public record Condition(String condition, String verdict) {}
-    }
-
     public record Clock (Integer increment, Integer limit) {}
     public record Perf (String icon, String key, String name) {}
 
