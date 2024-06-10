@@ -9,6 +9,8 @@ import chariot.model.Enums.ColorPref;
 
 public record ChallengeInfo(
         String id,
+        Opt<String> fullId,
+        Opt<String> status,
         URI url,
         Players players,
         GameType gameType,

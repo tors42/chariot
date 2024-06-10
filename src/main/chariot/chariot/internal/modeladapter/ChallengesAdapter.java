@@ -46,6 +46,8 @@ public interface ChallengesAdapter {
         return switch(node) {
             case YayObject challengeYo -> new ChallengeInfo(
                     challengeYo.getString("id"),
+                    Opt.of(challengeYo.getString("fullId")),
+                    Opt.of(challengeYo.getString("status")),
                     URI.create(challengeYo.getString("url")),
                     nodeToPlayers(challengeYo),
                     GameTypeAdapter.nodeToGameType(challengeYo),
