@@ -232,6 +232,8 @@ client.tournaments().updateTeamBattle()
 client.usersAuth().sendMessageToUser()
 client.usersAuth().followUser()
 client.usersAuth().unfollowUser()
+client.usersAuth().blockUser()
+client.usersAuth().unblockUser()
 client.usersAuth().writeNoteAboutUser()
 client.usersAuth().readNotesAboutUser()
 ```
