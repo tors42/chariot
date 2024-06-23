@@ -48,6 +48,7 @@ public class BroadcastAuth {
         boolean leaderboard = false;
 
         List<Broadcast.Round> rounds = List.of();
+        Opt<Broadcast.Group> group = Opt.empty();
 
         Broadcast expected = new Broadcast(
                 new Broadcast.Tour(
@@ -62,7 +63,9 @@ public class BroadcastAuth {
                         image,
                         teamTable,
                         leaderboard),
-                rounds);
+                rounds,
+                group
+                );
 
         assertEquals(expected, broadcast);
     }
@@ -101,6 +104,7 @@ public class BroadcastAuth {
 
 
         List<Broadcast.Round> rounds = List.of();
+        Opt<Broadcast.Group> group = Opt.empty();
 
         Broadcast expected = new Broadcast(
                 new Broadcast.Tour(
@@ -115,7 +119,8 @@ public class BroadcastAuth {
                         image,
                         teamLeaderboard,
                         autoLeaderboard),
-                rounds);
+                rounds,
+                group);
 
         assertEquals(expected, broadcast);
     }
