@@ -132,6 +132,12 @@ public sealed interface Endpoint<T> {
     public static EPOne<Void> unfollowUser =
         Endpoint.of(Void.class).endpoint("/api/rel/unfollow/%s").post().scope(Scope.follow_write).toOne();
 
+    public static EPOne<Void> blockUser =
+        Endpoint.of(Void.class).endpoint("/api/rel/block/%s").post().scope(Scope.follow_write).toOne();
+
+    public static EPOne<Void> unblockUser =
+        Endpoint.of(Void.class).endpoint("/api/rel/unblock/%s").post().scope(Scope.follow_write).toOne();
+
     public static EPMany<Tournament> tournamentArenaCreatedByUser =
         Endpoint.of(Tournament.class).endpoint("/api/user/%s/tournament/created").accept(jsonstream).toMany();
 

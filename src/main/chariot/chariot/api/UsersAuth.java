@@ -52,6 +52,10 @@ public interface UsersAuth extends UsersBase {
 
     One<Void> unfollowUser(String userId);
 
+    One<Void> blockUser(String userId);
+
+    One<Void> unblockUser(String userId);
+
     /**
      * Autocomplete names given the starting 3 or more characters of a username
      * @param term The beginning of a username >= 3 characters

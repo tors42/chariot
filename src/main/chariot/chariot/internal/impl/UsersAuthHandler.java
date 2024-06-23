@@ -76,6 +76,20 @@ public class UsersAuthHandler extends UsersBaseHandler implements UsersAuth {
     }
 
     @Override
+    public One<Void> blockUser(String userId) {
+        return Endpoint.blockUser.newRequest(request -> request
+                .path(userId))
+            .process(super.requestHandler);
+    }
+
+    @Override
+    public One<Void> unblockUser(String userId) {
+        return Endpoint.unblockUser.newRequest(request -> request
+                .path(userId))
+            .process(super.requestHandler);
+    }
+
+    @Override
     public Many<String> autocompleteNames(String term, boolean friend) {
         return Endpoint.usersNamesAutocomplete.newRequest(request -> request
                 .query(Map.of("term", term, "object", "false", "friend", Boolean.toString(friend))))
