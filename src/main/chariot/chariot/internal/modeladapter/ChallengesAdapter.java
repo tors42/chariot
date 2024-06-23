@@ -18,11 +18,10 @@ public interface ChallengesAdapter {
      */
     static ChallengeOpenEnded nodeToChallengeOpenEnded(YayNode node) {
         return switch(node) {
-            case YayObject yo when yo.value().get("challenge") instanceof YayObject challengeYo
-                -> new ChallengeOpenEnded(
+            case YayObject challengeYo -> new ChallengeOpenEnded(
                         nodeToChallengeInfo(challengeYo),
-                        yo.getString("urlWhite"),
-                        yo.getString("urlBlack"),
+                        challengeYo.getString("urlWhite"),
+                        challengeYo.getString("urlBlack"),
                         challengeYo.value().get("open") instanceof YayObject openYo
                           && openYo.value().get("userIds") instanceof YayArray ya
                           && ya.filterCastMap(YayString::value, YayString.class) instanceof List<String> users
