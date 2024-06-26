@@ -25,6 +25,7 @@ public sealed interface User extends UserCommon permits UserAuth, UserProfileDat
     default URI               url()           { return userProfile().url();                  }
     default Opt<URI>          playingUrl()    { return userProfile().playingUrl();           }
     default Opt<List<Trophy>> trophies()      { return userProfile().trophies();             }
+    default Opt<Boolean>      canChallenge()  { return userProfile().canChallenge();         }
     default Opt<String>       twitchStream()  { return userProfile().twitchStream();         }
     default Opt<String>       youtubeStream() { return userProfile().youtubeStream();        }
 }

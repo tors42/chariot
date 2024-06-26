@@ -41,6 +41,12 @@ public interface Users extends UsersBase {
         UserParams withTrophies(boolean withTrophies);
 
         default UserParams withTrophies() { return withTrophies(true); }
+
+        /**
+         * Whether or not to include if user accepts challenges in the result.
+         */
+        UserParams withChallengeable(boolean withChallengeable);
+        default UserParams withChallengeable() { return withChallengeable(true); }
     }
 
     public interface CrosstableParams {
@@ -74,7 +80,6 @@ public interface Users extends UsersBase {
          */
         UserStatusParams withGameMetas(boolean withGameMetas);
         default UserStatusParams withGameMetas() { return withGameMetas(true); }
-
 
      }
 }

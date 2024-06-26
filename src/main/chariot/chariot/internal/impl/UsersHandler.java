@@ -29,7 +29,11 @@ public class UsersHandler extends UsersBaseHandler implements Users {
         var parameterMap = MapBuilder.of(UserParams.class)
             .addCustomHandler("withTrophies", (args, map) -> {
                 if (args[0] instanceof Boolean b && b.booleanValue()) map.put("trophies", 1);
-            }).toMap(params);
+            })
+            .addCustomHandler("withChallengeable", (args, map) -> {
+                if (args[0] instanceof Boolean b && b.booleanValue()) map.put("challenge", 1);
+            })
+            .toMap(params);
 
         var result = Endpoint.userById.newRequest(request -> request
                 .path(userId)
@@ -38,8 +42,9 @@ public class UsersHandler extends UsersBaseHandler implements Users {
             .process(super.requestHandler);
 
         boolean trophies = parameterMap.containsKey("trophies");
+        boolean challenge = parameterMap.containsKey("challenge");
 
-        return result.mapOne(ud -> ud.toUser(trophies));
+        return result.mapOne(ud -> ud.toUser(trophies, challenge));
     }
 
     @Override

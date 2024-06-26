@@ -65,6 +65,7 @@ public interface UserAdapter {
                 case "trophies"     -> trophies.of(new Trophies(entry.getValue() instanceof YayArray yarr
                                            ? yarr.value().stream().map(trophyNode -> yayMapper.fromYayTree(trophyNode, Trophy.class)).toList()
                                            : List.of()));
+                case "challenge"    -> canChallenge.of(yo.getBool(entry.getKey()));
                 case "playTime"     -> playTime.of(new PlayTime(
                                            Duration.ofSeconds(entry.getValue() instanceof YayObject playYo
                                                ? playYo.getLong("total") : 0),

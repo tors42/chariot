@@ -31,7 +31,11 @@ public class UsersAuthHandler extends UsersBaseHandler implements UsersAuth {
         var parameterMap = MapBuilder.of(UserParams.class)
             .addCustomHandler("withTrophies", (args, map) -> {
                 if (args[0] instanceof Boolean b && b.booleanValue()) map.put("trophies", 1);
-            }).toMap(params);
+            })
+            .addCustomHandler("withChallengeable", (args, map) -> {
+                if (args[0] instanceof Boolean b && b.booleanValue()) map.put("challenge", 1);
+            })
+            .toMap(params);
 
         var result = Endpoint.userById.newRequest(request -> request
                 .path(userId)
@@ -40,8 +44,9 @@ public class UsersAuthHandler extends UsersBaseHandler implements UsersAuth {
             .process(super.requestHandler);
 
         boolean trophies = parameterMap.containsKey("trophies");
+        boolean challengeable = parameterMap.containsKey("challenge");
 
-        return result.mapOne(ud -> ud.toUserAuth(trophies));
+        return result.mapOne(ud -> ud.toUserAuth(trophies, challengeable));
     }
 
     @Override

@@ -20,22 +20,22 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     }
 
     public User toUser() {
-        return toUser(false);
+        return toUser(false, false);
     }
 
-    public User toUser(boolean includeTrophies) {
-        return toUserProfileData(includeTrophies);
+    public User toUser(boolean includeTrophies, boolean includeCanChallenge) {
+        return toUserProfileData(includeTrophies, includeCanChallenge);
     }
 
     public UserAuth toUserAuth() {
-        return toUserAuth(false);
+        return toUserAuth(false, false);
     }
 
-    public UserAuth toUserAuth(boolean includeTrophies) {
-        return toUserProfileData(includeTrophies);
+    public UserAuth toUserAuth(boolean includeTrophies, boolean includeCanChallenge) {
+        return toUserProfileData(includeTrophies, includeCanChallenge);
     }
 
-    public UserProfileData toUserProfileData(boolean includeTrophies) {
+    public UserProfileData toUserProfileData(boolean includeTrophies, boolean includeCanChallenge) {
         UserCommon common = toCommon();
         ProvidedProfile profile = _profile().orElse(Provided.emptyProfile);
         UserStats stats = new UserStats(_ratings().orElse(Map.of()), _count().orElse(null));
@@ -55,6 +55,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
                 _followsYou().orElse(false),
                 _blocking().orElse(false)));
         }
+        Opt<Boolean> canChallenge = includeCanChallenge ? Opt.of(_canChallenge().orElse(false)) : Opt.empty();
         Opt<String> twitch = _channelInfo() instanceof Some<ChannelInfo> some ? some.value().twitch() : Opt.empty();
         Opt<String> youtube = _channelInfo() instanceof Some<ChannelInfo> some ? some.value().youtube() : Opt.empty();
         var userProfileData = new UserProfileData(
@@ -66,6 +67,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
                 Opt.of(_playing().orElse(null)),
                 authFlags,
                 trophies,
+                canChallenge,
                 twitch,
                 youtube,
                 url);
@@ -109,7 +111,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
         playTime, createdAt, seenAt, url, counts, ratings,
         profile, followable, following, followsYou, blocking,
         joinedTeamAt, streamInfo, streamerInfo, channelInfo,
-        signal, playingGameMeta,
+        signal, playingGameMeta, canChallenge,
 
         unmapped
         ;
@@ -165,6 +167,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     Opt<String>  _playingGameId() { return property(playingGameId); }
     Opt<UserStatus.GameMeta>  _playingGameMeta() { return property(playingGameMeta, UserStatus.GameMeta.class); }
     Opt<Integer>  _signal() { return property(signal, Integer.class); }
+    Opt<Boolean> _canChallenge() { return propertyB(canChallenge); }
     Opt<Boolean> _tosViolation() { return propertyB(tosViolation); }
     Opt<Boolean> _disabled() { return propertyB(disabled); }
     Opt<Boolean> _verified() { return propertyB(verified); }
