@@ -18,6 +18,11 @@ public interface BroadcastsAuth extends Broadcasts {
     One<Round>     updateRound(String roundId, Consumer<RoundBuilder> params);
 
     /**
+     * Deletes all games in a round
+     */
+    One<Void>      resetRound(String roundId);
+
+    /**
      * Update your broadcast with new PGN. Only for broadcast without a source URL.<br>
      *
      * @param roundId The broadcast round ID (8 characters).

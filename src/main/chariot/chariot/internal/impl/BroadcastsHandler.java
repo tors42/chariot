@@ -158,6 +158,13 @@ public class BroadcastsHandler implements BroadcastsAuth {
     }
 
     @Override
+    public One<Void> resetRound(String roundId) {
+        return Endpoint.resetRound.newRequest(request -> request
+                .path(roundId))
+            .process(requestHandler);
+    }
+
+    @Override
     public Many<PushResult> pushPgnByRoundId(String roundId, String pgn) {
         return Endpoint.pushPGNbyRoundId.newRequest(request -> request
                 .path(roundId)

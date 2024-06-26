@@ -536,6 +536,10 @@ public sealed interface Endpoint<T> {
     public static EPOne<Broadcast.Round> updateRound =
         Endpoint.of(Broadcast.Round.class).endpoint("/broadcast/round/%s/edit").post(wwwform).scope(Scope.study_write).toOne();
 
+    public static EPOne<Void> resetRound =
+        Endpoint.of(Void.class).endpoint("/api/broadcast/round/%s/reset")
+        .post().scope(Scope.study_write).toOne();
+
     public static EPMany<LeaderboardEntry> broadcastLeaderboard =
         Endpoint.ofArr(LeaderboardEntry.class).endpoint("/broadcast/%s/leaderboard").toMany();
 
