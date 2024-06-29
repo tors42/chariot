@@ -4,8 +4,9 @@ public interface ProvidedProfile {
     Opt<String> flag();
     Opt<String> location();
     Opt<String> bio();
-    Opt<String> firstName();
-    Opt<String> lastName();
+    Opt<String> realName();
+    @Deprecated default Opt<String> firstName() { return realName(); }
+    @Deprecated default Opt<String> lastName()  { return realName(); }
     Opt<String> links();
     Opt<Integer> ratingFide();
     Opt<Integer> ratingUscf();

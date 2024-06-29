@@ -87,6 +87,7 @@ public interface UserAdapter {
                                               case "flag"       -> flag.of(profileYo.getString(profileEntry.getKey()));
                                               case "location"   -> location.of(profileYo.getString(profileEntry.getKey()));
                                               case "bio"        -> bio.of(profileYo.getString(profileEntry.getKey()));
+                                              case "realName"   -> realName.of(profileYo.getString(profileEntry.getKey()));
                                               case "firstName"  -> firstName.of(profileYo.getString(profileEntry.getKey()));
                                               case "lastName"   -> lastName.of(profileYo.getString(profileEntry.getKey()));
                                               case "links"      -> links.of(profileYo.getString(profileEntry.getKey()));
