@@ -178,6 +178,10 @@ public sealed interface Endpoint<T> {
         Endpoint.of(mapper(UserData.class).andThen(UserData::toTeamMember)).endpoint("/api/team/%s/users")
         .accept(jsonstream).scope(Scope.team_read).toMany();
 
+    public static EPMany<TeamMemberFull> teamUsersFullById =
+        Endpoint.of(mapper(UserData.class).andThen(UserData::toTeamMemberFull)).endpoint("/api/team/%s/users")
+        .accept(jsonstream).scope(Scope.team_read).toMany();
+
     public static EPOne<PageTeam> popularTeamsByPage =
         Endpoint.of(PageTeam.class).endpoint("/api/team/all").toOne();
 

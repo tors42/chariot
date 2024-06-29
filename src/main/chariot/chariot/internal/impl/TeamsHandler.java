@@ -33,7 +33,8 @@ public class TeamsHandler implements TeamsAuth {
     @Override
     public Many<TeamMember> usersByTeamId(String teamId) {
         var result = Endpoint.teamUsersById.newRequest(request -> request
-                .path(teamId))
+                .path(teamId)
+                )
             .process(requestHandler);
 
         if (! (result instanceof Entries<TeamMember> many)) return result;
@@ -41,6 +42,21 @@ public class TeamsHandler implements TeamsAuth {
         return Many.entries(many.stream()
                 .map(member -> new TeamMember(member.user(), teamId, member.joinedTeamAt())));
     }
+
+    @Override
+    public Many<TeamMemberFull> usersByTeamIdFull(String teamId) {
+        var result = Endpoint.teamUsersFullById.newRequest(request -> request
+                .path(teamId)
+                .query(Map.of("full", 1))
+                )
+            .process(requestHandler);
+
+        if (! (result instanceof Entries<TeamMemberFull> many)) return result;
+
+        return Many.entries(many.stream()
+                .map(member -> new TeamMemberFull(member.user(), teamId, member.joinedTeamAt())));
+    }
+
 
     @Override
     public One<PageTeam> popularTeamsByPage(int page) {

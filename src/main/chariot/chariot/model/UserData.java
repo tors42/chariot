@@ -96,8 +96,14 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     }
 
     public TeamMember toTeamMember() {
-        User user = toUser();
+        UserCommon user = toCommon();
         TeamMember member = new TeamMember(user, "", _joinedTeamAt().orElse(null));
+        return member;
+    }
+
+    public TeamMemberFull toTeamMemberFull() {
+        User user = toUser();
+        TeamMemberFull member = new TeamMemberFull(user, "", _joinedTeamAt().orElse(null));
         return member;
     }
 
