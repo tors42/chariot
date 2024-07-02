@@ -82,14 +82,12 @@ public interface UserAdapter {
                                            : UserPropertyEnum.unmapped.of(entry);
                 case "profile" -> {
                                       if (! (entry.getValue() instanceof YayObject profileYo)) yield UserPropertyEnum.unmapped.of(entry);
-                                      var map = profileYo.value().entrySet().stream()
+                                      var list = profileYo.value().entrySet().stream()
                                           .map(profileEntry -> switch(profileEntry.getKey()) {
                                               case "flag"       -> flag.of(profileYo.getString(profileEntry.getKey()));
                                               case "location"   -> location.of(profileYo.getString(profileEntry.getKey()));
                                               case "bio"        -> bio.of(profileYo.getString(profileEntry.getKey()));
                                               case "realName"   -> realName.of(profileYo.getString(profileEntry.getKey()));
-                                              case "firstName"  -> firstName.of(profileYo.getString(profileEntry.getKey()));
-                                              case "lastName"   -> lastName.of(profileYo.getString(profileEntry.getKey()));
                                               case "links"      -> links.of(profileYo.getString(profileEntry.getKey()));
                                               case "fideRating" -> ratingFide.of(profileYo.getInteger(profileEntry.getKey()));
                                               case "uscfRating" -> ratingUscf.of(profileYo.getInteger(profileEntry.getKey()));
@@ -97,9 +95,19 @@ public interface UserAdapter {
                                               case "rcfRating"  -> ratingRcf.of(profileYo.getInteger(profileEntry.getKey()));
                                               case "cfcRating"  -> ratingCfc.of(profileYo.getInteger(profileEntry.getKey()));
                                               case "dsbRating"  -> ratingDsb.of(profileYo.getInteger(profileEntry.getKey()));
-                                                  default           -> ProfilePropertyEnum.unmapped.of(profileEntry);
+                                              default           -> ProfilePropertyEnum.unmapped.of(profileEntry);
                                           })
-                                      .collect(Collectors.toUnmodifiableMap(Property::key, Property::value));
+                                      .toList();
+                                      var unmapped = list.stream()
+                                          .filter(p -> p.key() == ProfilePropertyEnum.unmapped)
+                                          .map(Property::value)
+                                          .toList();
+                                      if (! unmapped.isEmpty()) {
+                                          list = Stream.concat(list.stream().filter(p -> p.key() != ProfilePropertyEnum.unmapped),
+                                                               Stream.of(ProfilePropertyEnum.unmapped.of(unmapped)))
+                                              .toList();
+                                      }
+                                      var map = list.stream().collect(Collectors.toUnmodifiableMap(Property::key, Property::value));
                                       yield profile.of(new Provided(map.isEmpty() ? Map.of() : new EnumMap<>(map)));
                                   }
                 case "stream" -> entry.getValue() instanceof YayObject streamYo
@@ -117,7 +125,7 @@ public interface UserAdapter {
                                            yield channelInfo.of(new UserData.ChannelInfo(Collections.unmodifiableMap(map)));
                                        }
 
-                                       var map = streamerYo.value().entrySet().stream()
+                                       var list = streamerYo.value().entrySet().stream()
                                            .map(streamerEntry -> switch(streamerEntry.getKey()) {
                                                case "name"        -> StreamerInfoPropertyEnum.name.of(streamerYo.getString(streamerEntry.getKey()));
                                                case "headline"    -> headline.of(streamerYo.getString(streamerEntry.getKey()));
@@ -125,26 +133,32 @@ public interface UserAdapter {
                                                case "twitch"      -> twitch.of(streamerYo.getString(streamerEntry.getKey()));
                                                case "youTube"     -> youtube.of(streamerYo.getString(streamerEntry.getKey()));
                                                case "image"       -> image.of(streamerYo.getString(streamerEntry.getKey()));
-                                                   default            -> StreamerInfoPropertyEnum.unmapped.of(streamerEntry);
+                                               default            -> StreamerInfoPropertyEnum.unmapped.of(streamerEntry);
                                            })
-                                       .collect(Collectors.toUnmodifiableMap(Property::key, Property::value));
+                                       .toList();
+                                       var unmapped = list.stream()
+                                           .filter(p -> p.key() == StreamerInfoPropertyEnum.unmapped)
+                                           .map(Property::value)
+                                           .toList();
+                                       if (! unmapped.isEmpty()) {
+                                           list = Stream.concat(list.stream().filter(p -> p.key() != StreamerInfoPropertyEnum.unmapped),
+                                                                Stream.of(StreamerInfoPropertyEnum.unmapped.of(unmapped)))
+                                               .toList();
+                                       }
+                                       var map = list.stream().collect(Collectors.toUnmodifiableMap(Property::key, Property::value));
                                        yield streamerInfo.of(new UserData.StreamerInfo(map));
                                    }
                 default -> UserPropertyEnum.unmapped.of(entry);
             })
         .toList();
 
-        var allUnmapped = mappedUserProperties.stream()
+        var unmapped = mappedUserProperties.stream()
             .filter(p -> p.key() == UserPropertyEnum.unmapped)
+            .map(Property::value)
             .toList();
-
-        if (! allUnmapped.isEmpty()) {
-            // Merge all unmapped value into single unmapped List(values)
-            mappedUserProperties = Stream.concat(mappedUserProperties.stream()
-                    .filter(p -> ! p.key().equals(UserPropertyEnum.unmapped)),
-                    Stream.of(UserPropertyEnum.unmapped.of(allUnmapped.stream()
-                            .map(Property::value).toList()))
-                    )
+        if (! unmapped.isEmpty()) {
+            mappedUserProperties = Stream.concat(mappedUserProperties.stream().filter(p -> p.key() != UserPropertyEnum.unmapped),
+                    Stream.of(UserPropertyEnum.unmapped.of(unmapped)))
                 .toList();
         }
         var map = mappedUserProperties.stream().collect(Collectors.toUnmodifiableMap(Property::key, Property::value));
