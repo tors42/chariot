@@ -125,7 +125,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     }
 
     public enum ProfilePropertyEnum {
-        flag, location, bio, realName, firstName, lastName, links,
+        flag, location, bio, realName, links,
         ratingFide, ratingUscf, ratingEcf, ratingRcf, ratingCfc, ratingDsb,
         unmapped,
         ;
@@ -220,8 +220,8 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
         public Opt<String> location() { return property(location); }
         public Opt<String> bio() { return property(bio); }
         public Opt<String> realName() { return property(realName); }
-        @Deprecated public Opt<String> firstName() { return property(firstName); }
-        @Deprecated public Opt<String> lastName() { return property(lastName); }
+        @Deprecated public Opt<String> firstName() { return property(realName); }
+        @Deprecated public Opt<String> lastName() { return property(realName); }
         public Opt<String> links() { return property(links); }
         public Opt<Integer> ratingFide() { return propertyI(ratingFide); }
         public Opt<Integer> ratingUscf() { return propertyI(ratingUscf); }
