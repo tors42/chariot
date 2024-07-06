@@ -217,4 +217,16 @@ public class GamesHandler implements GamesAuth {
         return Endpoint.gamesImportedPgn.newRequest(request -> {})
             .process(requestHandler);
     }
+
+    @Override
+    public Many<Game> byBulkId(String bulkId, Consumer<GameParams> params) {
+        return Endpoint.bulkPairingGamesByBulkId.newRequest(paramsConsumerByIdGameParams(bulkId, params))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<Pgn> pgnByBulkId(String bulkId, Consumer<GameParams> params) {
+        return Endpoint.bulkPairingGamesByBulkIdPgn.newRequest(paramsConsumerByIdGameParams(bulkId, params))
+            .process(requestHandler);
+     }
 }

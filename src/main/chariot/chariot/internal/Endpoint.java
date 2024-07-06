@@ -427,6 +427,16 @@ public sealed interface Endpoint<T> {
     public static EPOne<Void> bulkPairingCancel =
         Endpoint.of(Void.class).endpoint("/api/bulk-pairing/%s").delete().scope(Scope.challenge_bulk).toOne();
 
+    public static EPMany<Game> bulkPairingGamesByBulkId =
+        Endpoint.of(Game.class).endpoint("/api/bulk-pairing/%s/games").accept(jsonstream).scope(Scope.challenge_bulk).toMany();
+
+    public static EPMany<Pgn> bulkPairingGamesByBulkIdPgn =
+        Endpoint.of(Pgn.class).endpoint("/api/bulk-pairing/%s/games")
+        .streamMapper(Util::toPgnStream)
+        .accept(chesspgn).scope(Scope.challenge_bulk).toMany();
+
+
+
     public static EPOne<PendingChallenges> challenges =
         Endpoint.of(PendingChallenges.class).endpoint("/api/challenge").scope(Scope.challenge_read).toOne();
 

@@ -1,5 +1,7 @@
 package chariot.api;
 
+import java.util.function.Consumer;
+
 import chariot.model.*;
 
 public interface GamesAuth extends Games {
@@ -17,4 +19,14 @@ public interface GamesAuth extends Games {
      * Download all games imported by you.
      */
     Many<Pgn> imported();
+
+    /// Download games of a bulk
+    Many<Game> byBulkId(String bulkId, Consumer<GameParams> params);
+    /// Download games of a bulk
+    default Many<Game> byBulkId(String bulkId) { return byBulkId(bulkId, __ -> {}); }
+
+    /// Download games of a bulk
+    Many<Pgn> pgnByBulkId(String bulkId, Consumer<GameParams> params);
+    /// Download games of a bulk
+    default Many<Pgn> pgnByBulkId(String bulkId) { return pgnByBulkId(bulkId, __ -> {}); }
 }
