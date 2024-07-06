@@ -171,6 +171,7 @@ client.broadcasts().create()
 client.broadcasts().update()
 client.broadcasts().createRound()
 client.broadcasts().updateRound()
+client.broadcasts().resetRound()
 client.broadcasts().pushPgnByRoundId()
 client.broadcasts().myRounds()
 
@@ -199,6 +200,7 @@ client.externalEngine().delete()
 
 client.games().ongoing()
 client.games().imported()
+client.games().byBulkId()
 
 client.puzzles().activity()
 client.puzzles().createAndJoinRace()
