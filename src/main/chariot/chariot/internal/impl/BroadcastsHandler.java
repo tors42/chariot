@@ -84,9 +84,8 @@ public class BroadcastsHandler implements BroadcastsAuth {
     }
 
     @Override
-    public One<Broadcast> broadcastById(String tourId,Consumer<BroadcastParameters> params) {
+    public One<Broadcast> broadcastById(String tourId) {
         return Endpoint.broadcastById.newRequest(request -> request
-                .query(MapBuilder.of(BroadcastParameters.class).toMap(params))
                 .path(tourId))
             .process(requestHandler);
     }
@@ -181,8 +180,10 @@ public class BroadcastsHandler implements BroadcastsAuth {
 
     private Map<String, Object> broadastBuilderToMap(Consumer<BroadcastBuilder> consumer) {
         return MapBuilder.of(BroadcastBuilder.class)
-                    .rename("shortDescription", "description")
-                    .rename("longDescription", "markdown")
+                    .rename("markup", "markdown") // wazzup?
+                    .rename("infoTimeControl", "info.tc")
+                    .rename("infoTournamentFormat", "info.format")
+                    .rename("infoFeaturedPlayers", "info.players")
                     .toMap(consumer);
     }
 }
