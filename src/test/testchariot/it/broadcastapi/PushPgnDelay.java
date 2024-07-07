@@ -103,7 +103,6 @@ public class PushPgnDelay {
     Broadcast createBroadcast() {
         return client.broadcasts().create(params -> params
             .name("Broadcast")
-            .shortDescription("A broadcast for PushPgnDelay test")
-            .longDescription("Testing PushPgnDelay")).get();
+            .markup("Testing PushPgnDelay")).get();
     }
 }

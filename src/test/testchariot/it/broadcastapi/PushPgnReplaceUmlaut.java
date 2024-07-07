@@ -80,8 +80,7 @@ public class PushPgnReplaceUmlaut {
     Broadcast createBroadcast(String replacement) {
         return client.broadcasts().create(params -> params
             .name("Broadcast")
-            .shortDescription("A broadcast for replacement")
-            .longDescription("Testing out replacements")
+            .markup("Testing out replacements umlaut")
             .players(replacement)).get();
     }
 }

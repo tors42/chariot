@@ -285,8 +285,7 @@ public class PushAndSyncPgn {
 
         Consumer<BroadcastBuilder> params = bb -> bb
             .name("Broadcast " + suffix)
-            .shortDescription("A broadcast " + suffix)
-            .longDescription("Testing out replacements and this is " + suffix);
+            .markup("Testing out replacements and this is " + suffix);
 
         if (! replacements.isEmpty()) {
             params = params.andThen(bb -> bb
