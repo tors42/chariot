@@ -22,6 +22,8 @@ public class Main {
     public static final URI itApi() { return api; }
 
     private final static boolean includeLongRunningTests = System.getenv("IT_LONG") instanceof String;
+    private final static String singleClass = System.getenv("ONLY") instanceof String testClass ? testClass : null;
+
 
     public static void main(String[] args) throws Exception {
 
@@ -32,6 +34,10 @@ public class Main {
                     .getAnnotation(IntegrationTest.class) instanceof IntegrationTest it
                     && it.expectedSeconds() > 3);
 
+        if (singleClass != null && !singleClass.isBlank()) {
+            System.out.println("Running single class: " + singleClass);
+            skipTestMethod = skipTestMethod.or(method -> ! method.getDeclaringClass().getSimpleName().equals(singleClass));
+        }
 
         var testType = Arrays.stream(args).anyMatch("it"::equals)
             ? IntegrationTest.class
@@ -50,7 +56,7 @@ public class Main {
                 .map(m -> t.instance().getClass().getName() + "#" + m.getName()))
             .toList();
         if (! skippedTests.isEmpty()) {
-            System.out.println("Skipping " + skippedTests.size() + " tests, define environment variable IT_LONG to not skip");
+            System.out.println("Skipping " + skippedTests.size() + " tests");
             //skippedTests.forEach(System.out::println);
         }
 
