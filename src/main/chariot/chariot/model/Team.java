@@ -10,5 +10,6 @@ public record Team (
         Integer nbMembers,
         boolean joined,
         boolean requested,
+        Opt<String> flair,
         Opt<String> descriptionPrivate
         )  {}
