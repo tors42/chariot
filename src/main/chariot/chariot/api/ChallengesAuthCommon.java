@@ -99,7 +99,7 @@ public interface ChallengesAuthCommon {
          */
         ChallengeAIParams color(ColorPref color);
         default ChallengeAIParams color(Function<ColorPref.Provider, ColorPref> color) { return color(color.apply(ColorPref.provider())); }
-
+        default ChallengeAIParams color(Color color) { return color(color.asPref()); }
 
         ChallengeAIParams variant(VariantName variant);
         default ChallengeAIParams variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); };
