@@ -88,6 +88,10 @@ public interface ChallengesAuthCommon {
          */
         ChallengeAIParams level(Level level);
         default ChallengeAIParams level(Function<Level.Provider, Level> level) { return level(level.apply(Level.provider())); }
+        /**
+         * @param level AI strength, from 1 to 8. Any other value will result in level 1 or 8.
+         */
+        default ChallengeAIParams level(int level) { return level(Level.valueOf("_"+Math.clamp(level, 1, 8))); }
 
         /**
          * @param color Which color you get to play,
