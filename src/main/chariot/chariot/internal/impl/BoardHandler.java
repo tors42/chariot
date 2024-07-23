@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 import chariot.Client.Scope;
 import chariot.api.*;
 import chariot.model.*;
-import chariot.model.Enums.*;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 
