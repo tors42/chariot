@@ -127,7 +127,7 @@ public class BoardHandler extends ChallengesAuthCommonImpl implements BoardAuth 
             @Override
             public SeekParams clock(float initialMinutes, int incrementSeconds) {
                 return builder
-                    .add("time", (int)initialMinutes)
+                    .add("time", initialMinutes)
                     .add("increment", incrementSeconds)
                     .proxy();
             }
