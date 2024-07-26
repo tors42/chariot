@@ -259,6 +259,13 @@ public interface Games {
          */
         GameParams literate(boolean literate);
         default GameParams literate() { return literate(true); }
+
+        /**
+         * Include `bookmarked` (if authenticated)
+         * Default `false`
+         */
+        GameParams withBookmarked(boolean withBookmarked);
+        default GameParams withBookmarked() { return withBookmarked(true); }
     }
 
     interface SearchFilter extends CommonGameParameters<SearchFilter>, EvalsAndPlayers<SearchFilter> {
@@ -364,6 +371,13 @@ public interface Games {
          */
         SearchFilter lastFen(boolean lastFen);
         default SearchFilter lastFen() { return lastFen(true); }
+
+        /**
+         * Include `bookmarked` (if authenticated)
+         * Default `false`
+         */
+        SearchFilter withBookmarked(boolean withBookmarked);
+        default SearchFilter withBookmarked() { return withBookmarked(true); }
 
         private static long zdtToMillis(ZonedDateTime zdt) { return zdt.toInstant().getEpochSecond() * 1000; }
     }

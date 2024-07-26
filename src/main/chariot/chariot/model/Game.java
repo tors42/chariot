@@ -31,7 +31,8 @@ public record Game (
     Clock clock,
     List<Integer> clocks,
     List<AnalysisEntry> analysis,
-    Opt<Division> division
+    Opt<Division> division,
+    Opt<Boolean> bookmarked
     )  {
     public Game {
         moves = orEmpty(moves);
