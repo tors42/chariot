@@ -160,7 +160,7 @@ public interface BoardAuth extends ChallengesAuthCommon {
     One<Void> berserk(String gameId);
 
 
-    interface SeekRealTimeBuilder extends ClockMinute<SeekParams> {}
+    interface SeekRealTimeBuilder extends ClockSeek<SeekParams> {}
     interface SeekCorrespondenceBuilder extends ClockCorrespondence<SeekParams> {}
 
     interface SeekParams {

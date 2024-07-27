@@ -124,7 +124,7 @@ public class BoardHandler extends ChallengesAuthCommonImpl implements BoardAuth 
         var builder = MapBuilder.of(SeekParams.class);
         var seekBuilder = new SeekRealTimeBuilder() {
             @Override
-            public SeekParams clock(float initialMinutes, int incrementSeconds) {
+            public SeekParams clock(int initialMinutes, int incrementSeconds) {
                 return builder
                     .add("time", initialMinutes)
                     .add("increment", incrementSeconds)

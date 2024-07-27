@@ -57,6 +57,21 @@ public interface Builders {
         default T clockClassical30m20s() { return clock(30.0f, 20); }
     }
 
+    interface ClockSeek<T> {
+        /**
+         * @param initial Initial time on clock, in minutes. At least 8 minutes.
+         * @param increment Increment added to clock after each move, in seconds<br>
+         * [ 0, 1, 2, 3, 4, 5, 6, 7, 10, 15, 20, 25, 30, 40, 50, 60 ]
+        */
+        T clock(int initial, int increment);
+
+        default T clockRapid10m0s()      { return clock(10,  0); }
+        default T clockRapid10m5s()      { return clock(10,  5); }
+        default T clockRapid15m10s()     { return clock(15, 10); }
+        default T clockClassical30m0s()  { return clock(30,  0); }
+        default T clockClassical30m20s() { return clock(30, 20); }
+    }
+
     interface ConfigBuilder {
         /**
          * Lichess<br/>
