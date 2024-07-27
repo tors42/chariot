@@ -43,7 +43,7 @@ class AccountAuth {
     static void profile() {
         // @start region="profile"
         UserAuth result = client.account().profile().maybe().orElseThrow();
-        String message = STR."Token owner \{result.id()} \{result.patron() ? "is a patron" : "is not a patron"}";
+        String message = "Token owner %s %s".formatted(result.id(), result.patron() ? "is a patron" : "is not a patron");
         System.out.println(message); // @replace regex='.*' replacement=''
         // @end region="profile"
     }
@@ -61,21 +61,21 @@ class AccountAuth {
 
         for (var entry : timeline) {
             String message = switch(entry) {
-                case Follow(var user, var otherUser, _)      -> STR."\{user.name()} follows \{otherUser.name()}";
-                case TeamJoin(var user, var teamId, _)       -> STR."\{user.name()} joined team \{teamId}";
-                case TeamCreate(var user, var teamId, _)     -> STR."\{user.name()} created team \{teamId}";
-                case ForumPost(var user, _, var name, _, _)  -> STR."\{user.name()} posted in topic '\{name}'";
-                case UblogPost(var user, _, _, var name, _)  -> STR."\{user.name()} posted blog '\{name}'";
-                case TourJoin(var user, _, var name, _)      -> STR."\{user.name()} joined tournament '\{name}'";
-                case GameEnd(var fullId, _, _, _, _)         -> STR."Game \{fullId} ended";
-                case SimulCreate(var user, _, var name, _)   -> STR."\{user.name()} created simul '\{name}'";
-                case SimulJoin(var user, _, var name, _)     -> STR."\{user.name()} joined simul '\{name}'";
-                case StudyLike(var user, _, var name, _)     -> STR."\{user.name()} liked study '\{name}'";
-                case PlanStart(var user, _)                  -> STR."\{user.name()} became patron}";
-                case PlanRenew(var user, int months, _)      -> STR."\{user.name()} patron for \{months} months";
-                case BlogPost(_, _, var name, _)             -> STR."New blog \{name}";
-                case UblogPostLike(var user, _, var name, _) -> STR."\{user.name()} liked blog '\{name}'";
-                case StreamStart(var user, var name, _)      -> STR."\{user.name()} started stream '\{name}'";
+                case Follow(var user, var otherUser, _)      -> "%s follows %s".formatted(user.name(), otherUser.name());
+                case TeamJoin(var user, var teamId, _)       -> "%s joined team %s".formatted(user.name(), teamId);
+                case TeamCreate(var user, var teamId, _)     -> "%s created team %s".formatted(user.name(), teamId);
+                case ForumPost(var user, _, var name, _, _)  -> "%s posted in topic '%s'".formatted(user.name(), name);
+                case UblogPost(var user, _, _, var name, _)  -> "%s posted blog '%s'".formatted(user.name(), name);
+                case TourJoin(var user, _, var name, _)      -> "%s joined tournament '%s'".formatted(user.name(), name);
+                case GameEnd(var fullId, _, _, _, _)         -> "Game %s ended".formatted(fullId);
+                case SimulCreate(var user, _, var name, _)   -> "%s created simul '%s'".formatted(user.name(), name);
+                case SimulJoin(var user, _, var name, _)     -> "%s joined simul '%s'".formatted(user.name(), name);
+                case StudyLike(var user, _, var name, _)     -> "%s liked study '%s'".formatted(user.name(), name);
+                case PlanStart(var user, _)                  -> "%s became patron".formatted(user.name());
+                case PlanRenew(var user, int months, _)      -> "%s patron for %d months".formatted(user.name(), months);
+                case BlogPost(_, _, var name, _)             -> "New blog %s".formatted(name);
+                case UblogPostLike(var user, _, var name, _) -> "%s liked blog '%s'".formatted(user.name(), name);
+                case StreamStart(var user, var name, _)      -> "%s started stream '%s'".formatted(user.name(), name);
             };
             System.out.println(message);
         }

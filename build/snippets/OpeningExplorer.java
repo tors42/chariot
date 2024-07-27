@@ -44,23 +44,23 @@ class OpeningExplorer {
         ExploreResult.OpeningDB result = client.openingExplorer().masters(params -> params
                 .play("e2e4,d7d6,d2d4,e7e5")
                 ).maybe().orElseThrow();
-        String opening = result.opening().map(o -> STR."ECO \{o.eco()} - \{o.name()}").orElse("No matching opening");
+        String opening = result.opening().map(o -> "ECO %s - %s".formatted(o.eco(), o.name())).orElse("No matching opening");
         // ECO B07 - King's Pawn Game: Maróczy Defense
-        System.out.println(STR."Opening: \{opening}"); // @replace regex='.*' replacement=''
+        System.out.println("Opening: %s".formatted(opening)); // @replace regex='.*' replacement=''
         long numGames = result.white() + result.draws() + result.black();
         // 534
-        System.out.println(STR."Number or games: \{numGames}"); // @replace regex='.*' replacement=''
+        System.out.println("Number or games: %s".formatted(numGames)); // @replace regex='.*' replacement=''
         String topThreeMoves = String.join("\n", result.moves().stream()
                 .limit(3)
-                .map(move -> STR."\{move.san()}: White win count \{move.white()} - Draw count \{move.draws()} - Black win count \{move.black()}")
+                .map(move -> "%s: White win count %d - Draw count %d - Black win count %d".formatted(move.san(), move.white(), move.draws(), move.black()))
                 .toList());
         // Nf3: White win count 192 - Draw count 108 - Black win count: 63
         // dxe5: White win count 42 - Draw count 56 - Black win count: 28
         // Ne2: White win count 5 - Draw count 5 - Black win count: 3
-        System.out.println(STR."Top 3 moves: \{topThreeMoves}"); // @replace regex='.*' replacement=''
+        System.out.println("Top 3 moves: %s".formatted(topThreeMoves)); // @replace regex='.*' replacement=''
         String topGameId = result.topGames().getFirst().id();
         // p1lHx7rU
-        System.out.println(STR."Top game id: \{topGameId}"); // @replace regex='.*' replacement=''
+        System.out.println("Top game id: %s".formatted(topGameId)); // @replace regex='.*' replacement=''
         // @end region="masters"
     }
 
@@ -70,24 +70,24 @@ class OpeningExplorer {
                 .play("e2e4,d7d6,d2d4,e7e5")
                 ).maybe().orElseThrow();
 
-        String opening = result.opening().map(o -> STR."ECO \{o.eco()} - \{o.name()}").orElse("No matching opening");
+        String opening = result.opening().map(o -> "ECO %s - %s".formatted(o.eco(), o.name())).orElse("No matching opening");
         // ECO B07 - King's Pawn Game: Maróczy Defense
-        System.out.println(STR."Opening: \{opening}"); // @replace regex='.*' replacement=''
+        System.out.println("Opening: %s".formatted(opening)); // @replace regex='.*' replacement=''
         long numGames = result.white() + result.draws() + result.black();
         // 10848227
-        System.out.println(STR."Number or games: \{numGames}"); // @replace regex='.*' replacement=''
+        System.out.println("Number or games: %d".formatted(numGames)); // @replace regex='.*' replacement=''
         String topThreeMoves = String.join("\n",
                 result.moves().stream()
                 .limit(3)
-                .map(move -> STR."\{move.san()}: White win count \{move.white()} - Draw count \{move.draws()} - Black win count \{move.black()}")
+                .map(move -> "%s: White win count %d - Draw count %d - Black win count %d".formatted(move.san(), move.white(), move.draws(), move.black()))
                 .toList());
         // dxe5: White win count 2675681 - Draw count 292613 - Black win count 2175418
         // d5: White win count 1289065 - Draw count 90856 - Black win count 1169944
         // Nf3: White win count 785463 - Draw count 57343 - Black win count 620240
-        System.out.println(STR."Top 3 moves: \{topThreeMoves}"); // @replace regex='.*' replacement=''
+        System.out.println("Top 3 moves: %s".formatted(topThreeMoves)); // @replace regex='.*' replacement=''
         String topGameId = result.topGames().getFirst().id();
         // g8xbSjJp
-        System.out.println(STR."Top game id: \{topGameId}"); // @replace regex='.*' replacement=''
+        System.out.println("Top game id: %s".formatted(topGameId)); // @replace regex='.*' replacement=''
         // @end region="lichess"
     }
 
@@ -97,24 +97,24 @@ class OpeningExplorer {
                 .play("e2e4,d7d6,d2d4,e7e5")
                 ).maybe().orElseThrow();
 
-        String opening = result.opening().map(o -> STR."ECO \{o.eco()} - \{o.name()}").orElse("No matching opening");
+        String opening = result.opening().map(o -> "ECO %s - %s".formatted(o.eco(), o.name())).orElse("No matching opening");
         // ECO B07 - King's Pawn Game: Maróczy Defense
-        System.out.println(STR."Opening: \{opening}"); // @replace regex='.*' replacement=''
+        System.out.println("Opening: %s".formatted(opening)); // @replace regex='.*' replacement=''
         long numGames = result.white() + result.draws() + result.black();
         // 93
-        System.out.println(STR."Number or games: \{numGames}"); // @replace regex='.*' replacement=''
+        System.out.println("Number or games: %d".formatted(numGames)); // @replace regex='.*' replacement=''
         String topThreeMoves = String.join("\n",
                 result.moves().stream()
                 .limit(3)
-                .map(move -> STR."\{move.san()}: White win count \{move.white()} - Draw count \{move.draws()} - Black win count \{move.black()}")
+                .map(move -> "%s: White win count %d - Draw count %d - Black win count %d".formatted(move.san(), move.white(), move.draws(), move.black()))
                 .toList());
         // Ne2: White win count 54 - Draw count 3 - Black win count 3
         // Nf3: White win count 16 - Draw count 1 - Black win count 2
         // dxe5: White win count 5 - Draw count 3 - Black win count 2
-        System.out.println(STR."Top 3 moves: \{topThreeMoves}"); // @replace regex='.*' replacement=''
+        System.out.println("Top 3 moves: %s".formatted(topThreeMoves)); // @replace regex='.*' replacement=''
         String recentGameId = result.recentGames().getFirst().id();
         // XS9UwMx2
-        System.out.println(STR."Recent game id: \{recentGameId}"); // @replace regex='.*' replacement=''
+        System.out.println("Recent game id: %s".formatted(recentGameId)); // @replace regex='.*' replacement=''
         // @end region="player"
     }
 
