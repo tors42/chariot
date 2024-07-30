@@ -45,16 +45,13 @@ public class TokenHandler {
             tr.entry() : new TokenResult.Error("Unknown Error", "Unknown");
     }
 
-    public Set<Scope> scopes(Supplier<char[]> token) {
-        var scopes = client.fetchScopes(Endpoint.accountProfile.endpoint(), token);
-        return scopes;
+    public Many<Scope> scopes(Supplier<char[]> token) {
+        return client.fetchScopes(Endpoint.accountProfile.endpoint(), token);
     }
 
-    public Set<Scope> scopes() {
-        var scopes = client.fetchScopes(Endpoint.accountProfile.endpoint());
-        return scopes;
+    public Many<Scope> scopes() {
+        return client.fetchScopes(Endpoint.accountProfile.endpoint());
     }
-
 
     public One<TokenBulkResult> testTokens(Set<String> tokens) {
         return Endpoint.apiTokenBulkTest.newRequest(request -> request

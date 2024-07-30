@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.stream.*;
 
 import chariot.Client.Scope;
+import chariot.model.*;
 
 public class InternalClient {
 
@@ -223,29 +224,30 @@ public class InternalClient {
         }
     }
 
-    public Set<Scope> fetchScopes(String endpointPath) {
+    public Many<Scope> fetchScopes(String endpointPath) {
         return config instanceof Config.Auth auth ?
-            fetchScopes(endpointPath, auth.token()) : Set.of();
+            fetchScopes(endpointPath, auth.token()) : Many.fail(-1, Err.from("No token"));
     }
 
-    public Set<Scope> fetchScopes(String endpointPath, Supplier<char[]> tokenSupplier) {
-        var headers = fetchHeaders(endpointPath, tokenSupplier);
-        if (headers == null) return Set.of();
-
-        return headers.allValues("x-oauth-scopes").stream()
-            .flatMap(s -> Arrays.stream(s.split(",")))
-            .map(String::trim)
-            .map(s -> Scope.fromString(s))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toSet());
+    public Many<Scope> fetchScopes(String endpointPath, Supplier<char[]> tokenSupplier) {
+        return switch(fetchHeaders(endpointPath, tokenSupplier)) {
+            case Entry(var headers) -> Many.entries(
+                    headers.allValues("x-oauth-scopes").stream()
+                        .flatMap(s -> Arrays.stream(s.split(",")))
+                        .map(String::trim)
+                        .map(s -> Scope.fromString(s))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get));
+            case Fail(int s, Err err) -> Many.fail(s, err);
+            case None() -> Many.entries(Stream.of());
+        };
     }
 
-    public HttpHeaders fetchHeaders(String endpointPath) {
+    public One<HttpHeaders> fetchHeaders(String endpointPath) {
         return fetchHeaders(headBuilder(endpointPath));
     }
 
-    public HttpHeaders fetchHeaders(String endpointPath, Supplier<char[]> tokenSupplier) {
+    public One<HttpHeaders> fetchHeaders(String endpointPath, Supplier<char[]> tokenSupplier) {
         return fetchHeaders(headBuilder(endpointPath)
                 .header("authorization", "Bearer " + new String(tokenSupplier.get())));
     }
@@ -258,7 +260,7 @@ public class InternalClient {
         return builder;
     }
 
-    public HttpHeaders fetchHeaders(HttpRequest.Builder builder) {
+    public One<HttpHeaders> fetchHeaders(HttpRequest.Builder builder) {
         var httpRequest = builder.build();
 
         HttpResponse<Void> response;
@@ -266,7 +268,7 @@ public class InternalClient {
             response = sendWithRetry(false, httpRequest, BodyHandlers.discarding(), config().retries());
         } catch (Exception e) {
             config.logging().request().log(Level.SEVERE, "%s".formatted(httpRequest), e);
-            return null;
+            return One.fail(-1, Err.from(e.getMessage()));
         }
 
         var statusCode = response.statusCode();
@@ -280,10 +282,10 @@ public class InternalClient {
 
         if (statusCode >= 200 && statusCode <= 299) {
             config.logging().auth().info(log);
-            return response.headers();
+            return One.entry(response.headers());
         } else {
             config.logging().response().warning(log);
-            return null;
+            return One.fail(statusCode, Err.from(""));
         }
     }
 

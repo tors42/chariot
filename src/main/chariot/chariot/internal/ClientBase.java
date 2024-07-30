@@ -192,16 +192,19 @@ public abstract class ClientBase {
     }
 
     /**
-     * Read which scopes are available with a token
-     * @param token
+     * Fetch which scopes are available with token
      */
-    public Set<Scope> scopes(Supplier<char[]> token) {
+    public Many<Scope> scopes(Supplier<char[]> token) {
         return tokenHandler.scopes(token);
     }
+
+    /**
+     * Fetch which scopes are available with token
+     */
+    public Many<Scope> scopes(String token) { return scopes(() -> token.toCharArray()); }
+
     public TokenResult token(Map<String, String> parameters) {
         return tokenHandler.token(parameters);
     }
     public One<TokenBulkResult> testTokens(String... tokens) { return testTokens(Set.of(tokens)); }
-    public Set<Scope> scopes(String token) { return scopes(() -> token.toCharArray()); }
-
 }

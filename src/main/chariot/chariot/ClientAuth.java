@@ -1,6 +1,5 @@
 package chariot;
 
-import java.util.Collection;
 import java.util.prefs.Preferences;
 
 import chariot.api.*;
@@ -136,16 +135,16 @@ public class ClientAuth extends Client {
     /** {@inheritDoc} */ @Override public Custom custom() { return super.custom(); }
 
 
-
     /**
-     * Read which scopes are available with current token
+     * Fetch which scopes are available with current token.<br>
+     * Note, a token can be revoked externally by user at any time.
      */
-    public Collection<Scope> scopes() { return tokenHandler.scopes(); }
+    public Many<Scope> scopes() { return tokenHandler.scopes(); }
+
     /**
      * Revokes the access token sent as Bearer for this request.
      */
     public One<Void> revokeToken() { return tokenHandler.revokeToken(); }
-
 
     /**
      * Clears client token information from preferences.<br>

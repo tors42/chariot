@@ -49,13 +49,15 @@ public class StudiesHandler implements StudiesAuth {
 
     @Override
     public One<ZonedDateTime> lastModifiedByStudyId(String studyId) {
-        var headers = client.fetchHeaders(Endpoint.lastModifiedStudy.endpoint().formatted(studyId));
-        if (headers == null) return One.fail(404, Err.from("Maybe 404"));
-        return headers.allValues("Last-Modified").stream()
-            .map(rfc_1123 -> ZonedDateTime.parse(rfc_1123, DateTimeFormatter.RFC_1123_DATE_TIME))
-            .map(One::entry)
-            .findFirst()
-            .orElse(One.fail(404, Err.from("Maybe 404")));
+        return switch(client.fetchHeaders(Endpoint.lastModifiedStudy.endpoint().formatted(studyId))) {
+            case Entry(var headers) -> headers.allValues("Last-Modified").stream()
+                .map(rfc_1123 -> ZonedDateTime.parse(rfc_1123, DateTimeFormatter.RFC_1123_DATE_TIME))
+                .map(One::entry)
+                .findFirst()
+                .orElse(One.none());
+            case Fail(int status, Err err) -> One.fail(status, err);
+            case None() -> One.none();
+        };
     }
 
     @Override
