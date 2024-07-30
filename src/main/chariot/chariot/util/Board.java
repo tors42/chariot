@@ -1062,11 +1062,16 @@ public sealed interface Board {
 
         default String uci() {
             return switch(this) {
-                case FromTo fromTo       -> uci(fromTo.from(), fromTo.to());
-                case Castling castling   -> uci(castling.king().from(), castling.king().to());
-                case Promotion promotion -> uci(promotion.pawn().from(), promotion.pawn().to())
-                                            + Character.toLowerCase(promotion.piece().toChar());
-                case Invalid invalid     -> invalid.info();
+                case FromTo(var from, var to)
+                    -> uci(from, to);
+                case Castling(var king, var __) when king.from().col() == 4
+                    -> uci(king.from(), king.to()); // standard
+                case Castling(var king, var rook)
+                    -> uci(king.from(), rook.from()); // chess960
+                case Promotion(FromTo(var from, var to), var piece)
+                    -> uci(from, to) + Character.toLowerCase(piece.toChar());
+                case Invalid invalid
+                    -> invalid.info();
             };
         }
 
