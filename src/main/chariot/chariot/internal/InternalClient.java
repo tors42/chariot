@@ -36,7 +36,7 @@ public class InternalClient {
     private final Lock throttleLock = new ReentrantLock();
 
     private final HttpClient httpClient = HttpClient.newBuilder()
-        .version(Version.HTTP_2)
+        .version(Version.HTTP_3)
         .connectTimeout(Duration.ofSeconds(5))
         .followRedirects(Redirect.NORMAL)
         .build();
