@@ -4,7 +4,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import chariot.model.Enums.*;
-import static chariot.internal.Util.orEmpty;
 
 public record Game (
     String id,
@@ -18,31 +17,21 @@ public record Game (
     Status status,
     Players players,
 
-    // Optional...
-    String moves,
-    String initialFen,
-    String lastFen,
-    String pgn,
-    String tournament,
-    String swiss,
-    Integer daysPerTurn,
-    Color winner,
-    Opening opening,
-    Clock clock,
+    Opt<String> moves,
+    Opt<String> initialFen,
+    Opt<String> lastFen,
+    Opt<String> pgn,
+    Opt<String> tournament,
+    Opt<String> swiss,
+    Opt<Integer> daysPerTurn,
+    Opt<Color> winner,
+    Opt<Opening> opening,
+    Opt<Clock> clock,
     List<Integer> clocks,
     List<AnalysisEntry> analysis,
     Opt<Division> division,
     Opt<Boolean> bookmarked
     )  {
-    public Game {
-        moves = orEmpty(moves);
-        initialFen = orEmpty(initialFen);
-        lastFen = orEmpty(lastFen);
-        pgn = orEmpty(pgn);
-        tournament = orEmpty(tournament);
-        swiss = orEmpty(swiss);
-        daysPerTurn = daysPerTurn == null ? 0 : daysPerTurn;
-    }
 
     public record Players (Player white, Player black) { }
 
