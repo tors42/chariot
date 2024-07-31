@@ -21,7 +21,6 @@ public class TestGameExport {
 
         String gameId = "q7ZvsdUF";
 
-
         // prepare expected response
         var expected = One.entry(
                 new Game("q7ZvsdUF", true, GameVariant.standard, "blitz", "blitz", "pool",
@@ -32,12 +31,13 @@ public class TestGameExport {
                         Player.account(new LightUser("lance5500", Opt.of("LM"), "Lance5500", true, Opt.empty()), 2389, false, 4),
                         Player.account(new LightUser("tryinghard87", Opt.empty(), "TryingHard87", false, Opt.empty()), 2498, false, -4)
                         ),
-                    "",
-                    "", "", "",
-                    "winter17",
-                    "", 0, null,
-                    null,
-                    new Game.Clock(300, 3, 420),
+                    Opt.empty(),
+                    Opt.empty(), Opt.empty(), Opt.empty(),
+                    Opt.of("winter17"),
+                    Opt.empty(), Opt.empty(),
+                    Opt.empty(),
+                    Opt.empty(),
+                    Opt.of(new Game.Clock(300, 3, 420)),
                     List.of(),
                     List.of(),
                     Opt.empty(),
