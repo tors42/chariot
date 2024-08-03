@@ -84,7 +84,7 @@ public class Play960 {
             .orElse(One.none());
 
         unboxEquals(game, gameId, Game::id);
-        unboxEquals(game, Color.black, Game::winner);
+        unboxEquals(game, Opt.of(Color.black), Game::winner);
 
     }
 
