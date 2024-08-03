@@ -223,7 +223,7 @@ public class TournamentsHandler implements TournamentsAuth {
     }
 
     private Map<String, Object> arenaBuilderToMap(Consumer<ArenaBuilder> consumer) {
-        var builder = MapBuilder.of(ArenaParams.class)
+        var builder = withConditionsHandling(MapBuilder.of(ArenaParams.class))
             .addCustomHandler("startTime", (args, map) -> {
                 @SuppressWarnings("unchecked")
                 var startTime = (Function<ArenaParams.StartTime.Provider, ArenaParams.StartTime>) args[0];
@@ -234,17 +234,8 @@ public class TournamentsHandler implements TournamentsAuth {
                     map.put("startDate", d.startDate());
                 }
             })
-            .rename("entryCode", "password")
-            .rename("conditionTeam", "conditions.teamMember.teamId")
-            .rename("conditionMinRating", "conditions.minRating.rating")
-            .rename("conditionMaxRating", "conditions.maxRating.rating")
-            .rename("conditionMinRatedGames", "conditions.nbRatedGame.nb")
-            .rename("conditionAccountAge", "conditions.accountAge")
-            .addCustomHandler("allowList", (args, map) -> {
-                @SuppressWarnings("unchecked")
-                List<String> list = (List<String>) args[0];
-                if (!list.isEmpty()) map.put("conditions.allowList", String.join(",", list));
-            });
+            .rename("entryCode", "password");
+
 
         var arenaBuilder = new ArenaBuilder() {
             @Override
@@ -261,19 +252,9 @@ public class TournamentsHandler implements TournamentsAuth {
     }
 
     private Map<String, Object> swissBuilderToMap(Consumer<SwissBuilder> consumer) {
-        var builder = MapBuilder.of(SwissParams.class)
+        var builder = withConditionsHandling(MapBuilder.of(SwissParams.class))
             .rename("entryCode", "password")
-            .rename("conditionMinRating", "conditions.minRating.rating")
-            .rename("conditionMaxRating", "conditions.maxRating.rating")
-            .rename("conditionMinRatedGames", "conditions.nbRatedGame.nb")
-            .rename("conditionPlayYourGames", "conditions.playYourGames")
-            .rename("conditionAccountAge", "conditions.accountAge")
             .addCustomHandler("chatFor", (args, map) -> map.put("chatFor", ChatFor.class.cast(args[0]).id))
-            .addCustomHandler("allowList", (args, map) -> {
-                @SuppressWarnings("unchecked")
-                List<String> list = (List<String>) args[0];
-                if (!list.isEmpty()) map.put("conditions.allowList", String.join(",", list));
-            })
             .addCustomHandler("addForbiddenPairings", (args, map) -> {
                 @SuppressWarnings("unchecked")
                 var pairings = (Collection<SwissParams.Pairing>) args[0];
@@ -317,5 +298,20 @@ public class TournamentsHandler implements TournamentsAuth {
         };
         consumer.accept(swissBuilder);
         return builder.toMap();
+    }
+
+    private static <T> MapBuilder<T> withConditionsHandling(MapBuilder<T> builder) {
+        return builder
+            .rename("conditionMinRating",     "conditions.minRating.rating")
+            .rename("conditionMaxRating",     "conditions.maxRating.rating")
+            .rename("conditionMinRatedGames", "conditions.nbRatedGame.nb")
+            .rename("conditionPlayYourGames", "conditions.playYourGames")
+            .rename("conditionAccountAge",    "conditions.accountAge")
+            .rename("conditionTeam",          "conditions.teamMember.teamId") // only in Arena
+            .addCustomHandler("allowList", (args, map) -> {
+                @SuppressWarnings("unchecked")
+                List<String> list = (List<String>) args[0];
+                if (!list.isEmpty()) map.put( "conditions.allowList", String.join(",", list));
+            });
     }
 }
