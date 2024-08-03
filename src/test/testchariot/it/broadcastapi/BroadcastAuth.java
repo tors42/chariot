@@ -19,12 +19,12 @@ public class BroadcastAuth {
     @IntegrationTest
     public void createSimpleBroadcast() {
         String name = "Simple Broadcast";
-        String markup = "Simple long description";
+        String description = "Simple long description";
 
         ZonedDateTime create = ZonedDateTime.now();
         var broadcastRequest = client.broadcasts().create(p -> p
                 .name(name)
-                .markup(markup));
+                .description(description));
 
         if (! (broadcastRequest instanceof Entry(Broadcast broadcast))) {
             fail("Couldn't create broadcast " + broadcastRequest);
@@ -36,7 +36,6 @@ public class BroadcastAuth {
 
         String slug = name.toLowerCase(Locale.ROOT).replace(' ', '-');
         Opt<URI> image = Opt.empty();
-        String markupResult = "<p>" + markup + "</p>\n";
 
         assertTrue(aboutSameTime(create, createdAt), "Created At off");
 
@@ -58,7 +57,7 @@ public class BroadcastAuth {
                         dates,
                         info,
                         tier,
-                        markupResult,
+                        description,
                         IT.lilaURI().resolve("/broadcast/" + slug + "/" + id),
                         image,
                         teamTable,
@@ -68,12 +67,47 @@ public class BroadcastAuth {
                 );
 
         assertEquals(expected, broadcast);
+
+
+        // Test that create result also matches fetch result
+        unboxEquals(client.broadcasts().broadcastById(id), expected);
+
+
+        // Fetching allows specifying rendering of description field,
+        // as the original markdown (default),
+        // or as rendered HTML.
+
+        // Test that description field gets rendered as HTML when specified
+        String expectedHtmlDescription = "<p>" + description + "</p>\n";
+
+
+        // In future with withers (ish):
+        // expectedWithHtmlDescription = expected with { tour with { description = htmlDescription } }
+        // For now, lots of repeated fields...:
+        Broadcast expectedWithHtmlDescription = new Broadcast(
+                new Broadcast.Tour(
+                        expected.tour().id(),
+                        expected.tour().name(),
+                        expected.tour().slug(),
+                        expected.tour().createdAt(),
+                        expected.tour().dates(),
+                        expected.tour().info(),
+                        expected.tour().tier(),
+                        expectedHtmlDescription,
+                        expected.tour().url(),
+                        expected.tour().image(),
+                        expected.tour().teamTable(),
+                        expected.tour().leaderboard()),
+                expected.rounds(),
+                expected.group());
+
+        unboxEquals(client.broadcasts().broadcastById(id, p -> p.html()), expectedWithHtmlDescription);
     }
 
     @IntegrationTest
     public void createBroadcastWithAllParameters() {
         String name = "Advanced Broadcast";
-        String markup = "Advanced long description";
+        String description = "Advanced long description";
         int tier = 4;
         boolean autoLeaderboard = true;
         boolean teamLeaderboard = true;
@@ -84,7 +118,7 @@ public class BroadcastAuth {
         ZonedDateTime create = ZonedDateTime.now();
         var broadcastResult = superadmin.broadcasts().create(p -> p
                 .name(name)
-                .markup(markup)
+                .description(description)
                 .infoTimeControl(infoTimeControl)
                 .infoTournamentFormat(infoTournamentFormat)
                 .infoFeaturedPlayers(infoPlayers)
@@ -104,7 +138,6 @@ public class BroadcastAuth {
 
         String slug = name.toLowerCase(Locale.ROOT).replace(' ', '-');
         Opt<URI> image = Opt.empty();
-        String markupResult = "<p>" + markup + "</p>\n";
         Broadcast.Info info = new Broadcast.Info(Opt.some(infoTournamentFormat), Opt.some(infoTimeControl), Opt.some(infoPlayers));
 
         List<Broadcast.Round> rounds = List.of();
@@ -120,7 +153,7 @@ public class BroadcastAuth {
                         dates,
                         info,
                         tier,
-                        markupResult,
+                        description,
                         IT.lilaURI().resolve("/broadcast/" + slug + "/" + id),
                         image,
                         teamLeaderboard,
@@ -160,7 +193,7 @@ public class BroadcastAuth {
                     expectedDates,
                     broadcast.tour().info(),
                     broadcast.tour().tier(),
-                    broadcast.tour().markup(),
+                    broadcast.tour().description(),
                     broadcast.tour().url(),
                     broadcast.tour().image(),
                     broadcast.tour().teamTable(),
@@ -246,7 +279,7 @@ public class BroadcastAuth {
     public void createSimpleRound() {
         var broadcastResult = client.broadcasts().create(p -> p
                 .name("Broadcast IT")
-                .markup("Broadcast long description (markup) IT"));
+                .description("Broadcast long description (markup) IT"));
 
         String roundName = "Simple Round";
 
