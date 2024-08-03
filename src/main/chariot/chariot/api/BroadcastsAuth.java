@@ -103,13 +103,16 @@ public interface BroadcastsAuth extends Broadcasts {
         /**
          * Replace player names, ratings and titles.<br>
          *
-         * When broadcast rounds are created with a {@code Sync URL},
-         * it is possible to apply player information replacement when the PGN is fetched.<br>
+         * When broadcast rounds receive PGN data (pushed or polled),
+         * it is possible to apply player information replacement of the tags in the PGN,
+         * based on the player name tags.<br>
          * The replacements are specified in the broadcast with one line per player.<br>
-         * It is possible to replace using either the FIDE ID of a player or by manually providing overriding values.<br>
+         * It is possible to augment the PGN tags with information from their FIDE profile by matching a player name to a FIDE ID,<br>
+         * or by manually specifying values of PGN tags.<br>
          *
          * <b>FIDE ID format</b><br>
          * {@code <player name> = <FIDE ID>}<br>
+         * {@code <player name> = <FIDE ID> / <title>}<br>
          * <b>Manual format</b><br>
          * {@code <player name> / <rating> / <title> / <new name>}<br>
          * <br>
@@ -121,16 +124,13 @@ public interface BroadcastsAuth extends Broadcasts {
          * {@snippet :
          *   var broadcast = client.broadcasts().create(params -> params
          *      .name("Broadcast Name")
-         *      .shortDescription("Short Broadcast Description")
-         *      .longDescription("""
-         *          A longer description,
-         *          with *markdown* support.
-         *          """)
+         *      .description("Broadcast Description")
          *      .players("""
-         *          Elli = 4641833
-         *          Player One / 2700 / WGM / Numero Uno
-         *          Player Two / / / Deuce
-         *          Player Three / 1300 / /
+         *          Anna = 14111330
+         *          Art = 7818424 / NM
+         *          Some One / 2700 / WGM / Numero Uno
+         *          Someone Else / / / Deuce
+         *          Other Player / 1300 / /
          *          """));
          * }
          */
@@ -146,11 +146,7 @@ public interface BroadcastsAuth extends Broadcasts {
          * {@snippet :
          *   var broadcast = client.broadcasts().create(params -> params
          *      .name("Broadcast Name")
-         *      .shortDescription("Short Broadcast Description")
-         *      .longDescription("""
-         *          A longer description,
-         *          with *markdown* support.
-         *          """)
+         *      .description("Broadcast Description")
          *      .teamTable()
          *      .teams("""
          *          Team Cats;3408230
