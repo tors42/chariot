@@ -27,25 +27,27 @@ public class BroadcastsHandler implements BroadcastsAuth {
     }
 
     @Override
-    public Many<Broadcast.TourWithLastRound> topActive() {
-        return Endpoint.broadcastsTopActive.newRequest(request -> {})
+    public Many<Broadcast.TourWithLastRound> topActive(Consumer<Params> params) {
+        return Endpoint.broadcastsTopActive.newRequest(request -> request
+                .query(MapBuilder.of(Params.class).toMap(params)))
             .process(requestHandler);
     }
 
     @Override
-    public Many<Broadcast.TourWithLastRound> topUpcoming() {
-        return Endpoint.broadcastsTopUpcoming.newRequest(request -> {})
+    public Many<Broadcast.TourWithLastRound> topUpcoming(Consumer<Params> params) {
+        return Endpoint.broadcastsTopUpcoming.newRequest(request -> request
+                .query(MapBuilder.of(Params.class).toMap(params)))
             .process(requestHandler);
     }
 
 
     @Override
-    public Many<Broadcast.TourWithLastRound> topPast() {
-        var firstPage = topPastByPage(1);
+    public Many<Broadcast.TourWithLastRound> topPast(Consumer<Params> params) {
+        var firstPage = topPastByPage(1, params);
         if (firstPage instanceof Entry<Endpoint.PageBroadcast> one) {
             var spliterator = Util.PageSpliterator.of(
                     one.entry(),
-                    pageNum -> topPastByPage(pageNum) instanceof Entry<Endpoint.PageBroadcast> pt
+                    pageNum -> topPastByPage(pageNum, params) instanceof Entry<Endpoint.PageBroadcast> pt
                      ? pt.entry()
                      : new Endpoint.PageBroadcast(0,0,List.of(),0,0,0,0));
             return Many.entries(StreamSupport.stream(spliterator, false));
@@ -54,12 +56,11 @@ public class BroadcastsHandler implements BroadcastsAuth {
         }
     }
 
-    private One<Endpoint.PageBroadcast> topPastByPage(int page) {
+    private One<Endpoint.PageBroadcast> topPastByPage(int page, Consumer<Params> params) {
         return Endpoint.broadcastsTopPastPage.newRequest(request -> request
-                .query(Map.of("page", page)))
+                .query(MapBuilder.of(Params.class).add("page", page).toMap(params)))
             .process(requestHandler);
     }
-
 
     @Override
     public Many<Pgn> streamBroadcast(String roundId) {
@@ -84,18 +85,19 @@ public class BroadcastsHandler implements BroadcastsAuth {
     }
 
     @Override
-    public One<Broadcast> broadcastById(String tourId) {
+    public One<Broadcast> broadcastById(String tourId, Consumer<Params> params) {
         return Endpoint.broadcastById.newRequest(request -> request
-                .path(tourId))
+                .path(tourId)
+                .query(MapBuilder.of(Params.class).toMap(params)))
             .process(requestHandler);
     }
 
     @Override
-    public Many<Broadcast.TourWithLastRound> byUserId(String userId) {
-        var firstPage = broadcastPageByUserId(userId, 1);
+    public Many<Broadcast.TourWithLastRound> byUserId(String userId, Consumer<Params> params) {
+        var firstPage = broadcastPageByUserId(userId, 1, params);
         if (firstPage instanceof Entry<Endpoint.PageBroadcast> one) {
             var spliterator = Util.PageSpliterator.of(one.entry(),
-                    pageNum -> broadcastPageByUserId(userId, pageNum) instanceof Entry<Endpoint.PageBroadcast> pt ?
+                    pageNum -> broadcastPageByUserId(userId, pageNum, params) instanceof Entry<Endpoint.PageBroadcast> pt ?
                     pt.entry() : new Endpoint.PageBroadcast(0,0,List.of(),0,0,0,0));
             return Many.entries(StreamSupport.stream(spliterator, false));
         } else {
@@ -103,10 +105,10 @@ public class BroadcastsHandler implements BroadcastsAuth {
         }
     }
 
-    private One<Endpoint.PageBroadcast> broadcastPageByUserId(String userId, int page) {
+    private One<Endpoint.PageBroadcast> broadcastPageByUserId(String userId, int page, Consumer<Params> params) {
         return Endpoint.broadcastPageByUser.newRequest(request -> request
-                .query(Map.of("page", page))
-                .path(userId))
+                .path(userId)
+                .query(MapBuilder.of(Params.class).add("page", page).toMap(params)))
             .process(requestHandler);
     }
 
@@ -180,7 +182,7 @@ public class BroadcastsHandler implements BroadcastsAuth {
 
     private Map<String, Object> broadastBuilderToMap(Consumer<BroadcastBuilder> consumer) {
         return MapBuilder.of(BroadcastBuilder.class)
-                    .rename("markup", "markdown") // wazzup?
+                    .rename("description", "markdown")
                     .rename("infoTimeControl", "info.tc")
                     .rename("infoTournamentFormat", "info.format")
                     .rename("infoFeaturedPlayers", "info.players")

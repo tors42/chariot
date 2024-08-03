@@ -29,17 +29,32 @@ public interface Broadcasts {
     /**
      *  Get active top broadcasts.
      */
-    Many<Broadcast.TourWithLastRound> topActive();
+    Many<Broadcast.TourWithLastRound> topActive(Consumer<Params> params);
 
     /**
      *  Get upcoming top broadcasts.
      */
-    Many<Broadcast.TourWithLastRound> topUpcoming();
+    Many<Broadcast.TourWithLastRound> topUpcoming(Consumer<Params> params);
 
     /**
      *  Get past top broadcasts.
      */
-    Many<Broadcast.TourWithLastRound> topPast();
+    Many<Broadcast.TourWithLastRound> topPast(Consumer<Params> params);
+
+    /**
+     *  Get active top broadcasts.
+     */
+    default Many<Broadcast.TourWithLastRound> topActive() { return topActive(__ -> {}); }
+
+    /**
+     *  Get upcoming top broadcasts.
+     */
+    default Many<Broadcast.TourWithLastRound> topUpcoming() { return topUpcoming(__ -> {}); }
+
+    /**
+     *  Get past top broadcasts.
+     */
+    default Many<Broadcast.TourWithLastRound> topPast() { return topPast(__ -> {}); }
 
     /**
      * Stream an ongoing broadcast tournament as PGN
@@ -73,14 +88,28 @@ public interface Broadcasts {
      *
      * @param tourId The broadcast tournament ID (8 characters).
      */
-    One<Broadcast> broadcastById(String tourId);
+    One<Broadcast> broadcastById(String tourId, Consumer<Params> params);
 
     /**
      * Get information about broadcasts of a user.
      *
      * @param userId The user to get broadcasts from
      */
-    Many<Broadcast.TourWithLastRound> byUserId(String userId);
+    Many<Broadcast.TourWithLastRound> byUserId(String userId, Consumer<Params> params);
+
+    /**
+     * Get information about a broadcast tournament.
+     *
+     * @param tourId The broadcast tournament ID (8 characters).
+     */
+    default One<Broadcast> broadcastById(String tourId) { return broadcastById(tourId, __ -> {}); }
+
+    /**
+     * Get information about broadcasts of a user.
+     *
+     * @param userId The user to get broadcasts from
+     */
+    default Many<Broadcast.TourWithLastRound> byUserId(String userId) { return byUserId(userId, __ -> {}); }
 
     /**
      * Get a broadcast leaderboard, if available
@@ -103,5 +132,25 @@ public interface Broadcasts {
          * @param nb Max number of broadcasts to fetch. Default 20.
          */
         BroadcastParameters nb(int nb);
+
+        /**
+         * @param html Convert the "description" field from markdown to HTML
+         */
+        BroadcastParameters html(boolean html);
+        /**
+         * Convert the "description" field from markdown to HTML
+         */
+        default BroadcastParameters html() { return html(true); }
+    }
+
+    interface Params {
+        /**
+         * @param html Convert the "description" field from markdown to HTML
+         */
+        Params html(boolean html);
+        /**
+         * Convert the "description" field from markdown to HTML
+         */
+        default Params html() { return html(true); }
     }
 }

@@ -56,10 +56,10 @@ public interface BroadcastsAuth extends Broadcasts {
         BroadcastBuilder name(String name);
 
         /**
-         * @param markup Optional long description of the broadcast. Markdown is supported.<br/>
+         * @param description Optional long description of the broadcast. Markdown is supported.<br/>
          *        Length must be less than 20,000 characters.
          */
-        BroadcastBuilder markup(String markup);
+        BroadcastBuilder description(String description);
 
         BroadcastBuilder infoTimeControl(String timeControl);
         BroadcastBuilder infoTournamentFormat(String format);
@@ -73,10 +73,6 @@ public interface BroadcastsAuth extends Broadcasts {
         default BroadcastBuilder infoFeaturedPlayers(String player1, String player2, String player3, String player4) {
             return infoFeaturedPlayers(String.join(",", player1, player2, player3, player4));
         }
-
-
-        @Deprecated default BroadcastBuilder shortDescription(String markup) { return this; }
-        @Deprecated default BroadcastBuilder longDescription(String markup) { return markup(markup); }
 
         /**
          * Only for admins.
