@@ -41,12 +41,11 @@ public class BroadcastAuth {
 
         int tier = 0;
         boolean teamTable = false;
-        boolean leaderboard = false;
 
         List<Broadcast.Round> rounds = List.of();
         Opt<Broadcast.Group> group = Opt.empty();
         List<ZonedDateTime> dates = List.of();
-        Broadcast.Info info = new Broadcast.Info(Opt.empty(), Opt.empty(), Opt.empty());
+        Broadcast.Info info = new Broadcast.Info(Opt.empty(), Opt.empty(), Opt.empty(), Opt.empty());
 
         Broadcast expected = new Broadcast(
                 new Broadcast.Tour(
@@ -60,8 +59,7 @@ public class BroadcastAuth {
                         description,
                         IT.lilaURI().resolve("/broadcast/" + slug + "/" + id),
                         image,
-                        teamTable,
-                        leaderboard),
+                        teamTable),
                 rounds,
                 group
                 );
@@ -96,8 +94,7 @@ public class BroadcastAuth {
                         expectedHtmlDescription,
                         expected.tour().url(),
                         expected.tour().image(),
-                        expected.tour().teamTable(),
-                        expected.tour().leaderboard()),
+                        expected.tour().teamTable()),
                 expected.rounds(),
                 expected.group());
 
@@ -109,22 +106,32 @@ public class BroadcastAuth {
         String name = "Advanced Broadcast";
         String description = "Advanced long description";
         int tier = 4;
-        boolean autoLeaderboard = true;
+        boolean showScores = true;
+        boolean showRatingDiffs = true;
         boolean teamLeaderboard = true;
+        FideTC infoTimeControlFIDE = FideTC.standard;
         String infoTimeControl = "Classical";
         String infoTournamentFormat = "Swiss 3-round";
         String infoPlayers = "Anna,Beatrice,Claire,Diana";
 
         ZonedDateTime create = ZonedDateTime.now();
+
+        boolean debug = false;
+        if (debug) superadmin.logging(l -> l.request().all().response().all());
+
         var broadcastResult = superadmin.broadcasts().create(p -> p
                 .name(name)
                 .description(description)
+                .infoTimeControlFIDE(infoTimeControlFIDE)
                 .infoTimeControl(infoTimeControl)
                 .infoTournamentFormat(infoTournamentFormat)
                 .infoFeaturedPlayers(infoPlayers)
                 .tier(tier)
-                .autoLeaderboard(autoLeaderboard)
+                .showScores(showScores)
+                .showRatingDiffs(showRatingDiffs)
                 .teamTable(teamLeaderboard));
+
+        if (debug) superadmin.logging(l -> l.request().warning().response().warning());
 
         if (! (broadcastResult instanceof Entry(Broadcast broadcast))) {
             fail("Couldn't create broadcast " + broadcastResult);
@@ -138,11 +145,16 @@ public class BroadcastAuth {
 
         String slug = name.toLowerCase(Locale.ROOT).replace(' ', '-');
         Opt<URI> image = Opt.empty();
-        Broadcast.Info info = new Broadcast.Info(Opt.some(infoTournamentFormat), Opt.some(infoTimeControl), Opt.some(infoPlayers));
+        Broadcast.Info info = new Broadcast.Info(Opt.some(infoTournamentFormat), Opt.some(infoTimeControl), Opt.some(infoPlayers), Opt.some(infoTimeControlFIDE));
 
         List<Broadcast.Round> rounds = List.of();
         Opt<Broadcast.Group> group = Opt.empty();
         List<ZonedDateTime> dates = List.of();
+
+        // Note,
+        //  It is not possible to query the values for, so no obvious way to verify them...
+        //  - showScores
+        //  - showRatingDiffs
 
         Broadcast expected = new Broadcast(
                 new Broadcast.Tour(
@@ -156,8 +168,7 @@ public class BroadcastAuth {
                         description,
                         IT.lilaURI().resolve("/broadcast/" + slug + "/" + id),
                         image,
-                        teamLeaderboard,
-                        autoLeaderboard),
+                        teamLeaderboard),
                 rounds,
                 group);
 
@@ -196,8 +207,7 @@ public class BroadcastAuth {
                     broadcast.tour().description(),
                     broadcast.tour().url(),
                     broadcast.tour().image(),
-                    broadcast.tour().teamTable(),
-                    broadcast.tour().leaderboard()
+                    broadcast.tour().teamTable()
                     ),
                 expectedRounds,
                 broadcast.group()
