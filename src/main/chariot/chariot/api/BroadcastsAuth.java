@@ -74,6 +74,9 @@ public interface BroadcastsAuth extends Broadcasts {
             return infoFeaturedPlayers(String.join(",", player1, player2, player3, player4));
         }
 
+        BroadcastBuilder infoTimeControlFIDE(FideTC fideTimeControl);
+        default BroadcastBuilder infoTimeControlFIDE(Function<FideTC.Provider, FideTC> provider) { return infoTimeControlFIDE(provider.apply(FideTC.provider())); }
+
         /**
          * Only for admins.
          * @param tier Broadcast tier. [3 4 5]. 3 normal, 4 high, 5 best.
@@ -81,14 +84,17 @@ public interface BroadcastsAuth extends Broadcasts {
         BroadcastBuilder tier(int tier);
 
         /**
-         * Compute and display a simple leaderboard based on game results
+         * Show player's rating diffs. Default: `true`
          */
-        BroadcastBuilder autoLeaderboard(boolean autoLeaderboard);
+        BroadcastBuilder showRatingDiffs(boolean showRatingDiffs);
+        default BroadcastBuilder showRatingDiffs() { return showRatingDiffs(true); }
 
         /**
-         * Compute and display a simple leaderboard based on game results
+         * Show players scores based on game results. Default: `true`
          */
-        default BroadcastBuilder autoLeaderboard() { return autoLeaderboard(true); }
+        BroadcastBuilder showScores(boolean showScores);
+        default BroadcastBuilder showScores() { return showScores(true); }
+
 
         /**
          * Show a team leaderboard.
