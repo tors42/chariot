@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 import chariot.model.*;
 
-public interface Studies {
+public interface StudiesApi {
 
     Many<Pgn> exportChapterByStudyAndChapterId(String studyId, String chapterId, Consumer<Params> params);
     default Many<Pgn> exportChapterByStudyAndChapterId(String studyId, String chapterId) {

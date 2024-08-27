@@ -8,7 +8,7 @@ import chariot.api.*;
 import chariot.model.*;
 import chariot.internal.*;
 
-public class BotHandler extends ChallengesAuthCommonImpl implements BotAuth {
+public class BotHandler extends ChallengesAuthCommonImpl implements BotApiAuth {
 
     public BotHandler(RequestHandler requestHandler) {
         super(requestHandler, Scope.bot_play);

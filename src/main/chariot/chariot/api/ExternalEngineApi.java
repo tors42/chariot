@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 import chariot.model.*;
 
-public interface ExternalEngine {
+public interface ExternalEngineApi {
     /**
      * @param engineId The external engine id. Example: {@code eei_aTKImBJOnv6j}
      */

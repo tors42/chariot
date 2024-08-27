@@ -9,7 +9,7 @@ import chariot.model.*;
 /**
  * Read and write account information and preferences.
  */
-public interface AccountAuth {
+public interface AccountApiAuth {
 
     /**
      * Public informations about the logged in user.<br>

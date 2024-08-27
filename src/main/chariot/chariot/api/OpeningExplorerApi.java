@@ -10,7 +10,7 @@ import chariot.model.*;
 /**
  * Lookup positions from the Lichess opening explorer.
  */
-public interface OpeningExplorer {
+public interface OpeningExplorerApi {
     /**
      * Fetches the PGN of specified game from Masters OTB database
      *

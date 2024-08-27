@@ -8,7 +8,7 @@ import chariot.model.One;
 import chariot.model.Enums.VariantName;
 import chariot.api.Builders.*;
 
-public interface Challenges {
+public interface ChallengesApi {
 
     One<ChallengeOpenEnded> challengeOpenEnded(Consumer<OpenEndedBuilder> params);
 

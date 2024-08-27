@@ -9,7 +9,7 @@ import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import java.util.stream.*;
 
-public class TeamsHandler implements TeamsAuth {
+public class TeamsHandler implements TeamsApiAuth {
     private final RequestHandler requestHandler;
 
     public TeamsHandler(RequestHandler requestHandler) {

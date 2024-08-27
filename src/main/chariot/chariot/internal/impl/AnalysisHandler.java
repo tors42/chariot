@@ -2,12 +2,12 @@ package chariot.internal.impl;
 
 import java.util.function.Consumer;
 
-import chariot.api.Analysis;
+import chariot.api.AnalysisApi;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 
-public class AnalysisHandler implements Analysis {
+public class AnalysisHandler implements AnalysisApi {
 
     private final RequestHandler requestHandler;
 

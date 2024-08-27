@@ -26,7 +26,7 @@ import chariot.model.Enums.*;
  * <li>Time controls: Rapid, Classical and Correspondence only (Blitz possible for direct challanges and vs AI)
  * </ul>
  */
-public interface BoardAuth extends ChallengesAuthCommon {
+public interface BoardApiAuth extends ChallengesApiAuthCommon {
 
     /**
      * Create a public seek, to start a game with a random player.

@@ -11,7 +11,7 @@ import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 
-public class BroadcastsHandler implements BroadcastsAuth {
+public class BroadcastsHandler implements BroadcastsApiAuth {
 
     final RequestHandler requestHandler;
 

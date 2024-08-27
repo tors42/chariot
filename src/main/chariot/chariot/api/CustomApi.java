@@ -10,7 +10,7 @@ import chariot.internal.ModelMapper;
 import chariot.model.Many;
 import chariot.model.One;
 
-public interface Custom {
+public interface CustomApi {
 
     default <T> EndpointBuilder<T> of(Class<T> model) { return of(ModelMapper.mapper(model)); }
     <T> EndpointBuilder<T> of(Function<String, T> mapper);

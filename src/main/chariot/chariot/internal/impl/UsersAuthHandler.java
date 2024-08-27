@@ -6,12 +6,12 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import chariot.api.UsersAuth;
-import chariot.api.Users.UserParams;
+import chariot.api.UsersApiAuth;
+import chariot.api.UsersApi.UserParams;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 
-public class UsersAuthHandler extends UsersBaseHandler implements UsersAuth {
+public class UsersAuthHandler extends UsersBaseHandler implements UsersApiAuth {
 
     public UsersAuthHandler(RequestHandler requestHandler) {
         super(requestHandler);

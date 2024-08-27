@@ -5,7 +5,7 @@ import chariot.model.*;
 import java.util.List;
 import java.util.function.Consumer;
 
-public interface Users extends UsersBase {
+public interface UsersApi extends UsersApiBase {
 
     /**
      * Get public user data

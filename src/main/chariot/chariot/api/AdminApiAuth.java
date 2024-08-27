@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 import chariot.model.ChallengeTokens;
 import chariot.model.One;
 
-public interface AdminAuth {
+public interface AdminApiAuth {
     /**
      * For administrators only. You are not allowed to use this endpoint.
      * Create and obtain challenge:write tokens for multiple users.

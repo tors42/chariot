@@ -6,15 +6,15 @@ import java.util.stream.*;
 
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
-import chariot.api.UsersBase;
-import chariot.api.Users.*;
+import chariot.api.UsersApiBase;
+import chariot.api.UsersApi.*;
 import chariot.model.*;
 import chariot.model.Enums.*;
 
 /**
  * Access registered users on Lichess.
  */
-public abstract class UsersBaseHandler implements UsersBase {
+public abstract class UsersBaseHandler implements UsersApiBase {
     protected final RequestHandler requestHandler;
 
     protected UsersBaseHandler(RequestHandler requestHandler) {

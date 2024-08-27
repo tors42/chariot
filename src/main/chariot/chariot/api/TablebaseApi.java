@@ -5,7 +5,7 @@ import chariot.model.*;
 /**
  * Lookup positions from the Lichess tablebase server.
  */
-public interface Tablebase {
+public interface TablebaseApi {
     /**
      * Lookup positions from the Lichess tablebase server.
      */

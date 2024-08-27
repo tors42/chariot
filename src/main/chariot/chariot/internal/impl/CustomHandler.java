@@ -6,14 +6,14 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import chariot.Client.Scope;
-import chariot.api.Custom;
+import chariot.api.CustomApi;
 import chariot.internal.*;
 import chariot.internal.Endpoint.*;
 import chariot.internal.RequestParameters.Params;
 import chariot.model.Many;
 import chariot.model.One;
 
-public class CustomHandler implements Custom {
+public class CustomHandler implements CustomApi {
 
     private final RequestHandler requestHandler;
 

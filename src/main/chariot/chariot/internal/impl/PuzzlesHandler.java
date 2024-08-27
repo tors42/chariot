@@ -8,7 +8,7 @@ import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 
-public class PuzzlesHandler implements PuzzlesAuth {
+public class PuzzlesHandler implements PuzzlesApiAuth {
 
     private final RequestHandler requestHandler;
 

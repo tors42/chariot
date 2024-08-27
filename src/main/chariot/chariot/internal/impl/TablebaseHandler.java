@@ -2,11 +2,11 @@ package chariot.internal.impl;
 
 import java.util.Map;
 
-import chariot.api.Tablebase;
+import chariot.api.TablebaseApi;
 import chariot.internal.*;
 import chariot.model.*;
 
-public class TablebaseHandler implements Tablebase {
+public class TablebaseHandler implements TablebaseApi {
 
     private final RequestHandler requestHandler;
 

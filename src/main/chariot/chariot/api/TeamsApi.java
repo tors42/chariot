@@ -4,21 +4,21 @@ import java.util.function.Consumer;
 
 import chariot.model.*;
 
-public interface Teams {
+public interface TeamsApi {
 
     One<Team>         byTeamId(String teamId);
     Many<Team>        byUserId(String userId);
 
     /**
      * Members are sorted by reverse chronological order of joining the team (most recent first). <br>
-     * OAuth is only required if the list of members is private. ({@link TeamsAuth#usersByTeamId(String)})<br>
+     * OAuth is only required if the list of members is private. ({@link TeamsApiAuth#usersByTeamId(String)})<br>
      * Up to 5,000 users.
      */
     Many<TeamMember>  usersByTeamId(String teamId);
 
     /**
      * Members are sorted by reverse chronological order of joining the team (most recent first). <br>
-     * OAuth is only required if the list of members is private. ({@link TeamsAuth#usersByTeamId(String)})<br>
+     * OAuth is only required if the list of members is private. ({@link TeamsApiAuth#usersByTeamId(String)})<br>
      * Includes performance ratings.<br>
      * Up to 1,000 users.<br>
      * If looking for more users and more speed, see the "lighter" method {@link #usersByTeamId(String)}

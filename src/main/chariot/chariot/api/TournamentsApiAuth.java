@@ -9,7 +9,7 @@ import chariot.internal.Util;
 import chariot.model.*;
 import chariot.model.Enums.*;
 
-public interface TournamentsAuth extends Tournaments {
+public interface TournamentsApiAuth extends TournamentsApi {
 
     One<Arena> createArena(Consumer<ArenaBuilder> params);
     One<Arena> updateArena(String id, Consumer<ArenaBuilder> params);
@@ -174,7 +174,7 @@ public interface TournamentsAuth extends Tournaments {
         /**
          * Make the tournament private, and restrict access with a entry code.<br>
          * You can either share this entry code directly with the users who should be able to join,<br>
-         * or you could use it to create user-specific entry codes which you can share - see {@link TournamentsAuth#generateUserEntryCodes(String, Set)}.<br>
+         * or you could use it to create user-specific entry codes which you can share - see {@link TournamentsApiAuth#generateUserEntryCodes(String, Set)}.<br>
          * @param entryCode
          */
         ArenaParams entryCode(String entryCode);

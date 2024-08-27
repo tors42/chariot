@@ -1,11 +1,11 @@
 package chariot.internal.impl;
 
-import chariot.api.Simuls;
+import chariot.api.SimulsApi;
 import chariot.internal.Endpoint;
 import chariot.internal.RequestHandler;
 import chariot.model.*;
 
-public class SimulsHandler implements Simuls {
+public class SimulsHandler implements SimulsApi {
     private final RequestHandler requestHandler;
 
     public SimulsHandler(RequestHandler requestHandler) {

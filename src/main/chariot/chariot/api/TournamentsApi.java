@@ -10,7 +10,7 @@ import java.util.function.Consumer;
  * Access Arena and Swiss tournaments played on Lichess.<br>
  * Official Arena tournaments are maintained by Lichess, but you can create your own Arena tournaments as well.
  */
-public interface Tournaments {
+public interface TournamentsApi {
 
     /**
      * Get recently finished, ongoing, and upcoming tournaments.
@@ -61,11 +61,11 @@ public interface Tournaments {
      * Download games of a arena tournament.<br>
      * Games are sorted by reverse chronological order (most recent first)
      */
-    Many<Game> gamesByArenaId(String arenaId, Consumer<Games.Filter> params);
+    Many<Game> gamesByArenaId(String arenaId, Consumer<GamesApi.Filter> params);
     default Many<Game> gamesByArenaId(String arenaId) { return gamesByArenaId(arenaId, __ -> {}); }
 
     /** See {@link #gamesByArenaId(String, Consumer)} */
-    Many<Pgn> pgnGamesByArenaId(String arenaId, Consumer<Games.Filter> params);
+    Many<Pgn> pgnGamesByArenaId(String arenaId, Consumer<GamesApi.Filter> params);
     default Many<Pgn> pgnGamesByArenaId(String arenaId) { return pgnGamesByArenaId(arenaId, __ -> {}); }
 
     /**
@@ -100,11 +100,11 @@ public interface Tournaments {
      * Download games of a swiss tournament.<br>
      * ames are sorted by reverse chronological order (last round first)
      */
-    Many<Game> gamesBySwissId(String swissId, Consumer<Games.Filter> params);
+    Many<Game> gamesBySwissId(String swissId, Consumer<GamesApi.Filter> params);
     default Many<Game> gamesBySwissId(String swissId) { return gamesBySwissId(swissId, __ -> {}); }
 
     /** See {@link #gamesBySwissId(String, Consumer)} */
-    Many<Pgn> pgnGamesBySwissId(String swissId, Consumer<Games.Filter> params);
+    Many<Pgn> pgnGamesBySwissId(String swissId, Consumer<GamesApi.Filter> params);
     default Many<Pgn> pgnGamesBySwissId(String swissId) { return pgnGamesBySwissId(swissId, __ -> {}); }
 
     interface ArenaResultParams {

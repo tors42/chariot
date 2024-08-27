@@ -12,7 +12,7 @@ import chariot.model.*;
 /**
  * Send and receive challenges and manage bulk challenges.
  */
-public interface ChallengesAuth extends Challenges, ChallengesAuthCommon {
+public interface ChallengesApiAuth extends ChallengesApi, ChallengesApiAuthCommon {
 
     One<PendingChallenges> challenges();
     One<Void>               startClocksOfGame(String gameId, String token1, String token2);

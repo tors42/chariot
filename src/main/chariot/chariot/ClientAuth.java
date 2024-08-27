@@ -3,7 +3,7 @@ package chariot;
 import java.util.prefs.Preferences;
 
 import chariot.api.*;
-import chariot.api.Analysis;
+import chariot.api.AnalysisApi;
 import chariot.internal.*;
 import chariot.internal.impl.*;
 import chariot.model.*;
@@ -30,19 +30,19 @@ public class ClientAuth extends Client {
      * Access registered users on Lichess.
      * Send messages to users.
      */
-    public UsersAuth usersAuth() {
+    public UsersApiAuth usersAuth() {
         return usersHandler;
     }
 
     /**
      * Read and write account informations and preferences.
      */
-    public AccountAuth account() { return accountHandler; }
+    public AccountApiAuth account() { return accountHandler; }
 
     /**
      * For administrators only, to obtain challenge tokens.
      */
-    public AdminAuth admin() { return adminHandler; }
+    public AdminApiAuth admin() { return adminHandler; }
 
     /**
      * Play on Lichess with physical boards and third-party clients.
@@ -63,7 +63,7 @@ public class ClientAuth extends Client {
      * <li>Time controls: Rapid, Classical and Correspondence only (Blitz possible for direct challanges and vs AI)
      * </ul>
      */
-    public BoardAuth board() { return boardHandler; }
+    public BoardApiAuth board() { return boardHandler; }
 
     /**
      * Play on Lichess as a bot.
@@ -84,55 +84,55 @@ public class ClientAuth extends Client {
      * <li>Bots cannot play UltraBullet (¼+0) because it requires making too many requests. But 0+1 and ½+0 are allowed.
      * </ul>
      */
-    public BotAuth bot() { return botHandler; }
+    public BotApiAuth bot() { return botHandler; }
 
     /**
      * {@inheritDoc}
      */
-    public BroadcastsAuth broadcasts() { return broadcastsHandler; }
+    public BroadcastsApiAuth broadcasts() { return broadcastsHandler; }
 
     /**
      * Send and receive challenges and manage bulk challenges.
      */
-    public ChallengesAuth challenges() { return challengesHandler; }
+    public ChallengesApiAuth challenges() { return challengesHandler; }
 
     /**
      * {@inheritDoc}
      */
-    public ExternalEngineAuth externalEngine() { return externalEngineHandler; }
+    public ExternalEngineApiAuth externalEngine() { return externalEngineHandler; }
 
     /**
      * {@inheritDoc}
      */
-    public GamesAuth games() { return gamesHandler; }
+    public GamesApiAuth games() { return gamesHandler; }
 
     /**
      * {@inheritDoc}
      */
-    public PuzzlesAuth puzzles() { return puzzlesHandler; }
+    public PuzzlesApiAuth puzzles() { return puzzlesHandler; }
 
     /**
      * {@inheritDoc}
      **/
-    public StudiesAuth studies() { return studiesHandler; }
+    public StudiesApiAuth studies() { return studiesHandler; }
 
     /**
      * {@inheritDoc}
      */
-    public TeamsAuth teams() { return teamsHandler; }
+    public TeamsApiAuth teams() { return teamsHandler; }
 
     /**
      * {@inheritDoc} <br>
      * Official tournaments are maintained by Lichess, but you can create your own tournaments as well.
      */
-    public TournamentsAuth tournaments() { return tournamentsHandler; }
+    public TournamentsApiAuth tournaments() { return tournamentsHandler; }
 
 
-    /** {@inheritDoc} */ @Override public Analysis analysis() { return super.analysis(); }
-    /** {@inheritDoc} */ @Override public OpeningExplorer openingExplorer() { return super.openingExplorer(); }
-    /** {@inheritDoc} */ @Override public Simuls simuls() { return super.simuls(); }
-    /** {@inheritDoc} */ @Override public Tablebase tablebase() { return super.tablebase(); }
-    /** {@inheritDoc} */ @Override public Custom custom() { return super.custom(); }
+    /** {@inheritDoc} */ @Override public AnalysisApi analysis() { return super.analysis(); }
+    /** {@inheritDoc} */ @Override public OpeningExplorerApi openingExplorer() { return super.openingExplorer(); }
+    /** {@inheritDoc} */ @Override public SimulsApi simuls() { return super.simuls(); }
+    /** {@inheritDoc} */ @Override public TablebaseApi tablebase() { return super.tablebase(); }
+    /** {@inheritDoc} */ @Override public CustomApi custom() { return super.custom(); }
 
 
     /**

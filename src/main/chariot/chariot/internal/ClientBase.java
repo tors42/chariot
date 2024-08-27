@@ -7,7 +7,7 @@ import java.util.prefs.Preferences;
 
 import chariot.Client.Scope;
 import chariot.api.*;
-import chariot.api.Analysis;
+import chariot.api.AnalysisApi;
 import chariot.internal.impl.*;
 import chariot.model.*;
 
@@ -66,13 +66,13 @@ public abstract class ClientBase {
     /**
      * Access Lichess cloud evaluations database.
      */
-    public Analysis analysis() { return analysisHandler; }
+    public AnalysisApi analysis() { return analysisHandler; }
 
     /**
      * Access Lichess online bots.<br/>
      * For more bot operations, see {@link chariot.ClientAuth#bot}
      */
-    public Bot bot() { return botHandler; }
+    public BotApi bot() { return botHandler; }
 
 
     /**
@@ -85,63 +85,63 @@ public abstract class ClientBase {
      * have several games. You must first create a tournament, then you can add
      * rounds to them.
      */
-    public Broadcasts broadcasts() { return broadcastsHandler; }
+    public BroadcastsApi broadcasts() { return broadcastsHandler; }
 
     /**
-     * Open-ended challenges. For authenticated challenges, see {@link chariot.api.ChallengesAuth}
+     * Open-ended challenges. For authenticated challenges, see {@link chariot.api.ChallengesApiAuth}
      */
-    public Challenges challenges() { return challengesHandler; }
+    public ChallengesApi challenges() { return challengesHandler; }
 
     /**
-     * External engine. For engine management, see {@link chariot.api.ExternalEngineAuth}
+     * External engine. For engine management, see {@link chariot.api.ExternalEngineApiAuth}
      */
-    public ExternalEngine externalEngine() { return externalEngineHandler; }
+    public ExternalEngineApi externalEngine() { return externalEngineHandler; }
 
     /**
      * Access games and TV channels, played on Lichess.
      */
-    public Games games() { return gamesHandler; }
+    public GamesApi games() { return gamesHandler; }
 
     /**
      * Lookup positions from the Lichess opening explorer.
      */
-    public OpeningExplorer openingExplorer() { return openingExplorerHandler; }
+    public OpeningExplorerApi openingExplorer() { return openingExplorerHandler; }
 
     /**
      * Access Lichess puzzle history and dashboard.
      */
-    public Puzzles puzzles() { return puzzlesHandler;}
+    public PuzzlesApi puzzles() { return puzzlesHandler;}
 
     /**
      * Access simuls played on Lichess.
      */
-    public Simuls simuls() { return simulsHandler; }
+    public SimulsApi simuls() { return simulsHandler; }
 
     /**
      * Access Lichess studies.
      */
-    public Studies studies() { return studiesHandler; }
+    public StudiesApi studies() { return studiesHandler; }
 
     /**
      * Lookup positions from the Lichess tablebase server.
      */
-    public Tablebase tablebase() { return tablebaseHandler; }
+    public TablebaseApi tablebase() { return tablebaseHandler; }
 
     /**
      * Access and manage Lichess teams and their members.
      */
-    public Teams teams() { return teamsHandler; }
+    public TeamsApi teams() { return teamsHandler; }
 
     /**
      * Access Arena and Swiss tournaments played on Lichess.<br/>
      */
-    public Tournaments tournaments() { return tournamentsHandler; }
+    public TournamentsApi tournaments() { return tournamentsHandler; }
 
 
     /**
      * Use chariot for custom endpoints
      */
-    public Custom custom() { return customHandler; }
+    public CustomApi custom() { return customHandler; }
 
     //* See {@link Client#load(Preferences)}
 

@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import chariot.model.*;
 
-public interface Puzzles {
+public interface PuzzlesApi {
 
     One<StormDashboard> stormDashboard(String username, Consumer<PuzzleParams> params);
     default One<StormDashboard> stormDashboard(String username) { return stormDashboard(username, __ -> {}); }

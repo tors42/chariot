@@ -12,7 +12,7 @@ import chariot.model.Enums.*;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 
-public class ChallengesAuthCommonImpl extends ChallengesImpl implements ChallengesAuthCommon {
+public class ChallengesAuthCommonImpl extends ChallengesImpl implements ChallengesApiAuthCommon {
 
     private final Scope scope;
 

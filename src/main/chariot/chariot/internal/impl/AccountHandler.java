@@ -8,7 +8,7 @@ import chariot.internal.RequestHandler;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 
-public class AccountHandler implements AccountAuth {
+public class AccountHandler implements AccountApiAuth {
 
     private final RequestHandler requestHandler;
 

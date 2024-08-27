@@ -11,7 +11,7 @@ import chariot.model.*;
 /**
  * Access games played on Lichess.
  */
-public interface Games {
+public interface GamesApi {
 
     /**
      * Download one game.<br>
@@ -78,8 +78,8 @@ public interface Games {
     /**
      * Import a game from PGN.<br>
      * Rate limiting: 200 games per hour for OAuth requests, 100 games per hour for anonymous requests.<br>
-     * See {@link GamesAuth#importGame} for authenticated access.<br>
-     * To broadcast ongoing games, consider pushing to a broadcast instead. See {@link BroadcastsAuth#pushPgnByRoundId}
+     * See {@link GamesApiAuth#importGame} for authenticated access.<br>
+     * To broadcast ongoing games, consider pushing to a broadcast instead. See {@link BroadcastsApiAuth#pushPgnByRoundId}
      */
     One<GameImport> importGame(String pgn);
 
@@ -205,7 +205,7 @@ public interface Games {
 
         /**
          * Include plies which mark the beginning of the middlegame and endgame. Not available in {@code pgnBy...}-methods<br>
-         * Default `false` (except in {@link Games#byGameId(String)}, where it is default `true`)
+         * Default `false` (except in {@link GamesApi#byGameId(String)}, where it is default `true`)
          */
         T division(boolean division);
         default T division() { return division(true); }

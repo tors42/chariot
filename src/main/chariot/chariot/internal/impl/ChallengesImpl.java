@@ -10,7 +10,7 @@ import chariot.internal.Util.MapBuilder;
 import chariot.model.ChallengeOpenEnded;
 import chariot.model.One;
 
-public class ChallengesImpl implements Challenges {
+public class ChallengesImpl implements ChallengesApi {
 
     final RequestHandler requestHandler;
 

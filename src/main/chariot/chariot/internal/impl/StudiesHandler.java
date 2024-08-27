@@ -8,12 +8,12 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import chariot.api.StudiesAuth;
+import chariot.api.StudiesApiAuth;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 
-public class StudiesHandler implements StudiesAuth {
+public class StudiesHandler implements StudiesApiAuth {
 
     private final RequestHandler requestHandler;
     private final InternalClient client;

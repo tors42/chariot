@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import chariot.model.*;
 
-public interface Broadcasts {
+public interface BroadcastsApi {
 
     /**
      * Get official broadcasts

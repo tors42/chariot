@@ -2,7 +2,7 @@ package chariot.api;
 
 import chariot.model.*;
 
-public interface ExternalEngineAuth extends ExternalEngine {
+public interface ExternalEngineApiAuth extends ExternalEngineApi {
 
     Many<ExternalEngineInfo> list();
     One<ExternalEngineInfo>  create(ExternalEngineRegistration registration);

@@ -10,7 +10,7 @@ import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 
-public class ChallengesHandler extends ChallengesAuthCommonImpl implements ChallengesAuth {
+public class ChallengesHandler extends ChallengesAuthCommonImpl implements ChallengesApiAuth {
 
     public ChallengesHandler(RequestHandler requestHandler) {
         super(requestHandler, Scope.challenge_write);

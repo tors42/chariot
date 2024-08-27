@@ -7,7 +7,7 @@ import java.util.function.Function;
 import chariot.model.*;
 import chariot.model.Enums.GameVariant;
 
-public interface StudiesAuth extends Studies {
+public interface StudiesApiAuth extends StudiesApi {
 
     /**
      * Import PGN into a study

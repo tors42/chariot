@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 import chariot.model.Enums.TournamentState;
 import chariot.internal.RequestParameters.Params;
 
-public class TournamentsHandler implements TournamentsAuth {
+public class TournamentsHandler implements TournamentsApiAuth {
 
     private final RequestHandler requestHandler;
 
@@ -73,13 +73,13 @@ public class TournamentsHandler implements TournamentsAuth {
     }
 
     @Override
-    public Many<Game> gamesByArenaId(String arenaId, Consumer<Games.Filter> params) {
+    public Many<Game> gamesByArenaId(String arenaId, Consumer<GamesApi.Filter> params) {
         return Endpoint.gamesByArenaId.newRequest(paramsConsumerByPathId(arenaId, params))
             .process(requestHandler);
     }
 
     @Override
-    public Many<Pgn> pgnGamesByArenaId(String arenaId, Consumer<Games.Filter> params) {
+    public Many<Pgn> pgnGamesByArenaId(String arenaId, Consumer<GamesApi.Filter> params) {
         return Endpoint.gamesByArenaIdPgn.newRequest(paramsConsumerByPathId(arenaId, params))
             .process(requestHandler);
     }
@@ -107,18 +107,18 @@ public class TournamentsHandler implements TournamentsAuth {
     }
 
     @Override
-    public Many<Game> gamesBySwissId(String swissId, Consumer<Games.Filter> params) {
+    public Many<Game> gamesBySwissId(String swissId, Consumer<GamesApi.Filter> params) {
         return Endpoint.gamesBySwissId.newRequest(paramsConsumerByPathId(swissId, params))
             .process(requestHandler);
     }
 
     @Override
-    public Many<Pgn> pgnGamesBySwissId(String swissId, Consumer<Games.Filter> params) {
+    public Many<Pgn> pgnGamesBySwissId(String swissId, Consumer<GamesApi.Filter> params) {
         return Endpoint.gamesBySwissIdPgn.newRequest(paramsConsumerByPathId(swissId, params))
             .process(requestHandler);
     }
 
-    static Consumer<Params> paramsConsumerByPathId(String pathId, Consumer<Games.Filter> params) {
+    static Consumer<Params> paramsConsumerByPathId(String pathId, Consumer<GamesApi.Filter> params) {
         return request -> request
                 .path(pathId)
                 .query(GamesHandler.filterBuilder().toMap(params));

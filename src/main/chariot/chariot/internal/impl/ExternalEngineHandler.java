@@ -8,7 +8,7 @@ import chariot.api.*;
 import chariot.internal.*;
 import chariot.model.*;
 
-public class ExternalEngineHandler implements ExternalEngineAuth {
+public class ExternalEngineHandler implements ExternalEngineApiAuth {
 
     private final RequestHandler requestHandler;
 

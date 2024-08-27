@@ -1,7 +1,7 @@
 package it.broadcastapi;
 
 import chariot.ClientAuth;
-import chariot.api.BroadcastsAuth.BroadcastBuilder;
+import chariot.api.BroadcastsApiAuth.BroadcastBuilder;
 import chariot.model.*;
 import chariot.model.Pgn.Tag;
 import util.IntegrationTest;

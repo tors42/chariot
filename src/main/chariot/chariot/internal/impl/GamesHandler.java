@@ -13,7 +13,7 @@ import java.util.function.*;
 
 import chariot.model.Enums.*;
 
-public class GamesHandler implements GamesAuth {
+public class GamesHandler implements GamesApiAuth {
 
     private final RequestHandler requestHandler;
 

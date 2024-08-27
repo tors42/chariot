@@ -6,7 +6,7 @@ import chariot.model.*;
 import chariot.model.Enums.*;
 import chariot.api.Builders.*;
 
-public interface ChallengesAuthCommon {
+public interface ChallengesApiAuthCommon {
 
     /**
      * Stream the events reaching the Lichess user in real time.<br>

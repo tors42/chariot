@@ -10,7 +10,7 @@ import chariot.internal.Util.MapBuilder;
 import chariot.model.ChallengeTokens;
 import chariot.model.One;
 
-public class AdminHandler implements AdminAuth {
+public class AdminHandler implements AdminApiAuth {
 
     private final RequestHandler requestHandler;
 

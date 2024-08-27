@@ -9,7 +9,7 @@ import chariot.model.*;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 
-public class BoardHandler extends ChallengesAuthCommonImpl implements BoardAuth {
+public class BoardHandler extends ChallengesAuthCommonImpl implements BoardApiAuth {
 
     public BoardHandler(RequestHandler requestHandler) {
         super(requestHandler, Scope.board_play);

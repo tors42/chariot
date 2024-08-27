@@ -6,7 +6,7 @@ import java.util.function.UnaryOperator;
 
 import chariot.model.*;
 
-public interface PuzzlesAuth extends Puzzles {
+public interface PuzzlesApiAuth extends PuzzlesApi {
 
     /**
      * @param params filter the puzzle activity search. Example {@code params -> params.max(50).before(now -> now.minusDays(5))}

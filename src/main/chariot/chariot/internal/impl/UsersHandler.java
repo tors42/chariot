@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import chariot.api.Users;
+import chariot.api.UsersApi;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 
-public class UsersHandler extends UsersBaseHandler implements Users {
+public class UsersHandler extends UsersBaseHandler implements UsersApi {
 
     public UsersHandler(RequestHandler requestHandler) {
         super(requestHandler);

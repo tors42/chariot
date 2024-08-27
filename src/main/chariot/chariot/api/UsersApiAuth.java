@@ -1,12 +1,12 @@
 package chariot.api;
 
-import chariot.api.Users.UserParams;
+import chariot.api.UsersApi.UserParams;
 import chariot.model.*;
 
 import java.util.*;
 import java.util.function.Consumer;
 
-public interface UsersAuth extends UsersBase {
+public interface UsersApiAuth extends UsersApiBase {
 
     /**
      * Get public user data

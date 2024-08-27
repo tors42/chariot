@@ -9,7 +9,7 @@ import java.util.function.Function;
 import chariot.model.*;
 import chariot.model.Broadcast.Round;
 
-public interface BroadcastsAuth extends Broadcasts {
+public interface BroadcastsApiAuth extends BroadcastsApi {
 
     One<Broadcast> create(Consumer<BroadcastBuilder> params);
     One<Void>      update(String tourId, Consumer<BroadcastBuilder> params);

@@ -3,14 +3,14 @@ package chariot.api;
 import java.util.*;
 import java.util.function.Consumer;
 
-import chariot.api.Users.*;
+import chariot.api.UsersApi.*;
 import chariot.model.*;
 import chariot.model.Enums.*;
 
 /**
  * Access registered users on Lichess.
  */
-public interface UsersBase {
+public interface UsersApiBase {
 
     default Many<UserStatus> statusByIds(Collection<String> userIds) {
         return statusByIds(userIds, __ -> {});

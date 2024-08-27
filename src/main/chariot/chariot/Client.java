@@ -65,24 +65,24 @@ public class Client extends chariot.internal.ClientBase {
     }
 
     /** Access registered users on Lichess. */
-    public Users users() {
+    public UsersApi users() {
         return super.usersHandler;
     }
 
-    /** {@inheritDoc} */ @Override public Analysis analysis() { return super.analysis(); }
-    /** {@inheritDoc} */ @Override public Bot bot() { return super.bot(); }
-    /** {@inheritDoc} */ @Override public Broadcasts broadcasts() { return super.broadcasts(); }
-    /** {@inheritDoc} */ @Override public Challenges challenges() { return super.challenges(); }
-    /** {@inheritDoc} */ @Override public ExternalEngine externalEngine() { return super.externalEngine(); }
-    /** {@inheritDoc} */ @Override public Games games() { return super.games(); }
-    /** {@inheritDoc} */ @Override public OpeningExplorer openingExplorer() { return super.openingExplorer(); }
-    /** {@inheritDoc} */ @Override public Puzzles puzzles() { return super.puzzles();}
-    /** {@inheritDoc} */ @Override public Simuls simuls() { return super.simuls(); }
-    /** {@inheritDoc} */ @Override public Studies studies() { return super.studies(); }
-    /** {@inheritDoc} */ @Override public Tablebase tablebase() { return super.tablebase(); }
-    /** {@inheritDoc} */ @Override public Teams teams() { return teamsHandler; }
-    /** {@inheritDoc} */ @Override public Tournaments tournaments() { return super.tournaments(); }
-    /** {@inheritDoc} */ @Override public Custom custom() { return super.custom(); }
+    /** {@inheritDoc} */ @Override public AnalysisApi analysis() { return super.analysis(); }
+    /** {@inheritDoc} */ @Override public BotApi bot() { return super.bot(); }
+    /** {@inheritDoc} */ @Override public BroadcastsApi broadcasts() { return super.broadcasts(); }
+    /** {@inheritDoc} */ @Override public ChallengesApi challenges() { return super.challenges(); }
+    /** {@inheritDoc} */ @Override public ExternalEngineApi externalEngine() { return super.externalEngine(); }
+    /** {@inheritDoc} */ @Override public GamesApi games() { return super.games(); }
+    /** {@inheritDoc} */ @Override public OpeningExplorerApi openingExplorer() { return super.openingExplorer(); }
+    /** {@inheritDoc} */ @Override public PuzzlesApi puzzles() { return super.puzzles();}
+    /** {@inheritDoc} */ @Override public SimulsApi simuls() { return super.simuls(); }
+    /** {@inheritDoc} */ @Override public StudiesApi studies() { return super.studies(); }
+    /** {@inheritDoc} */ @Override public TablebaseApi tablebase() { return super.tablebase(); }
+    /** {@inheritDoc} */ @Override public TeamsApi teams() { return teamsHandler; }
+    /** {@inheritDoc} */ @Override public TournamentsApi tournaments() { return super.tournaments(); }
+    /** {@inheritDoc} */ @Override public CustomApi custom() { return super.custom(); }
 
 
 

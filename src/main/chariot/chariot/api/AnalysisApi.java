@@ -5,7 +5,7 @@ import java.util.function.*;
 import chariot.model.*;
 import chariot.model.Enums.VariantName;
 
-public interface Analysis {
+public interface AnalysisApi {
 
     One<CloudEvalCacheEntry> cloudEval(String fen, Consumer<Params> params);
     default One<CloudEvalCacheEntry> cloudEval(String fen) {
