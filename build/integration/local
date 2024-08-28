@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 IMAGE=ghcr.io/lichess-org/lila-docker:main
 
@@ -21,5 +21,11 @@ docker run --name app  --hostname app --network lila-network \
     $IMAGE \
     java ./build/Build.java
 
+exitCode=$?
+
 cleanup_containers
-echo "✅ Done"
+
+[[ $exitCode -eq 0 ]] && echo "✅ Done"
+[[ $exitCode -ne 0 ]] && echo "🔴 Failed"
+
+exit $exitCode
