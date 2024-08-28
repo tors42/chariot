@@ -18,7 +18,7 @@ docker run --name app  --hostname app --network lila-network \
     -e CLEANUP=y \
     -v $(pwd):/app \
     -w /app \
-    $IMAGE \
+    eclipse-temurin:22 \
     java ./build/Build.java
 
 exitCode=$?
