@@ -43,13 +43,16 @@ public class IT {
     static final Map<String, Client> userIdClientBasic = new ConcurrentHashMap<>();
     static final Map<String, ClientAuth> userIdClientAuth = new ConcurrentHashMap<>();
 
-    public record Players(ClientAuth white, ClientAuth black) {}
-    public static Players findPlayers() {
+    public record Players(ClientAuth white, String whiteId, ClientAuth black, String blackId) {}
+    public static Opt<Players> findPlayers() {
+        return findPlayers(StatsPerfType.rapid);
+    }
+    public static Opt<Players> findPlayers(StatsPerfType statsType) {
         record IdAndRating(String id, int rating) {}
         var candidates = admin().users().byIds(userIds).stream()
             .map(user -> switch(user) {
-                case User u when u.ratings().get(StatsPerfType.rapid) instanceof StatsPerfGame rapidPerf
-                    && rapidPerf.prov() == false -> new IdAndRating(u.id(), rapidPerf.rating());
+                case User u when u.ratings().get(statsType) instanceof StatsPerfGame statsPerf
+                    && statsPerf.prov() == false -> new IdAndRating(u.id(), statsPerf.rating());
                 default -> new IdAndRating(user.id(), -1); })
             .filter(r -> r.rating() != -1)
             .sorted(Comparator.comparingInt(IdAndRating::rating))
@@ -61,10 +64,29 @@ public class IT {
                         candidates.get(i),
                         candidates.get(i+1)))
             .min(Comparator.comparingInt(pair -> Math.abs(pair.first().rating() - pair.second().rating())));
-        return bestMatch.map(pairing -> new Players(
-                    clientAuthByUserId(pairing.first().id()),
-                    clientAuthByUserId(pairing.second().id())))
-            .orElse(null);
+        return bestMatch.map(pairing -> Opt.of(new Players(
+                    clientAuthByUserId(pairing.first().id()), pairing.first().id(),
+                    clientAuthByUserId(pairing.second().id()), pairing.second().id())))
+            .orElse(Opt.of());
+    }
+
+    public record TeamLeader(ClientAuth client, String userId, String teamId) {}
+
+    public static Opt<TeamLeader> findTeamLeader() {
+        record IdAndTeamList(String userId, List<Team> teams) {}
+        return userIds.stream()
+            .map(userId -> new IdAndTeamList(
+                        userId,
+                        admin().teams().byUserId(userId).stream()
+                            .filter(team -> team.leaders().stream().anyMatch(lead -> lead.id().equals(userId)))
+                            .sorted(Comparator.comparing(t -> t.name().length()))
+                            .limit(1)
+                            .toList()))
+            .filter(idAndList -> ! idAndList.teams().isEmpty())
+            .findFirst()
+            .map(idAndList -> new TeamLeader(clientAuthByUserId(idAndList.userId()), idAndList.userId(), idAndList.teams().getFirst().id()))
+            .map(Opt::of)
+            .orElse(Opt.of());
     }
 
     static final List<String> userIds = """

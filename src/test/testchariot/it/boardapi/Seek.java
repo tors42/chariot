@@ -14,7 +14,7 @@ public class Seek {
 
     @IntegrationTest
     public void seekRealTimeGame() {
-        if (! (IT.findPlayers() instanceof Players(var white, var black))) {
+        if (! (IT.findPlayers() instanceof Some(Players(var white, var __, var black, var ___)))) {
             fail("Couldn't find similarly rated players");
             return;
         }

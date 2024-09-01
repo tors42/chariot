@@ -65,7 +65,10 @@ public class Main {
                 //System.out.println("Running " + test.instance().getClass().getName() + "#" + method.getName());
                 try {
                     method.invoke(test.instance());
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                    Assert.fail("Method " + test.instance().getClass() + "#" + method.getName() + " threw exception: " + e);
+                    e.printStackTrace();
+                }
             }
         }
 

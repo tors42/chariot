@@ -11,8 +11,8 @@ import chariot.model.*;
 import chariot.model.Enums.Color;
 import chariot.model.Event.*;
 import chariot.model.GameStateEvent.*;
-import chariot.model.VariantType.Chess960;
-import chariot.model.VariantType.FromPosition;
+import chariot.model.Variant.Chess960;
+import chariot.model.Variant.FromPosition;
 import chariot.util.Board;
 import util.*;
 import static util.Assert.*;
@@ -91,7 +91,7 @@ public class Play960 {
     private String initialFenFromFullEvent(Full full) {
         return switch(full.gameType().variant()) {
             case Chess960(Some(String fen)) -> fen;
-            case FromPosition(Some(String fen)) -> fen;
+            case FromPosition(Some(String fen), var __) -> fen;
             default -> Board.fromStandardPosition().toFEN();
         };
     }
