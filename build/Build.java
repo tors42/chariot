@@ -69,7 +69,7 @@ class Build {
                );
 
             run(javac,
-                "--release", "21",
+                "--release", String.valueOf(Runtime.version().feature()),
                 "--module-path", moduleOut,
                 "--module-source-path", testSrc,
                 "--module", "testchariot",
