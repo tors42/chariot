@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 public sealed interface Opt<T> permits Some, Empty {
     static <T> Opt<T>   of(T value)   { return value == null ? new Empty<T>() : new Some<T>(value); }
+    static <T> Opt<T>   of()          { return new Empty<T>(); }
     static <T> Some<T>  some(T value) { return new Some<T>(value); }
     static <T> Empty<T> empty()       { return new Empty<T>(); }
 

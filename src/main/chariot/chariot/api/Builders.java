@@ -9,12 +9,14 @@ import chariot.internal.Config;
 
 public interface Builders {
 
-    interface Clock<T> {
+    interface ClockBuilder<T> {
         /**
          * @param initial Initial time on clock, in seconds
          * @param increment Increment added to clock after each move, in seconds
          */
         T clock(int initial, int increment);
+
+        default T clock(chariot.model.Clock clock)     { return clock((int)clock.initial().toSeconds(), (int)clock.increment().toSeconds()); }
 
         default T clockBullet1m0s()      { return clock((int) TimeUnit.MINUTES.toSeconds(1),   0); }
         default T clockBullet2m1s()      { return clock((int) TimeUnit.MINUTES.toSeconds(2),   1); }
@@ -44,6 +46,11 @@ public interface Builders {
         */
         T clock(float initial, int increment);
 
+
+        default T clock(chariot.model.Clock clock) {
+            return clock(Float.valueOf(clock.initial().toSeconds())/60, (int)clock.increment().toSeconds());
+        }
+
         default T clockBullet1m0s()      { return clock(1.0f,   0); }
         default T clockBullet2m1s()      { return clock(2.0f,   1); }
         default T clockBlitz3m1s()       { return clock(3.0f,   1); }
@@ -64,6 +71,10 @@ public interface Builders {
          * [ 0, 1, 2, 3, 4, 5, 6, 7, 10, 15, 20, 25, 30, 40, 50, 60 ]
         */
         T clock(int initial, int increment);
+
+        default T clock(chariot.model.Clock clock) {
+            return clock((int)clock.initial().toMinutes(), (int)clock.increment().toSeconds());
+        }
 
         default T clockRapid10m0s()      { return clock(10,  0); }
         default T clockRapid10m5s()      { return clock(10,  5); }

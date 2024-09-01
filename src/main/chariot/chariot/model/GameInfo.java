@@ -10,7 +10,7 @@ public record GameInfo(
         String fen,
         Color color,
         Status status,
-        VariantType variant,
+        Variant variant,
         TimeInfo time,
         boolean rated,
         boolean hasMoved,

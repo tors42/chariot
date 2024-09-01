@@ -42,7 +42,7 @@ public interface ChallengesApiAuthCommon {
         return declineChallenge(challengeId, reason.apply(DeclineReason.provider()));
     }
 
-    interface ChallengeBuilder extends Clock<ChallengeParams>, ClockCorrespondence<ChallengeParams> {}
+    interface ChallengeBuilder extends ClockBuilder<ChallengeParams>, ClockCorrespondence<ChallengeParams> {}
 
     interface ChallengeParams {
 
@@ -79,7 +79,7 @@ public interface ChallengesApiAuthCommon {
     }
 
 
-    interface ChallengeAIBuilder extends Clock<ChallengeAIParams>, ClockCorrespondence<ChallengeAIParams> {}
+    interface ChallengeAIBuilder extends ClockBuilder<ChallengeAIParams>, ClockCorrespondence<ChallengeAIParams> {}
 
     interface ChallengeAIParams {
 

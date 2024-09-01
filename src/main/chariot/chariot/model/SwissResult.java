@@ -1,10 +1,10 @@
 package chariot.model;
 
 public record SwissResult(
-        String username,
         int rank,
         float points,
         float tieBreak,
         int rating,
+        String username,
         int performance,
         boolean absent)  {}

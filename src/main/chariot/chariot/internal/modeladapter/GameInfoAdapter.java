@@ -19,13 +19,14 @@ public interface GameInfoAdapter {
         Opt<String> lastMove = (lm != null && ! lm.isBlank()) ? Opt.of(lm) : Opt.empty();
         var status = Status.valueOf(((YayObject) gameYo.value().get("status")).getInteger("id"));
 
-        VariantType variantType = null;
+        Variant variantType = Variant.Basic.standard;
         if (gameYo.value().get("variant") instanceof YayObject varYo) {
             String key = varYo.getString("key");
+            Opt<String> initialFen = Opt.of(gameYo.getString("initialFen"));
             variantType = switch(key) {
-                case "chess960"     -> new VariantType.Chess960(Opt.of(gameYo.getString("initialFen")));
-                case "fromPosition" -> new VariantType.FromPosition(Opt.of(gameYo.getString("initialFen")));
-                default             -> VariantType.Variant.valueOf(key);
+                case "chess960"     -> new Variant.Chess960(initialFen);
+                case "fromPosition" -> new Variant.FromPosition(initialFen);
+                default             -> Variant.Basic.valueOf(key);
             };
         }
 

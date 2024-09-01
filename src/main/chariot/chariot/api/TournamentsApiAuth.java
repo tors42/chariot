@@ -133,9 +133,13 @@ public interface TournamentsApiAuth extends TournamentsApi {
         default ArenaParams startTime(ZonedDateTime startTime) { return startTime(s -> s.atDate(startTime)); }
 
         /**
-         * @param variant The variant to use in tournament games
+         * Optionally specify a variant. Default value is "standard".
+         *
+         * Note, to use custom FEN (FromPosition or Chess960 variants), the tournament can not be `rated` and any Chess960 FEN must be a valid Chess960 position.
+         * @param variant The variant to play in the tournament
          */
-        ArenaParams variant(VariantName variant);
+        ArenaParams variant(Variant variant);
+        default ArenaParams variant(Function<Variant.Provider, Variant> variant) { return variant(variant.apply(Variant.provider())); }
 
         /**
          * @param rated Games are rated and impact players ratings
@@ -145,8 +149,10 @@ public interface TournamentsApiAuth extends TournamentsApi {
 
         /**
          * @param position Custom initial position (in FEN). Variant must be `standard`, `fromPosition`, or `chess960` (if a valid 960 starting position), and the game cannot be rated.
+         * @deprecated Use {@link #variant(Variant)} FromPosition or Chess960
          */
-        ArenaParams position(String position);
+        @Deprecated
+        default ArenaParams position(String position) { return variant(provider -> provider.standard(position)); }
 
         /**
          * @param berserkable  Whether the players can use berserk
@@ -161,10 +167,10 @@ public interface TournamentsApiAuth extends TournamentsApi {
         default ArenaParams streakable() { return streakable(true); }
 
         /**
-         * @param hasChat Whether the players can discuss in a chat
+         * @param withChat Whether the players can discuss in a chat
          */
-        ArenaParams hasChat(boolean hasChat);
-        default ArenaParams hasChat() { return hasChat(true); }
+        ArenaParams withChat(boolean withChat);
+        default ArenaParams withChat() { return withChat(true); }
 
         /**
          * @param description Anything you want to tell players about the tournament
@@ -178,9 +184,6 @@ public interface TournamentsApiAuth extends TournamentsApi {
          * @param entryCode
          */
         ArenaParams entryCode(String entryCode);
-
-        @Deprecated
-        default ArenaParams password(String entryCode) { return entryCode(entryCode); }
 
         /**
          * @param teamBattleByTeam Set the ID of a team you lead to create a team battle. The other teams can be added using the team battle edit endpoint.
@@ -214,10 +217,15 @@ public interface TournamentsApiAuth extends TournamentsApi {
         ArenaParams conditionAccountAge(int days);
 
         /**
-         * @param allowList Predefined list of usernames that are allowed to join. If this list is non-empty, then usernames absent from this list will be forbidden to join. Adding {@code %titled} to the list additionally allows any titled player to join. Example: {@code List.of("thibault", "german11", "%titled")}
+         * @param allowList Predefined list of usernames that are allowed to join. If this list is non-empty, then usernames absent from this list will be forbidden to join. Example: {@code List.of("thibault", "german11")}
          */
-        ArenaParams allowList(List<String> allowList);
+        ArenaParams allowList(Collection<String> allowList);
 
+        /**
+         * @param titled Restrict entry to titled players.
+         */
+        ArenaParams conditionTitled(boolean titled);
+        default ArenaParams conditionTitled() { return conditionTitled(true); }
 
         sealed interface StartTime {
             interface Provider {
@@ -264,7 +272,7 @@ public interface TournamentsApiAuth extends TournamentsApi {
         default JoinArenaParams pairMeAsap() { return pairMeAsap(true); }
     }
 
-    interface SwissBuilder extends Clock<SwissParams> {}
+    interface SwissBuilder extends ClockBuilder<SwissParams> {}
 
     interface SwissParams {
 
@@ -301,12 +309,19 @@ public interface TournamentsApiAuth extends TournamentsApi {
          * How long to wait between each round, in seconds.
          * Leave empty for "auto".
          * [ 0 .. 86400 ]
-         * Set to 99999999 to manually schedule each round from the tournament UI.
          */
         SwissParams roundInterval(int roundInterval);
 
-        SwissParams variant(VariantName variant);
-        default SwissParams variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
+        default SwissParams manualRoundScheduling() { return roundInterval(99999999); }
+
+        /**
+         * Optionally specify a variant. Default value is "standard".
+         *
+         * Note, to use custom FEN, the tournament can not be `rated` and the variant must be standard.
+         * @param variant The variant to play in the tournament
+         */
+        SwissParams variant(Variant variant);
+        default SwissParams variant(Function<Variant.Provider, Variant> variant) { return variant(variant.apply(Variant.provider())); }
 
         /*
          * Anything you want to tell players about the tournament
@@ -328,14 +343,16 @@ public interface TournamentsApiAuth extends TournamentsApi {
 
         /**
          * @param position Custom initial position (in FEN). Variant must be `standard`, `fromPosition`, or `chess960` (if a valid 960 starting position), and the game cannot be rated.
+         * @deprecated Use {@link #variant(Variant)} FromPosition or Chess960
          */
-        SwissParams position(String position);
+        @Deprecated
+        default SwissParams position(String position) { return variant(provider -> provider.standard(position)); }
 
 
         /**
-         * @param allowList Predefined list of usernames that are allowed to join. If this list is non-empty, then usernames absent from this list will be forbidden to join. Adding {@code %titled} to the list additionally allows any titled player to join. Example: {@code List.of("thibault", "german11", "%titled")}
+         * @param allowList Predefined list of usernames that are allowed to join. If this list is non-empty, then usernames absent from this list will be forbidden to join. Example: {@code List.of("thibault", "german11")}
          */
-        SwissParams allowList(List<String> allowList);
+        SwissParams allowList(Collection<String> allowList);
 
         /**
          * Usernames of two players that must not play together.
@@ -407,7 +424,13 @@ public interface TournamentsApiAuth extends TournamentsApi {
          * Valid values: [ 1, 3, 7, 14, 30, 60, 90, 180, 365, 365 * 2, 365 * 3 ]
          */
         SwissParams conditionAccountAge(int days);
-    }
+
+        /**
+         * @param titled Only titled players can join
+         */
+        SwissParams conditionTitled(boolean titled);
+        default SwissParams conditionTitled() { return conditionTitled(true); }
+     }
 
     interface JoinSwissParams {
         JoinSwissParams entryCode(String entryCode);

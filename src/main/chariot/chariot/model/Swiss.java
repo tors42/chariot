@@ -1,33 +1,20 @@
 package chariot.model;
 
-import java.util.Optional;
+import java.time.Duration;
+import java.time.ZonedDateTime;
 
-import chariot.model.Enums.VariantName;
-
-public record Swiss (
-        String id,
-        String name,
-        String createdBy,
-        String startsAt,
-        String status,
-        int nbOngoing,
-        int nbPlayers,
-        int nbRounds,
+public record Swiss(
+        TourInfo tourInfo,
         int round,
-        Verdict verdicts,
-        boolean rated,
-        boolean isRecentlyFinished,
-        VariantName variant,
-        Clock clock,
-        Optional<GreatPlayer> greatPlayer,
-        Optional<NextRound> nextRound,
-        Optional<Quote> quote,
-        Optional<Stats> stats
+        int nbRounds,
+        int nbOngoing,
+        ConditionInfo<SwissCondition> conditions,
+        Opt<ZonedDateTime> nextRoundAt,
+        Opt<Duration> nextRoundIn,
+        Opt<Stats> stats
         )  {
 
-    public record Clock (Integer limit, Integer increment) {}
-    public record GreatPlayer (String name, String url) {}
-    public record NextRound (String at, Integer in) {}
-    public record Quote (String text, String author) {}
-    public record Stats ( int games, int whiteWins, int blackWins, int draws, int byes, int absences, int averageRating)  {}
+    public String id() { return tourInfo.id(); }
+
+    public record Stats(int games, int whiteWins, int blackWins, int draws, int byes, int absences, int averageRating) {}
 }

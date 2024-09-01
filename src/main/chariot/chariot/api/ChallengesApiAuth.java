@@ -4,7 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.function.*;
 
 import chariot.model.Enums.*;
-import chariot.api.Builders.Clock;
+import chariot.api.Builders.ClockBuilder;
 import chariot.api.Builders.ClockCorrespondence;
 import chariot.internal.Crypt;
 import chariot.model.*;
@@ -64,7 +64,7 @@ public interface ChallengesApiAuth extends ChallengesApi, ChallengesApiAuthCommo
     One<Void>         cancelBulk(String bulkId);
 
 
-    interface BulkBuilder extends Clock<BulkParams>, ClockCorrespondence<BulkParams> {}
+    interface BulkBuilder extends ClockBuilder<BulkParams>, ClockCorrespondence<BulkParams> {}
 
     interface BulkParams {
 

@@ -138,8 +138,8 @@ public sealed interface Endpoint<T> {
     public static EPOne<Void> unblockUser =
         Endpoint.of(Void.class).endpoint("/api/rel/unblock/%s").post().scope(Scope.follow_write).toOne();
 
-    public static EPMany<Tournament> tournamentArenaCreatedByUser =
-        Endpoint.of(Tournament.class).endpoint("/api/user/%s/tournament/created").accept(jsonstream).toMany();
+    public static EPMany<ArenaLight> tournamentArenaCreatedByUser =
+        Endpoint.of(ArenaLight.class).endpoint("/api/user/%s/tournament/created").accept(jsonstream).toMany();
 
     public static EPMany<UserStatus> userStatusByIds =
         Endpoint.ofArr(UserStatus.class).endpoint("/api/users/status").toMany();
@@ -188,8 +188,8 @@ public sealed interface Endpoint<T> {
     public static EPOne<PageTeam> teamsSearch =
         Endpoint.of(PageTeam.class).endpoint("/api/team/search").toOne();
 
-    public static EPMany<Tournament> teamArenaById =
-        Endpoint.of(Tournament.class).endpoint("/api/team/%s/arena").toMany();
+    public static EPMany<ArenaLight> teamArenaById =
+        Endpoint.of(ArenaLight.class).endpoint("/api/team/%s/arena").toMany();
 
     public static EPMany<Swiss> teamSwissById =
         Endpoint.of(Swiss.class).endpoint("/api/team/%s/swiss").toMany();
@@ -258,8 +258,10 @@ public sealed interface Endpoint<T> {
         Endpoint.of(mapper(ArenaResultWrappedSheet.class).andThen(ArenaResultWrappedSheet::toArenaResult))
         .endpoint("/api/tournament/%s/results").accept(jsonstream).toMany();
 
-    public static EPOne<TeamBattleResults> tournamentTeamBattleResultsById =
-        Endpoint.of(TeamBattleResults.class).endpoint("/api/tournament/%s/teams").toOne();
+    public static EPMany<Arena.TeamStanding> tournamentTeamBattleResultsById =
+        Endpoint.of(Arena.TeamStanding.class).endpoint("/api/tournament/%s/teams")
+        .streamMapper(stream -> stream.map(mapper(TeamStandingWrapper.class)).filter(Objects::nonNull).flatMap(wrapper -> wrapper.teams().stream()))
+        .toMany();
 
     public static EPOne<TournamentStatus> tournamentArenas =
         Endpoint.of(TournamentStatus.class).endpoint("/api/tournament").toOne();
@@ -679,9 +681,8 @@ public sealed interface Endpoint<T> {
     static record AccountEmail(String email)  {}
     static record AccountKid(boolean kid)  {}
     static record WrappedSheet(String scores) {}
-    static record ArenaResultWrappedSheet(Integer rank, Integer score, Integer rating, String username, String title, Integer performance, String team, WrappedSheet sheet) {
-        public ArenaResultWrappedSheet { sheet = sheet == null ? new WrappedSheet("") : sheet; }
-        ArenaResult toArenaResult() { return new ArenaResult(rank, score, rating, username, title, performance, team, sheet.scores()); }
+    static record ArenaResultWrappedSheet(int rank, int score, int rating, String username, Opt<String> title, Opt<String> flair, Opt<Integer> performance, Opt<String> team, Opt<WrappedSheet> sheet) {
+        ArenaResult toArenaResult() { return new ArenaResult(rank, score, rating, username, title, flair, performance, team, sheet.map(WrappedSheet::scores)); }
     }
     static record WrappedChapters(List<ChapterMeta> chapters) {}
     static record PushAck(int moves) {}
@@ -699,6 +700,8 @@ public sealed interface Endpoint<T> {
             return games.stream();
         }
     }
+
+    static record TeamStandingWrapper(String id, List<Arena.TeamStanding> teams) {}
 
     static record ActiveAndUpcoming(List<Broadcast.TourWithLastRound> active, List<Broadcast.TourWithLastRound> upcoming) {}
 

@@ -1,21 +1,13 @@
 package chariot.model;
 
-import static chariot.internal.Util.orEmpty;
-
 public record ArenaResult(
-        Integer rank,
-        Integer score,
-        Integer rating,
+        int rank,
+        int score,
+        int rating,
         String username,
-        String title,
-        Integer performance,
-        String team,
-        String sheet)  {
-
-    public ArenaResult {
-        title = orEmpty(title);
-        team = orEmpty(team);
-        sheet = orEmpty(sheet);
-    }
-
+        Opt<String> title,
+        Opt<String> flair,
+        Opt<Integer> performance,
+        Opt<String> team,
+        Opt<String> sheet)  {
 }

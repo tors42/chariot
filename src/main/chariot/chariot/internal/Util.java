@@ -285,7 +285,7 @@ public class Util {
             final Map<String, Object> map = new HashMap<>();
             final Map<String, InvocationHandler> customHandlers = new HashMap<>();
             final InvocationHandler basicHandler = (proxy, method, args) -> {
-                map.put(method.getName(), args[0]);
+                map.put(method.getName(), args != null ? args[0] : null);
                 return proxy;
             };
             Object proxyInstance = Proxy.newProxyInstance(

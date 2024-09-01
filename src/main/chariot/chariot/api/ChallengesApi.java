@@ -12,7 +12,7 @@ public interface ChallengesApi {
 
     One<ChallengeOpenEnded> challengeOpenEnded(Consumer<OpenEndedBuilder> params);
 
-    interface OpenEndedBuilder extends Clock<OpenEndedParams>, ClockCorrespondence<OpenEndedParams> {}
+    interface OpenEndedBuilder extends ClockBuilder<OpenEndedParams>, ClockCorrespondence<OpenEndedParams> {}
 
     interface OpenEndedParams {
         OpenEndedParams rated(boolean rated);

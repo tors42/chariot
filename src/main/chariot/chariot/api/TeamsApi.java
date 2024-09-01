@@ -31,8 +31,8 @@ public interface TeamsApi {
 
     Many<Team>        popularTeams();
 
-    Many<Tournament>  arenaByTeamId(String teamId);
-    Many<Tournament>  arenaByTeamId(String teamId, int max);
+    Many<ArenaLight>  arenaByTeamId(String teamId);
+    Many<ArenaLight>  arenaByTeamId(String teamId, int max);
 
     Many<Swiss>       swissByTeamId(String teamId);
     Many<Swiss>       swissByTeamId(String teamId, int max);

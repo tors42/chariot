@@ -1,188 +1,57 @@
 package chariot.model;
 
+import java.net.URI;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import chariot.model.Enums.Color;
-import chariot.model.Enums.VariantName;
-import static chariot.internal.Util.orEmpty;
-
-public sealed interface Arena {
-
-    String id();
-    String createdBy();
-    String startsAt();
-    String system();
-    String fullName();
-    Integer minutes();
-    Perf perf();
-    Clock clock();
-    VariantName variant();
-    boolean rated();
-    boolean berserkable();
-    Verdict verdicts();
-    Integer nbPlayers();
-    List<Duel> duels();
-    Standing standing();
-    String description();
-
-    record Upcoming(
-        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
-
-        Integer secondsToStart,
-        GreatPlayer greatPlayer,
-        String description
-
-        ) implements Arena {
-
-        public Upcoming {
-            description =  Objects.toString(description, "");
-        }
-    }
-
-    record Ongoing(
-        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
-
-        boolean isStarted,
-        Integer secondsToFinish,
-        Featured featured,
-        String description
-
-        ) implements Arena {
-
-        public Ongoing {
-            description =  Objects.toString(description, "");
-        }
-
-        public record Featured(String id, String fen, String orientation, Color color, String lastMove, Player white, Player black, String winner) {
-            public record Player(int rank, String name, int rating) {}
-        }
-    }
-
-    record Finished(
-        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
-
-        boolean isFinished,
-        boolean isRecentlyFinished,
-        boolean pairingsClosed, // When isRecentlyFinished=true vanishes, a pairingsClosed=true shows up...
+public record Arena(
+        TourInfo tourInfo,
+        Duration duration,
+        boolean berserkable,
+        ConditionInfo<ArenaCondition> conditions,
+        List<Standing> standings,
         List<Podium> podium,
-        Stats stats,
-        String description
-
-        ) implements Arena {
-
-        public Finished {
-            description =  Objects.toString(description, "");
-        }
-
-        public record Podium (String name, Integer rank, Integer rating, Integer score, Sheet sheet, String team, NB nb, Integer performance) {
-            public Podium {
-                team = orEmpty(team);
-            }
-            public record NB (Integer game, Integer berserk, Integer win) {}
-        }
-
-        public record Stats ( Integer games, Integer moves, Integer whiteWins, Integer blackWins, Integer draws, Integer berserks, Integer averageRating)  {}
-    }
-
-    record TeamUpcoming(
-        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
-
-        Integer secondsToStart,
-        GreatPlayer greatPlayer,
-
-        List<TeamStanding> teamStanding,
-        DuelTeams duelTeams,
-        TeamBattle teamBattle,
-        String description
-
-        ) implements Arena {
-
-        public TeamUpcoming {
-            description =  Objects.toString(description, "");
-        }
-    }
-
-    record TeamOngoing(
-        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
-
-        boolean isStarted,
-        Integer secondsToFinish,
-        Featured featured,
-
-        List<TeamStanding> teamStanding,
-        DuelTeams duelTeams,
-        TeamBattle teamBattle,
-        String description
-
-        ) implements Arena {
-
-        public TeamOngoing {
-            description =  Objects.toString(description, "");
-        }
-        public record Featured(String id, String fen, String orientation, String color, String lastMove, Player white, Player black, String winner) {
-            public record Player(int rank, String name, int rating) {}
-        }
-    }
-
-    record TeamFinished(
-        String id, String createdBy, String startsAt, String system, String fullName, Integer minutes, Perf perf, Clock clock, VariantName variant, boolean rated, boolean berserkable, Verdict verdicts, Integer nbPlayers, List<Duel> duels, Standing standing,
-
-        boolean isFinished,
+        List<TeamStanding> teamStandings,
+        List<TopGame> topGames,
+        boolean pairingsClosed,
         boolean isRecentlyFinished,
-        boolean pairingsClosed, // When isRecentlyFinished=true vanishes, a pairingsClosed=true shows up...
-        List<Podium> podium,
-        Stats stats,
+        Opt<String> spotlight,
+        Opt<Battle> teamBattle,
+        Opt<Quote> quote,
+        Opt<GreatPlayer> greatPlayer,
+        Opt<Featured> featured,
+        Opt<Stats> stats
+        ) {
 
-        List<TeamStanding> teamStanding,
-        DuelTeams duelTeams,
-        TeamBattle teamBattle,
-        String description
+    public String id() { return tourInfo.id(); }
 
-        ) implements Arena {
+    public record Battle(List<TeamInfo> teams, int leaders) {}
+    public record TeamInfo(String id, String name, Opt<String> flair) {}
 
-        public TeamFinished {
-            description =  Objects.toString(description, "");
-        }
+    public record Standing(LightUser user,
+            int rank, int rating, boolean provisional, int score, String sheet,
+            boolean fire, boolean paused, Opt<String> team) {}
 
-        public record Podium (String name, Integer rank, Integer rating, Integer score, Sheet sheet, String team, NB nb, Integer performance) {
-            public Podium {
-                team = orEmpty(team);
-            }
-            public record NB (Integer game, Integer berserk, Integer win) {}
-        }
+    public record Podium(LightUser user,
+            int rank, int rating, int score, int performance,
+            int games, int berserk, int win,
+            Opt<String> team) {}
 
-        public record Stats ( Integer games, Integer moves, Integer whiteWins, Integer blackWins, Integer draws, Integer berserks, Integer averageRating)  {}
-    }
+    public record TeamStanding(int rank, String teamId, int score, Map<LightUser, Integer> players) {}
 
-    public record Sheet (String scores, boolean fire) {}
+    public record Featured(String gameId, String fen, Enums.Color orientation, Enums.Color color, String lastMove,
+            LightUser white, int whiteRating, int whiteRank, boolean whiteBerserk,
+            LightUser black, int blackRating, int blackRank, boolean blackBerserk,
+            Duration whiteTimeLeft, Duration blackTimeLeft, Opt<Enums.Color> winner) { }
 
-    public record Duel (String id, List<P> p) {
-        public record P (String n, Integer r, Integer k) {}
-    }
+    public record TopGame(String gameId,
+            String whiteName, int whiteRating, int whiteRank,
+            String blackName, int blackRating, int blackRank,
+            Opt<String> whiteTeamId, Opt<String> blackTeamId) {}
 
-    public record Standing (Integer page, List<Player> players) {
-        public record Player (String name, Integer rank, Integer rating, Integer score, Sheet sheet, String team, boolean withdraw) {
-            public Player {
-                team = orEmpty(team);
-            }
-        }
-    }
+    public record Stats(int games, int whiteWins, int blackWins, int draws, int averageRating, int berserks, int moves) {}
 
-    public record GreatPlayer (String name, String url) {}
-
-    public record Clock (Integer increment, Integer limit) {}
-    public record Perf (String icon, String key, String name) {}
-
-    public record TeamStanding (Integer rank, String id, Integer score, List<Player> players) {
-        public record Player (User user, Integer score) {
-            public record User (String name, String id) {}
-        }
-    }
-
-    public record DuelTeams() {}
-
-    public record TeamBattle (Map<String,String[]> teams, Integer nbLeaders) {}
-
+    public record Quote(String text, String author) {}
+    public record GreatPlayer (String name, URI url) {}
 }

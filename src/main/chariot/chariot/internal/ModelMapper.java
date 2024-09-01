@@ -48,14 +48,18 @@ public class ModelMapper {
 
         yayMapper.setCustomMapper(Challenge.class, ChallengesAdapter::nodeToChallenge);
         yayMapper.setCustomMapper(ChallengeInfo.class, ChallengesAdapter::nodeToChallengeInfo);
+        yayMapper.setCustomMapper(ArenaLight.class, TournamentAdapter::nodeToArenaLight);
+        yayMapper.setCustomMapper(Arena.TeamStanding.class, node -> TournamentAdapter.nodeToTeamStanding(node, yayMapper));
 
         strToObjMappings.put(Crosstable.class,         json -> CrosstableAdapter.nodeToCrosstable(Parser.fromString(json), yayMapper));
         strToObjMappings.put(ChallengeInfo.class,      json -> ChallengesAdapter.nodeToChallengeInfo(Parser.fromString(json)));
         strToObjMappings.put(ChallengeOpenEnded.class, json -> ChallengesAdapter.nodeToChallengeOpenEnded(Parser.fromString(json)));
         strToObjMappings.put(Challenge.class,          json -> ChallengesAdapter.nodeToChallenge(Parser.fromString(json)));
 
-        // todo, remodel tournament types
-        strToObjMappings.put(Tournament.class, json -> TournamentAdapter.nodeToTournament(Parser.fromString(json), yayMapper));
+        strToObjMappings.put(Arena.class,      json -> TournamentAdapter.nodeToArena(Parser.fromString(json), yayMapper));
+        strToObjMappings.put(ArenaLight.class, json -> TournamentAdapter.nodeToArenaLight(Parser.fromString(json)));
+
+        strToObjMappings.put(Swiss.class, json -> TournamentAdapter.nodeToSwiss(Parser.fromString(json), yayMapper));
 
         strToObjMappings.put(ChallengeTokens.class, json -> switch(Parser.fromString(json)) {
             case YayObject yo -> new ChallengeTokens(yo.value().keySet().stream()

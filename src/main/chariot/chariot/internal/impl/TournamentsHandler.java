@@ -13,7 +13,6 @@ import chariot.model.*;
 
 import java.util.function.Consumer;
 
-import chariot.model.Enums.TournamentState;
 import chariot.internal.RequestParameters.Params;
 
 public class TournamentsHandler implements TournamentsApiAuth {
@@ -31,19 +30,67 @@ public class TournamentsHandler implements TournamentsApiAuth {
     }
 
     @Override
-    public One<Arena> arenaById(String arenaId, int page) {
+    public One<Arena> arenaById(String arenaId, Consumer<StandingsParams> params) {
+        var map = MapBuilder.of(StandingsParams.class).toMap(params);
+        if (map.containsKey("pageSampleAll")) {
+            return _arenaByIdAllPages(arenaId);
+        }
+        return Endpoint.tournamentArenaById.newRequest(request -> request
+                .path(arenaId)
+                .query(map))
+            .process(requestHandler);
+    }
+
+    private One<Arena> _arenaByIdAllPages(String arenaId) {
+        One<Arena> firstResult = _arenaByIdAndPage(arenaId, 1);
+        if (! (firstResult instanceof Entry(Arena firstArena))) {
+            if (firstResult instanceof Fail<Arena> f) return f;
+            return One.fail(-1, Err.from("Failed to lookup " + arenaId + " page 1 standing"));
+        }
+        int totalPlayers = firstArena.tourInfo().nbPlayers();
+        int totalPages = (int) Math.ceil(totalPlayers / 10.0);
+        Stream<Arena.Standing> totalStandings = firstArena.standings().stream();
+        for (int page = 2; page <= totalPages; page++) {
+            if (_arenaByIdAndPage(arenaId, page) instanceof Entry(Arena current)) {
+                totalStandings = Stream.concat(totalStandings, current.standings().stream());
+            } else {
+                break;
+            }
+        }
+        //    total = firstArena with { standings = totalStandings.toList(); };
+        Arena total = withStandings(firstArena, totalStandings.toList());
+        return One.entry(total);
+    }
+
+    static Arena withStandings(Arena arena, List<Arena.Standing> withStandings) {
+        return new Arena(
+            arena.tourInfo(),
+            arena.duration(),
+            arena.berserkable(),
+            arena.conditions(),
+
+            withStandings,
+
+            arena.podium(),
+            arena.teamStandings(),
+            arena.topGames(),
+            arena.pairingsClosed(),
+            arena.isRecentlyFinished(),
+            arena.spotlight(),
+            arena.teamBattle(),
+            arena.quote(),
+            arena.greatPlayer(),
+            arena.featured(),
+            arena.stats());
+    }
+
+    private One<Arena> _arenaByIdAndPage(String arenaId, int page) {
         return Endpoint.tournamentArenaById.newRequest(request -> request
                 .path(arenaId)
                 .query(Map.of("page", page)))
             .process(requestHandler);
     }
 
-    @Override
-    public One<Arena> arenaById(String arenaId) {
-        return Endpoint.tournamentArenaById.newRequest(request -> request
-                .path(arenaId))
-            .process(requestHandler);
-    }
 
     @Override
     public Many<ArenaResult> resultsByArenaId(String tournamentId, Consumer<ArenaResultParams> params) {
@@ -54,7 +101,7 @@ public class TournamentsHandler implements TournamentsApiAuth {
     }
 
     @Override
-    public Many<Tournament> arenasCreatedByUserId(String userId, Set<TournamentState> specificStatus) {
+    public Many<ArenaLight> arenasCreatedByUserId(String userId, Set<TourInfo.Status> specificStatus) {
         Consumer<Params> params = request -> request.path(userId);
         if (! specificStatus.isEmpty()) {
             params = params.andThen(request -> request.query(Map.of("status", specificStatus.stream()
@@ -66,7 +113,7 @@ public class TournamentsHandler implements TournamentsApiAuth {
     }
 
     @Override
-    public One<TeamBattleResults> teamBattleResultsById(String tournamentId) {
+    public Many<Arena.TeamStanding> teamBattleResultsById(String tournamentId) {
         return Endpoint.tournamentTeamBattleResultsById.newRequest(request -> request
                 .path(tournamentId))
             .process(requestHandler);
@@ -223,7 +270,7 @@ public class TournamentsHandler implements TournamentsApiAuth {
     }
 
     private Map<String, Object> arenaBuilderToMap(Consumer<ArenaBuilder> consumer) {
-        var builder = withConditionsHandling(MapBuilder.of(ArenaParams.class))
+        var builder = withVariantHandling(withConditionsHandling(MapBuilder.of(ArenaParams.class)))
             .addCustomHandler("startTime", (args, map) -> {
                 @SuppressWarnings("unchecked")
                 var startTime = (Function<ArenaParams.StartTime.Provider, ArenaParams.StartTime>) args[0];
@@ -234,6 +281,7 @@ public class TournamentsHandler implements TournamentsApiAuth {
                     map.put("startDate", d.startDate());
                 }
             })
+            .rename("withChat", "hasChat")
             .rename("entryCode", "password");
 
 
@@ -252,7 +300,7 @@ public class TournamentsHandler implements TournamentsApiAuth {
     }
 
     private Map<String, Object> swissBuilderToMap(Consumer<SwissBuilder> consumer) {
-        var builder = withConditionsHandling(MapBuilder.of(SwissParams.class))
+        var builder = withVariantHandling(withConditionsHandling(MapBuilder.of(SwissParams.class)))
             .rename("entryCode", "password")
             .addCustomHandler("chatFor", (args, map) -> map.put("chatFor", ChatFor.class.cast(args[0]).id))
             .addCustomHandler("addForbiddenPairings", (args, map) -> {
@@ -307,11 +355,38 @@ public class TournamentsHandler implements TournamentsApiAuth {
             .rename("conditionMinRatedGames", "conditions.nbRatedGame.nb")
             .rename("conditionPlayYourGames", "conditions.playYourGames")
             .rename("conditionAccountAge",    "conditions.accountAge")
+            .rename("conditionTitled",        "conditions.titled")
             .rename("conditionTeam",          "conditions.teamMember.teamId") // only in Arena
             .addCustomHandler("allowList", (args, map) -> {
                 @SuppressWarnings("unchecked")
-                List<String> list = (List<String>) args[0];
-                if (!list.isEmpty()) map.put( "conditions.allowList", String.join(",", list));
+                Collection<String> allowList = (Collection<String>) args[0];
+                if (!allowList.isEmpty()) map.put( "conditions.allowList", String.join(",", allowList));
+            });
+    }
+
+    private static <T> MapBuilder<T> withVariantHandling(MapBuilder<T> builder) {
+        return builder
+            .addCustomHandler("variant", (args, map) -> {
+                if (args[0] instanceof Variant variantType) {
+                    switch(variantType) {
+                        case Variant.Basic variant
+                            -> map.put("variant", variant);
+                        case Variant.Chess960(Some(var fen))
+                            -> map.putAll(Map.of("variant", "chess960",
+                                                 "position", fen));
+                        case Variant.Chess960 __
+                            -> map.put("variant", "chess960");
+                        case Variant.FromPosition(Some(var fen), Some(var name))
+                            when name.equals("workaround-standard")
+                            -> map.putAll(Map.of("variant", "standard",
+                                                 "position", fen));
+                        case Variant.FromPosition(Some(var fen), var __)
+                            -> map.putAll(Map.of("variant", "fromPosition",
+                                                 "position", fen));
+                        case Variant.FromPosition(var __, var ___)
+                            -> map.put("variant", "fromPosition"); // hmmm
+                    }
+                }
             });
     }
 }

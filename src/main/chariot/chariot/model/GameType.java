@@ -1,4 +1,4 @@
 package chariot.model;
 
-public record GameType(boolean rated, VariantType variant, TimeControl timeControl) {}
+public record GameType(boolean rated, Variant variant, TimeControl timeControl) {}
 

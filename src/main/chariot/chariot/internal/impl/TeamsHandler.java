@@ -79,7 +79,7 @@ public class TeamsHandler implements TeamsApiAuth {
      }
 
     @Override
-    public Many<Tournament> arenaByTeamId(String teamId, int max) {
+    public Many<ArenaLight> arenaByTeamId(String teamId, int max) {
         return Endpoint.teamArenaById.newRequest(request -> request
                 .path(teamId)
                 .query(Map.of("max", max)))
@@ -87,7 +87,7 @@ public class TeamsHandler implements TeamsApiAuth {
     }
 
     @Override
-    public Many<Tournament> arenaByTeamId(String teamId) {
+    public Many<ArenaLight> arenaByTeamId(String teamId) {
         return Endpoint.teamArenaById.newRequest(request -> request
                 .path(teamId))
             .process(requestHandler);

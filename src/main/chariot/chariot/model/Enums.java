@@ -85,31 +85,6 @@ public interface Enums {
 
     enum Direction { in, out }
 
-    enum TournamentState {
-        created(10),started(20),finished(30);
-        TournamentState(int status) {
-            this.status = status;
-        }
-        final int status;
-        public int status() {
-            return status;
-        }
-        public static TournamentState valueOf(int status) {
-            return switch(status) {
-                case 10 -> created;
-                case 20 -> started;
-                case 30 -> finished;
-                default -> throw new IllegalArgumentException("Unknown tournament status: " + status);
-            };
-        }
-        //:
-        public interface Provider {
-            default TournamentState created() { return created; }
-            default TournamentState started()  { return started; }
-            default TournamentState finished()  { return finished; }
-        }
-        public static Provider provider() {return new Provider(){};}
-    }
 
     public enum Speed { ultraBullet, bullet, blitz, rapid, classical, correspondence;
         public interface Provider {
