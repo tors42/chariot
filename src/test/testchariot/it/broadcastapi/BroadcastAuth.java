@@ -216,6 +216,29 @@ public class BroadcastAuth {
         unboxEquals(broadcastAfterRoundHaveBeenCreated, expectedWithRounds);
     }
 
+
+    @IntegrationTest
+    public void createWithStartsAfterPrevious() {
+        var broadcastResult = superadmin.broadcasts().create(p -> p
+                .name("startsAfterPrevious test")
+                .description("startsAfterPrevious description")
+                );
+        if (! (broadcastResult instanceof Entry(Broadcast broadcast))) {
+            fail("Couldn't create broadcast " + broadcastResult);
+            return;
+        }
+        var myRoundResult = superadmin.broadcasts().createRound(broadcast.id(), p -> p
+                .name("startsAfterPrevious name")
+                .startsAfterPrevious());
+        if (! (myRoundResult instanceof Entry(MyRound myRound))) {
+            fail("Couldn't create round: " +  myRoundResult);
+            return;
+        }
+        assertTrue(myRound.round().startsAfterPrevious(), "Should have startsAfterPrevious");
+        One<Broadcast> broadcastFetchRes = superadmin.broadcasts().broadcastById(broadcast.id());
+        unboxEquals(broadcastFetchRes, true, b -> ! b.rounds().isEmpty() && b.rounds().getFirst().startsAfterPrevious());
+    }
+
     static MyRound createAndVerifyRound(Broadcast broadcast, String roundName, int plusDays) {
         ZonedDateTime createRound = ZonedDateTime.now();
         ZonedDateTime roundStartsAt = createRound.plusDays(plusDays).withNano(0);
@@ -251,6 +274,7 @@ public class BroadcastAuth {
                 roundName.toLowerCase(Locale.ROOT).replace(' ', '-'),
                 roundName,
                 roundCreatedAt,
+                false, // startsAfterPrevious
                 Opt.of(roundStartsAt),
                 false,
                 false,
@@ -274,6 +298,7 @@ public class BroadcastAuth {
                 round.createdAt(),
                 round.ongoing(),
                 round.finished(),
+                round.startsAfterPrevious(),
                 round.startsAt(),
                 Opt.empty(),
                 round.url()
