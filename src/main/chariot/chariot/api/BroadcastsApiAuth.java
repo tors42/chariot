@@ -231,7 +231,16 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
          */
         default RoundBuilder startsAt(Function<ZonedDateTime, ZonedDateTime> now) { return startsAt(now.apply(ZonedDateTime.now())); }
 
+        /**
+         * The start date is unknown, and the round will start automatically when the previous round completes.
+         * @param startsAfterPrevious
+         */
+        RoundBuilder startsAfterPrevious(boolean startsAfterPrevious);
 
+        /**
+         * The start date is unknown, and the round will start automatically when the previous round completes.
+         */
+        default RoundBuilder startsAfterPrevious() { return startsAfterPrevious(true); }
     }
 
     interface RoundsParameters {

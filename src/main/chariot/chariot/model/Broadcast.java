@@ -11,7 +11,7 @@ public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group)  {
         public Opt<ZonedDateTime> startDate() { return dates().isEmpty() == false ? Opt.of(dates().getFirst()) : Opt.empty(); }
         public Opt<ZonedDateTime> endDate() { return dates().size() == 2  ? Opt.of(dates().getLast()) : Opt.empty(); }
     }
-    public record Round(String id, String name, String slug, ZonedDateTime createdAt, boolean ongoing, boolean finished, Opt<ZonedDateTime> startsAt, Opt<RoundTour> tour, URI url) {}
+    public record Round(String id, String name, String slug, ZonedDateTime createdAt, boolean ongoing, boolean finished, boolean startsAfterPrevious, Opt<ZonedDateTime> startsAt, Opt<RoundTour> tour, URI url) {}
     public record RoundTour(String id, String name, String slug, String description, ZonedDateTime createdAt, int tier) {}
 
 
