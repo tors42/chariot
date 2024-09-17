@@ -267,7 +267,7 @@ The tool is included in JDK archives, which can be downloaded and unpacked from 
 
 <pre>
 $ <b>jshell</b>
-|  Welcome to JShell -- Version 22.0.2
+|  Welcome to JShell -- Version 23
 |  For an introduction type: /help intro
 
 jshell>
@@ -301,7 +301,7 @@ jshell> <b>import chariot.Client;</b>
    ...> <b>    .map(team -> "Team %s has %d members!".formatted(team.name(), team.nbMembers()))</b>
    ...> <b>    .orElse("Couldn't find team!"));</b>
 client ==> chariot.Client@45efd90f
-Team Lichess Swiss has 490327 members!
+Team Lichess Swiss has 509374 members!
 
 jshell>
 </pre>
@@ -313,9 +313,9 @@ arenaByTeamId(        byTeamId(             byUserId(             equals(
 getClass()            hashCode()            notify()              notifyAll()
 numberOfTeams()       popularTeams()        popularTeamsByPage(   search(
 searchByPage(         swissByTeamId(        toString()            usersByTeamId(
-wait(
+usersByTeamIdFull(    wait(
 jshell> client.teams().<b>numberOfTeams();</b>
-$4 ==> 360145
+$4 ==> 366157
 
 jshell> <b>/exit</b>
 |  Goodbye
@@ -327,9 +327,9 @@ Build with latest Java. A JDK archive can be downloaded and unpacked from https:
 
 <pre>
 $ <b>java -version</b>
-openjdk version "22.0.2" 2024-07-16
-OpenJDK Runtime Environment (build 22.0.2+9-70)
-OpenJDK 64-Bit Server VM (build 22.0.2+9-70, mixed mode, sharing)
+openjdk version "23" 2024-09-17
+OpenJDK Runtime Environment (build 23+37-2369)
+OpenJDK 64-Bit Server VM (build 23+37-2369, mixed mode, sharing)
 
 $ <b>java build/Build.java</b>
 61 successful basic tests
