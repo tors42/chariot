@@ -1,6 +1,6 @@
-/**
- * Provides access to the <a href="https://lichess.org/api">Lichess API</a>.
- */
+///
+/// Provides access to the [Lichess API](https://lichess.org/api).
+///
 module chariot {
 
     exports chariot;
