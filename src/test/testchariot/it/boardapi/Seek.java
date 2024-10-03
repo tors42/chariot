@@ -14,45 +14,43 @@ public class Seek {
 
     @IntegrationTest
     public void seekRealTimeGame() {
-        if (! (IT.findPlayers() instanceof Some(Players(var white, var __, var black, var ___)))) {
+        if (! (IT.findPlayers() instanceof Some(Players(var first, var __, var second, var ___)))) {
             fail("Couldn't find similarly rated players");
             return;
         }
 
-        if (! (black.board().connect() instanceof Entries(var blackEvents)
-            && white.board().connect() instanceof Entries(var whiteEvents))) {
+        if (! (second.board().connect() instanceof Entries(var secondEvents)
+            && first.board().connect() instanceof Entries(var firstEvents))) {
             fail("Couldn't connect");
             return;
         }
 
-        var whiteGameStart = new AtomicReference<GameStartEvent>();
-        var blackGameStart = new AtomicReference<GameStartEvent>();
+        var firstGameStart = new AtomicReference<GameStartEvent>();
+        var secondGameStart = new AtomicReference<GameStartEvent>();
 
-        var whiteListen = Thread.ofPlatform().start(() -> whiteEvents
+        var firstListen = Thread.ofPlatform().start(() -> firstEvents
                 .filter(GameStartEvent.class::isInstance)
                 .map(GameStartEvent.class::cast)
-                .findFirst().ifPresent(whiteGameStart::set));
+                .findFirst().ifPresent(firstGameStart::set));
 
-        var blackListen = Thread.ofPlatform().start(() -> blackEvents
+        var secondListen = Thread.ofPlatform().start(() -> secondEvents
                 .filter(GameStartEvent.class::isInstance)
                 .map(GameStartEvent.class::cast)
-                .findFirst().ifPresent(blackGameStart::set));
+                .findFirst().ifPresent(secondGameStart::set));
 
-        var whiteSeek = Thread.ofPlatform().start(() -> white.board().seekRealTime(params -> params
-                    .clockRapid10m5s()
-                    .color(c -> c.white()))
+        var firstSeek = Thread.ofPlatform().start(() -> first.board().seekRealTime(params -> params
+                    .clockRapid10m5s())
                 .stream().findFirst());
 
-        var blackSeek = Thread.ofPlatform().start(() -> black.board().seekRealTime(params -> params
-                    .clockRapid10m5s()
-                    .color(c -> c.black()))
+        var secondSeek = Thread.ofPlatform().start(() -> second.board().seekRealTime(params -> params
+                    .clockRapid10m5s())
                 .stream().findFirst());
 
-        List.of(whiteSeek, blackSeek, whiteListen, blackListen)
+        List.of(firstSeek, secondSeek, firstListen, secondListen)
             .forEach(thread -> assertTrue(() -> thread.join(Duration.ofSeconds(5))));
 
-        assertNotNull(whiteGameStart.get());
-        assertNotNull(blackGameStart.get());
-        assertEquals(whiteGameStart.get().id(), blackGameStart.get().id());
+        assertNotNull(firstGameStart.get());
+        assertNotNull(secondGameStart.get());
+        assertEquals(firstGameStart.get().id(), secondGameStart.get().id());
     }
 }
