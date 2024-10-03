@@ -45,7 +45,7 @@ public class BroadcastAuth {
         List<Broadcast.Round> rounds = List.of();
         Opt<Broadcast.Group> group = Opt.empty();
         List<ZonedDateTime> dates = List.of();
-        Broadcast.Info info = new Broadcast.Info(Opt.empty(), Opt.empty(), Opt.empty(), Opt.empty());
+        Broadcast.Info info = new Broadcast.Info();
 
         Broadcast expected = new Broadcast(
                 new Broadcast.Tour(
@@ -113,6 +113,9 @@ public class BroadcastAuth {
         String infoTimeControl = "Classical";
         String infoTournamentFormat = "Swiss 3-round";
         String infoPlayers = "Anna,Beatrice,Claire,Diana";
+        String infoLocation = "Utopia";
+        URI infoWebsite = URI.create("https://localhost/tournament");
+        URI infoStandings = URI.create("https://localhost/tournament/results");
 
         ZonedDateTime create = ZonedDateTime.now();
 
@@ -126,6 +129,9 @@ public class BroadcastAuth {
                 .infoTimeControl(infoTimeControl)
                 .infoTournamentFormat(infoTournamentFormat)
                 .infoFeaturedPlayers(infoPlayers)
+                .infoLocation(infoLocation)
+                .infoWebsite(infoWebsite)
+                .infoStandings(infoStandings)
                 .tier(tier)
                 .showScores(showScores)
                 .showRatingDiffs(showRatingDiffs)
@@ -145,7 +151,14 @@ public class BroadcastAuth {
 
         String slug = name.toLowerCase(Locale.ROOT).replace(' ', '-');
         Opt<URI> image = Opt.empty();
-        Broadcast.Info info = new Broadcast.Info(Opt.some(infoTournamentFormat), Opt.some(infoTimeControl), Opt.some(infoPlayers), Opt.some(infoTimeControlFIDE));
+        Broadcast.Info info = new Broadcast.Info(
+                Opt.some(infoTournamentFormat),
+                Opt.some(infoTimeControl),
+                Opt.some(infoPlayers),
+                Opt.some(infoTimeControlFIDE),
+                Opt.of(infoLocation),
+                Opt.of(infoWebsite),
+                Opt.of(infoStandings));
 
         List<Broadcast.Round> rounds = List.of();
         Opt<Broadcast.Group> group = Opt.empty();
