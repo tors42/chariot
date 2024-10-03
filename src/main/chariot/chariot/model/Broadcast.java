@@ -22,5 +22,9 @@ public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group)  {
 
     public record Group(String name, List<IdAndName> tours) {}
 
-    public record Info(Opt<String> format, Opt<String> tc, Opt<String> players, Opt<FideTC> fideTc) {}
+    public record Info(Opt<String> format, Opt<String> tc, Opt<String> players, Opt<FideTC> fideTc, Opt<String> location, Opt<URI> website, Opt<URI> standings) {
+        public Info() {
+            this(Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of());
+        }
+    }
 }

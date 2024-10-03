@@ -61,6 +61,11 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
          */
         BroadcastBuilder description(String description);
 
+        BroadcastBuilder infoLocation(String location);
+        BroadcastBuilder infoStandings(URI standings);
+        default BroadcastBuilder infoStandings(String standings) { return infoStandings(URI.create(standings)); }
+        BroadcastBuilder infoWebsite(URI website);
+        default BroadcastBuilder infoWebsite(String website) { return infoWebsite(URI.create(website)); }
         BroadcastBuilder infoTimeControl(String timeControl);
         BroadcastBuilder infoTournamentFormat(String format);
         BroadcastBuilder infoFeaturedPlayers(String players);
