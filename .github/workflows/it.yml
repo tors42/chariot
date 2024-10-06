@@ -11,7 +11,8 @@ jobs:
     container: ubuntu:22.04
     services:
       lila:
-        image: ghcr.io/lichess-org/lila-docker:main
+        #image: ghcr.io/lichess-org/lila-docker:main
+        image: 'Dockerfile'
         options: --restart=always
 
     steps:
