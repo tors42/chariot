@@ -21,18 +21,12 @@ public class Main {
             : "http://lila:9663");
     public static final URI itApi() { return api; }
 
-    private final static boolean includeLongRunningTests = System.getenv("IT_LONG") instanceof String;
     private final static String singleClass = System.getenv("ONLY") instanceof String testClass ? testClass : null;
 
 
     public static void main(String[] args) throws Exception {
 
         Predicate<Method> skipTestMethod = __ -> false;
-
-        if (! includeLongRunningTests)
-            skipTestMethod = skipTestMethod.or(method -> method
-                    .getAnnotation(IntegrationTest.class) instanceof IntegrationTest it
-                    && it.expectedSeconds() > 3);
 
         if (singleClass != null && !singleClass.isBlank()) {
             System.out.println("Running single class: " + singleClass);
