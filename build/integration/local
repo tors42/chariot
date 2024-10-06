@@ -1,59 +1,9 @@
 #!/bin/bash
 
+IMAGE_WITH_AGENT=image-with-agent:latest
+
 DIR=$(dirname $0)
 cd $DIR
-
-rm -rf agentclasses
-rm FastAutoStartRelayAgent.jar
-
-# Compile the agent into the agentclasses directory, enabling preview features for JDK 23
-javac --enable-preview --release 23 -d agentclasses FastAutoStartRelayAgent.java
-
-# Create JAR file manifest in agent.mf
-cat > agent.mf << EOF
-Premain-Class: FastAutoStartRelayAgent
-Can-Retransform-Classes: true
-EOF
-
-# Create the agent JAR (Note there is a period after -C agentclasses)
-jar --create --file=FastAutoStartRelayAgent.jar --manifest=agent.mf -C agentclasses .
-
-
-case $(uname -m) in
-    "arm64")
-        ARCH=aarch64
-        ;;
-    "aarch64")
-        ARCH=aarch64
-        ;;
-    *)
-        ARCH=x64
-        ;;
-esac
-
-
-echo $ARCH
-
-JDKURL="https://download.java.net/java/GA/jdk23/3c5b90190c68498b986a97f276efd28a/37/GPL/openjdk-23_linux-${ARCH}_bin.tar.gz"
-
-echo "the jdk url: $JDKURL"
-
-cat << EOF > Dockerfile
-FROM ghcr.io/lichess-org/lila-docker:main
-
-RUN rm -rf /opt/java/openjdk
-
-RUN curl -L -o jdk.tgz $JDKURL
-RUN tar xzf jdk.tgz
-RUN mv jdk-23 /opt/java/openjdk
-
-ADD FastAutoStartRelayAgent.jar /
-
-ENV _JAVA_OPTIONS="--enable-preview -javaagent:/FastAutoStartRelayAgent.jar"
-
-EOF
-
-IMAGE_WITH_AGENT=image-with-agent:latest
 
 docker build -t $IMAGE_WITH_AGENT .
 
@@ -70,7 +20,6 @@ cleanup_containers
 
 docker network create lila-network
 docker run --name lila --network lila-network -d $IMAGE_WITH_AGENT
-
 
 docker run \
     --name app  \
