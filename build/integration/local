@@ -5,7 +5,7 @@ IMAGE_WITH_AGENT=image-with-agent:latest
 DIR=$(dirname $0)
 cd $DIR
 
-docker build -t $IMAGE_WITH_AGENT .
+docker buildx build -t $IMAGE_WITH_AGENT .
 
 cd -
 
