@@ -25,7 +25,7 @@ jobs:
 
       - name: Download OpenJDK 23
         run: |
-          download_url="https://download.java.net/java/GA/jdk23/3c5b90190c68498b986a97f276efd28a/37/GPL/openjdk-23_linux-x64_bin.tar.gz"
+          download_url="https://download.java.net/java/GA/jdk23.0.1/c28985cbf10d4e648e4004050f8781aa/11/GPL/openjdk-23.0.1_linux-x64_bin.tar.gz"
           curl -Lo $RUNNER_TEMP/java_package.tar.gz $download_url
 
       - uses: actions/setup-java@v4
