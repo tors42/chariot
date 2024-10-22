@@ -101,14 +101,20 @@ public class TournamentsHandler implements TournamentsApiAuth {
     }
 
     @Override
-    public Many<ArenaLight> arenasCreatedByUserId(String userId, Set<TourInfo.Status> specificStatus) {
-        Consumer<Params> params = request -> request.path(userId);
-        if (! specificStatus.isEmpty()) {
-            params = params.andThen(request -> request.query(Map.of("status", specificStatus.stream()
-                            .map(s -> String.valueOf(s.status()))
-                            .toArray(String[]::new))));
-        }
-        return Endpoint.tournamentArenaCreatedByUser.newRequest(params)
+    public Many<ArenaLight> arenasCreatedByUserId(String userId, Consumer<CreatedParams> params) {
+        return Endpoint.tournamentArenaCreatedByUser.newRequest(request -> request
+                .path(userId)
+                .query(arenaByUserBuilderToMap(params)))
+            .process(requestHandler);
+     }
+
+    @Override
+    public Many<ArenaPlayed> arenasPlayedByUserId(String userId, Consumer<PlayedParams> params) {
+        return Endpoint.tournamentArenaPlayedByUser.newRequest(request -> request
+                .path(userId)
+                .query(MapBuilder.of(PlayedParams.class)
+                    .rename("max", "nb")
+                    .toMap(params)))
             .process(requestHandler);
     }
 
@@ -389,4 +395,20 @@ public class TournamentsHandler implements TournamentsApiAuth {
                 }
             });
     }
+
+    private Map<String, Object> arenaByUserBuilderToMap(Consumer<CreatedParams> consumer) {
+        return MapBuilder.of(CreatedParams.class)
+            .rename("max", "nb")
+            .addCustomHandler("status", (args, map) -> {
+                if (args.length > 0 && args[0] instanceof Object[] arr) {
+                    map.put("status", Arrays.stream(arr)
+                            .filter(TourInfo.Status.class::isInstance)
+                            .map(TourInfo.Status.class::cast)
+                            .map(status -> String.valueOf(status.status()))
+                            .toArray(String[]::new));
+                }
+            })
+        .toMap(consumer);
+    }
+
 }

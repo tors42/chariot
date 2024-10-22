@@ -141,6 +141,12 @@ public sealed interface Endpoint<T> {
     public static EPMany<ArenaLight> tournamentArenaCreatedByUser =
         Endpoint.of(ArenaLight.class).endpoint("/api/user/%s/tournament/created").accept(jsonstream).toMany();
 
+    public static EPMany<ArenaPlayed> tournamentArenaPlayedByUser =
+        Endpoint.of(mapper(ArenaPlayedWrapped.class)
+                .andThen(wrapped -> new ArenaPlayed(wrapped.tournament(),
+                        wrapped.player().games(), wrapped.player().score(), wrapped.player().rank())))
+            .endpoint("/api/user/%s/tournament/played").accept(jsonstream).toMany();
+
     public static EPMany<UserStatus> userStatusByIds =
         Endpoint.ofArr(UserStatus.class).endpoint("/api/users/status").toMany();
 
@@ -680,6 +686,8 @@ public sealed interface Endpoint<T> {
     static record PlayingWrapper(List<GameInfo> nowPlaying)  {}
     static record AccountEmail(String email)  {}
     static record AccountKid(boolean kid)  {}
+    static record ArenaPlayedWrapped(ArenaLight tournament, ArenaPlayer player) {}
+    static record ArenaPlayer(int games, int score, int rank) {}
     static record WrappedSheet(String scores) {}
     static record ArenaResultWrappedSheet(int rank, int score, int rating, String username, Opt<String> title, Opt<String> flair, Opt<Integer> performance, Opt<String> team, Opt<WrappedSheet> sheet) {
         ArenaResult toArenaResult() { return new ArenaResult(rank, score, rating, username, title, flair, performance, team, sheet.map(WrappedSheet::scores)); }

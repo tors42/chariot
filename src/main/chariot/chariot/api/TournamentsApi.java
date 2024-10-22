@@ -55,11 +55,28 @@ public interface TournamentsApi {
     /**
      * Get tournaments created by a given user.
      * Tournaments are sorted by reverse chronological order of start date (last starting first).
-     * @param specificStatus Optional filtering to only include tournaments of specified tournament status
+     * @param params Optional filtering to only include tournaments of specified tournament status
      */
-    Many<ArenaLight> arenasCreatedByUserId(String userId, Set<TourInfo.Status> specificStatus);
-    default Many<ArenaLight> arenasCreatedByUserId(String userId, TourInfo.Status... specificStatus) { return arenasCreatedByUserId(userId, Set.of(specificStatus)); }
-    default Many<ArenaLight> arenasCreatedByUserId(String userId) { return arenasCreatedByUserId(userId, Set.of()); }
+    Many<ArenaLight> arenasCreatedByUserId(String userId, Consumer<CreatedParams> params);
+    default Many<ArenaLight> arenasCreatedByUserId(String userId) { return arenasCreatedByUserId(userId, __ -> {}); }
+
+    @Deprecated
+    /// @deprecated Use {@link #arenasCreatedByUserId(String, Consumer)}
+    default Many<ArenaLight> arenasCreatedByUserId(String userId, Set<TourInfo.Status> status) {
+        return arenasCreatedByUserId(userId, p -> p.status(status.stream().toArray(TourInfo.Status[]::new)));
+    }
+    @Deprecated
+    /// @deprecated Use {@link #arenasCreatedByUserId(String, Consumer)}
+    default Many<ArenaLight> arenasCreatedByUserId(String userId, TourInfo.Status... status) {
+        return arenasCreatedByUserId(userId, p -> p.status(status));
+    }
+
+    ///
+    /// Get tournaments played by a given user.
+    /// @param params Optional filtering to only include tournaments of specified tournament status
+    ///
+    Many<ArenaPlayed> arenasPlayedByUserId(String userId, Consumer<PlayedParams> params);
+    default Many<ArenaPlayed> arenasPlayedByUserId(String userId) { return arenasPlayedByUserId(userId, __ -> {}); }
 
     /**
      * Teams of a team battle tournament, with top players, sorted by rank (best first).
@@ -154,5 +171,18 @@ public interface TournamentsApi {
          */
         SwissResultParams max(int max);
     }
+
+    interface PlayedParams {
+        /// Only include up to `max` tournaments
+        PlayedParams max(int max);
+    }
+
+    interface CreatedParams {
+        /// Only include tournaments of specific status
+        CreatedParams status(TourInfo.Status... specificStatus);
+        /// Only include up to `max` tournaments
+        CreatedParams max(int max);
+    }
+
 
 }
