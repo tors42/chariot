@@ -86,6 +86,7 @@ client.teams().swissByTeamId()
 
 client.tournaments().currentTournaments()
 client.tournaments().arenasCreatedByUserId()
+client.tournaments().arenasPlayedByUserId()
 client.tournaments().arenaById()
 client.tournaments().swissById()
 client.tournaments().gamesByArenaId()
