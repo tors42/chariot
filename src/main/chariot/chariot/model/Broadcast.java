@@ -22,9 +22,9 @@ public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group)  {
 
     public record Group(String name, List<IdAndName> tours) {}
 
-    public record Info(Opt<String> format, Opt<String> tc, Opt<String> players, Opt<FideTC> fideTc, Opt<String> location, Opt<URI> website, Opt<URI> standings) {
+    public record Info(Opt<String> format, Opt<String> tc, Opt<String> players, Opt<FideTC> fideTc, Opt<String> location, Opt<URI> website, Opt<URI> standings, Opt<String> timeZone) {
         public Info() {
-            this(Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of());
+            this(Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of());
         }
     }
 }

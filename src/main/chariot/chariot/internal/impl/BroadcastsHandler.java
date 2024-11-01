@@ -190,6 +190,7 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
                     .rename("infoLocation", "info.location")
                     .rename("infoStandings", "info.standings")
                     .rename("infoWebsite", "info.website")
+                    .rename("infoTimeZone", "info.timeZone")
                     .toMap(consumer);
     }
 }

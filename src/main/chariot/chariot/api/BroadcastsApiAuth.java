@@ -63,6 +63,7 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
 
         BroadcastBuilder infoLocation(String location);
         BroadcastBuilder infoStandings(URI standings);
+        BroadcastBuilder infoTimeZone(String timeZone);
         default BroadcastBuilder infoStandings(String standings) { return infoStandings(URI.create(standings)); }
         BroadcastBuilder infoWebsite(URI website);
         default BroadcastBuilder infoWebsite(String website) { return infoWebsite(URI.create(website)); }
