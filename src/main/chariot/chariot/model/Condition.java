@@ -40,6 +40,9 @@ public sealed interface Condition permits SwissCondition, ArenaCondition {
                                                                         .replace("(", "")
                                                                         .replace(")", "")
                                                                         .replace(",", "")
+                                                                        .replace(".", "")
+                                                                        .replace("[", "")
+                                                                        .replace("]", "")
                                                                         .toLowerCase(Locale.ROOT));
                                                            }
     static Condition generic(String description)           { return new Generic(description); }
