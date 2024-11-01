@@ -116,6 +116,7 @@ public class BroadcastAuth {
         String infoLocation = "Utopia";
         URI infoWebsite = URI.create("https://localhost/tournament");
         URI infoStandings = URI.create("https://localhost/tournament/results");
+        String infoTimeZone = "America/New_York";
 
         ZonedDateTime create = ZonedDateTime.now();
 
@@ -132,6 +133,7 @@ public class BroadcastAuth {
                 .infoLocation(infoLocation)
                 .infoWebsite(infoWebsite)
                 .infoStandings(infoStandings)
+                .infoTimeZone(infoTimeZone)
                 .tier(tier)
                 .showScores(showScores)
                 .showRatingDiffs(showRatingDiffs)
@@ -158,7 +160,8 @@ public class BroadcastAuth {
                 Opt.some(infoTimeControlFIDE),
                 Opt.of(infoLocation),
                 Opt.of(infoWebsite),
-                Opt.of(infoStandings));
+                Opt.of(infoStandings),
+                Opt.of(infoTimeZone));
 
         List<Broadcast.Round> rounds = List.of();
         Opt<Broadcast.Group> group = Opt.empty();
