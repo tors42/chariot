@@ -20,6 +20,7 @@ public record AccountPreferences(Prefs prefs, String language)  {
         boolean clockSound,
         boolean premove,
         Integer animation,
+        Integer pieceNotation,
         boolean captured,
         boolean follow,
         boolean highlight,
@@ -32,8 +33,9 @@ public record AccountPreferences(Prefs prefs, String language)  {
         Integer confirmResign,
         Integer insightShare,
         Integer keyboardMove,
+        boolean voiceMove,
         Integer zen,
-        boolean ratings,
+        Integer ratings,
         Integer moveEvent,
         Integer rookCastle
         ) {}
