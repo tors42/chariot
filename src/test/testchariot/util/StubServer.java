@@ -18,7 +18,7 @@ public class StubServer implements AutoCloseable {
     private final Consumer<String> log;
     private final HttpServer server;
     private final Set<String> ignoredHeaderNames = Set.of(
-            "connection", "http2-settings", "host", "upgrade", "user-agent");
+            "connection", "http2-settings", "host", "upgrade", "user-agent", "accept-language");
 
 
     public static StubServer start(Scenario scenario) {
