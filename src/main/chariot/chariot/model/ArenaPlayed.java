@@ -4,5 +4,6 @@ public record ArenaPlayed(
         ArenaLight tournament,
         int games,
         int score,
-        int rank)  {
+        int rank,
+        Opt<Integer> performance)  {
 }

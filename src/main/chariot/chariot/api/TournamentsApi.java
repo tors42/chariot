@@ -175,6 +175,10 @@ public interface TournamentsApi {
     interface PlayedParams {
         /// Only include up to `max` tournaments
         PlayedParams max(int max);
+        /// Include `performance` rating
+        PlayedParams performance(boolean performance);
+        /// Include `performance` rating
+        default PlayedParams performance() { return performance(true); };
     }
 
     interface CreatedParams {
