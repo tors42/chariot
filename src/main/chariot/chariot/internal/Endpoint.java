@@ -838,6 +838,7 @@ public sealed interface Endpoint<T> {
     default ParamsBuilder toBuilder(Consumer<Params> consumer) {
         record KeyValue(String key, String value) {}
         var headers = Stream.of(
+                new KeyValue("accept-language", "en"),
                 new KeyValue("accept", accept()),
                 new KeyValue("content-type", contentType())
                 )
