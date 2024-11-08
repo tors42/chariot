@@ -106,6 +106,23 @@ public class Main {
             try {
                 var response = http.send(aliveRequest, BodyHandlers.discarding());
                 System.out.println("Response: " + response);
+
+                // Tournament Conditions/Verdicts are translated in the API response,
+                // and if langauges aren't loaded, the i18n key is used instead...
+                // TournamentAdapter.parseEntryConditon(String condition) expects the condition string to have been translated into english...
+                //
+                // Todo, something better than sleeping 5 seconds...
+                //  - find some generic endpoint which uses translation, and query that endpoint until successful response?
+                //  - redirect the target lila docker instance output and parse it and wait for "i18n - Loaded xxx languages in yyy ms" message:
+                //      ...
+                //      [info] play.api.Play - Application started (Dev) (no global state)
+                //      [info] play.core.server.NettyServer - Listening for HTTP on /[0:0:0:0:0:0:0:0]:9663
+                //      [info] i18n - Loaded 10 languages in 76 ms
+                //      ...
+                var i18nWait = Duration.ofSeconds(5);
+                System.out.println("Waiting " + i18nWait.toSeconds() + " seconds to let i18n load its languages...");
+                try { Thread.sleep(i18nWait); } catch (InterruptedException ie) {}
+
                 return true;
             } catch (Exception ex) {
                 System.out.println("⌛ Waiting for lila to start...");
