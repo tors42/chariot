@@ -26,7 +26,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        Predicate<Method> skipTestMethod = __ -> false;
+        Predicate<Method> skipTestMethod = _ -> false;
 
         if (singleClass != null && !singleClass.isBlank()) {
             System.out.println("Running single class: " + singleClass);
