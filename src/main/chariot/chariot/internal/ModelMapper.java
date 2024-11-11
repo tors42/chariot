@@ -61,6 +61,8 @@ public class ModelMapper {
 
         strToObjMappings.put(Swiss.class, json -> TournamentAdapter.nodeToSwiss(Parser.fromString(json), yayMapper));
 
+        strToObjMappings.put(GameMeta.class, json -> GameMetaAdapter.nodeToGameMeta(Parser.fromString(json), yayMapper));
+
         strToObjMappings.put(ChallengeTokens.class, json -> switch(Parser.fromString(json)) {
             case YayObject yo -> new ChallengeTokens(yo.value().keySet().stream()
                     .collect(Collectors.toUnmodifiableMap(
