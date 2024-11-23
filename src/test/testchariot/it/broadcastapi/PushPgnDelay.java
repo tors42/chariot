@@ -28,7 +28,12 @@ public class PushPgnDelay {
         1. d4 d5 *""";
 
 
-    static String expectedNotStartedResult = "\n\n *";
+    static String expectedEmptyRound = "\n\n *";
+    static String expectedPlayersWithNoMoves = """
+        [Black "Hou Yifan"]
+        [White "Lei Tingjie"]
+
+         *""";
 
     static String expectedResult = """
         [Black "Hou Yifan"]
@@ -40,7 +45,7 @@ public class PushPgnDelay {
     @IntegrationTest
     public void pushPgnNoDelay() {
         var round = createRound();
-        assertEquals(expectedNotStartedResult, exportRoundPgn((round.id())));
+        assertEquals(expectedEmptyRound, exportRoundPgn((round.id())));
 
         client.broadcasts().pushPgnByRoundId(round.id(), firstIncomingPGN);
         assertEquals(firstIncomingPGN, exportRoundPgn((round.id())));
@@ -53,16 +58,16 @@ public class PushPgnDelay {
     public void pushPgnDelay() throws InterruptedException {
         var delay = Duration.ofSeconds(2);
         var round = createRoundDelay(delay);
-        assertEquals(expectedNotStartedResult, exportRoundPgn((round.id())));
+        assertEquals(expectedEmptyRound, exportRoundPgn((round.id())));
 
         client.broadcasts().pushPgnByRoundId(round.id(), firstIncomingPGN);
-        assertEquals(expectedNotStartedResult, exportRoundPgn((round.id())));
+        assertEquals(expectedPlayersWithNoMoves, exportRoundPgn((round.id())));
 
         Thread.sleep(delay.plusMillis(200));
-        assertEquals(firstIncomingPGN, exportRoundPgn((round.id())));
+        assertEquals(expectedPlayersWithNoMoves, exportRoundPgn((round.id())));
 
         client.broadcasts().pushPgnByRoundId(round.id(), secondIncomingPGN);
-        assertEquals(firstIncomingPGN, exportRoundPgn((round.id())));
+        assertEquals(expectedPlayersWithNoMoves, exportRoundPgn((round.id())));
 
         Thread.sleep(delay.plusMillis(200));
         assertEquals(expectedResult, exportRoundPgn((round.id())));
