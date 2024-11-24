@@ -70,6 +70,7 @@ class Build {
 
             run(javac,
                 "--release", String.valueOf(Runtime.version().feature()),
+                "--enable-preview",
                 "--module-path", moduleOut,
                 "--module-source-path", testSrc,
                 "--module", "testchariot",
@@ -91,6 +92,7 @@ class Build {
             if (skipTests) return 0;
 
             int basicTests = new ProcessBuilder("java",
+                "--enable-preview",
                 "--add-exports", "chariot/chariot.internal=testchariot",
                 "--add-exports", "chariot/chariot.internal.yayson=testchariot",
                 "-p", moduleOut.toString(), "-m", "testchariot")
@@ -102,6 +104,7 @@ class Build {
 
             if (itTests) {
                 return new ProcessBuilder("java",
+                    "--enable-preview",
                     "--add-exports", "chariot/chariot.internal=testchariot",
                     "--add-exports", "chariot/chariot.internal.yayson=testchariot",
                     "-p", moduleOut.toString(), "-m", "testchariot", "it")
