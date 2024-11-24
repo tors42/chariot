@@ -25,7 +25,7 @@ public class IT {
     }
 
     public static Client clientBasicByUserId(String userId) {
-        return userIdClientBasic.computeIfAbsent(userId, id -> Client.basic(conf -> conf.api(Main.itApi()).spacing(Duration.ZERO)));
+        return userIdClientBasic.computeIfAbsent(userId, _ -> Client.basic(conf -> conf.api(Main.itApi()).spacing(Duration.ZERO)));
     }
 
     public static ClientAuth clientAuthByUserId(String userId) {
