@@ -73,12 +73,16 @@ public class IT {
     public record TeamLeader(ClientAuth client, String userId, String teamId) {}
 
     public static Opt<TeamLeader> findTeamLeader() {
+        return findTeamLeader(Set.of());
+    }
+    public static Opt<TeamLeader> findTeamLeader(Set<String> excludingUserIds) {
         record IdAndTeamList(String userId, List<Team> teams) {}
         return userIds.stream()
+            .filter(userId -> !excludingUserIds.contains(userId))
             .map(userId -> new IdAndTeamList(
                         userId,
                         admin().teams().byUserId(userId).stream()
-                            .filter(team -> team.leaders().stream().anyMatch(lead -> lead.id().equals(userId)))
+                            .filter(team -> team.leader().id().equals(userId))
                             .sorted(Comparator.comparing(t -> t.name().length()))
                             .limit(1)
                             .toList()))
@@ -89,7 +93,7 @@ public class IT {
             .orElse(Opt.of());
     }
 
-    static final List<String> userIds = """
+    public static final List<String> userIds = """
         li
         ana
         ivan
