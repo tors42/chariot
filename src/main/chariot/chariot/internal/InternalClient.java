@@ -100,7 +100,11 @@ public class InternalClient {
         try {
             httpResponse = sendWithRetry(request.stream(), httpRequest, BodyHandlers.ofLines(), config.retries());
         } catch(Exception e) {
-            config.logging().request().log(Level.SEVERE, "%s".formatted(httpRequest), e);
+            if (e instanceof InterruptedException __) {
+                Thread.currentThread().interrupt();
+            } else {
+                config.logging().request().log(Level.SEVERE, "%s".formatted(httpRequest), e);
+            }
             return new RequestResult.Failure(-1, e.getMessage());
         }
 
@@ -267,7 +271,11 @@ public class InternalClient {
         try {
             response = sendWithRetry(false, httpRequest, BodyHandlers.discarding(), config().retries());
         } catch (Exception e) {
-            config.logging().request().log(Level.SEVERE, "%s".formatted(httpRequest), e);
+            if (e instanceof InterruptedException __) {
+                Thread.currentThread().interrupt();
+            } else {
+                config.logging().request().log(Level.SEVERE, "%s".formatted(httpRequest), e);
+            }
             return One.fail(-1, Err.from(e.getMessage()));
         }
 
