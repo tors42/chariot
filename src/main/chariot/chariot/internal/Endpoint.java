@@ -698,9 +698,9 @@ public sealed interface Endpoint<T> {
     static record MyRoundConvert(MyRound.Tour tour, RoundConvert round, MyRound.Study study) {
         MyRound toMyRound() { return new MyRound(tour, round.toRound(), study); }
     }
-    static record RoundConvert(String id, String slug, String name, ZonedDateTime createdAt, boolean startsAfterPrevious, Opt<ZonedDateTime> startsAt, boolean ongoing, boolean finished, java.net.URI url, Integer delay) {
+    static record RoundConvert(String id, String slug, String name, ZonedDateTime createdAt, boolean startsAfterPrevious, Opt<ZonedDateTime> startsAt, Opt<ZonedDateTime> finishedAt, boolean ongoing, boolean finished, java.net.URI url, Integer delay) {
         MyRound.Round toRound() {
-            return new MyRound.Round(id, slug, name, createdAt, startsAfterPrevious, startsAt, ongoing, finished, url, delay == null ? Duration.ZERO : Duration.ofSeconds(delay));
+            return new MyRound.Round(id, slug, name, createdAt, startsAfterPrevious, startsAt, finishedAt, ongoing, finished, url, delay == null ? Duration.ZERO : Duration.ofSeconds(delay));
         }
     }
     static record PushWrapper(List<PushResult> games) {
