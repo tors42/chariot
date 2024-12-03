@@ -75,6 +75,9 @@ public class StudiesHandler implements StudiesApiAuth {
                 .body(MapBuilder.of(ImportParams.class)
                     .addCustomHandler("orientationWhite", (args, map) -> map.put("orientation", "white"))
                     .addCustomHandler("orientationBlack", (args, map) -> map.put("orientation", "black"))
+                    .addCustomHandler("modePractice",       (__, map) -> map.put("mode", "practice"))
+                    .addCustomHandler("modeHideNextMoves",  (__, map) -> map.put("mode", "conceal"))
+                    .addCustomHandler("modeInteractive",    (__, map) -> map.put("mode", "gamebook"))
                     .toMap(params))
                 )
             .process(requestHandler);

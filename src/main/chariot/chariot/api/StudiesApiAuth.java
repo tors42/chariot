@@ -78,6 +78,12 @@ public interface StudiesApiAuth extends StudiesApi {
         ImportParams variant(GameVariant variant);
         default ImportParams variant(Function<GameVariant.Provider, GameVariant> variant) { return variant(variant.apply(GameVariant.provider())); }
 
+        /// Analysis mode: Practice with computer
+        ImportParams modePractice();
+        /// Analysis mode: Hide next moves
+        ImportParams modeHideNextMoves();
+        /// Analysis mode: Interactive lesson
+        ImportParams modeInteractive();
     }
 
 }
