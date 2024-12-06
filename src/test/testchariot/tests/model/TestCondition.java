@@ -13,6 +13,7 @@ public class TestCondition {
         Map.of(
                 "Simple",                  "simple",
                 "Lichess.org",             "lichessorg",
+                "Qe2+ Kxe2",               "qe2-kxe2",
                 "Thor - Love and Blunder", "thor-love-and-blunder"
               )
             .forEach( (exampleTeamName, expectedTeamId) -> assertEquals(expectedTeamId, parseViaCondition(exampleTeamName)));
