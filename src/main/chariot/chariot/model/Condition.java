@@ -37,6 +37,7 @@ public sealed interface Condition permits SwissCondition, ArenaCondition {
                                                                         .replaceAll("-", "")
                                                                         .replaceAll(" ", "-")
                                                                         .replaceAll("--", "-")
+                                                                        .replace("+", "")
                                                                         .replace("(", "")
                                                                         .replace(")", "")
                                                                         .replace(",", "")
