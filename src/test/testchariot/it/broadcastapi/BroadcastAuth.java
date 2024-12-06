@@ -292,6 +292,7 @@ public class BroadcastAuth {
                 roundCreatedAt,
                 false, // startsAfterPrevious
                 Opt.of(roundStartsAt),
+                Opt.of(),
                 false,
                 false,
                 roundUrl,
@@ -316,6 +317,7 @@ public class BroadcastAuth {
                 round.finished(),
                 round.startsAfterPrevious(),
                 round.startsAt(),
+                round.finishedAt(),
                 Opt.empty(),
                 round.url()
                 );
