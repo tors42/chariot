@@ -56,6 +56,7 @@ client.openingExplorer().lichess()
 client.openingExplorer().player()
 
 client.puzzles().dailyPuzzle()
+client.puzzles().nextPuzzle()
 client.puzzles().byId()
 client.puzzles().stormDashboard()
 
