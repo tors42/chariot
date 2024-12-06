@@ -363,6 +363,10 @@ public sealed interface Endpoint<T> {
     public static EPOne<Puzzle> puzzleById =
         Endpoint.of(Puzzle.class).endpoint("/api/puzzle/%s").toOne();
 
+    public static EPOne<Puzzle> puzzleNext =
+        Endpoint.of(Puzzle.class).endpoint("/api/puzzle/next").toOne();
+
+
     public static EPMany<PuzzleActivity> puzzleActivity =
         Endpoint.of(PuzzleActivity.class).endpoint("/api/puzzle/activity").accept(jsonstream).scope(Scope.puzzle_read).toMany();
 

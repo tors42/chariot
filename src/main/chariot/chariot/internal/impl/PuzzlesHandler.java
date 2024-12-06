@@ -1,7 +1,10 @@
 package chariot.internal.impl;
 
 import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import chariot.api.*;
 import chariot.internal.*;
@@ -30,10 +33,36 @@ public class PuzzlesHandler implements PuzzlesApiAuth {
     }
 
     @Override
-    public One<StormDashboard> stormDashboard(String username, Consumer<PuzzleParams> consumer) {
+    public One<Puzzle> nextPuzzle(Consumer<PuzzleParams> params, Consumer<PuzzleDifficulty> difficulty) {
+        var angleMap = MapBuilder.of(PuzzleParams.class)
+            .addCustomHandler("theme", (args, map) -> {
+                if (args[0] instanceof PuzzleAngle angle) {
+                    map.put("angle", switch(angle) {
+                        case PuzzleAngle.Theme.long_ -> "long";
+                        case PuzzleAngle.Theme.short_ -> "short";
+                        case PuzzleAngle.Theme theme -> theme.name();
+                        case PuzzleAngle.Custom(String name) -> name;
+                    });
+                }
+            })
+            .toMap(params);
+
+        var difficultyMap = MapBuilder.of(PuzzleDifficulty.class).toMap(difficulty);
+
+        var combined = Stream.of(angleMap, difficultyMap)
+            .flatMap(map -> map.entrySet().stream())
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        return Endpoint.puzzleNext.newRequest(request -> request
+                .query(combined))
+            .process(requestHandler);
+ }
+
+    @Override
+    public One<StormDashboard> stormDashboard(String username, Consumer<StormDashboardParams> consumer) {
         return Endpoint.stormDashboard.newRequest(request -> request
                 .path(username)
-                .query(MapBuilder.of(PuzzleParams.class).toMap(consumer)))
+                .query(MapBuilder.of(StormDashboardParams.class).toMap(consumer)))
             .process(requestHandler);
     }
 
@@ -64,4 +93,5 @@ public class PuzzlesHandler implements PuzzlesApiAuth {
         return Endpoint.puzzleRace.newRequest(request -> {})
             .process(requestHandler);
     }
+
 }

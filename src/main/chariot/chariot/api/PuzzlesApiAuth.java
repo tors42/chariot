@@ -2,11 +2,15 @@ package chariot.api;
 
 import java.time.ZonedDateTime;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import chariot.model.*;
 
 public interface PuzzlesApiAuth extends PuzzlesApi {
+
+    One<Puzzle> nextPuzzle(Consumer<PuzzleParams> params, Consumer<PuzzleDifficulty> difficulty);
+    default One<Puzzle> nextPuzzle(Consumer<PuzzleParams> params) { return nextPuzzle(params, __ -> {}); }
 
     /**
      * @param params filter the puzzle activity search. Example {@code params -> params.max(50).before(now -> now.minusDays(5))}
@@ -62,4 +66,27 @@ public interface PuzzlesApiAuth extends PuzzlesApi {
         }
     }
 
+    interface PuzzleDifficulty {
+        PuzzleDifficulty difficulty(Difficulty difficulty);
+        default PuzzleDifficulty difficulty(Function<Difficulty.Provider, Difficulty> difficulty) { return difficulty(difficulty.apply(Difficulty.provider())); }
+    }
+
+    enum Difficulty {
+        easiest,
+        easier,
+        normal,
+        harder,
+        hardest,
+        ;
+
+        public interface Provider {
+
+            default Difficulty easiest() { return Difficulty.easiest; }
+            default Difficulty easier() { return Difficulty.easier; }
+            default Difficulty normal() { return Difficulty.normal; }
+            default Difficulty harder() { return Difficulty.harder; }
+            default Difficulty hardest() { return Difficulty.hardest; }
+        }
+        static Provider provider() {return new Provider(){};}
+    }
 }
