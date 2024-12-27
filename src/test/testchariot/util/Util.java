@@ -1,7 +1,6 @@
 package util;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import module java.base;
 
 import chariot.internal.yayson.Lexer;
 
@@ -31,5 +30,15 @@ public interface Util {
         return URLEncoder.encode(data, StandardCharsets.UTF_8);
     }
 
+    static <T> Supplier<T> delayedSupplier(Duration delay, Supplier<T> supplier) {
+        return () -> {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException _) {
+                Thread.currentThread().interrupt();
+            }
+            return supplier.get();
+        };
+    }
 
 }
