@@ -151,11 +151,14 @@ public class RunArena {
         runner.run();
 
         List<ArenaResult> results = client.tournaments().resultsByArenaId(arena.id(), p -> p.sheet()).stream().toList();
-        List<Arena.TeamStanding> teamStandings = client.tournaments().teamBattleResultsById(arena.id()).stream().toList();
+        List<Arena.TeamStanding> teamStandings = switch(client.tournaments().teamBattleResultsById(arena.id()).stream().toList()) {
+            case List<Arena.TeamStanding> list when list.size() == teams.size() -> list;
+            default -> Util.delayedSupplier(Duration.ofSeconds(2), () -> client.tournaments().teamBattleResultsById(arena.id()).stream().toList()).get();
+        };
 
         return () -> {
             assertEquals(participants.size(), results.size(), "Expected results for all participants");
-            assertEquals(teams.size(), teamStandings.size(), "Expected team standings for all teams");
+            assertEquals(teams.size(), teamStandings.size(), "Expected team standings for all teams\n" + String.join("\n", teamStandings.stream().map(Arena.TeamStanding::toString).toList()));
             return null;
         };
     }
