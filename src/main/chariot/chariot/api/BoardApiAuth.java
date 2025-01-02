@@ -164,6 +164,12 @@ public interface BoardApiAuth extends ChallengesApiAuthCommon {
     interface SeekCorrespondenceBuilder extends ClockCorrespondence<SeekParams> {}
 
     interface SeekParams {
+        /**
+         * @param color Which color you get to play,
+         */
+        SeekParams color(ColorPref color);
+        default SeekParams color(Function<ColorPref.Provider, ColorPref> color) { return color(color.apply(ColorPref.provider())); }
+
         SeekParams variant(VariantName variant);
         default SeekParams variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
         SeekParams rated(boolean rated);
