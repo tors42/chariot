@@ -136,10 +136,10 @@ public class BoardHandler extends ChallengesAuthCommonImpl implements BoardApiAu
     }
 
     private Map<String, Object> seekCorrespondenceBuilderToMap(Consumer<SeekCorrespondenceBuilder> consumer) {
-        var builder = MapBuilder.of(SeekParams.class);
+        var builder = MapBuilder.of(SeekCorrParams.class);
         var seekBuilder = new SeekCorrespondenceBuilder() {
             @Override
-            public SeekParams daysPerTurn(int daysPerTurn) {
+            public SeekCorrParams daysPerTurn(int daysPerTurn) {
                 return builder
                     .add("days", daysPerTurn)
                     .proxy();

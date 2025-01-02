@@ -161,7 +161,7 @@ public interface BoardApiAuth extends ChallengesApiAuthCommon {
 
 
     interface SeekRealTimeBuilder extends ClockSeek<SeekParams> {}
-    interface SeekCorrespondenceBuilder extends ClockCorrespondence<SeekParams> {}
+    interface SeekCorrespondenceBuilder extends ClockCorrespondence<SeekCorrParams> {}
 
     interface SeekParams {
         /**
@@ -179,4 +179,16 @@ public interface BoardApiAuth extends ChallengesApiAuthCommon {
          */
         SeekParams ratingRange(String ratingRange);
     }
+
+    interface SeekCorrParams {
+        SeekCorrParams variant(VariantName variant);
+        default SeekCorrParams variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); }
+        SeekCorrParams rated(boolean rated);
+        default SeekCorrParams rated() { return rated(true); }
+        /**
+         * The rating range of potential opponents. Better left empty. Example: 1500-1800
+         */
+        SeekCorrParams ratingRange(String ratingRange);
+    }
+
 }
