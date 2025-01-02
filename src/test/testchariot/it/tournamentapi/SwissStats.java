@@ -206,7 +206,7 @@ public class SwissStats {
         }
     }
 
-    static final String pgnDraw = """
+    public static final String pgnDraw = """
         [Event "FIDE Women's Grand Prix 2024/25 - First Leg, Tbilisi"]
         [Site "Tbilisi, Georgia"]
         [Date "2024.08.16"]

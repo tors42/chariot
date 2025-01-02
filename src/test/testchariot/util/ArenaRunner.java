@@ -12,11 +12,15 @@ import chariot.api.TournamentsApiAuth.JoinArenaParams;
 import chariot.model.*;
 import chariot.util.Board;
 
+import it.tournamentapi.SwissStats;
+
 public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> participants, Opt<Duration> terminateAfter) implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger("arenarunner");
 
     public record Participant(ClientAuth client, UserAuth account, Opt<Team> team) {}
+
+    static Map<String, Pgn> scriptedGames = new ConcurrentHashMap<>();
 
     @Override
     public void run() {
@@ -24,7 +28,7 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
             for (var participant : participants()) {
                 // Maybe this is good fit to try ScopedValues feature!? (arena, team, client)
                 arenaScope.fork(() -> {
-                    connectRandomMover(arena(), participant);
+                    connectPgnReplayMover(arena(), participant);
 
                     // Setup a "wait forever"
                     var semaphore = new Semaphore(0);
@@ -47,20 +51,28 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
         }
     }
 
-    void connectRandomMover(Arena arena, Participant participant) {
+    void connectPgnReplayMover(Arena arena, Participant participant) {
         // join to get paired
         join(arena(), participant);
 
         participant.client().board().connect().stream().forEach(event -> {
             LOGGER.fine("Event for " + participant.account().id() + ": " + event);
             switch (event) {
-                case Event.GameStartEvent(var game, _) -> {
-                    handleGame(game, participant.client(), participant.account());
+                case Event.GameStartEvent(GameInfo game, var _) -> {
+                    handleGame(game, participant.client(), participant.account(), board -> scriptedMove(game.gameId(), board));
                     // re-join to get paired again
                     join(arena, participant);
                 }
                 default -> {}
             }});
+    }
+
+    String scriptedMove(String gameId, Board board) {
+        Pgn pgn = scriptedGames.computeIfAbsent(gameId, _ -> Pgn.readFromString(SwissStats.pgnDraw).getFirst());
+        Board.BoardData data = (Board.BoardData) board;
+        String sanMove = pgn.moveListSAN().get(data.fen().move()-1);
+        String uciMove = Board.Move.parse(sanMove, board.toFEN()).uci();
+        return uciMove;
     }
 
     void join(Arena arena, Participant participant) {
@@ -77,7 +89,7 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
         }
     }
 
-    private void handleGame(GameInfo game, ClientAuth client, UserAuth account) {
+    private void handleGame(GameInfo game, ClientAuth client, UserAuth account, Function<Board, String> moveMaker) {
         String fenAtGameStart = game.fen();
 
         Function<Enums.Color, String> nameByColor = color ->
@@ -92,15 +104,8 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
                     ? board.blackToMove()
                     : board.whiteToMove()) return;
 
-            List<Board.Move> validMoves = new ArrayList<>(board.validMoves());
-
-            Collections.shuffle(validMoves, new Random());
-            One<?> result = validMoves.stream()
-                .map(Board.Move::uci)
-                .findFirst()
-                .map(uci -> {
-                    return client.board().move(game.gameId(), uci);
-                }).orElse(One.fail(-1, Err.from("no move")));
+            String move = moveMaker.apply(board);
+            One<?> result = client.board().move(game.gameId(), move);
 
             if (result instanceof Fail<?> fail) {
                 LOGGER.fine(() -> "Play failed: %s - resigning".formatted(fail));
