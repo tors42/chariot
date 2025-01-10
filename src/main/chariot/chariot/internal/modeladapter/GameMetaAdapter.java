@@ -21,8 +21,9 @@ public interface GameMetaAdapter {
         Enums.Status status = Enums.Status.valueOf(gameMetaYo.getInteger("status"));
         ZonedDateTime createdAt = Util.fromLong(gameMetaYo.getLong("createdAt"));
         GameMeta.Players players = mapper.fromYayTree(gameMetaYo.value().get("players"), GameMeta.Players.class);
+        Opt<Enums.Color> winner = gameMetaYo.getString("winner") instanceof String color ? Opt.of(Enums.Color.valueOf(color)) : Opt.of();
 
-        return new GameMeta(id, rated, variant, time, status, createdAt, players);
+        return new GameMeta(id, rated, variant, time, status, createdAt, players, winner);
     }
 
     static RealTime nodeToRealTime(YayObject gameMetaYo) {
