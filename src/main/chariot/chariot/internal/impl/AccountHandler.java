@@ -48,7 +48,7 @@ public class AccountHandler implements AccountApiAuth {
     }
 
     @Override
-    public Many<UserAuth> following() {
+    public Many<UserCommon> following() {
         return Endpoint.relFollowing.newRequest(request -> {})
             .process(requestHandler);
     }

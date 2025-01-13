@@ -52,7 +52,6 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
             authFlags = Opt.of(new UserAuthFlags(
                 _followable().orElse(false),
                 _following().orElse(false),
-                _followsYou().orElse(false),
                 _blocking().orElse(false)));
         }
         Opt<Boolean> canChallenge = includeCanChallenge ? Opt.of(_canChallenge().orElse(false)) : Opt.empty();
@@ -115,7 +114,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
         online, streaming, playing, playingUrl, playingGameId,
         tosViolation, disabled, closed, verified, trophies,
         playTime, createdAt, seenAt, url, counts, ratings,
-        profile, followable, following, followsYou, blocking,
+        profile, followable, following, blocking,
         joinedTeamAt, streamInfo, streamerInfo, channelInfo,
         signal, playingGameMeta, canChallenge,
 
@@ -187,7 +186,6 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     Opt<Provided> _profile() { return property(profile, Provided.class); }
     Opt<Boolean> _followable() { return propertyB(followable); }
     Opt<Boolean> _following() { return propertyB(following); }
-    Opt<Boolean> _followsYou() { return propertyB(followsYou); }
     Opt<Boolean> _blocking() { return propertyB(blocking); }
     Opt<ZonedDateTime> _joinedTeamAt() { return property(joinedTeamAt, ZonedDateTime.class); }
     Opt<StreamInfo> _liveStreamInfo() { return property(streamInfo, StreamInfo.class); }

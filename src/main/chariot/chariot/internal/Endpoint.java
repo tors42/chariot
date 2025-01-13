@@ -122,8 +122,8 @@ public sealed interface Endpoint<T> {
         .streamMapper(Util::toPgnStream)
         .accept(chesspgn).toOne();
 
-    public static EPMany<UserAuth> relFollowing =
-        Endpoint.of(mapper(UserData.class).andThen(UserData::toUserAuth))
+    public static EPMany<UserCommon> relFollowing =
+        Endpoint.of(mapper(UserData.class).andThen(UserData::toCommon))
         .endpoint("/api/rel/following").scope(Scope.follow_read).accept(jsonstream).toMany();
 
     public static EPOne<Void> followUser =

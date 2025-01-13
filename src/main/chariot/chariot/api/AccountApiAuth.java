@@ -47,7 +47,7 @@ public interface AccountApiAuth {
     /**
      * Get users followed by logged in user.
      */
-    Many<UserAuth> following();
+    Many<UserCommon> following();
 
     /**
      * Entries of the timeline<br>

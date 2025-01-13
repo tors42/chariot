@@ -6,6 +6,5 @@ public sealed interface UserAuth extends User permits UserProfileData {
     }
     default boolean followable() { return auth().followable(); }
     default boolean following()  { return auth().following();  }
-    default boolean followsYou() { return auth().followsYou(); }
     default boolean blocked()    { return auth().blocking();   }
 }

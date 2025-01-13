@@ -61,7 +61,6 @@ public interface UserAdapter {
                 case "followable"   -> followable.of(yo.getBool(entry.getKey()));
                 case "following"    -> following.of(yo.getBool(entry.getKey()));
                 case "blocking"     -> blocking.of(yo.getBool(entry.getKey()));
-                case "followsYou"   -> followsYou.of(yo.getBool(entry.getKey()));
                 case "trophies"     -> trophies.of(new Trophies(entry.getValue() instanceof YayArray yarr
                                            ? yarr.value().stream().map(trophyNode -> yayMapper.fromYayTree(trophyNode, Trophy.class)).toList()
                                            : List.of()));
