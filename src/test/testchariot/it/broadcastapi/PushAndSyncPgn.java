@@ -43,15 +43,13 @@ public class PushAndSyncPgn {
                 List.of());
     }
 
-    sealed interface Replacement { String name(); }
-    record FideId(String name, int id) implements Replacement {}
-    record Manual(String name, Player replacement) implements Replacement {}
+    record Replacement(String name, Player replacement) {}
 
     List<Replacement> generateReplacements() { return List.of(
-            new Manual("Player One",   new Player("Substitute One", Opt.empty(),  Opt.empty())),
-            new Manual("Player Two",   new Player("Substitute Two", Opt.of(2000), Opt.of("WIM"))),
-            new Manual("Player Three", new Player("Player Three",   Opt.of(1840), Opt.empty())),
-            new FideId("Player Four",  309095));
+            new Replacement("Player One",   new Player("Substitute One", Opt.empty(), Opt.empty(),  Opt.empty())),
+            new Replacement("Player Two",   new Player("Substitute Two", Opt.empty(), Opt.of(2000), Opt.of("WIM"))),
+            new Replacement("Player Three", new Player("Player Three",   Opt.empty(), Opt.of(1840), Opt.empty())),
+            new Replacement("Player Four",  new Player("Player Four", Opt.of(309095), Opt.empty(), Opt.empty())));
     }
 
     @IntegrationTest
@@ -155,10 +153,10 @@ public class PushAndSyncPgn {
     }
 
     List<List<Pgn>> generateRounds() {
-        var player1 = new Player("Player One",   Opt.of(1200), Opt.empty());
-        var player2 = new Player("Player Two",   Opt.empty(),  Opt.empty());
-        var player3 = new Player("Player Three", Opt.of(1800), Opt.of("WFM"));
-        var player4 = new Player("Player Four",  Opt.of(2300), Opt.of("WGM"));
+        var player1 = new Player("Player One",   Opt.empty(), Opt.of(1200), Opt.empty());
+        var player2 = new Player("Player Two",   Opt.empty(), Opt.empty(),  Opt.empty());
+        var player3 = new Player("Player Three", Opt.empty(), Opt.of(1800), Opt.of("WFM"));
+        var player4 = new Player("Player Four",  Opt.empty(), Opt.of(2300), Opt.of("WGM"));
 
         var matchup1 = new Matchup(player1, player2, "1. d4 d5 2. e4 e5 1-0");
         var matchup2 = new Matchup(player3, player4, "1. a3 e5 2. h3 d5 1/2-1/2");
@@ -227,13 +225,11 @@ public class PushAndSyncPgn {
         replacements.stream().filter(r -> r.name().equals(newMap.get("White")) || r.name().equals(newMap.get("Black")))
             .forEach(replacement -> {
                 String color = newMap.get("White").equals(replacement.name()) ? "White" : "Black";
-                switch(replacement) {
-                    case FideId(var name, int fideId) -> newMap.put(color + "FideId", String.valueOf(fideId));
-                    case Manual(var name, Player(var newName, var rating, var title)) -> {
-                        newMap.put(color, newName);
-                        if (rating instanceof Some(var value)) newMap.put(color + "Elo", String.valueOf(value));
-                        if (title instanceof Some(var value)) newMap.put(color + "Title", value);
-                    }
+                if (replacement.replacement() instanceof Player(var newName, var fideOpt, var ratingOpt, var titleOpt)) {
+                    newMap.put(color, newName);
+                    if (fideOpt instanceof Some(var value)) newMap.put(color + "FideId", String.valueOf(value));
+                    if (ratingOpt instanceof Some(var value)) newMap.put(color + "Elo", String.valueOf(value));
+                    if (titleOpt instanceof Some(var value)) newMap.put(color + "Title", value);
                 }
             });
 
@@ -245,7 +241,7 @@ public class PushAndSyncPgn {
     }
 
     record RoundNameAndPgn(String name, String pgn) {}
-    record Player(String name, Opt<Integer> rating, Opt<String> title) {}
+    record Player(String name, Opt<Integer> fideId, Opt<Integer> rating, Opt<String> title) {}
     record Matchup(Player white, Player black, String moves) {
         Pgn toPgnAtRoundAndBoard(int round, int board) {
             Stream<Tag> present = Stream.of(
@@ -290,15 +286,13 @@ public class PushAndSyncPgn {
         if (! replacements.isEmpty()) {
             params = params.andThen(bb -> bb
                     .players(replacements.stream()
-                        .map(r -> switch(r) {
-                            case FideId(var name, int fideId) -> name + " = " + fideId;
-                            case Manual(var name, var replacement) ->
-                                String.join(" / ",
-                                        name,
-                                        replacement.rating() instanceof Some(var rating) ? String.valueOf(rating) : "",
-                                        replacement.title() instanceof Some(var title) ? title : "",
-                                        !name.equals(replacement.name()) ? replacement.name() : "");
-                                })
+                        .map(r -> String.join(" / ",
+                                r.name(),
+                                r.replacement().fideId().map(String::valueOf).orElse(""),
+                                r.replacement().title().orElse(""),
+                                r.replacement().rating().map(String::valueOf).orElse(""),
+                                !r.name().equals(r.replacement().name()) ? r.replacement.name() : "")
+                            )
                         .collect(Collectors.joining("\n"))));
         }
 

@@ -27,10 +27,10 @@ public class PushPgnReplaceUmlaut {
         1. d4 d5 *""";
 
     static String replacements = """
-        Magnus Carlsen / 2863
-        Senor Ramirez / 1812
-        José Ángel / 2002
-        Matthias Blübaum / 2649
+        Magnus Carlsen / / / 2863
+        Senor Ramirez / / / 1812
+        José Ángel / / / 2002
+        Matthias Blübaum / / / 2649
         """;
 
     static String expectedResult = """
