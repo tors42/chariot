@@ -112,40 +112,37 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
          */
         default BroadcastBuilder teamTable() { return teamTable(true); }
 
-        /**
-         * Replace player names, ratings and titles.<br>
-         *
-         * When broadcast rounds receive PGN data (pushed or polled),
-         * it is possible to apply player information replacement of the tags in the PGN,
-         * based on the player name tags.<br>
-         * The replacements are specified in the broadcast with one line per player.<br>
-         * It is possible to augment the PGN tags with information from their FIDE profile by matching a player name to a FIDE ID,<br>
-         * or by manually specifying values of PGN tags.<br>
-         *
-         * <b>FIDE ID format</b><br>
-         * {@code <player name> = <FIDE ID>}<br>
-         * {@code <player name> = <FIDE ID> / <title>}<br>
-         * <b>Manual format</b><br>
-         * {@code <player name> / <rating> / <title> / <new name>}<br>
-         * <br>
-         * The {@code <rating>}, {@code <title>} and {@code <new name>} are optional and can be left blank.<br>
-         * Player names ignore case and punctuation, and match all possible combinations of 2 words:<br>
-         * "Jorge Rick Vito" will match "Jorge Rick", "jorge vito", "Rick, Vito", etc.<br>
-         *
-         * Example:
-         * {@snippet :
-         *   var broadcast = client.broadcasts().create(params -> params
-         *      .name("Broadcast Name")
-         *      .description("Broadcast Description")
-         *      .players("""
-         *          Anna = 14111330
-         *          Art = 7818424 / NM
-         *          Some One / 2700 / WGM / Numero Uno
-         *          Someone Else / / / Deuce
-         *          Other Player / 1300 / /
-         *          """));
-         * }
-         */
+
+        /// Replace player names, ratings and titles.<br>
+        ///
+        /// When broadcast rounds receive PGN data (pushed or polled),
+        /// it is possible to apply player information replacement of the tags in the PGN,
+        /// based on the player name tags.  
+        /// The replacements are specified in the broadcast with one line per player.  
+        /// It is possible to augment the PGN tags with information from their FIDE profile by matching a player name to a FIDE ID,
+        /// or by manually specifying values of PGN tags.
+        ///
+        /// *Format*  
+        /// `<player name> / <FIDE ID> / <title> / <rating> / <new name>`  
+        ///
+        /// The fields are optional and can be left blank.  
+        /// Player names ignore case and punctuation, and match all possible combinations of 2 words:  
+        /// "Jorge Rick Vito" will match "Jorge Rick", "jorge vito", "Rick, Vito", etc.
+        ///
+        /// Example:
+        /// {@snippet :
+        ///   var broadcast = client.broadcasts().create(params -> params
+        ///      .name("Broadcast Name")
+        ///      .description("Broadcast Description")
+        ///      .players("""
+        ///          Anna / 14111330
+        ///          Art / 7818424 / NM
+        ///          Some One / / WGM / 2700 / Numero Uno
+        ///          Someone Else / / / / Deuce
+        ///          Other Player / / / 1300
+        ///          """));
+        /// }
+        ///
         BroadcastBuilder players(String players);
 
         /**
