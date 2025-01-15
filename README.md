@@ -303,7 +303,7 @@ jshell> <b>import chariot.Client;</b>
    ...> <b>    .map(team -> "Team %s has %d members!".formatted(team.name(), team.nbMembers()))</b>
    ...> <b>    .orElse("Couldn't find team!"));</b>
 client ==> chariot.Client@235834f2
-Team Lichess Swiss has 518461 members!
+Team Lichess Swiss has 550661 members!
 
 jshell>
 </pre>
@@ -317,7 +317,7 @@ numberOfTeams()       popularTeams()        popularTeamsByPage(   search(
 searchByPage(         swissByTeamId(        toString()            usersByTeamId(
 usersByTeamIdFull(    wait(
 jshell> client.teams().<b>numberOfTeams();</b>
-$4 ==> 369619
+$4 ==> 379827
 
 jshell> <b>/exit</b>
 |  Goodbye
