@@ -72,6 +72,8 @@ public class Client extends chariot.internal.ClientBase {
     /// {@inheritDoc}
     @Override public ExternalEngineApi externalEngine() { return super.externalEngine(); }
     /// {@inheritDoc}
+    @Override public FideApi fide() { return super.fide(); }
+    /// {@inheritDoc}
     @Override public GamesApi games() { return super.games(); }
     /// {@inheritDoc}
     @Override public OpeningExplorerApi openingExplorer() { return super.openingExplorer(); }
