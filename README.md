@@ -39,6 +39,9 @@ client.externalEngine().acquire()
 client.externalEngine().answer()
 client.externalEngine().analyse()
 
+client.fide().playerById()
+client.fide().searchFidePlayers()
+
 client.games().byGameId()
 client.games().byGameIds()
 client.games().byUserId()
