@@ -25,6 +25,7 @@ public abstract class ClientBase {
     protected final BroadcastsHandler broadcastsHandler;
     protected final ChallengesHandler challengesHandler;
     protected final ExternalEngineHandler externalEngineHandler;
+    protected final FideApiHandler fideApiHandler;
     protected final GamesHandler gamesHandler;
     protected final OpeningExplorerHandler openingExplorerHandler;
     protected final PuzzlesHandler puzzlesHandler;
@@ -50,6 +51,7 @@ public abstract class ClientBase {
         broadcastsHandler = new BroadcastsHandler(client::request);
         challengesHandler = new ChallengesHandler(client::request);
         externalEngineHandler = new ExternalEngineHandler(client::request);
+        fideApiHandler = new FideApiHandler(client::request);
         gamesHandler = new GamesHandler(client::request);
         openingExplorerHandler = new OpeningExplorerHandler(client::request);
         puzzlesHandler = new PuzzlesHandler(client::request);
@@ -96,6 +98,9 @@ public abstract class ClientBase {
      * External engine. For engine management, see {@link chariot.api.ExternalEngineApiAuth}
      */
     public ExternalEngineApi externalEngine() { return externalEngineHandler; }
+
+    /// Download FIDE player info
+    public FideApi fide() { return fideApiHandler; }
 
     /**
      * Access games and TV channels, played on Lichess.

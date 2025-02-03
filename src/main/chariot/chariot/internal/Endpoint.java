@@ -591,6 +591,12 @@ public sealed interface Endpoint<T> {
 
     public static EPMany<MyRound> streamMyRounds = Endpoint.of(mapper(MyRoundConvert.class).andThen(MyRoundConvert::toMyRound)).endpoint("/api/broadcast/my-rounds").accept(jsonstream).scope(Scope.study_read).toMany();
 
+    public static EPOne<FidePlayer> fidePlayer =
+        Endpoint.of(FidePlayer.class).endpoint("/api/fide/player/%s").toOne();
+
+    public static EPMany<FidePlayer> fidePlayers =
+        Endpoint.ofArr(FidePlayer.class).endpoint("/api/fide/player").toMany();
+
     public static EPMany<String> boardSeekRealTime =
         Endpoint.of(Function.identity()).endpoint("/api/board/seek").post(wwwform).accept(plain).scope(Scope.board_play).toMany();
 
