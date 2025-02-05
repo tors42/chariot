@@ -1,5 +1,7 @@
 package chariot.internal.impl;
 
+import java.util.Map;
+
 import chariot.api.FideApi;
 import chariot.internal.*;
 import chariot.model.*;
@@ -16,6 +18,13 @@ public class FideApiHandler implements FideApi {
     public One<FidePlayer> playerById(int fideId) {
         return Endpoint.fidePlayer.newRequest(request -> request
                 .path(fideId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<FidePlayer> searchFidePlayers(String name) {
+        return Endpoint.fidePlayers.newRequest(request -> request
+                .query(Map.of("q", name)))
             .process(requestHandler);
     }
 }

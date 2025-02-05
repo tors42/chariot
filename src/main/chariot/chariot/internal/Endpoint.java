@@ -594,6 +594,9 @@ public sealed interface Endpoint<T> {
     public static EPOne<FidePlayer> fidePlayer =
         Endpoint.of(FidePlayer.class).endpoint("/api/fide/player/%s").toOne();
 
+    public static EPMany<FidePlayer> fidePlayers =
+        Endpoint.of(FidePlayer.class).endpoint("/api/fide/playe").toMany();
+
     public static EPMany<String> boardSeekRealTime =
         Endpoint.of(Function.identity()).endpoint("/api/board/seek").post(wwwform).accept(plain).scope(Scope.board_play).toMany();
 
