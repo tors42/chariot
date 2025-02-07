@@ -20,6 +20,12 @@ public interface GamesApiAuth extends GamesApi {
      */
     Many<Pgn> imported();
 
+    Many<Game> bookmarked(Consumer<BookmarkedParams> params);
+    Many<Pgn> pgnBookmarked(Consumer<BookmarkedParams> params);
+
+    default Many<Game> bookmarked() { return bookmarked(__ -> {}); }
+    default Many<Pgn> pgnBookmarked() { return pgnBookmarked(__ -> {}); }
+
     /// Download games of a bulk
     Many<Game> byBulkId(String bulkId, Consumer<GameParams> params);
     /// Download games of a bulk
@@ -29,4 +35,7 @@ public interface GamesApiAuth extends GamesApi {
     Many<Pgn> pgnByBulkId(String bulkId, Consumer<GameParams> params);
     /// Download games of a bulk
     default Many<Pgn> pgnByBulkId(String bulkId) { return pgnByBulkId(bulkId, __ -> {}); }
+
+    interface BookmarkedParams extends CommonSearchFilterParams<BookmarkedParams>, EvalsDefaultFalse<BookmarkedParams> {}
+
 }

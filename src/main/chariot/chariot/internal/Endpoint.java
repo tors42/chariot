@@ -309,6 +309,15 @@ public sealed interface Endpoint<T> {
         .streamMapper(Util::toPgnStream)
         .accept(chesspgn).toMany();
 
+    public static EPMany<Game> gamesBookmarked =
+        Endpoint.of(Game.class).endpoint("/api/games/export/bookmarks")
+        .accept(jsonstream).toMany();
+
+    public static EPMany<Pgn> gamesBookmarkedPgn =
+        Endpoint.of(Pgn.class).endpoint("/api/games/export/bookmarks")
+        .streamMapper(Util::toPgnStream)
+        .accept(chesspgn).toMany();
+
     public static EPOne<ExploreResult.OpeningDB> exploreMasters =
         Endpoint.of(ExploreResult.OpeningDB.class).endpoint("/masters").target(ServerType.explorer).toOne();
 

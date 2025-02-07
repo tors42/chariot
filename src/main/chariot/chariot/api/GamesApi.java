@@ -407,5 +407,4 @@ public interface GamesApi {
         ChannelFilter nb(int nb);
     }
 
-
 }

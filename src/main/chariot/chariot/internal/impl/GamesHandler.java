@@ -219,6 +219,20 @@ public class GamesHandler implements GamesApiAuth {
     }
 
     @Override
+    public Many<Game> bookmarked(Consumer<BookmarkedParams> params) {
+        return Endpoint.gamesBookmarked.newRequest(request -> request
+                .query(MapBuilder.of(BookmarkedParams.class).toMap(params)))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Many<Pgn> pgnBookmarked(Consumer<BookmarkedParams> params) {
+        return Endpoint.gamesBookmarkedPgn.newRequest(request -> request
+                .query(MapBuilder.of(BookmarkedParams.class).toMap(params)))
+            .process(requestHandler);
+    }
+
+    @Override
     public Many<Game> byBulkId(String bulkId, Consumer<GameParams> params) {
         return Endpoint.bulkPairingGamesByBulkId.newRequest(paramsConsumerByIdGameParams(bulkId, params))
             .process(requestHandler);
