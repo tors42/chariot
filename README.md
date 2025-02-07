@@ -203,6 +203,7 @@ client.externalEngine().create()
 client.externalEngine().update()
 client.externalEngine().delete()
 
+client.games().bookmarked()
 client.games().ongoing()
 client.games().imported()
 client.games().byBulkId()
