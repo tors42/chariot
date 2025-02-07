@@ -223,15 +223,23 @@ public interface GamesApi {
          */
         T accuracy(boolean accuracy);
         default T accuracy() { return accuracy(true); }
-     }
+    }
 
-    interface EvalsAndPlayers<T> {
-        /**
-         * Include analysis evaluation comments in the PGN, when available.<br>
-         * Default `true`
-         */
+    interface Evals<T> {
+         /// Include analysis evaluation comments in the PGN, when available.  
+         /// Default `true`
         T evals(boolean evals);
         default T evals() { return evals(true); }
+    }
+
+    interface EvalsDefaultFalse<T> {
+        /// Include analysis evaluation comments in the PGN, when available.  
+        /// Default `false`
+        T evals(boolean evals);
+        default T evals() { return evals(true); }
+    }
+
+    interface Players<T> {
         /**
          * URL of a text file containing real names and ratings, to replace Lichess usernames and ratings in the PGN.<br>
          * Example: https://gist.githubusercontent.com/ornicar/6bfa91eb61a2dcae7bcd14cce1b2a4eb/raw/768b9f6cc8a8471d2555e47ba40fb0095e5fba37/gistfile1.txt
@@ -252,7 +260,7 @@ public interface GamesApi {
         default Filter evals() { return evals(true); }
     }
 
-    interface GameParams extends CommonGameParameters<GameParams>, EvalsAndPlayers<GameParams> {
+    interface GameParams extends CommonGameParameters<GameParams>, Evals<GameParams>, Players<GameParams> {
         /**
          * Insert textual annotations in the PGN about the opening, analysis variations, mistakes, and game termination.<br>
          * Default `false`
@@ -268,42 +276,72 @@ public interface GamesApi {
         default GameParams withBookmarked() { return withBookmarked(true); }
     }
 
-    interface SearchFilter extends CommonGameParameters<SearchFilter>, EvalsAndPlayers<SearchFilter> {
+    interface CommonSearchFilterParams<T> {
+
         /**
          * Download games played since this timestamp.<br>
          * Default: Account creation date
          */
-        SearchFilter since(long since);
+        T since(long since);
         /**
          * Download games played since this timestamp.<br>
          * Default: Account creation date
          */
-        default SearchFilter since(ZonedDateTime since) { return since(zdtToMillis(since)); }
+        default T since(ZonedDateTime since) { return since(zdtToMillis(since)); }
         /**
          * Download games played since this timestamp, from a given {@code ZonedDateTime.now()} instance..<br>
          * Default: Account creation date
          */
-        default SearchFilter since(Function<ZonedDateTime, ZonedDateTime> now) { return since(now.apply(ZonedDateTime.now())); }
+        default T since(Function<ZonedDateTime, ZonedDateTime> now) { return since(now.apply(ZonedDateTime.now())); }
         /**
          * Download games played until this timestamp.<br>
          * Default: Now
          */
-        SearchFilter until(long until);
+        T until(long until);
         /**
          * Download games played until this timestamp.<br>
          * Default: Now
          */
-        default SearchFilter until(ZonedDateTime until) { return until(zdtToMillis(until)); }
+        default T until(ZonedDateTime until) { return until(zdtToMillis(until)); }
         /**
          * Download games played until this timestamp, from a given {@code ZonedDateTime.now()} instance..<br>
          * Default: Now
          */
-        default SearchFilter until(Function<ZonedDateTime, ZonedDateTime> now) { return until(now.apply(ZonedDateTime.now())); }
+        default T until(Function<ZonedDateTime, ZonedDateTime> now) { return until(now.apply(ZonedDateTime.now())); }
+
          /**
          * How many games to download.<br>
          * Leave empty to download all games.
          */
-        SearchFilter max(int max);
+        T max(int max);
+
+        /**
+         * Include the FEN notation of the last position of the game.<br>
+         * Default `false`
+         */
+        T lastFen(boolean lastFen);
+        default T lastFen() { return lastFen(true); }
+
+        /**
+         * Insert textual annotations in the PGN about the opening, analysis variations, mistakes, and game termination.<br>
+         * Default `false`
+         */
+        T literate(boolean literate);
+        default T literate() { return literate(true); }
+
+
+        /**
+         * Sort order of the games, based on date.<br>
+         * Default sort order is descending (i.e "false")
+         */
+        T sortAscending(boolean ascending);
+        default T sortAscending() { return sortAscending(true); }
+
+
+        private static long zdtToMillis(ZonedDateTime zdt) { return zdt.toInstant().getEpochSecond() * 1000; }
+    }
+
+    interface SearchFilter extends CommonGameParameters<SearchFilter>, Evals<SearchFilter>, Players<SearchFilter>, CommonSearchFilterParams<SearchFilter> {
         /**
          * Only games played against this opponent
          */
@@ -351,26 +389,6 @@ public interface GamesApi {
          */
         SearchFilter finished(boolean finished);
         default SearchFilter finished() { return finished(true); }
-        /**
-         * Sort order of the games, based on date.<br>
-         * Default sort order is descending (i.e "false")
-         */
-        SearchFilter sortAscending(boolean ascending);
-        default SearchFilter sortAscending() { return sortAscending(true); }
-
-        /**
-         * Insert textual annotations in the PGN about the opening, analysis variations, mistakes, and game termination.<br>
-         * Default `false`
-         */
-        SearchFilter literate(boolean literate);
-        default SearchFilter literate() { return literate(true); }
-
-        /**
-         * Include the FEN notation of the last position of the game.<br>
-         * Default `false`
-         */
-        SearchFilter lastFen(boolean lastFen);
-        default SearchFilter lastFen() { return lastFen(true); }
 
         /**
          * Include `bookmarked` (if authenticated)
@@ -379,9 +397,7 @@ public interface GamesApi {
         SearchFilter withBookmarked(boolean withBookmarked);
         default SearchFilter withBookmarked() { return withBookmarked(true); }
 
-        private static long zdtToMillis(ZonedDateTime zdt) { return zdt.toInstant().getEpochSecond() * 1000; }
     }
-
 
     interface ChannelFilter extends CommonGameParameters<ChannelFilter> {
         /**
