@@ -20,7 +20,7 @@ public class ArenaCreateConditions {
 
     @IntegrationTest
     public void noConditions() {
-        unboxEquals(_withConditions(__ -> {}),
+        unboxEquals(_withConditions(_ -> {}),
                 List.of(),
                 arena -> arena.conditions().list());
     }
@@ -131,11 +131,11 @@ public class ArenaCreateConditions {
     }
 
     One<Arena> _withConditions(Consumer<ArenaParams> paramsConsumer, boolean debug) {
-        return _withConditions(paramsConsumer, __ -> {}, debug);
+        return _withConditions(paramsConsumer, _ -> {}, debug);
     }
 
     One<Arena> _withConditions(Consumer<ArenaParams> paramsConsumer, Consumer<String> teamIdConsumer, boolean debug) {
-        if (! (IT.findTeamLeader() instanceof Some(IT.TeamLeader(var client, var userId, var teamId)))) {
+        if (! (IT.findTeamLeader() instanceof Some(IT.TeamLeader(var client, _, var teamId)))) {
             return One.fail(-1, Err.from("Couldn't find team leader for creating a arena"));
         }
 
