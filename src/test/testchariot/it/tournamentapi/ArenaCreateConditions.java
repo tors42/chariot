@@ -46,6 +46,14 @@ public class ArenaCreateConditions {
                 arena -> arena.conditions().list());
     }
 
+    //@IntegrationTest
+    public void bots() {
+    //    unboxEquals(_withConditions(p -> p.conditionBots(), true),
+    //            List.of(Condition.bots()),
+    //            arena -> arena.conditions().list());
+    }
+
+
     @IntegrationTest
     public void maxRating() {
         unboxEquals(_withConditions(p -> p.conditionMaxRating(1000)),
@@ -162,6 +170,7 @@ public class ArenaCreateConditions {
             case Condition.MaxRating(int rating, Speed speed)    -> maxRating();
             case Condition.MinRating(int rating, Speed speed)    -> minRating();
             case Condition.Titled()                              -> titled();
+            case Condition.Bots()                                -> bots();
             case Condition.MinAccountAge(Period age)             -> minAccountAge();
             case Condition.AllowList(List<String> users)         -> allowList();
             case Condition.AllowListHidden()                     -> allowList();

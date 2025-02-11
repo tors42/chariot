@@ -13,5 +13,6 @@ public sealed interface ArenaCondition extends Condition permits
     AllowListHidden,
     EntryCode,
     Generic,
-    Member
+    Member,
+    Bots
 {}
