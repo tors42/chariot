@@ -14,6 +14,7 @@ public class TestCondition {
                 "Simple",                  "simple",
                 "Lichess.org",             "lichessorg",
                 "Qe2+ Kxe2",               "qe2-kxe2",
+                "That's",                  "thats",
                 "Thor - Love and Blunder", "thor-love-and-blunder"
               )
             .forEach( (exampleTeamName, expectedTeamId) -> assertEquals(expectedTeamId, parseViaCondition(exampleTeamName)));
