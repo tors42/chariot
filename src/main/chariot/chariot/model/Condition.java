@@ -44,6 +44,7 @@ public sealed interface Condition permits SwissCondition, ArenaCondition {
                                                                         .replace(")", "")
                                                                         .replace(",", "")
                                                                         .replace(".", "")
+                                                                        .replace("'", "")
                                                                         .replace("[", "")
                                                                         .replace("]", "")
                                                                         .toLowerCase(Locale.ROOT));
