@@ -5,6 +5,7 @@ public record ArenaResult(
         int score,
         int rating,
         String username,
+        boolean withdraw,
         Opt<String> title,
         Opt<String> flair,
         Opt<Integer> performance,
