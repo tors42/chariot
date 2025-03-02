@@ -227,6 +227,10 @@ public interface TournamentsApiAuth extends TournamentsApi {
         ArenaParams conditionTitled(boolean titled);
         default ArenaParams conditionTitled() { return conditionTitled(true); }
 
+        /// @param allowed Whether bots are allowed to join the tournament. Default `false`
+        ArenaParams conditionBots(boolean allowed);
+        default ArenaParams conditionBots() { return conditionBots(true); }
+
         sealed interface StartTime {
             interface Provider {
                 /**

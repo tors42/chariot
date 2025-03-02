@@ -133,10 +133,11 @@ public interface TournamentAdapter {
 
     static Condition parseEntryCondition(String condition) {
         return switch(condition) {
-            case "Fixed line-up"            -> Condition.allowListHidden();
-            case "Play your games"          -> Condition.notMissedSwiss();
-            case "Only titled players"      -> Condition.titled();
-            case "Bot players are allowed." -> Condition.bots();
+            case "Fixed line-up"               -> Condition.allowListHidden();
+            case "Play your games"             -> Condition.notMissedSwiss();
+            case "Only titled players"         -> Condition.titled();
+            case "Bot players are allowed"     -> Condition.bots(true);
+            case "Bot players are not allowed" -> Condition.bots(false);
             case String s -> {
                 if (s.startsWith("Rated ≤ ")
                         && s.indexOf(" for") != -1

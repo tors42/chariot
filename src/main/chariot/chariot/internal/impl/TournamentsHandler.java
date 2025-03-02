@@ -362,6 +362,7 @@ public class TournamentsHandler implements TournamentsApiAuth {
             .rename("conditionPlayYourGames", "conditions.playYourGames")
             .rename("conditionAccountAge",    "conditions.accountAge")
             .rename("conditionTitled",        "conditions.titled")
+            .rename("conditionBots",          "conditions.bots")
             .rename("conditionTeam",          "conditions.teamMember.teamId") // only in Arena
             .addCustomHandler("allowList", (args, map) -> {
                 @SuppressWarnings("unchecked")

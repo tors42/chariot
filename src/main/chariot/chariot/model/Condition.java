@@ -22,13 +22,13 @@ public sealed interface Condition permits SwissCondition, ArenaCondition {
 
     record NotMissedSwiss()                      implements SwissCondition {}
     record Member(String teamId)                 implements ArenaCondition {}
-    record Bots()                                implements ArenaCondition {}
+    record Bots(boolean allowed)                 implements ArenaCondition {}
 
     static Condition minRatedGames(int games, Speed speed) { return new MinRatedGames(games, speed); }
     static Condition minRating(int rating, Speed speed)    { return new MinRating(rating, speed); }
     static Condition maxRating(int rating, Speed speed)    { return new MaxRating(rating, speed); }
     static Condition titled()                              { return new Titled(); }
-    static Condition bots()                                { return new Bots(); }
+    static Condition bots(boolean allowed)                 { return new Bots(allowed); }
     static Condition minAccountAge(Period age)             { return new MinAccountAge(age); }
     static Condition allowListHidden()                     { return new AllowListHidden(); }
     static Condition allowList(List<String> users)         { return new AllowList(users); }
@@ -57,7 +57,8 @@ public sealed interface Condition permits SwissCondition, ArenaCondition {
             case MaxRating(int rating, Speed speed)    -> "Rated ≤ %d in %s for the last week".formatted(rating, speed.name);
             case MinRating(int rating, Speed speed)    -> "Rated ≥ %d in %s".formatted(rating, speed.name);
             case Titled()                              -> "Only titled players";
-            case Bots()                                -> "Bot players are allowed";
+            case Bots(boolean allowed) when allowed    -> "Bot players are allowed";
+            case Bots(boolean allowed)                 -> "Bot players are not allowed";
             case MinAccountAge(Period age)             -> "%s old account".formatted(renderAge(age));
             case AllowList __                          -> "Fixed line-up";
             case AllowListHidden __                    -> "Fixed line-up";
