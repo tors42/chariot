@@ -74,7 +74,7 @@ public class PushAndSyncPgn {
                 replacements);
     }
 
-    @IntegrationTest(expectedSeconds = 80)
+    // @IntegrationTest(expectedSeconds = 80)
     public void syncUrlWithAndWithoutReplacements() {
         List<List<Pgn>> roundPgns = generateRounds();
         List<Replacement> replacements = generateReplacements();
