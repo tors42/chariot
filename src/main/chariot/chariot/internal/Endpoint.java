@@ -708,8 +708,8 @@ public sealed interface Endpoint<T> {
     static record ArenaPlayedWrapped(ArenaLight tournament, ArenaPlayer player) {}
     static record ArenaPlayer(int games, int score, int rank, Opt<Integer> performance) {}
     static record WrappedSheet(String scores) {}
-    static record ArenaResultWrappedSheet(int rank, int score, int rating, String username, Opt<String> title, Opt<String> flair, Opt<Integer> performance, Opt<String> team, Opt<WrappedSheet> sheet) {
-        ArenaResult toArenaResult() { return new ArenaResult(rank, score, rating, username, title, flair, performance, team, sheet.map(WrappedSheet::scores)); }
+    static record ArenaResultWrappedSheet(int rank, int score, int rating, String username, boolean withdraw, Opt<String> title, Opt<String> flair, Opt<Integer> performance, Opt<String> team, Opt<WrappedSheet> sheet) {
+        ArenaResult toArenaResult() { return new ArenaResult(rank, score, rating, username, withdraw, title, flair, performance, team, sheet.map(WrappedSheet::scores)); }
     }
     static record WrappedChapters(List<ChapterMeta> chapters) {}
     static record PushAck(int moves) {}
