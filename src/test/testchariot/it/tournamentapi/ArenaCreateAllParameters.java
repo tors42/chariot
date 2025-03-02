@@ -118,6 +118,7 @@ public class ArenaCreateAllParameters {
                                              && !inputParameters.team().isBlank()
                 ? List.of(
                         (ArenaCondition) Condition.allowList(inputParameters.allowList()),
+                        (ArenaCondition) Condition.bots(false),
                         (ArenaCondition) Condition.entryCode(),
                         (ArenaCondition) Condition.member(inputParameters.team))
                 : List.of();
