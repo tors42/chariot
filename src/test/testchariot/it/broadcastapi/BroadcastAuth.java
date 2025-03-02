@@ -293,7 +293,7 @@ public class BroadcastAuth {
                 false, // startsAfterPrevious
                 Opt.of(roundStartsAt),
                 Opt.of(),
-                false,
+                true, // ongoing
                 false,
                 roundUrl,
                 roundDelay
