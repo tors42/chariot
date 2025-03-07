@@ -12,6 +12,8 @@ public interface PuzzlesApiAuth extends PuzzlesApi {
     One<Puzzle> nextPuzzle(Consumer<PuzzleParams> params, Consumer<PuzzleDifficulty> difficulty);
     default One<Puzzle> nextPuzzle(Consumer<PuzzleParams> params) { return nextPuzzle(params, __ -> {}); }
 
+    One<PuzzleReplay> replay(Consumer<PuzzleReplayParams> params);
+
     /**
      * @param params filter the puzzle activity search. Example {@code params -> params.max(50).before(now -> now.minusDays(5))}
      */
@@ -89,4 +91,12 @@ public interface PuzzlesApiAuth extends PuzzlesApi {
         }
         static Provider provider() {return new Provider(){};}
     }
+
+    interface PuzzleReplayParams {
+        PuzzleReplayParams days(int days);
+        PuzzleReplayParams theme(PuzzleAngle theme);
+        default PuzzleReplayParams theme(PuzzleAngle.Theme theme) { return theme((PuzzleAngle) theme); }
+        default PuzzleReplayParams theme(Function<PuzzleAngle.Provider, PuzzleAngle> theme) { return theme(theme.apply(PuzzleAngle.provider())); }
+    }
+
 }

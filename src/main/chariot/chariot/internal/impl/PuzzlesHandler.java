@@ -33,6 +33,25 @@ public class PuzzlesHandler implements PuzzlesApiAuth {
     }
 
     @Override
+    public One<PuzzleReplay> replay(Consumer<PuzzleReplayParams> params) {
+        var angleMap = MapBuilder.of(PuzzleReplayParams.class)
+            .addCustomHandler("theme", (args, map) -> {
+                if (args[0] instanceof PuzzleAngle angle) {
+                    map.put("angle", switch(angle) {
+                        case PuzzleAngle.Theme.long_ -> "long";
+                        case PuzzleAngle.Theme.short_ -> "short";
+                        case PuzzleAngle.Theme theme -> theme.name();
+                        case PuzzleAngle.Custom(String name) -> name;
+                    });
+                }
+            }).toMap(params);
+        return Endpoint.puzzleReplay.newRequest(request -> request
+                .path(angleMap.get("days"), angleMap.getOrDefault("angle", "mix")))
+            .process(requestHandler);
+    }
+
+
+    @Override
     public One<Puzzle> nextPuzzle(Consumer<PuzzleParams> params, Consumer<PuzzleDifficulty> difficulty) {
         var angleMap = MapBuilder.of(PuzzleParams.class)
             .addCustomHandler("theme", (args, map) -> {

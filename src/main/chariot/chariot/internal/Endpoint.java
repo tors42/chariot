@@ -375,6 +375,9 @@ public sealed interface Endpoint<T> {
     public static EPOne<Puzzle> puzzleNext =
         Endpoint.of(Puzzle.class).endpoint("/api/puzzle/next").toOne();
 
+    public static EPOne<PuzzleReplay> puzzleReplay =
+        Endpoint.of(PuzzleReplay.class).endpoint("/api/puzzle/replay/%d/%s").toOne();
+
 
     public static EPMany<PuzzleActivity> puzzleActivity =
         Endpoint.of(PuzzleActivity.class).endpoint("/api/puzzle/activity").accept(jsonstream).scope(Scope.puzzle_read).toMany();
