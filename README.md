@@ -211,6 +211,8 @@ client.games().byBulkId()
 client.puzzles().activity()
 client.puzzles().createAndJoinRace()
 client.puzzles().puzzleDashboard()
+client.puzzles().nextPuzzle()
+client.puzzles().replay()
 
 client.studies().importPgn()
 
