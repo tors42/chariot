@@ -41,6 +41,6 @@ jobs:
       - name: Run integration tests
         run: cd chariot && java build/Build.java
         env:
-          LILA_API: http://lila:9663
+          LILA_API: http://lila:8080
           IT_LONG: y
           CLEANUP: y
