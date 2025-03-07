@@ -18,7 +18,7 @@ public class Main {
 
     private final static URI api = URI.create(System.getenv("LILA_API") instanceof String env
             ? env
-            : "http://lila:9663");
+            : "http://lila:8080");
     public static final URI itApi() { return api; }
 
     private final static String singleClass = System.getenv("ONLY") instanceof String testClass ? testClass : null;

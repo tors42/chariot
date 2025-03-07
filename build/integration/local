@@ -26,7 +26,7 @@ docker run \
     --hostname app \
     --network lila-network \
     --user $(id -u):$(id -g) \
-    -e LILA_API="http://lila:9663" \
+    -e LILA_API="http://lila:8080" \
     -v $(pwd):/app \
     -w /app \
     eclipse-temurin:23 \
