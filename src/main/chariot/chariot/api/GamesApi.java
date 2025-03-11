@@ -156,7 +156,7 @@ public interface GamesApi {
      * A description of the game is sent as a first message. Then a message is sent
      * each time a move is played. Finally a description of the game is sent when
      * it finishes, and the stream is closed.<br>
-     * After move 5, the stream intentionally remains 3 moves behind the game status,
+     * Ongoing games are delayed by a few seconds ranging from 3 to 60 depending on the time control,<br>
      * as to prevent cheat bots from using this API.<br>
      * No more than 8 game streams can be opened at the same time from the same IP address.
      */
