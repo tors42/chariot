@@ -11,6 +11,7 @@ import static util.Assert.*;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Gatherers;
 import java.util.stream.Stream;
 
 public class SwissStats {
@@ -167,11 +168,11 @@ public class SwissStats {
             record BoardAndUCI(Board board, String uci) {}
 
             var boardAndUCI = pgn.moveListSAN().stream()
-                .reduce(new BoardAndUCI(Board.fromStandardPosition(), ""),
-                        (acc, move) -> new BoardAndUCI(
-                            acc.board.play(move),
-                            String.join(" ", acc.uci, Board.Move.parse(move, acc.board.toFEN()).uci())),
-                        (acc1,__) -> acc1);
+                .gather(Gatherers.fold(
+                            () -> new BoardAndUCI(Board.fromStandardPosition(), ""),
+                            (boardAndUci, moveSAN) -> new BoardAndUCI(boardAndUci.board().play(moveSAN),
+                                String.join(" ", boardAndUci.uci(), Board.Move.parse(moveSAN, boardAndUci.board().toFEN()).uci()))))
+                .findFirst().orElseThrow();
 
             String uci = boardAndUCI.uci().trim();
 
