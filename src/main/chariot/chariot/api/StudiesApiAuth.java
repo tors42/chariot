@@ -52,14 +52,14 @@ public interface StudiesApiAuth extends StudiesApi {
     interface ImportParams {
 
         /**
-         * @param name Required. Name of the new chapter. If multiple chapters are created, the following names will be infered from the PGN tags.
-         */
-        ImportParams name(String name);
-
-        /**
          * @param pgn Required. PGN to import. Can contain multiple games separated by 2 or more newlines.
          */
         ImportParams pgn(String pgn);
+
+        /**
+         * @param name Required. Name of the new chapter. If multiple chapters are created, the following names will be infered from the PGN tags.
+         */
+        ImportParams name(String name);
 
         /**
          * @param pgns PGNs to import.
