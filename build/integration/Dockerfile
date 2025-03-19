@@ -8,7 +8,7 @@ RUN mv jdk-24 /opt/java/openjdk
 
 ADD FastAutoStartRelayAgent.java .
 
-RUN javac --enable-preview --release 24 -d agentclasses FastAutoStartRelayAgent.java
+RUN javac -d agentclasses FastAutoStartRelayAgent.java
 
 RUN printf 'Premain-Class: FastAutoStartRelayAgent \n\
 Can-Retransform-Classes: true \n\
