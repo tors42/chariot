@@ -79,7 +79,7 @@ public class FastAutoStartRelayAgent {
             };
 
         ClassTransform ct = ClassTransform.transformingMethodBodies(invokesScheduleWithFixedDelay, rewriteDurationMethod);
-        byte[] newClassBytes = cf.transform(classModel, ct);
+        byte[] newClassBytes = cf.transformClass(classModel, ct);
         if (modified.get()) {
             return newClassBytes;
         } else {
