@@ -23,16 +23,16 @@ jobs:
       - name: Install curl
         run: apt-get update && apt-get install -y curl
 
-      - name: Download OpenJDK 23
+      - name: Download OpenJDK 24
         run: |
-          download_url="https://download.java.net/java/GA/jdk23.0.1/c28985cbf10d4e648e4004050f8781aa/11/GPL/openjdk-23.0.1_linux-x64_bin.tar.gz"
+          download_url="https://download.java.net/java/GA/jdk24/1f9ff9062db4449d8ca828c504ffae90/36/GPL/openjdk-24_linux-x64_bin.tar.gz"
           curl -Lo $RUNNER_TEMP/java_package.tar.gz $download_url
 
       - uses: actions/setup-java@v4
         with:
           distribution: 'jdkfile'
           jdkFile: ${{ runner.temp }}/java_package.tar.gz
-          java-version: '23'
+          java-version: '24'
           architecture: x64
 
       - name: Check java version
