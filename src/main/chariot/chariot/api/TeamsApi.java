@@ -9,20 +9,16 @@ public interface TeamsApi {
     One<Team>         byTeamId(String teamId);
     Many<Team>        byUserId(String userId);
 
-    /**
-     * Members are sorted by reverse chronological order of joining the team (most recent first). <br>
-     * OAuth is only required if the list of members is private. ({@link TeamsApiAuth#usersByTeamId(String)})<br>
-     * Up to 5,000 users.
-     */
+    ///  Members are sorted by reverse chronological order of joining the team (most recent first).  
+    ///  OAuth is only required if the list of members is private. [TeamsApiAuth#usersByTeamId(String)]  
+    ///  Up to 5,000 users.
     Many<TeamMember>  usersByTeamId(String teamId);
 
-    /**
-     * Members are sorted by reverse chronological order of joining the team (most recent first). <br>
-     * OAuth is only required if the list of members is private. ({@link TeamsApiAuth#usersByTeamId(String)})<br>
-     * Includes performance ratings.<br>
-     * Up to 1,000 users.<br>
-     * If looking for more users and more speed, see the "lighter" method {@link #usersByTeamId(String)}
-     */
+    /// Members are sorted by reverse chronological order of joining the team (most recent first).  
+    /// OAuth is only required if the list of members is private. [TeamsApiAuth#usersByTeamId(String)]  
+    /// Includes performance ratings.  
+    /// Up to 1,000 users.  
+    /// If looking for more users and more speed, see the "lighter" method [#usersByTeamId(String)]
     Many<TeamMemberFull>  usersByTeamIdFull(String teamId);
 
 
@@ -58,10 +54,8 @@ public interface TeamsApi {
     }
 
     interface MemberParams {
-        /**
-         * Full user documents with performance ratings.<br>
-         * This limits the response to 1,000 users.
-         */
+        /// Include performance ratings  
+        /// This limits the response to 1,000 users.
         MemberParams full(boolean full);
         default MemberParams full() { return full(true); }
     }
