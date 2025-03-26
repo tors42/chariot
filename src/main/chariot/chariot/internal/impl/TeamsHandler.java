@@ -79,32 +79,18 @@ public class TeamsHandler implements TeamsApiAuth {
      }
 
     @Override
-    public Many<ArenaLight> arenaByTeamId(String teamId, int max) {
+    public Many<ArenaLight> arenaByTeamId(String teamId, Consumer<TournamentParams> params) {
         return Endpoint.teamArenaById.newRequest(request -> request
                 .path(teamId)
-                .query(Map.of("max", max)))
+                .query(MapBuilder.of(TournamentParams.class).toMap(params)))
             .process(requestHandler);
     }
 
     @Override
-    public Many<ArenaLight> arenaByTeamId(String teamId) {
-        return Endpoint.teamArenaById.newRequest(request -> request
-                .path(teamId))
-            .process(requestHandler);
-    }
-
-    @Override
-    public Many<Swiss> swissByTeamId(String teamId, int max) {
+    public Many<Swiss> swissByTeamId(String teamId, Consumer<TournamentParams> params) {
         return Endpoint.teamSwissById.newRequest(request -> request
                 .path(teamId)
-                .query(Map.of("max", max)))
-            .process(requestHandler);
-    }
-
-    @Override
-    public Many<Swiss> swissByTeamId(String teamId) {
-        return Endpoint.teamSwissById.newRequest(request -> request
-                .path(teamId))
+                .query(MapBuilder.of(TournamentParams.class).toMap(params)))
             .process(requestHandler);
     }
 
