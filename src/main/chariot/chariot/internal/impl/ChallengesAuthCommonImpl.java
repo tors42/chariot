@@ -222,6 +222,22 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
     private Map<String, Object> challengeAIBuilderToMap(Consumer<ChallengeAIBuilder> consumer) {
         var builder = MapBuilder.of(ChallengeAIParams.class)
             .addCustomHandler("level", (args, map) -> map.put("level", Level.class.cast(args[0]).level) )
+            .addCustomHandler("variant", (args, map) -> {
+                switch ((Variant) args[0]) {
+                    case null -> map.put("variant", "standard");
+                    case Variant.Basic basic -> map.put("variant", basic);
+                    case Variant.Chess960(Some(String fen)) -> {
+                        map.put("variant", "fromPosition");
+                        map.put("fen", fen);
+                    }
+                    case Variant.FromPosition(Some(String fen), var __) -> {
+                        map.put("variant", "fromPosition");
+                        map.put("fen", fen);
+                    }
+                    case Variant.Chess960(Empty()) -> map.put("variant", "chess960");
+                    case Variant.FromPosition(Empty(), var __) -> map.put("variant", "standard");
+                }
+            })
             .add("level","1");
 
         var challengeBuilder = new ChallengeAIBuilder() {

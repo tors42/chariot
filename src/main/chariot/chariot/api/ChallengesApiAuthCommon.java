@@ -101,16 +101,16 @@ public interface ChallengesApiAuthCommon {
         default ChallengeAIParams color(Function<ColorPref.Provider, ColorPref> color) { return color(color.apply(ColorPref.provider())); }
         default ChallengeAIParams color(Color color) { return color(color.asPref()); }
 
-        ChallengeAIParams variant(VariantName variant);
-        default ChallengeAIParams variant(Function<VariantName.Provider, VariantName> variant) { return variant(variant.apply(VariantName.provider())); };
+        ChallengeAIParams variant(Variant variant);
+        default ChallengeAIParams variant(Function<Variant.Provider, Variant> variant) { return variant(variant.apply(Variant.provider())); };
 
         /**
          * @param fen Custom initial position (in FEN).
          * <p>Default: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"<br/>
-         * Variant must be standard, fromPosition, or chess960 (if a valid 960 starting positiion), and the game cannot be rated.<br/>
-         * Castling moves will use UCI_Chess960 notation, for example <code>e1h1</code> instead of <code>e1g1</code>.<br/>
+         * @deprecated use {@link #variant} with position
          */
-        ChallengeAIParams fen(String fen);
+        @Deprecated
+        default ChallengeAIParams fen(String fen) { return variant(p -> p.fromPosition(fen)); }
     }
 
 }
