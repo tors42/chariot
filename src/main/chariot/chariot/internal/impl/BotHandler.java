@@ -96,6 +96,12 @@ public class BotHandler extends ChallengesAuthCommonImpl implements BotApiAuth {
             .process(requestHandler);
     }
 
+    @Override
+    public One<Void> claimVictory(String gameId) {
+        return Endpoint.botClaimVictory.newRequest(request -> request
+                .path(gameId))
+            .process(requestHandler);
+    }
 
     @Override
     public Many<ChatMessage> fetchChat(String gameId) {

@@ -155,6 +155,9 @@ public interface BotApiAuth extends ChallengesApiAuthCommon, BotApi { //Bot<User
      */
     One<Void> handleTakebackOffer(String gameId, boolean offerOrAccept);
 
+    /// Claim victory when the opponent has left the game for a while.
+    /// @param gameId  Example: 5IrD6Gzz
+    One<Void> claimVictory(String gameId);
 
     /**
      * Get the messages posted in the game chat.
