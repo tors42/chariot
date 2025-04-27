@@ -74,6 +74,9 @@ public interface ChallengesApiAuthCommon {
         ChallengeParams noClaimWin();
         ChallengeParams noEarlyDraw();
 
+        ChallengeParams onlyIfOpponentFollowsMe(boolean onlyIfOpponentFollowsMe);
+        default ChallengeParams onlyIfOpponentFollowsMe() { return onlyIfOpponentFollowsMe(true); }
+
         default ChallengeParams color(Function<ColorPref.Provider, ColorPref> color) { return color(color.apply(ColorPref.provider())); }
         default ChallengeParams variant(Function<GameVariant.Provider, GameVariant> variant) {return variant(variant.apply(GameVariant.provider())); }
     }
