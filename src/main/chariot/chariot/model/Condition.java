@@ -1,5 +1,6 @@
 package chariot.model;
 
+import java.text.Normalizer;
 import java.time.Period;
 import java.util.List;
 import java.util.Locale;
@@ -35,19 +36,13 @@ public sealed interface Condition permits SwissCondition, ArenaCondition {
     static Condition entryCode()                           { return new EntryCode(); }
     static Condition notMissedSwiss()                      { return new NotMissedSwiss(); }
     static Condition member(String teamId)                 { return new Member(teamId); }
-    static Condition memberByTeamName(String teamName)     { return member(teamName
+    static Condition memberByTeamName(String teamName)     { return member(Normalizer.normalize(teamName, Normalizer.Form.NFKD)
+                                                                        .replaceAll("\\p{M}", "")
                                                                         .replaceAll("-", "")
                                                                         .replaceAll(" ", "-")
                                                                         .replaceAll("--", "-")
-                                                                        .replace("+", "")
-                                                                        .replace("(", "")
-                                                                        .replace(")", "")
-                                                                        .replace(",", "")
-                                                                        .replace(".", "")
-                                                                        .replace("'", "")
-                                                                        .replace("[", "")
-                                                                        .replace("]", "")
-                                                                        .toLowerCase(Locale.ROOT));
+                                                                        .toLowerCase(Locale.ROOT)
+                                                                        .replaceAll("[^a-z0-9-]", ""));
                                                            }
     static Condition generic(String description)           { return new Generic(description); }
 
