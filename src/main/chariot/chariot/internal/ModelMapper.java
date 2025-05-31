@@ -51,6 +51,7 @@ public class ModelMapper {
         yayMapper.setCustomMapper(ArenaLight.class, TournamentAdapter::nodeToArenaLight);
         yayMapper.setCustomMapper(Arena.TeamStanding.class, node -> TournamentAdapter.nodeToTeamStanding(node, yayMapper));
         yayMapper.setCustomMapper(PuzzleAngle.class, PuzzleAngleAdapter::nodeToPuzzleAngle);
+        yayMapper.setCustomMapper(GameMeta.Player.class, GameMetaAdapter::nodeToPlayer);
 
         strToObjMappings.put(Crosstable.class,         json -> CrosstableAdapter.nodeToCrosstable(Parser.fromString(json), yayMapper));
         strToObjMappings.put(ChallengeInfo.class,      json -> ChallengesAdapter.nodeToChallengeInfo(Parser.fromString(json)));

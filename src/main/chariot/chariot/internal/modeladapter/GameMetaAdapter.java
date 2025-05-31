@@ -17,7 +17,7 @@ public interface GameMetaAdapter {
         String id = gameMetaYo.getString("id");
         boolean rated = gameMetaYo.getBool("rated");
         Variant variant = toVariant(gameMetaYo);
-        RealTime time = nodeToRealTime(gameMetaYo);
+        TimeControl time = nodeToTimeControl(gameMetaYo);
         Enums.Status status = Enums.Status.valueOf(gameMetaYo.getInteger("status"));
         ZonedDateTime createdAt = Util.fromLong(gameMetaYo.getLong("createdAt"));
         GameMeta.Players players = mapper.fromYayTree(gameMetaYo.value().get("players"), GameMeta.Players.class);
@@ -26,9 +26,35 @@ public interface GameMetaAdapter {
         return new GameMeta(id, rated, variant, time, status, createdAt, players, winner);
     }
 
-    static RealTime nodeToRealTime(YayObject gameMetaYo) {
-        Clock clock = nodeToClock(gameMetaYo.value().get("clock"));
-        return new RealTime(clock, clock.toString(), Speed.valueOf(gameMetaYo.getString("speed")));
+    static GameMeta.Player nodeToPlayer(YayNode node) {
+        return switch (node) {
+            case YayObject yo when
+                yo.getNumber("ai") instanceof Integer aiLevel
+                -> new GameMeta.AI(aiLevel);
+            case YayObject yo when
+                yo.getString("userId") instanceof String userId &&
+                yo.getInteger("rating") instanceof Integer rating
+                -> new GameMeta.Account(userId, rating, yo.getBool("provisional"));
+            case null, default -> new GameMeta.Anonymous();
+        };
+    }
+
+    static TimeControl nodeToTimeControl(YayObject gameMetaYo) {
+        return switch (gameMetaYo) {
+            case YayObject gmy
+                when gameMetaYo.value().get("clock") instanceof YayNode clockNode
+                     && gameMetaYo.getString("speed") instanceof String speed
+                -> nodeToRealTime(clockNode, speed);
+            case YayObject gmy
+                when gameMetaYo.getInteger("daysPerTurn") instanceof Integer daysPerTurn
+                -> new Correspondence(daysPerTurn);
+            default -> new Unlimited();
+        };
+    }
+
+    static RealTime nodeToRealTime(YayNode node, String speed) {
+        Clock clock = nodeToClock(node);
+        return new RealTime(clock, clock.toString(), Speed.valueOf(speed));
     }
 
     static Clock nodeToClock(YayNode node) {
