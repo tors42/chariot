@@ -1,6 +1,5 @@
 package chariot.api;
 
-import java.net.URL;
 import java.time.ZonedDateTime;
 import java.util.Set;
 import java.util.function.*;
@@ -239,14 +238,6 @@ public interface GamesApi {
         default T evals() { return evals(true); }
     }
 
-    interface Players<T> {
-        /**
-         * URL of a text file containing real names and ratings, to replace Lichess usernames and ratings in the PGN.<br>
-         * Example: https://gist.githubusercontent.com/ornicar/6bfa91eb61a2dcae7bcd14cce1b2a4eb/raw/768b9f6cc8a8471d2555e47ba40fb0095e5fba37/gistfile1.txt
-         */
-        T players(URL urlToTextFile);
-    }
-
     interface Filter extends CommonGameParameters<Filter> {
         /**
          * Only games of a particular player. Leave empty to fetch games of all players.
@@ -260,7 +251,7 @@ public interface GamesApi {
         default Filter evals() { return evals(true); }
     }
 
-    interface GameParams extends CommonGameParameters<GameParams>, Evals<GameParams>, Players<GameParams> {
+    interface GameParams extends CommonGameParameters<GameParams>, Evals<GameParams> {
         /**
          * Insert textual annotations in the PGN about the opening, analysis variations, mistakes, and game termination.<br>
          * Default `false`
@@ -341,7 +332,7 @@ public interface GamesApi {
         private static long zdtToMillis(ZonedDateTime zdt) { return zdt.toInstant().getEpochSecond() * 1000; }
     }
 
-    interface SearchFilter extends CommonGameParameters<SearchFilter>, Evals<SearchFilter>, Players<SearchFilter>, CommonSearchFilterParams<SearchFilter> {
+    interface SearchFilter extends CommonGameParameters<SearchFilter>, Evals<SearchFilter>, CommonSearchFilterParams<SearchFilter> {
         /**
          * Only games played against this opponent
          */
