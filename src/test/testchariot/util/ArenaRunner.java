@@ -53,7 +53,13 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
 
     void connectPgnReplayMover(Arena arena, Participant participant) {
         // join to get paired
-        join(arena(), participant);
+        // Note, join times out after a minute if user doesn't have tournament page open,
+        //       so API usage would need "refresh" of join requests to be sure not dropping
+        //       out from being eligible for pairing...
+        //       The risk of the arena runner stops pairing should be low here at the moment,
+        //       as the games are scripted with fixed PGN - so games should hopefully finish
+        //       fast enough for no player to need to wait so long that the join times out...
+        join(arena, participant);
 
         participant.client().board().connect().stream().forEach(event -> {
             LOGGER.fine("Event for " + participant.account().id() + ": " + event);
