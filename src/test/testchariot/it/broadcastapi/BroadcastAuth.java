@@ -259,10 +259,16 @@ public class BroadcastAuth {
         ZonedDateTime createRound = ZonedDateTime.now();
         ZonedDateTime roundStartsAt = createRound.plusDays(plusDays).withNano(0);
         Duration roundDelay = Duration.ofMinutes(30);
+        Broadcast.CustomScoring customScoring = new Broadcast.CustomScoring(new Broadcast.Points(1.0, 0.5), new Broadcast.Points(1.0, 0.5));
         var myRoundResult = superadmin.broadcasts().createRound(broadcast.id(), p -> p
                 .name(roundName)
                 .startsAt(roundStartsAt)
                 .delay(roundDelay)
+                .rated()
+                .customScoringWhiteWin(customScoring.white().win())
+                .customScoringWhiteDraw(customScoring.white().draw())
+                .customScoringBlackWin(customScoring.black().win())
+                .customScoringBlackDraw(customScoring.black().draw())
                 );
 
         if (! (myRoundResult instanceof Entry(MyRound myRound))) {
@@ -295,8 +301,10 @@ public class BroadcastAuth {
                 Opt.of(),
                 true, // ongoing
                 false,
+                true, // rated
                 roundUrl,
-                roundDelay
+                roundDelay,
+                Opt.of(customScoring)
                 );
         MyRound.Study expectedRoundStudy = new MyRound.Study(true);
 
@@ -316,9 +324,11 @@ public class BroadcastAuth {
                 round.ongoing(),
                 round.finished(),
                 round.startsAfterPrevious(),
+                round.rated(),
                 round.startsAt(),
                 round.finishedAt(),
                 Opt.empty(),
+                round.customScoring(),
                 round.url()
                 );
     }
