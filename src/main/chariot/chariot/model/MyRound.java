@@ -28,6 +28,7 @@ public record MyRound(Tour tour, Round round, Study study) {
             Opt<ZonedDateTime> finishedAt,
             boolean ongoing,
             boolean finished,
+            boolean rated,
             URI url,
             Duration delay
             ) {}

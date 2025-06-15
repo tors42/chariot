@@ -212,6 +212,12 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
         /// @param syncUsers Up to 100 Lichess usernames
         default RoundBuilder syncUsers(String... syncUsers) { return syncUsers(Arrays.stream(syncUsers).toList()); }
 
+        /// Whether the round is used when calculating players' rating changes. Default `true`
+        RoundBuilder rated(boolean rated);
+
+        /// Whether the round is used when calculating players' rating changes. Default `true`
+        default RoundBuilder rated() { return rated(true); }
+
         /**
          * @param delay The delay of the broadcast, in seconds
          */
