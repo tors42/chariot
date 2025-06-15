@@ -552,6 +552,10 @@ public sealed interface Endpoint<T> {
         Endpoint.of(mapper(PageBroadcastWrapper.class).andThen(PageBroadcastWrapper::past))
         .endpoint("/api/broadcast/top").toOne();
 
+    public static EPOne<PageBroadcast> broadcastsSearchPage =
+        Endpoint.of(mapper(PageBroadcast.class))
+        .endpoint("/api/broadcast/search").toOne();
+
     public static EPOne<Broadcast> createBroadcast =
         Endpoint.of(Broadcast.class).endpoint("/broadcast/new").post(wwwform).scope(Scope.study_write).toOne();
 

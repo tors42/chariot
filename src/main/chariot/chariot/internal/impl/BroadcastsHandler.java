@@ -64,6 +64,28 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
     }
 
     @Override
+    public Many<Broadcast.TourWithLastRound> search(String searchTerm) {
+        var firstPage = searchByPage(1, searchTerm);
+        if (firstPage instanceof Entry<Endpoint.PageBroadcast> one) {
+            var spliterator = Util.PageSpliterator.of(
+                    one.entry(),
+                    pageNum -> searchByPage(pageNum, searchTerm) instanceof Entry<Endpoint.PageBroadcast> pt
+                     ? pt.entry()
+                     : new Endpoint.PageBroadcast(0,0,List.of(),0,0,0,0));
+            return Many.entries(StreamSupport.stream(spliterator, false));
+        } else {
+            return Many.entries(Stream.of());
+        }
+    }
+
+    private One<Endpoint.PageBroadcast> searchByPage(int page, String searchTerm) {
+        return Endpoint.broadcastsSearchPage.newRequest(request -> request
+                .query(Map.of("page", page, "q", searchTerm)))
+            .process(requestHandler);
+    }
+
+
+    @Override
     public Many<Pgn> streamBroadcast(String roundId) {
         return Endpoint.streamBroadcast.newRequest(request -> request
                 .path(roundId)

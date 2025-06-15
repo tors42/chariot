@@ -97,6 +97,9 @@ public interface BroadcastsApi {
      */
     Many<Broadcast.TourWithLastRound> byUserId(String userId, Consumer<Params> params);
 
+    /// Search across recent official broadcasts.
+    Many<Broadcast.TourWithLastRound> search(String searchTerm);
+
     /**
      * Get information about a broadcast tournament.
      *
