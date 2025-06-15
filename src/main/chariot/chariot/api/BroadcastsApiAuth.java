@@ -191,11 +191,6 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
         default RoundBuilder syncUrl(String syncUrl) { return syncUrl(URI.create(syncUrl)); }
 
         /**
-         * @param syncUrlRound Required if syncUrl contains a livechesscloud link.
-         */
-        RoundBuilder syncUrlRound(int syncUrlRound);
-
-        /**
          * @param delay The delay of the broadcast, in seconds
          */
         RoundBuilder delay(long delay);
