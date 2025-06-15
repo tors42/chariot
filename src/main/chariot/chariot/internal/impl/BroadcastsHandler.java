@@ -3,6 +3,7 @@ package chariot.internal.impl;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -146,7 +147,7 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
     public One<MyRound> createRound(String tourId, Consumer<RoundBuilder> params) {
         return Endpoint.createRound.newRequest(request -> request
                 .path(tourId)
-                .body(MapBuilder.of(RoundBuilder.class).toMap(params)))
+                .body(roundBuilderToMap(params)))
             .process(requestHandler);
     }
 
@@ -154,7 +155,7 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
     public One<Broadcast.Round> updateRound(String roundId, Consumer<RoundBuilder> params) {
         return Endpoint.updateRound.newRequest(request -> request
                 .path(roundId)
-                .body(MapBuilder.of(RoundBuilder.class).toMap(params)))
+                .body(roundBuilderToMap(params)))
             .process(requestHandler);
     }
 
@@ -192,5 +193,17 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
                     .rename("infoWebsite", "info.website")
                     .rename("infoTimeZone", "info.timeZone")
                     .toMap(consumer);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> roundBuilderToMap(Consumer<RoundBuilder> consumer) {
+        return MapBuilder.of(RoundBuilder.class)
+            .addCustomHandler("syncUrls", (args, map) -> map.put("syncUrls", ((List<?>) args[0]).stream()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining("\n"))))
+            .addCustomHandler("syncIds", (args, map) -> map.put("syncIds", String.join(" ", (List<String>)args[0])))
+            .addCustomHandler("syncUsers", (args, map) -> map.put("syncUsers", String.join(" ", (List<String>)args[0])))
+            .toMap(consumer);
     }
 }

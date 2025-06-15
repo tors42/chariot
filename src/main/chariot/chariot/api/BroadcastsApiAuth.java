@@ -3,6 +3,8 @@ package chariot.api;
 import java.net.URI;
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -189,6 +191,26 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
          *        Example: https://myserver.org/myevent/round-10/games.pgn
          */
         default RoundBuilder syncUrl(String syncUrl) { return syncUrl(URI.create(syncUrl)); }
+
+        /// @param syncUrls URLs that Lichess will poll to get updates about the games.  
+        ///                 They must be publicly accessible from the Internet.  
+        ///                 Example: https://myserver.org/myevent/round-10/games.pgn
+        RoundBuilder syncUrls(List<URI> syncUrls);
+
+        /// See [#syncUrls(List)]
+        default RoundBuilder syncUrls(String... syncUrls) { return syncUrls(Arrays.stream(syncUrls).map(URI::create).toList()); }
+
+        /// @param syncIds Lichess game IDs - Up to 64 Lichess game IDs
+        RoundBuilder syncIds(List<String> syncIds);
+
+        /// @param syncIds Lichess game IDs - Up to 64 Lichess game IDs
+        default RoundBuilder syncIds(String... syncIds) { return syncIds(Arrays.stream(syncIds).toList()); }
+
+        /// @param syncUsers Up to 100 Lichess usernames
+        RoundBuilder syncUsers(List<String> syncUsers);
+
+        /// @param syncUsers Up to 100 Lichess usernames
+        default RoundBuilder syncUsers(String... syncUsers) { return syncUsers(Arrays.stream(syncUsers).toList()); }
 
         /**
          * @param delay The delay of the broadcast, in seconds
