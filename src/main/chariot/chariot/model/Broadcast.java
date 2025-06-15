@@ -52,8 +52,10 @@ public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group)  {
             ZonedDateTime createdAt,
             boolean ongoing,
             boolean finished,
+            boolean startsAfterPrevious,
             boolean rated,
             Opt<ZonedDateTime> startsAt,
+            Opt<ZonedDateTime> finishedAt,
             Opt<CustomScoring> customScoring,
             URI url
             ) {}
