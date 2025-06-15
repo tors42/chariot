@@ -218,6 +218,15 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
         /// Whether the round is used when calculating players' rating changes. Default `true`
         default RoundBuilder rated() { return rated(true); }
 
+        /// Custom scoring of game results in round
+        RoundBuilder customScoringWhiteWin(double points);
+        /// Custom scoring of game results in round
+        RoundBuilder customScoringBlackWin(double points);
+        /// Custom scoring of game results in round
+        RoundBuilder customScoringWhiteDraw(double points);
+        /// Custom scoring of game results in round
+        RoundBuilder customScoringBlackDraw(double points);
+
         /**
          * @param delay The delay of the broadcast, in seconds
          */

@@ -30,7 +30,8 @@ public record MyRound(Tour tour, Round round, Study study) {
             boolean finished,
             boolean rated,
             URI url,
-            Duration delay
+            Duration delay,
+            Opt<Broadcast.CustomScoring> customScoring
             ) {}
 
     public record Study(boolean writeable) {}

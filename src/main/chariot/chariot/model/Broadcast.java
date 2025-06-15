@@ -35,6 +35,7 @@ public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group)  {
             Opt<ZonedDateTime> startsAt,
             Opt<ZonedDateTime> finishedAt,
             Opt<RoundTour> tour,
+            Opt<CustomScoring> customScoring,
             URI url
             ) {}
 
@@ -53,6 +54,7 @@ public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group)  {
             boolean finished,
             boolean rated,
             Opt<ZonedDateTime> startsAt,
+            Opt<CustomScoring> customScoring,
             URI url
             ) {}
 
@@ -72,4 +74,7 @@ public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group)  {
             this(Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of());
         }
     }
+
+    public record Points(double win, double draw) {}
+    public record CustomScoring(Points white, Points black) {}
 }

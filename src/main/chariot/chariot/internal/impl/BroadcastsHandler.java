@@ -204,6 +204,10 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
                         .collect(Collectors.joining("\n"))))
             .addCustomHandler("syncIds", (args, map) -> map.put("syncIds", String.join(" ", (List<String>)args[0])))
             .addCustomHandler("syncUsers", (args, map) -> map.put("syncUsers", String.join(" ", (List<String>)args[0])))
+            .rename("customScoringWhiteWin",  "customScoring.white.win")
+            .rename("customScoringBlackWin",  "customScoring.black.win")
+            .rename("customScoringWhiteDraw", "customScoring.white.draw")
+            .rename("customScoringBlackDraw", "customScoring.black.draw")
             .toMap(consumer);
     }
 }
