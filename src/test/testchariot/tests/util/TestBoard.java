@@ -167,4 +167,33 @@ public class TestBoard {
     }
 
 
+    @Test
+    public void castling960RookSquareOccupied() {
+        Board initial = Board.fromFEN("qnbbrnkr/pppppppp/8/8/8/8/PPPPPPPP/QNBBRNKR w EHeh - 0 1");
+        Board positionToTest = initial.play("e4 c6 e5 e6 d4 h6 d5 b5 dxe6 Nh7 exd7 g6 dxe8=Q+ Nf8 Qxd8 Bd7 Qxd7");
+        // Kingside castling shouldn't be possible, as there is a Knight on f8 where Rook should end up
+        Board.Move kingsideCastling = Board.Move.parse("g8h8", positionToTest.to960FEN());
+        assertTrue(kingsideCastling instanceof Board.Invalid, "Castling shouldn't be possible here");
+    }
+
+    @Test
+    public void castling960RookSquareNotOccupied() {
+        Board initial = Board.fromFEN("qnbbrnkr/pppppppp/8/8/8/8/PPPPPPPP/QNBBRNKR w EHeh - 0 1");
+        Board positionToTest = initial.play("e4 c6 e5 e6 d4 h6 d5 b5 dxe6 Nh7 exd7 g6 dxe8=Q+ Nf8 Qxd8 Bd7 Qxd7 Ne6 c3");
+        // Kingside castling should be possible, as the Knight has moved from f8
+        Board.Move kingsideCastling = Board.Move.parse("g8h8", positionToTest.to960FEN());
+        assertTrue(kingsideCastling instanceof Board.Castling, "Castling should be possible here");
+    }
+
+    @Test
+    public void castling960With_OO_Notation() {
+        Board initial = Board.fromFEN("qnbbrnkr/pppppppp/8/8/8/8/PPPPPPPP/QNBBRNKR w EHeh - 0 1");
+        Board positionToTest = initial.play("e4 c6 e5 e6 d4 h6 d5 b5 dxe6 Nh7 exd7 g6 dxe8=Q+ Nf8 Qxd8 Bd7 Qxd7 Ne6 c3");
+        // Kingside castling should be possible, as the Knight has moved from f8
+        Board.Move kingsideCastling = Board.Move.parse("O-O", positionToTest.to960FEN());
+        assertTrue(kingsideCastling instanceof Board.Castling, "Castling should be possible here");
+    }
+
+
+
 }
