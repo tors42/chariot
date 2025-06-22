@@ -44,6 +44,7 @@ public class BroadcastAuth {
 
         List<Broadcast.Round> rounds = List.of();
         Opt<Broadcast.Group> group = Opt.empty();
+        Opt<String> defaultRoundId = Opt.empty();
         List<ZonedDateTime> dates = List.of();
         Broadcast.Info info = new Broadcast.Info();
 
@@ -61,7 +62,8 @@ public class BroadcastAuth {
                         image,
                         teamTable),
                 rounds,
-                group
+                group,
+                defaultRoundId
                 );
 
         assertEquals(expected, broadcast);
@@ -96,7 +98,8 @@ public class BroadcastAuth {
                         expected.tour().image(),
                         expected.tour().teamTable()),
                 expected.rounds(),
-                expected.group());
+                expected.group(),
+                expected.defaultRoundId());
 
         unboxEquals(client.broadcasts().broadcastById(id, p -> p.html()), expectedWithHtmlDescription);
     }
@@ -165,6 +168,7 @@ public class BroadcastAuth {
 
         List<Broadcast.Round> rounds = List.of();
         Opt<Broadcast.Group> group = Opt.empty();
+        Opt<String> defaultRoundId = Opt.empty();
         List<ZonedDateTime> dates = List.of();
 
         // Note,
@@ -186,7 +190,8 @@ public class BroadcastAuth {
                         image,
                         teamLeaderboard),
                 rounds,
-                group);
+                group,
+                defaultRoundId);
 
         assertEquals(expected, broadcast);
 
@@ -207,6 +212,9 @@ public class BroadcastAuth {
 
         List<ZonedDateTime> expectedDates = List.of(myRound1.round().startsAt().get(), myRound3.round().startsAt().get());
 
+        Opt<String> expectedDefaultRoundIdAfterRoundsHaveBeenCreated = Opt.of(myRound1.id());
+
+
         // In future with withers (ish):
         // expectedWithRounds = expected with { tour with { dates = expectedDates } } with { rounds = expectedRounds };
 
@@ -226,7 +234,8 @@ public class BroadcastAuth {
                     broadcast.tour().teamTable()
                     ),
                 expectedRounds,
-                broadcast.group()
+                broadcast.group(),
+                expectedDefaultRoundIdAfterRoundsHaveBeenCreated
                 );
 
         unboxEquals(broadcastAfterRoundHaveBeenCreated, expectedWithRounds);
