@@ -679,6 +679,8 @@ public sealed interface Board {
                     for (int i = rookDistance; i != 0; i = i - (rookDistance > 0 ? 1 : -1)) {
                         rookTravelSquares.add(Coordinate.rowCol(kingSideRook.row(), rookTargetSquareKingSide.col() + i));
                     }
+                    rookTravelSquares.add(rookTargetSquareKingSide);
+
                     Set<Coordinate> kingTravelSquares = new HashSet<>(8);
                     int kingDistance = kingFromCoordinate.col() - kingTargetSquareKingSide.col();
                     for (int i = kingDistance; i != 0; i = i - (kingDistance > 0 ? 1 : -1)) {
@@ -715,6 +717,8 @@ public sealed interface Board {
                     for (int i = rookDistance; i != 0; i = i - (rookDistance > 0 ? 1 : -1)) {
                         rookTravelSquares.add(Coordinate.rowCol(queenSideRook.row(), rookTargetSquareQueenSide.col() + i));
                     }
+                    rookTravelSquares.add(rookTargetSquareQueenSide);
+
                     Set<Coordinate> kingTravelSquares = new HashSet<>(8);
                     int kingDistance = kingFromCoordinate.col() - kingTargetSquareQueenSide.col();
                     for (int i = kingDistance; i != 0; i = i - (kingDistance > 0 ? 1 : -1)) {
@@ -922,10 +926,30 @@ public sealed interface Board {
 
             switch (move) {
                 case "O-O", "0-0" -> {
-                    return fen.whoseTurn() == Side.WHITE ? "e1g1" : "e8g8";
+                    String rookFile = fen.whoseTurn() == Side.WHITE
+                        ? fen.castlingRights().files().K()
+                        : fen.castlingRights().files().k();
+                    String kingFile = pieceMap.entrySet().stream()
+                        .filter(entry -> entry.getValue() instanceof Piece p &&
+                                p.type() == PieceType.KING &&
+                                p.color() == fen.whoseTurn())
+                        .map(entry -> Character.toString('a' + entry.getKey().col()))
+                        .findFirst().orElse("e");
+                    int row = fen.whoseTurn() == Side.WHITE ? 1 : 8;
+                    return "%s%d%s%d".formatted(kingFile, row, rookFile, row);
                 }
                 case "O-O-O", "0-0-0" -> {
-                    return fen.whoseTurn() == Side.WHITE ? "e1c1" : "e8c8";
+                    String rookFile = fen.whoseTurn() == Side.WHITE
+                        ? fen.castlingRights().files().Q()
+                        : fen.castlingRights().files().q();
+                    String kingFile = pieceMap.entrySet().stream()
+                        .filter(entry -> entry.getValue() instanceof Piece p &&
+                                p.type() == PieceType.KING &&
+                                p.color() == fen.whoseTurn())
+                        .map(entry -> Character.toString('a' + entry.getKey().col()))
+                        .findFirst().orElse("e");
+                    int row = fen.whoseTurn() == Side.WHITE ? 1 : 8;
+                    return "%s%d%s%d".formatted(kingFile, row, rookFile, row);
                 }
              }
 
