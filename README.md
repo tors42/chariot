@@ -22,6 +22,7 @@ client.analysis().cloudEval()
 client.bot().botsOnline()
 
 client.broadcasts().official()
+client.broadcasts().search()
 client.broadcasts().exportPgn()
 client.broadcasts().exportOneRoundPgn()
 client.broadcasts().streamBroadcast()
