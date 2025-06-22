@@ -4,7 +4,7 @@ import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group)  {
+public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group, Opt<String> defaultRoundId)  {
     public String id() { return tour().id(); }
 
     public record Tour(
