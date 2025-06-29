@@ -1,12 +1,21 @@
 package chariot.api;
 
-import chariot.api.UsersApi.UserParams;
 import chariot.model.*;
 
 import java.util.*;
 import java.util.function.Consumer;
 
-public interface UsersApiAuth extends UsersApiBase {
+public interface UsersApiAuth extends UsersApi {
+
+    /**
+     * Get public user data
+     *
+     * @param userId
+     */
+    default One<UserAuth> byId(String userId) {
+        return byId(userId, __ -> {});
+    }
+
 
     /**
      * Get public user data
@@ -14,7 +23,6 @@ public interface UsersApiAuth extends UsersApiBase {
      * @param userId
      */
     One<UserAuth> byId(String userId, Consumer<UserParams> params);
-
 
     /**
      * Get public user data
@@ -70,12 +78,4 @@ public interface UsersApiAuth extends UsersApiBase {
      */
     Many<UserStatus> autocompleteUsers(String term, boolean friend);
 
-    /**
-     * Get public user data
-     *
-     * @param userId
-     */
-    default One<UserAuth> byId(String userId) {
-        return byId(userId, __ -> {});
-    }
 }

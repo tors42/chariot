@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import chariot.api.UsersApiAuth;
-import chariot.api.UsersApi.UserParams;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 

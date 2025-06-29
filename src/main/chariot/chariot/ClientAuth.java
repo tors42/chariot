@@ -29,8 +29,17 @@ public class ClientAuth extends Client {
     /**
      * Access registered users on Lichess.
      * Send messages to users.
+     * @deprecated use [#users()]
      */
+    @Deprecated
     public UsersApiAuth usersAuth() {
+        return usersHandler;
+    }
+
+    /// Access registered users on Lichess.
+    /// Send messages to users.
+    @Override
+    public UsersApiAuth users() {
         return usersHandler;
     }
 

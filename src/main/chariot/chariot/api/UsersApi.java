@@ -12,10 +12,10 @@ public interface UsersApi extends UsersApiBase {
      *
      * @param userId
      */
-    One<User> byId(String userId);
+    One<? extends User> byId(String userId);
 
 
-    Many<User> byIds(String ... userIds);
+    Many<? extends User> byIds(String ... userIds);
 
     /**
      * Get public user data
@@ -23,7 +23,7 @@ public interface UsersApi extends UsersApiBase {
      * @param userId
      * @param params
      */
-    One<User> byId(String userId, Consumer<UserParams> params);
+    One<? extends User> byId(String userId, Consumer<UserParams> params);
 
 
     /**
@@ -31,7 +31,7 @@ public interface UsersApi extends UsersApiBase {
      *
      * @param userIds A list of up to 300 user ids
      */
-    Many<User> byIds(List<String> userIds);
+    Many<? extends User> byIds(List<String> userIds);
 
 
     public interface UserParams {
