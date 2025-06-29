@@ -37,58 +37,58 @@ public class AccountAuth {
 
     @IntegrationTest
     public void blocking() {
-        bobby.usersAuth().unblockUser("yulia");
-        yulia.usersAuth().unblockUser("bobby");
+        bobby.users().unblockUser("yulia");
+        yulia.users().unblockUser("bobby");
 
-        unboxEquals(bobby.usersAuth().byId("yulia"), false, UserAuth::blocked);
-        unboxEquals(yulia.usersAuth().byId("bobby"), false, UserAuth::blocked);
+        unboxEquals(bobby.users().byId("yulia"), false, UserAuth::blocked);
+        unboxEquals(yulia.users().byId("bobby"), false, UserAuth::blocked);
 
-        bobby.usersAuth().blockUser("yulia");
+        bobby.users().blockUser("yulia");
 
-        unboxEquals(bobby.usersAuth().byId("yulia"), true, UserAuth::blocked);
-        unboxEquals(yulia.usersAuth().byId("bobby"), false, UserAuth::blocked);
+        unboxEquals(bobby.users().byId("yulia"), true, UserAuth::blocked);
+        unboxEquals(yulia.users().byId("bobby"), false, UserAuth::blocked);
 
-        yulia.usersAuth().blockUser("bobby");
+        yulia.users().blockUser("bobby");
 
-        unboxEquals(bobby.usersAuth().byId("yulia"), true, UserAuth::blocked);
-        unboxEquals(yulia.usersAuth().byId("bobby"), true, UserAuth::blocked);
+        unboxEquals(bobby.users().byId("yulia"), true, UserAuth::blocked);
+        unboxEquals(yulia.users().byId("bobby"), true, UserAuth::blocked);
 
-        bobby.usersAuth().unblockUser("yulia");
-        yulia.usersAuth().unblockUser("bobby");
+        bobby.users().unblockUser("yulia");
+        yulia.users().unblockUser("bobby");
 
-        unboxEquals(bobby.usersAuth().byId("yulia"), false, UserAuth::blocked);
-        unboxEquals(yulia.usersAuth().byId("bobby"), false, UserAuth::blocked);
+        unboxEquals(bobby.users().byId("yulia"), false, UserAuth::blocked);
+        unboxEquals(yulia.users().byId("bobby"), false, UserAuth::blocked);
     }
 
     @IntegrationTest
     public void following() {
-        bobby.account().following().stream().forEach(followed -> bobby.usersAuth().unfollowUser(followed.id()));
-        yulia.account().following().stream().forEach(followed -> yulia.usersAuth().unfollowUser(followed.id()));
+        bobby.account().following().stream().forEach(followed -> bobby.users().unfollowUser(followed.id()));
+        yulia.account().following().stream().forEach(followed -> yulia.users().unfollowUser(followed.id()));
 
-        unboxEquals(bobby.usersAuth().byId("yulia"), false, UserAuth::following);
-        unboxEquals(yulia.usersAuth().byId("bobby"), false, UserAuth::following);
+        unboxEquals(bobby.users().byId("yulia"), false, UserAuth::following);
+        unboxEquals(yulia.users().byId("bobby"), false, UserAuth::following);
         assertFalse(bobby.account().following().stream().map(UserCommon::id).anyMatch("yulia"::equals));
         assertFalse(yulia.account().following().stream().map(UserCommon::id).anyMatch("bobby"::equals));
 
-        bobby.usersAuth().followUser("yulia");
+        bobby.users().followUser("yulia");
 
-        unboxEquals(bobby.usersAuth().byId("yulia"), true, UserAuth::following);
-        unboxEquals(yulia.usersAuth().byId("bobby"), false, UserAuth::following);
+        unboxEquals(bobby.users().byId("yulia"), true, UserAuth::following);
+        unboxEquals(yulia.users().byId("bobby"), false, UserAuth::following);
         assertTrue(bobby.account().following().stream().map(UserCommon::id).anyMatch("yulia"::equals));
         assertFalse(yulia.account().following().stream().map(UserCommon::id).anyMatch("bobby"::equals));
 
-        yulia.usersAuth().followUser("bobby");
+        yulia.users().followUser("bobby");
 
-        unboxEquals(bobby.usersAuth().byId("yulia"), true, UserAuth::following);
-        unboxEquals(yulia.usersAuth().byId("bobby"), true, UserAuth::following);
+        unboxEquals(bobby.users().byId("yulia"), true, UserAuth::following);
+        unboxEquals(yulia.users().byId("bobby"), true, UserAuth::following);
         assertTrue(bobby.account().following().stream().map(UserCommon::id).anyMatch("yulia"::equals));
         assertTrue(yulia.account().following().stream().map(UserCommon::id).anyMatch("bobby"::equals));
 
-        bobby.usersAuth().unfollowUser("yulia");
-        yulia.usersAuth().unfollowUser("bobby");
+        bobby.users().unfollowUser("yulia");
+        yulia.users().unfollowUser("bobby");
 
-        unboxEquals(bobby.usersAuth().byId("yulia"), false, UserAuth::following);
-        unboxEquals(yulia.usersAuth().byId("bobby"), false, UserAuth::following);
+        unboxEquals(bobby.users().byId("yulia"), false, UserAuth::following);
+        unboxEquals(yulia.users().byId("bobby"), false, UserAuth::following);
         assertFalse(bobby.account().following().stream().map(UserCommon::id).anyMatch("yulia"::equals));
         assertFalse(yulia.account().following().stream().map(UserCommon::id).anyMatch("bobby"::equals));
     }
@@ -99,22 +99,22 @@ public class AccountAuth {
         // It is configurable via,
         // https://lichess.org/account/preferences/privacy#letOtherPlayersFollowYou
 
-        bobby.account().following().stream().forEach(followed -> bobby.usersAuth().unfollowUser(followed.id()));
-        bobby.usersAuth().unblockUser("yulia");
-        yulia.account().following().stream().forEach(followed -> yulia.usersAuth().unfollowUser(followed.id()));
-        yulia.usersAuth().unblockUser("bobby");
+        bobby.account().following().stream().forEach(followed -> bobby.users().unfollowUser(followed.id()));
+        bobby.users().unblockUser("yulia");
+        yulia.account().following().stream().forEach(followed -> yulia.users().unfollowUser(followed.id()));
+        yulia.users().unblockUser("bobby");
 
-        unboxEquals(bobby.usersAuth().byId("yulia"), true, UserAuth::followable);
-        unboxEquals(yulia.usersAuth().byId("bobby"), true, UserAuth::followable);
+        unboxEquals(bobby.users().byId("yulia"), true, UserAuth::followable);
+        unboxEquals(yulia.users().byId("bobby"), true, UserAuth::followable);
 
-        bobby.usersAuth().followUser("yulia");
-        bobby.usersAuth().blockUser("yulia");
+        bobby.users().followUser("yulia");
+        bobby.users().blockUser("yulia");
         bobby.account().kidMode(true);
 
-        unboxEquals(yulia.usersAuth().byId("bobby"), true, UserAuth::followable);
+        unboxEquals(yulia.users().byId("bobby"), true, UserAuth::followable);
 
         bobby.account().kidMode(false);
-        bobby.usersAuth().unblockUser("yulia");
-        bobby.usersAuth().unfollowUser("yulia");
+        bobby.users().unblockUser("yulia");
+        bobby.users().unfollowUser("yulia");
     }
 }
