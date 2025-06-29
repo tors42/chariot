@@ -20,6 +20,8 @@ public interface Builders {
 
         default T clockBullet1m0s()      { return clock((int) TimeUnit.MINUTES.toSeconds(1),   0); }
         default T clockBullet2m1s()      { return clock((int) TimeUnit.MINUTES.toSeconds(2),   1); }
+        default T clockBlitz3m0()        { return clock((int) TimeUnit.MINUTES.toSeconds(3),   0); }
+        @Deprecated
         default T clockBlitz3m1s()       { return clock((int) TimeUnit.MINUTES.toSeconds(3),   1); }
         default T clockBlitz3m2s()       { return clock((int) TimeUnit.MINUTES.toSeconds(3),   2); }
         default T clockBlitz5m0s()       { return clock((int) TimeUnit.MINUTES.toSeconds(5),   0); }
@@ -53,6 +55,8 @@ public interface Builders {
 
         default T clockBullet1m0s()      { return clock(1.0f,   0); }
         default T clockBullet2m1s()      { return clock(2.0f,   1); }
+        default T clockBlitz3m0s()       { return clock(3.0f,   0); }
+        @Deprecated
         default T clockBlitz3m1s()       { return clock(3.0f,   1); }
         default T clockBlitz3m2s()       { return clock(3.0f,   2); }
         default T clockBlitz5m0s()       { return clock(5.0f,   0); }
