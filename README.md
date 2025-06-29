@@ -241,13 +241,13 @@ client.tournaments().terminateSwiss()
 client.tournaments().generateUserEntryCodes()
 client.tournaments().updateTeamBattle()
 
-client.usersAuth().sendMessageToUser()
-client.usersAuth().followUser()
-client.usersAuth().unfollowUser()
-client.usersAuth().blockUser()
-client.usersAuth().unblockUser()
-client.usersAuth().writeNoteAboutUser()
-client.usersAuth().readNotesAboutUser()
+client.users().sendMessageToUser()
+client.users().followUser()
+client.users().unfollowUser()
+client.users().blockUser()
+client.users().unblockUser()
+client.users().writeNoteAboutUser()
+client.users().readNotesAboutUser()
 ```
 </details>
 
