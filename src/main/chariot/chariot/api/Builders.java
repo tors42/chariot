@@ -20,9 +20,7 @@ public interface Builders {
 
         default T clockBullet1m0s()      { return clock((int) TimeUnit.MINUTES.toSeconds(1),   0); }
         default T clockBullet2m1s()      { return clock((int) TimeUnit.MINUTES.toSeconds(2),   1); }
-        default T clockBlitz3m0()        { return clock((int) TimeUnit.MINUTES.toSeconds(3),   0); }
-        @Deprecated
-        default T clockBlitz3m1s()       { return clock((int) TimeUnit.MINUTES.toSeconds(3),   1); }
+        default T clockBlitz3m0s()       { return clock((int) TimeUnit.MINUTES.toSeconds(3),   0); }
         default T clockBlitz3m2s()       { return clock((int) TimeUnit.MINUTES.toSeconds(3),   2); }
         default T clockBlitz5m0s()       { return clock((int) TimeUnit.MINUTES.toSeconds(5),   0); }
         default T clockBlitz5m3s()       { return clock((int) TimeUnit.MINUTES.toSeconds(5),   3); }
@@ -31,6 +29,9 @@ public interface Builders {
         default T clockRapid15m10s()     { return clock((int) TimeUnit.MINUTES.toSeconds(15), 10); }
         default T clockClassical30m0s()  { return clock((int) TimeUnit.MINUTES.toSeconds(30),  0); }
         default T clockClassical30m20s() { return clock((int) TimeUnit.MINUTES.toSeconds(30), 20); }
+
+        @Deprecated default T clockBlitz3m0()        { return clock((int) TimeUnit.MINUTES.toSeconds(3),   0); }
+        @Deprecated default T clockBlitz3m1s()       { return clock((int) TimeUnit.MINUTES.toSeconds(3),   1); }
     }
 
     interface ClockCorrespondence<T> {
