@@ -120,6 +120,14 @@ public class BoardHandler extends ChallengesAuthCommonImpl implements BoardApiAu
             .process(requestHandler);
     }
 
+    @Override
+    public One<Void> claimDraw(String gameId) {
+        return Endpoint.boardClaimDraw.newRequest(request -> request
+                .path(gameId))
+            .process(requestHandler);
+    }
+
+
     private Map<String, Object> seekRealTimeBuilderToMap(Consumer<SeekRealTimeBuilder> consumer) {
         var builder = MapBuilder.of(SeekParams.class);
         var seekBuilder = new SeekRealTimeBuilder() {

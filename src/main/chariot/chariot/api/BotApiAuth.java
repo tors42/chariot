@@ -159,6 +159,10 @@ public interface BotApiAuth extends ChallengesApiAuthCommon, BotApi { //Bot<User
     /// @param gameId  Example: 5IrD6Gzz
     One<Void> claimVictory(String gameId);
 
+    /// Claim draw when the opponent has left the game for a while.
+    /// @param gameId  Example: 5IrD6Gzz
+    One<Void> claimDraw(String gameId);
+
     /**
      * Get the messages posted in the game chat.
      * @param gameId  Example: 5IrD6Gzz

@@ -643,6 +643,10 @@ public sealed interface Endpoint<T> {
     public static EPOne<Void> boardClaimVictory =
         Endpoint.of(Void.class).endpoint("/api/board/game/%s/claim-victory").post().scope(Scope.board_play).toOne();
 
+    public static EPOne<Void> boardClaimDraw =
+        Endpoint.of(Void.class).endpoint("/api/board/game/%s/claim-draw").post().scope(Scope.board_play).toOne();
+
+
     public static EPMany<ChatMessage> boardFetchChat =
         Endpoint.ofArr(ChatMessage.class).endpoint("/api/board/game/%s/chat").accept(jsonstream).scope(Scope.board_play).toMany();
 
@@ -678,6 +682,9 @@ public sealed interface Endpoint<T> {
 
     public static EPOne<Void> botClaimVictory =
         Endpoint.of(Void.class).endpoint("/api/bot/game/%s/claim-victory").post().scope(Scope.bot_play).toOne();
+
+    public static EPOne<Void> botClaimDraw =
+        Endpoint.of(Void.class).endpoint("/api/bot/game/%s/claim-draw").post().scope(Scope.bot_play).toOne();
 
     public static EPMany<ChatMessage> botFetchChat =
         Endpoint.ofArr(ChatMessage.class).endpoint("/api/bot/game/%s/chat").accept(jsonstream).scope(Scope.bot_play).toMany();
