@@ -157,9 +157,9 @@ class Build {
     }
 
     static void del(Path dir) {
-        if (dir.toFile().exists()) {
-            try (var files = Files.walk(dir)) {
-                files.sorted(Collections.reverseOrder()).map(Path::toFile).forEach(File::delete);
+        if (Files.exists(dir)) {
+            try (var files = Files.walk(dir).map(Path::toFile)) {
+                files.toList().reversed().forEach(File::delete);
             } catch (Exception e) { throw new RuntimeException(e); }
         }
     }
