@@ -48,6 +48,10 @@ public class BroadcastAuth {
         List<ZonedDateTime> dates = List.of();
         Broadcast.Info info = new Broadcast.Info();
 
+        Opt<LightUser> communityOwner = client.account().profile()
+            .map(user -> Opt.of(new LightUser(user.id(), user.title(), user.name(), user.patron(), user.flair())))
+            .orElse(Opt.empty());
+
         Broadcast expected = new Broadcast(
                 new Broadcast.Tour(
                         id,
@@ -60,7 +64,8 @@ public class BroadcastAuth {
                         description,
                         IT.lilaURI().resolve("/broadcast/" + slug + "/" + id),
                         image,
-                        teamTable),
+                        teamTable,
+                        communityOwner),
                 rounds,
                 group,
                 defaultRoundId
@@ -96,7 +101,8 @@ public class BroadcastAuth {
                         expectedHtmlDescription,
                         expected.tour().url(),
                         expected.tour().image(),
-                        expected.tour().teamTable()),
+                        expected.tour().teamTable(),
+                        expected.tour().communityOwner()),
                 expected.rounds(),
                 expected.group(),
                 expected.defaultRoundId());
@@ -171,6 +177,12 @@ public class BroadcastAuth {
         Opt<String> defaultRoundId = Opt.empty();
         List<ZonedDateTime> dates = List.of();
 
+        Opt<LightUser> communityOwner = Opt.empty();
+        //client.account().profile()
+        //    .map(user -> Opt.of(new LightUser(user.id(), user.title(), user.name(), user.patron(), user.flair())))
+        //    .orElse(Opt.empty());
+
+
         // Note,
         //  It is not possible to query the values for, so no obvious way to verify them...
         //  - showScores
@@ -188,7 +200,8 @@ public class BroadcastAuth {
                         description,
                         IT.lilaURI().resolve("/broadcast/" + slug + "/" + id),
                         image,
-                        teamLeaderboard),
+                        teamLeaderboard,
+                        communityOwner),
                 rounds,
                 group,
                 defaultRoundId);
@@ -231,7 +244,8 @@ public class BroadcastAuth {
                     broadcast.tour().description(),
                     broadcast.tour().url(),
                     broadcast.tour().image(),
-                    broadcast.tour().teamTable()
+                    broadcast.tour().teamTable(),
+                    broadcast.tour().communityOwner()
                     ),
                 expectedRounds,
                 broadcast.group(),
