@@ -137,9 +137,15 @@ public sealed interface Pgn {
     record BasicPgn(List<Tag> tags, String moves) implements Pgn {
         @Override
         public String toString() {
-            return String.join("\n\n",
-                    String.join("\n", tags.stream().map(Object::toString).toList()),
-                    moves);
+            return tags.isEmpty()
+                ? moves + "\n"
+                : """
+                  %s
+
+                  %s
+                  """.formatted(
+                          String.join("\n", tags.stream().map(Object::toString).toList()),
+                          moves);
         }
 
         @Override
@@ -149,7 +155,7 @@ public sealed interface Pgn {
 
         @Override
         public List<Move> moveList() {
-            return Move.parse(moves());
+            return Move.parse(moves().lines().collect(Collectors.joining(" ")));
         }
 
     }

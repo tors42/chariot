@@ -190,30 +190,57 @@ public class Util {
     public static record PgnSpliterator(Iterator<String> iterator) implements Spliterator<Pgn> {
         @Override
         public boolean tryAdvance(Consumer<? super Pgn> action) {
-            List<String> tagList = readGroup(iterator);
-            List<String> moveList = readGroup(iterator);
+            List<String> tagList = new ArrayList<>();
+            List<String> moveList = new ArrayList<>();
+
+            boolean comment = false;
+            int consecutiveEmptyLines = 0;
+            boolean tagsDone = false;
+            while (iterator.hasNext() && consecutiveEmptyLines != 2) {
+                String line = iterator.next();
+                if (! tagsDone) {
+                    if (line.startsWith("[")) {
+                        tagList.add(line);
+                        continue;
+                    } else {
+                        tagsDone = true;
+                        if (line.isBlank()) continue;
+                    }
+                }
+
+                moveList.add(line);
+
+                if (line.isBlank()) {
+                    if (! comment) consecutiveEmptyLines++;
+                    continue;
+                } else {
+                    consecutiveEmptyLines = 0;
+                }
+
+                int balance = line.chars().map(c -> switch(c) {
+                    case '{' -> 1;
+                    case '}' -> -1;
+                    default -> 0;
+                }).sum();
+
+                comment = switch(balance) {
+                    case -1 -> false;
+                    case 1 -> true;
+                    default -> comment;
+                };
+            }
+
             if (tagList.isEmpty() && moveList.isEmpty()) return false;
 
-            var moves = String.join(" ", moveList);
-            var tags = tagList.stream().map(Pgn.Tag::parse).toList();
-            action.accept(Pgn.of(tags, moves));
-            return true;
-        }
+            int empty = (int) moveList.reversed().stream().takeWhile(String::isBlank).count();
+            if (empty > 0) moveList = moveList.subList(0, moveList.size()-empty);
 
-        List<String> readGroup(Iterator<String> iterator) {
-            var list = new ArrayList<String>();
-            boolean inComment = false;
-            while (iterator.hasNext()) {
-                String line = iterator.next();
-                if (! inComment) inComment = line.contains("{");
-                if (inComment) if (line.contains("}")) inComment = false;
-                if (! line.isBlank() && inComment == false) {
-                    list.add(line);
-                    continue;
-                }
-                if (! list.isEmpty()) break;
-            }
-            return list;
+            String moves = String.join("\n", moveList);
+            List<Pgn.Tag> tags = tagList.stream().map(Pgn.Tag::parse).toList();
+
+            action.accept(Pgn.of(tags, moves));
+
+            return true;
         }
 
         @Override public Spliterator<Pgn> trySplit() { return null; }
