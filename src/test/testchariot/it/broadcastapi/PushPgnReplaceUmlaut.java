@@ -21,6 +21,7 @@ public class PushPgnReplaceUmlaut {
 
         1. d4 d5 *
 
+
         [Black "Señor Ramirez"]
         [White "Jose Angel"]
 
@@ -41,12 +42,14 @@ public class PushPgnReplaceUmlaut {
 
         1. d4 d5 *
 
+
         [Black "Señor Ramirez"]
         [BlackElo "1812"]
         [White "Jose Angel"]
         [WhiteElo "2002"]
 
-        1. d4 d5 *""";
+        1. d4 d5 *
+        """;
 
     @IntegrationTest
     public void pushPgnReplacements() {

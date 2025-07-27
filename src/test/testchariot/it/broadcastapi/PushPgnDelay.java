@@ -19,27 +19,33 @@ public class PushPgnDelay {
         [Black "Hou Yifan"]
         [White "Lei Tingjie"]
 
-         *""";
+         *
+        """;
 
     static String secondIncomingPGN = """
         [Black "Hou Yifan"]
         [White "Lei Tingjie"]
 
-        1. d4 d5 *""";
+        1. d4 d5 *
+        """;
 
 
-    static String expectedEmptyRound = "\n\n *";
+    static String expectedEmptyRound = """
+         *
+        """;
     static String expectedPlayersWithNoMoves = """
         [Black "Hou Yifan"]
         [White "Lei Tingjie"]
 
-         *""";
+         *
+        """;
 
     static String expectedResult = """
         [Black "Hou Yifan"]
         [White "Lei Tingjie"]
 
-        1. d4 d5 *""";
+        1. d4 d5 *
+        """;
 
 
     @IntegrationTest
