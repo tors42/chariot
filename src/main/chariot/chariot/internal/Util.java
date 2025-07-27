@@ -309,7 +309,7 @@ public class Util {
         }
 
         public static <T> MapBuilder<T> of(Class<T> interfaceClazz) {
-            final Map<String, Object> map = new HashMap<>();
+            final Map<String, Object> map = new LinkedHashMap<>();
             final Map<String, InvocationHandler> customHandlers = new HashMap<>();
             final InvocationHandler basicHandler = (proxy, method, args) -> {
                 map.put(method.getName(), args != null ? args[0] : null);
