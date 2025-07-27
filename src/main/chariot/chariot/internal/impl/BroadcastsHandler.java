@@ -214,6 +214,13 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
                     .rename("infoStandings", "info.standings")
                     .rename("infoWebsite", "info.website")
                     .rename("infoTimeZone", "info.timeZone")
+                    .addCustomHandler("tiebreaks", (args, map) -> {
+                        if (args == null || args[0] == null) return;
+                        String[] arr = (String[]) args[0];
+                        for (int i = 0; i < arr.length; i++) {
+                            map.put("tiebreaks[%d]".formatted(i), arr[i]);
+                        }
+                    })
                     .toMap(consumer);
     }
 

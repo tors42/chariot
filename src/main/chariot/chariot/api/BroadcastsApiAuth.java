@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import chariot.internal.Util.MapBuilder;
 import chariot.model.*;
 import chariot.model.Broadcast.Round;
 
@@ -185,6 +186,23 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
             return visibility(provider.apply(Visibility.provider()));
         }
 
+
+        /// Tiebreak short codes  
+        ///
+        /// Up to 5 entries
+        ///
+        /// `AOB` `APPO` `APRO` `ARO` `ARO-C1` `ARO-C2` `ARO-M1` `ARO-M2`  
+        /// `BH` `BH-C1` `BH-C2` `BH-M1` `BH-M2` `BPG` `BWG`  
+        /// `DE` `FB` `FB-C1` `FB-C2` `FB-M1` `FB-M2` `KS`  
+        /// `PS` `PS-C1` `PS-C2` `PS-M1` `PS-M2` `PTP`  
+        /// `SB` `SB-C1` `SB-C2` `SB-M1` `SB-M2` `TPR` `WON`
+        BroadcastBuilder tiebreaks(String... names);
+
+        default BroadcastBuilder tiebreaks(Consumer<TiebreakParameters> parameters) {
+            var map = MapBuilder.of(TiebreakParameters.class).toMap(parameters);
+            return tiebreaks(map.keySet().stream().map(name -> name.replace('_', '-')).toArray(String[]::new));
+        }
+
     }
 
     interface RoundBuilder {
@@ -335,5 +353,41 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
         public static Provider provider() {return new Provider(){};}
     }
 
-
+    interface TiebreakParameters {
+        TiebreakParameters AOB();
+        TiebreakParameters APPO();
+        TiebreakParameters APRO();
+        TiebreakParameters ARO();
+        TiebreakParameters ARO_C1();
+        TiebreakParameters ARO_C2();
+        TiebreakParameters ARO_M1();
+        TiebreakParameters ARO_M2();
+        TiebreakParameters BH();
+        TiebreakParameters BH_C1();
+        TiebreakParameters BH_C2();
+        TiebreakParameters BH_M1();
+        TiebreakParameters BH_M2();
+        TiebreakParameters BPG();
+        TiebreakParameters BWG();
+        TiebreakParameters DE();
+        TiebreakParameters FB();
+        TiebreakParameters FB_C1();
+        TiebreakParameters FB_C2();
+        TiebreakParameters FB_M1();
+        TiebreakParameters FB_M2();
+        TiebreakParameters KS();
+        TiebreakParameters PS();
+        TiebreakParameters PS_C1();
+        TiebreakParameters PS_C2();
+        TiebreakParameters PS_M1();
+        TiebreakParameters PS_M2();
+        TiebreakParameters PTP();
+        TiebreakParameters SB();
+        TiebreakParameters SB_C1();
+        TiebreakParameters SB_C2();
+        TiebreakParameters SB_M1();
+        TiebreakParameters SB_M2();
+        TiebreakParameters TPR();
+        TiebreakParameters WON();
+    }
 }
