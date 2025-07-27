@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -166,6 +167,24 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
          * }
          */
         BroadcastBuilder teams(String teams);
+
+
+        /// Who can view the broadcast.
+        ///
+        /// public: Default. Anyone can view the broadcast
+        /// unlisted: Only people with the link can view the broadcast
+        /// private: Only the broadcast owner(s) can view the broadcast
+        BroadcastBuilder visibility(Visibility visibility);
+
+        /// Who can view the broadcast.
+        ///
+        /// public: Default. Anyone can view the broadcast
+        /// unlisted: Only people with the link can view the broadcast
+        /// private: Only the broadcast owner(s) can view the broadcast
+        default BroadcastBuilder visibility(Function<Visibility.Provider, Visibility> provider) {
+            return visibility(provider.apply(Visibility.provider()));
+        }
+
     }
 
     interface RoundBuilder {
@@ -286,5 +305,35 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
          */
         RoundsParameters nb(int nb);
     }
+
+
+    public enum Visibility {
+        PUBLIC,
+        UNLISTED,
+        PRIVATE,
+        ;
+
+        static Visibility fromValue(String value) {
+            return switch(value) {
+                case "public" -> PUBLIC;
+                case "unlisted" -> UNLISTED;
+                case "private" -> PRIVATE;
+                default -> null;
+            };
+        }
+
+        @Override
+        public String toString() {
+            return name().toLowerCase(Locale.ROOT);
+        }
+
+        public interface Provider {
+            default Visibility _public() { return PUBLIC; }
+            default Visibility _private() { return PRIVATE; }
+            default Visibility _unlisted() { return UNLISTED; }
+        }
+        public static Provider provider() {return new Provider(){};}
+    }
+
 
 }
