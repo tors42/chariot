@@ -89,7 +89,7 @@ public interface Assert {
                     } catch (Exception ex) {}
                     return false;
                 })
-                .map(sf -> "%s.%s:%d".formatted(sf.getClassName(), sf.getMethodName(), sf.getLineNumber()))
+                .map(sf -> "%s.%s".formatted(sf.getClassName(), sf.getMethodName()))
                 //.map(sf -> sf.startsWith("src.test.testchariot.") ? sf.substring("src.test.testchariot.".length()) : sf)
                 .findFirst()
                 .orElse(""));
