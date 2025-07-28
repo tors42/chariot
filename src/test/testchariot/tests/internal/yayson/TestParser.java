@@ -6,6 +6,8 @@ import util.Test;
 
 import static util.Assert.*;
 
+import java.util.Base64;
+
 public class TestParser {
 
     @Test
@@ -67,7 +69,9 @@ public class TestParser {
         var node = Parser.fromString(json);
         assertNotNull(node);
         if (node instanceof YayObject yo) {
-            assertEquals("value with \"quotes\" in it", yo.getString("key"));
+            assertEquals("""
+                    value with "quotes" in it""",
+                    yo.getString("key"));
         } else {
             fail();
         }
@@ -213,5 +217,15 @@ public class TestParser {
         } else {
             fail();
         }
+    }
+
+    @Test
+    public void stringWithEscapes() throws Exception {
+        byte[] jsonBytes = Base64.getDecoder().decode("eyJlc2NhcGVzIjoiXHJcblxyXG7CpSBAICQgISAvXFwvICAgICAgICBHIF0tWyAwIMKjIEAgL1xcL1xcICEifQo=");
+        String json = new String(jsonBytes);
+
+        var node = Parser.fromString(json);
+
+        assertTrue(node instanceof YayObject yo && yo.value().get("escapes") instanceof YayString);
     }
 }
