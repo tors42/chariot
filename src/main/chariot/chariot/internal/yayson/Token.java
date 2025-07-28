@@ -72,15 +72,11 @@ public sealed interface Token {
         public JsonString(String string) { this(string, string); }
 
         public static JsonString decode(String json) {
-            return switch(json) {
-                case String str when str.contains("\\") ->
-                    new JsonString(
-                        str.replaceAll("\\\\/", "/")
-                            .transform(Token::decodeUnicode)
-                            .translateEscapes(),
-                        json);
-                default -> new JsonString(json);
-            };
+            if (json.contains("\\")) {
+                return new JsonString(json.transform(Token::decodeUnicode));
+            } else {
+                return new JsonString(json);
+            }
         }
         @Override public int length() { return source.length() + 2; } // +2 for quotation marks
     };

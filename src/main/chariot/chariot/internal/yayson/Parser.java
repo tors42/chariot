@@ -91,7 +91,7 @@ public class Parser {
                 case NULL  -> new YayNull();
             };
             case JsonNumber(var __, var num)    -> new YayNumber(num);
-            case JsonString(String str, var __) -> new YayString(str);
+            case JsonString(String str, var __) -> new YayString(str.translateEscapes());
         };
     }
 
