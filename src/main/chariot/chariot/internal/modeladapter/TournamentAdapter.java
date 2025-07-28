@@ -290,6 +290,8 @@ public interface TournamentAdapter {
         }
         return Variant.Basic.standard;
         // This snippet causes a java.lang.Verify when compiling ("java build/Build.java"), "inconsistent stackframes"
+        //
+        // Works in 26-ea+8-804
         //return switch(parentYo.value().get("variant")) {
         //    case YayString(String variant) -> Variant.fromString(variant);
         //    case YayObject yo when yo.getString("key") instanceof String key -> Variant.fromString(key);
