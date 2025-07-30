@@ -62,6 +62,7 @@ public sealed interface Board {
     Set<Move> validMoves();
     Board play(String move);
     default Board play(Move move) { return play(move.uci()); }
+    FEN fen();
 
     default boolean ended() {
         return this instanceof BoardData board && board.gameState() != GameState.ongoing;
@@ -1108,6 +1109,30 @@ public sealed interface Board {
     String toSAN(String... move);
     List<String> toSAN(List<String> move);
     String toSAN(Move move);
+    default String toPGN(String moves) {
+        Board end = play(moves);
+        String result = switch(end.gameState()) {
+            case ongoing -> "*";
+            case checkmate -> end.blackToMove() ? "1-0" : "0-1";
+            case draw_by_fifty_move_rule,
+                 draw_by_threefold_repetition,
+                 stalemate -> "1/2-1/2";
+        };
+        String[] sans = toSAN(moves).split(" ");
+        if (sans.length == 0) return result;
+        StringBuilder sb = new StringBuilder();
+        int move = fen().move();
+        if (blackToMove()) {
+            sb.append("%d... %s ".formatted(move, sans[0]));
+            move++;
+        }
+        for (int i = blackToMove() ? 1 : 0; i < sans.length; i+=2) {
+            if (i+1 < sans.length) sb.append("%d. %s %s ".formatted(move, sans[i], sans[i+1]));
+            else sb.append("%d. %s ".formatted(move, sans[i]));
+            move++;
+        }
+        return sb.toString() + result;
+    }
 
     record Invalid(String info)                    implements Move {};
     record FromTo(Coordinate from, Coordinate to)  implements Move {
