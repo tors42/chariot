@@ -53,7 +53,7 @@ class Build {
 
         var buildResult = executor.submit(() -> {
             run(javac,
-                "--release", "21",
+                "--release", "25",
                 "--module-source-path", mainSrc,
                 "--module", module,
                 "-d", classes
@@ -117,7 +117,7 @@ class Build {
 
         executor.submit(() -> {
             run(javadoc,
-                "--release", "21",
+                "--release", "25",
                 "-notimestamp",
                 "--module-source-path", mainSrc,
                 "--module", module,
