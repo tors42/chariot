@@ -19,7 +19,7 @@ public class RunArena {
 
     @IntegrationTest(expectedSeconds = 60)
     public void runArenas() {
-        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+        try (var scope = StructuredTaskScope.open()) {
             var tasks = List.of(
                     scope.fork(() -> runTwoSizedArena()),
                     scope.fork(() -> runTeamBattleArena()));

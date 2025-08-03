@@ -1,16 +1,8 @@
 package util;
 
-import java.time.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.*;
-import java.util.logging.Logger;
-
-import chariot.ClientAuth;
-import chariot.api.TournamentsApiAuth.JoinArenaParams;
-import chariot.model.*;
-import chariot.util.Board;
+import module java.base;
+import module chariot;
+import chariot.model.Arena;
 
 import it.tournamentapi.SwissStats;
 
@@ -24,7 +16,7 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
 
     @Override
     public void run() {
-        try (var arenaScope = new StructuredTaskScope.ShutdownOnFailure()) {
+        try (var arenaScope = StructuredTaskScope.open(StructuredTaskScope.Joiner.allSuccessfulOrThrow(), c -> c.withTimeout(terminateAfter().orElse(arena.duration())))) {
             for (var participant : participants()) {
                 // Maybe this is good fit to try ScopedValues feature!? (arena, team, client)
                 arenaScope.fork(() -> {
@@ -38,11 +30,9 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
                 });
             }
 
-            Instant runUntil = Instant.now().plus(terminateAfter() instanceof Some(var override)
-                    ? override : arena.duration());
             try {
-                arenaScope.joinUntil(runUntil);
-            } catch (TimeoutException to) {
+                arenaScope.join();
+            } catch (StructuredTaskScope.TimeoutException to) {
                 // End the tournament
                 creator().tournaments().terminateArena(arena().id());
             } catch (InterruptedException ie) {
@@ -82,7 +72,7 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
     }
 
     void join(Arena arena, Participant participant) {
-        Consumer<JoinArenaParams> params = switch (participant.team()) {
+        Consumer<TournamentsApiAuth.JoinArenaParams> params = switch (participant.team()) {
             case Some(Team team) -> p -> p.team(team.id());
             case Empty()         -> _ -> {};
         };
