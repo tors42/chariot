@@ -1,6 +1,6 @@
 # Chariot
 
-Chariot is a Java client for the [Lichess API](https://lichess.org/api). It is compiled for Java 21.  
+Chariot is a Java client for the [Lichess API](https://lichess.org/api). It is compiled for Java 25.  
 _[Lichess](https://github.com/lichess-org/lila) is a charity and entirely free/libre open source software._
 
 ## API Listing
