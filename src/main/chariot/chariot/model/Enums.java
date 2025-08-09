@@ -54,6 +54,7 @@ public interface Enums {
         cheat(36),
         noStart(37),
         unknownFinish(38),
+        insufficientMaterialClaim(39),
         variantEnd(60);
 
         Status(int status) {
@@ -77,8 +78,9 @@ public interface Enums {
                 case 36 -> cheat;
                 case 37 -> noStart;
                 case 38 -> unknownFinish;
+                case 39 -> insufficientMaterialClaim;
                 case 60 -> variantEnd;
-                default -> throw new IllegalArgumentException("Unknown tournament status: " + status);
+                default -> throw new IllegalArgumentException("Unknown game status: " + status);
             };
         }
     }
