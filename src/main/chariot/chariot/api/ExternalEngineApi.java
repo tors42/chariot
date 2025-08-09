@@ -19,7 +19,7 @@ public interface ExternalEngineApi {
     /**
      * @param analysisId The id from the request, {@link ExternalEngineRequest#id()}. Example: {@code aingoohiJee2sius}
      */
-    One<Void> answer(String analysisId, InputStream inputStream);
+    Ack answer(String analysisId, InputStream inputStream);
 
     interface AnalysisParameters {
         AnalysisParameters clientSecret(String clientSecret);

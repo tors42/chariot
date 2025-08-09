@@ -1,5 +1,6 @@
 package chariot.internal;
 
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.*;
 import java.net.http.HttpClient.*;
@@ -105,7 +106,14 @@ public class InternalClient {
             } else {
                 config.logging().request().log(Level.SEVERE, "%s".formatted(httpRequest), e);
             }
-            return new RequestResult.Failure(-1, e.getMessage());
+
+            String message = switch(e) {
+                case Exception ex when ex.getMessage() instanceof String msg -> msg;
+                case ConnectException _ -> "Failed to Connect";
+                default -> e.getClass().getName();
+            };
+
+            return new RequestResult.Failure(-1, message);
         }
 
         var statusCode = httpResponse.statusCode();
@@ -230,7 +238,7 @@ public class InternalClient {
 
     public Many<Scope> fetchScopes(String endpointPath) {
         return config instanceof Config.Auth auth ?
-            fetchScopes(endpointPath, auth.token()) : Many.fail(-1, Err.from("No token"));
+            fetchScopes(endpointPath, auth.token()) : Many.fail(-1, "No token");
     }
 
     public Many<Scope> fetchScopes(String endpointPath, Supplier<char[]> tokenSupplier) {
@@ -242,8 +250,7 @@ public class InternalClient {
                         .map(s -> Scope.fromString(s))
                         .filter(Optional::isPresent)
                         .map(Optional::get));
-            case Fail(int s, Err err) -> Many.fail(s, err);
-            case None() -> Many.entries(Stream.of());
+            case Fail(int s, String message) -> Many.fail(s, message);
         };
     }
 
@@ -276,7 +283,7 @@ public class InternalClient {
             } else {
                 config.logging().request().log(Level.SEVERE, "%s".formatted(httpRequest), e);
             }
-            return One.fail(-1, Err.from(e.getMessage()));
+            return One.fail(-1, e.getMessage());
         }
 
         var statusCode = response.statusCode();
@@ -293,7 +300,7 @@ public class InternalClient {
             return One.entry(response.headers());
         } else {
             config.logging().response().warning(log);
-            return One.fail(statusCode, Err.from(""));
+            return One.fail(statusCode, "non-successful");
         }
     }
 

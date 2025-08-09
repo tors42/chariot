@@ -59,7 +59,7 @@ public class TokenHandler {
             .process(requestHandler);
     }
 
-    public One<Void> revokeToken() {
+    public Ack revokeToken() {
         return Endpoint.apiTokenRevoke.newRequest(request -> {})
             .process(requestHandler);
     }

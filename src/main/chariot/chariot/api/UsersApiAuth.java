@@ -39,14 +39,14 @@ public interface UsersApiAuth extends UsersApi {
      */
     Many<UserAuth> byIds(List<String> userIds);
 
-    One<Void> sendMessageToUser(String userId, String text);
+    Ack sendMessageToUser(String userId, String text);
 
     /**
      * Add a private note available only to you about this account.
      * @param userId the user to write a note about
      * @param text the note content
      */
-    One<Void> writeNoteAboutUser(String userId, String text);
+    Ack writeNoteAboutUser(String userId, String text);
 
     /**
      * Gets the private notes you've written about an account.
@@ -56,13 +56,13 @@ public interface UsersApiAuth extends UsersApi {
      */
     Many<Note> readNotesAboutUser(String userId);
 
-    One<Void> followUser(String userId);
+    Ack followUser(String userId);
 
-    One<Void> unfollowUser(String userId);
+    Ack unfollowUser(String userId);
 
-    One<Void> blockUser(String userId);
+    Ack blockUser(String userId);
 
-    One<Void> unblockUser(String userId);
+    Ack unblockUser(String userId);
 
     /**
      * Autocomplete names given the starting 3 or more characters of a username

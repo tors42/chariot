@@ -35,7 +35,7 @@ public class AccountHandler implements AccountApiAuth {
     }
 
     @Override
-    public One<Void> kidMode(boolean value) {
+    public Ack kidMode(boolean value) {
         return Endpoint.accountKidStatus.newRequest(request -> request
                 .query(java.util.Map.of("v", value)))
             .process(requestHandler);

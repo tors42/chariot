@@ -18,7 +18,7 @@ public class SwissCustomPosition {
 
     static One<Swiss> createSwiss(String name, Variant variant) {
         if (! (IT.findTeamLeader() instanceof Some(IT.TeamLeader(var client, var userId, var teamId)))) {
-            return One.fail(-1, Err.from("Couldn't find team leader for creating a swiss"));
+            return One.fail(-1, "Couldn't find team leader for creating a swiss");
         }
 
         Clock clock = new Clock(Duration.ofMinutes(3), Duration.ofSeconds(2));

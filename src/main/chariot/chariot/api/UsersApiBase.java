@@ -87,7 +87,7 @@ public interface UsersApiBase {
         if (many instanceof Fail<UserStatus> fail) {
             return fail;
         } else {
-            return many.stream().findFirst().map(One::entry).orElse(One.none());
+            return many.stream().findFirst().map(One::entry).orElse(One.fail(404, "not found (generated)"));
         }
      }
 

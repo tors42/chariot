@@ -32,13 +32,13 @@ public interface ChallengesApiAuthCommon {
     One<ChallengeInfo> show(String challengeId);
 
     One<ChallengeAI> challengeAI(Consumer<ChallengeAIBuilder> params);
-    One<Void>     cancelChallenge(String challengeId);
-    One<Void>     cancelChallenge(String challengeId, Supplier<char[]> opponentToken);
-    One<Void>     acceptChallenge(String challengeId);
-    One<Void>     declineChallenge(String challengeId);
-    One<Void>     declineChallenge(String challengeId, DeclineReason reason);
+    Ack     cancelChallenge(String challengeId);
+    Ack     cancelChallenge(String challengeId, Supplier<char[]> opponentToken);
+    Ack     acceptChallenge(String challengeId);
+    Ack     declineChallenge(String challengeId);
+    Ack     declineChallenge(String challengeId, DeclineReason reason);
 
-    default One<Void> declineChallenge(String challengeId, Function<DeclineReason.Provider, DeclineReason> reason) {
+    default Ack declineChallenge(String challengeId, Function<DeclineReason.Provider, DeclineReason> reason) {
         return declineChallenge(challengeId, reason.apply(DeclineReason.provider()));
     }
 

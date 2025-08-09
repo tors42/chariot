@@ -9,17 +9,17 @@ public interface TeamsApiAuth extends TeamsApi {
     /**
      * Request to join team {@code teamId}
      */
-    One<Void> joinTeam(String teamId, Consumer<JoinParams> params);
+    Ack joinTeam(String teamId, Consumer<JoinParams> params);
     /**
      * Request to join team {@code teamId}
      */
-    default One<Void> joinTeam(String teamId) { return joinTeam(teamId, __ -> {}); }
+    default Ack joinTeam(String teamId) { return joinTeam(teamId, __ -> {}); }
 
-    One<Void> leaveTeam(String teamId);
+    Ack leaveTeam(String teamId);
 
-    One<Void> kickFromTeam(String teamId, String userId);
+    Ack kickFromTeam(String teamId, String userId);
 
-    One<Void> messageTeam(String teamId, String message);
+    Ack messageTeam(String teamId, String message);
 
     /**
      * Get pending join requests of your team
@@ -36,14 +36,14 @@ public interface TeamsApiAuth extends TeamsApi {
      * @param teamId
      * @param userId
      */
-    One<Void> requestAccept(String teamId, String userId);
+    Ack requestAccept(String teamId, String userId);
 
     /**
      * Decline a join request to a team from a user
      * @param teamId
      * @param userId
      */
-    One<Void> requestDecline(String teamId, String userId);
+    Ack requestDecline(String teamId, String userId);
 
 
     interface JoinParams {

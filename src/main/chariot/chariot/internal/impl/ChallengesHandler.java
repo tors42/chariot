@@ -23,7 +23,7 @@ public class ChallengesHandler extends ChallengesAuthCommonImpl implements Chall
     }
 
     @Override
-    public One<Void> startClocksOfGame(String gameId, String token1, String token2) {
+    public Ack startClocksOfGame(String gameId, String token1, String token2) {
         return Endpoint.startClocksOfGame.newRequest(request -> request
                 .path(gameId)
                 .query(Map.of("token1", token1, "token2", token2)))
@@ -31,7 +31,7 @@ public class ChallengesHandler extends ChallengesAuthCommonImpl implements Chall
     }
 
     @Override
-    public One<Void> addTimeToGame(String gameId, int seconds) {
+    public Ack addTimeToGame(String gameId, int seconds) {
         return Endpoint.addTimeToGame.newRequest(request -> request
                 .path(gameId, seconds))
             .process(requestHandler);
@@ -58,14 +58,14 @@ public class ChallengesHandler extends ChallengesAuthCommonImpl implements Chall
     }
 
     @Override
-    public One<Void> startBulk(String bulkId) {
+    public Ack startBulk(String bulkId) {
         return Endpoint.bulkPairingStart.newRequest(request -> request
                 .path(bulkId))
             .process(requestHandler);
     }
 
     @Override
-    public One<Void> cancelBulk(String bulkId) {
+    public Ack cancelBulk(String bulkId) {
         return Endpoint.bulkPairingCancel.newRequest(request -> request
                 .path(bulkId))
             .process(requestHandler);

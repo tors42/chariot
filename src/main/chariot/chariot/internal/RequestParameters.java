@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import chariot.Client.Scope;
+import chariot.model.Ack;
 import chariot.model.Many;
 import chariot.model.One;
 import chariot.internal.Config.ServerType;
@@ -25,6 +26,16 @@ public sealed interface RequestParameters {
             Scope scope,
             ServerType target,
             boolean stream) {}
+
+    public record ReqAck(
+            Parameters parameters,
+            Function<RequestResult, Ack> mapper
+            ) implements RequestParameters {
+
+        public Ack process(RequestHandler handler) {
+            return mapper.apply(handler.request(this));
+        }
+    }
 
     public record ReqOne<T>(
             Parameters parameters,
@@ -56,6 +67,10 @@ public sealed interface RequestParameters {
     default Scope scope() { return parameters().scope(); }
     default ServerType target() { return parameters().target(); }
     default boolean stream() { return parameters().stream(); }
+
+    public static ReqAck ack(ParamsBuilder builder, Function<RequestResult, Ack> mapper) {
+        return new ReqAck(builder.build(), mapper);
+    }
 
     public static <T> ReqOne<T> one(ParamsBuilder builder, Function<RequestResult, One<T>> mapper) {
         return new ReqOne<T>(builder.build(), mapper);

@@ -16,7 +16,7 @@ import chariot.model.Broadcast.Round;
 public interface BroadcastsApiAuth extends BroadcastsApi {
 
     One<Broadcast> create(Consumer<BroadcastBuilder> params);
-    One<Void>      update(String tourId, Consumer<BroadcastBuilder> params);
+    Ack      update(String tourId, Consumer<BroadcastBuilder> params);
 
     One<MyRound>   createRound(String tourId, Consumer<RoundBuilder> params);
     One<Round>     updateRound(String roundId, Consumer<RoundBuilder> params);
@@ -24,7 +24,7 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
     /**
      * Deletes all games in a round
      */
-    One<Void>      resetRound(String roundId);
+    Ack      resetRound(String roundId);
 
     /**
      * Update your broadcast with new PGN. Only for broadcast without a source URL.<br>

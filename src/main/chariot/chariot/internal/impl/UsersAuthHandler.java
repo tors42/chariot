@@ -58,7 +58,7 @@ public class UsersAuthHandler extends UsersBaseHandler implements UsersApiAuth {
 
 
     @Override
-    public One<Void> sendMessageToUser(String userId, String text) {
+    public Ack sendMessageToUser(String userId, String text) {
         return Endpoint.sendMessage.newRequest(request -> request
                 .path(userId)
                 .body(Map.of("text", text)))
@@ -66,28 +66,28 @@ public class UsersAuthHandler extends UsersBaseHandler implements UsersApiAuth {
     }
 
     @Override
-    public One<Void> followUser(String userId) {
+    public Ack followUser(String userId) {
         return Endpoint.followUser.newRequest(request -> request
                 .path(userId))
             .process(super.requestHandler);
     }
 
     @Override
-    public One<Void> unfollowUser(String userId) {
+    public Ack unfollowUser(String userId) {
         return Endpoint.unfollowUser.newRequest(request -> request
                 .path(userId))
             .process(super.requestHandler);
     }
 
     @Override
-    public One<Void> blockUser(String userId) {
+    public Ack blockUser(String userId) {
         return Endpoint.blockUser.newRequest(request -> request
                 .path(userId))
             .process(super.requestHandler);
     }
 
     @Override
-    public One<Void> unblockUser(String userId) {
+    public Ack unblockUser(String userId) {
         return Endpoint.unblockUser.newRequest(request -> request
                 .path(userId))
             .process(super.requestHandler);
@@ -108,7 +108,7 @@ public class UsersAuthHandler extends UsersBaseHandler implements UsersApiAuth {
     }
 
     @Override
-    public One<Void> writeNoteAboutUser(String userId, String text) {
+    public Ack writeNoteAboutUser(String userId, String text) {
         return Endpoint.writeNote.newRequest(request -> request
                 .path(userId)
                 .body(Map.of("text", text)))

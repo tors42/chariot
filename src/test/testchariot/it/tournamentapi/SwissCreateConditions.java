@@ -127,7 +127,7 @@ public class SwissCreateConditions {
 
     One<Swiss> _withConditions(Consumer<SwissParams> paramsConsumer, boolean debug) {
         if (! (IT.findTeamLeader() instanceof Some(IT.TeamLeader(var client, var userId, var teamId)))) {
-            return One.fail(-1, Err.from("Couldn't find team leader for creating a swiss"));
+            return One.fail(-1, "Couldn't find team leader for creating a swiss");
         }
 
         Consumer<SwissBuilder> builderConsumer = swissBuilder ->

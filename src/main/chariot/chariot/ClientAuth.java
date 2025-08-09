@@ -153,7 +153,7 @@ public class ClientAuth extends Client {
     /**
      * Revokes the access token sent as Bearer for this request.
      */
-    public One<Void> revokeToken() { return tokenHandler.revokeToken(); }
+    public Ack revokeToken() { return tokenHandler.revokeToken(); }
 
     /**
      * Clears client token information from preferences.<br>

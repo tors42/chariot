@@ -6,7 +6,6 @@ import java.util.List;
 
 import chariot.Client;
 import chariot.model.*;
-import chariot.model.Err.Info;
 import chariot.internal.Endpoint;
 
 import static util.Assert.*;
@@ -61,8 +60,8 @@ public class TestGameImport {
         String token = "abcdefghijklmnop";
 
         // prepare expected response
-        var expected = One.fail(400, new Info("""
-                    {"error":{"pgn":["Invalid PGN"]}}"""));
+        var expected = One.fail(400, """
+                    {"error":{"pgn":["Invalid PGN"]}}""");
 
         String responseBody = """
         {
@@ -104,8 +103,8 @@ public class TestGameImport {
         String token = "non-existing-token";
 
         // prepare expected response
-        var expected = One.fail(401, new Info("""
-                    {"error":"No such token"}"""));
+        var expected = One.fail(401, """
+                    {"error":"No such token"}""");
 
         String responseBody = """
         {
@@ -179,8 +178,8 @@ public class TestGameImport {
         String requestBody = "%s=%s".formatted("pgn", pgn.transform(Util::urlEncode));
 
         // prepare expected response
-        var expected = One.fail(400, new Info("""
-                    {"error":{"pgn":["Invalid PGN"]}}"""));
+        var expected = One.fail(400, """
+                    {"error":{"pgn":["Invalid PGN"]}}""");
 
         String responseBody = """
         {

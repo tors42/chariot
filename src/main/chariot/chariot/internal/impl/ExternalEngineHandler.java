@@ -35,7 +35,7 @@ public class ExternalEngineHandler implements ExternalEngineApiAuth {
     }
 
     @Override
-    public One<Void> answer(String analysisId, InputStream inputStream) {
+    public Ack answer(String analysisId, InputStream inputStream) {
         return Endpoint.externalEngineAnswer.newRequest(request -> request
                 .path(analysisId)
                 .stream()
@@ -125,7 +125,7 @@ public class ExternalEngineHandler implements ExternalEngineApiAuth {
     }
 
     @Override
-    public One<Void> delete(String engineId) {
+    public Ack delete(String engineId) {
         return Endpoint.externalEngineDelete.newRequest(request -> request
                 .path(engineId))
             .process(requestHandler);

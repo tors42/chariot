@@ -151,7 +151,7 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
     }
 
     @Override
-    public One<Void> update(String tourId, Consumer<BroadcastBuilder> params) {
+    public Ack update(String tourId, Consumer<BroadcastBuilder> params) {
         return Endpoint.updateBroadcast.newRequest(request -> request
                 .path(tourId)
                 .body(broadastBuilderToMap(params)))
@@ -182,7 +182,7 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
     }
 
     @Override
-    public One<Void> resetRound(String roundId) {
+    public Ack resetRound(String roundId) {
         return Endpoint.resetRound.newRequest(request -> request
                 .path(roundId))
             .process(requestHandler);

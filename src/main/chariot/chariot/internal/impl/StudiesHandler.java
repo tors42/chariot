@@ -54,9 +54,8 @@ public class StudiesHandler implements StudiesApiAuth {
                 .map(rfc_1123 -> ZonedDateTime.parse(rfc_1123, DateTimeFormatter.RFC_1123_DATE_TIME))
                 .map(One::entry)
                 .findFirst()
-                .orElse(One.none());
-            case Fail(int status, Err err) -> One.fail(status, err);
-            case None() -> One.none();
+                .orElse(One.fail(404, "not found (generated)"));
+            case Fail(int status, String msg) -> One.fail(status, msg);
         };
     }
 
@@ -85,7 +84,7 @@ public class StudiesHandler implements StudiesApiAuth {
     }
 
     @Override
-    public One<Void> deleteStudyChapter(String studyId, String chapterId) {
+    public Ack deleteStudyChapter(String studyId, String chapterId) {
         return Endpoint.deleteStudyChapter.newRequest(request -> request
                 .path(studyId, chapterId)
                 )

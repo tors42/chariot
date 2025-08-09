@@ -45,7 +45,7 @@ public class SwissCreateClock {
 
     One<Swiss> _withClock(Consumer<SwissBuilder> builderConsumer) {
         if (! (IT.findTeamLeader() instanceof Some(IT.TeamLeader(var client, var userId, var teamId)))) {
-            return One.fail(-1, Err.from("Couldn't find team leader for creating a swiss"));
+            return One.fail(-1, "Couldn't find team leader for creating a swiss");
         }
 
         return client.tournaments().createSwiss(teamId, builderConsumer);

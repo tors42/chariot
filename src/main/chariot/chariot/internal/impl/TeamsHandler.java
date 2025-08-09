@@ -130,7 +130,7 @@ public class TeamsHandler implements TeamsApiAuth {
     }
 
     @Override
-    public One<Void> joinTeam(String teamId, Consumer<JoinParams> consumer) {
+    public Ack joinTeam(String teamId, Consumer<JoinParams> consumer) {
         return Endpoint.teamJoin.newRequest(request -> request
                 .body(MapBuilder.of(JoinParams.class)
                     .rename("entryCode", "password")
@@ -140,21 +140,21 @@ public class TeamsHandler implements TeamsApiAuth {
     }
 
     @Override
-    public One<Void> leaveTeam(String teamId) {
+    public Ack leaveTeam(String teamId) {
         return Endpoint.teamQuit.newRequest(request -> request
                 .path(teamId))
             .process(requestHandler);
      }
 
     @Override
-    public One<Void> kickFromTeam(String teamId, String userId) {
+    public Ack kickFromTeam(String teamId, String userId) {
         return Endpoint.teamKick.newRequest(request -> request
                 .path(teamId, userId))
             .process(requestHandler);
     }
 
     @Override
-    public One<Void> messageTeam(String teamId, String message) {
+    public Ack messageTeam(String teamId, String message) {
         return Endpoint.teamMessage.newRequest(request -> request
                 .path(teamId)
                 .body(Map.of("message", message)))
@@ -177,14 +177,14 @@ public class TeamsHandler implements TeamsApiAuth {
     }
 
     @Override
-    public One<Void> requestAccept(String teamId, String userId) {
+    public Ack requestAccept(String teamId, String userId) {
         return Endpoint.teamAcceptJoin.newRequest(request -> request
                 .path(teamId, userId))
             .process(requestHandler);
      }
 
     @Override
-    public One<Void> requestDecline(String teamId, String userId) {
+    public Ack requestDecline(String teamId, String userId) {
         return Endpoint.teamDeclineJoin.newRequest(request -> request
                 .path(teamId, userId))
             .process(requestHandler);

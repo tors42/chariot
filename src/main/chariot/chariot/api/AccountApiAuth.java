@@ -42,7 +42,7 @@ public interface AccountApiAuth {
      * Auth {@link chariot.Client.Scope#preference_write}
      * @param kid true to enable kid mode, false to disable kid mode
      */
-    One<Void> kidMode(boolean kid);
+    Ack kidMode(boolean kid);
 
     /**
      * Get users followed by logged in user.

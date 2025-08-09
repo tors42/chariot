@@ -61,8 +61,8 @@ import java.util.stream.Stream;
         return new Entries<>(stream);
     }
 
-    static <T> Many<T> fail(int status, Err err) {
-        return new Fail<>(status, err);
+    static <T> Many<T> fail(int status, String message) {
+        return new Fail<>(status, message);
     }
 
     default Stream<T> stream() {
@@ -73,7 +73,7 @@ import java.util.stream.Stream;
 
     default <R> Many<R> mapMany(Function<T, R> mapper) {
         if (this instanceof Fail<T> f) {
-            return Many.fail(f.status(), f.info());
+            return Many.fail(f.status(), f.message());
         } else {
             return Many.entries(stream().map(mapper));
         }

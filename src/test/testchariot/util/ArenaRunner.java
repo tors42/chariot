@@ -65,9 +65,11 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
 
     String scriptedMove(String gameId, Board board) {
         Pgn pgn = scriptedGames.computeIfAbsent(gameId, _ -> Pgn.readFromString(SwissStats.pgnDraw).getFirst());
-        Board.BoardData data = (Board.BoardData) board;
-        String sanMove = pgn.moveListSAN().get(data.fen().move()-1);
-        String uciMove = Board.Move.parse(sanMove, board.toFEN()).uci();
+        var sans = pgn.moveListSAN();
+        int index = 2*(board.fen().move()-1) + (board.blackToMove() ? 1 : 0);
+        if (index >= sans.size()) return null;
+        var move = Board.Move.parse(sans.get(index), board.toFEN());
+        String uciMove = move.uci();
         return uciMove;
     }
 
@@ -101,7 +103,15 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
                     : board.whiteToMove()) return;
 
             String move = moveMaker.apply(board);
-            One<?> result = client.board().move(game.gameId(), move);
+            if (move == null) {
+                Ack result = client.board().handleDrawOffer(game.gameId(), true);
+                if (result instanceof Fail<?> fail) {
+                    LOGGER.fine(() -> "Draw offer failed: %s - resigning".formatted(fail));
+                    client.board().resign(game.gameId());
+                }
+                return;
+            }
+            Ack result = client.board().move(game.gameId(), move);
 
             if (result instanceof Fail<?> fail) {
                 LOGGER.fine(() -> "Play failed: %s - resigning".formatted(fail));

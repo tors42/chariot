@@ -74,7 +74,7 @@ public interface BotApiAuth extends ChallengesApiAuthCommon, BotApi { //Bot<User
      * Upgrade a lichess player account into a Bot account. Only Bot accounts can use the Bot API.<br>
      * The account cannot have played any game before becoming a Bot account. The upgrade is irreversible. The account will only be able to play as a Bot.<br>
      */
-    One<Void> upgradeToBotAccount();
+    Ack upgradeToBotAccount();
 
     /**
      * Stream the state of a game being played with the Bot API
@@ -97,7 +97,7 @@ public interface BotApiAuth extends ChallengesApiAuthCommon, BotApi { //Bot<User
      *  @param move The move to play, in UCI format. Example: e2e4
      *  @param drawOffer Whether to offer (or agree to) a draw
      */
-    One<Void> move(String gameId, String move, boolean drawOffer);
+    Ack move(String gameId, String move, boolean drawOffer);
     /**
      *  Make a move in a game being played with the Bot API.<br/>
      *  The move can also contain a draw offer/agreement. {@link #move(String, String, boolean) move(..., boolean)}
@@ -105,33 +105,33 @@ public interface BotApiAuth extends ChallengesApiAuthCommon, BotApi { //Bot<User
      *  @param gameId Example: 5IrD6Gzz
      *  @param move The move to play, in UCI format. Example: e2e4
      */
-     One<Void> move(String gameId, String move);
+     Ack move(String gameId, String move);
 
     /**
      * Post a message to the player chat, in a game being played with the Bot API.
      * @param gameId  Example: 5IrD6Gzz
      * @param text The message to send
      */
-    One<Void> chat(String gameId, String text);
+    Ack chat(String gameId, String text);
 
     /**
      * Post a message to the spectator chat, in a game being played with the Bot API.
      * @param gameId  Example: 5IrD6Gzz
      * @param text The message to send
      */
-    One<Void> chatSpectators(String gameId, String text);
+    Ack chatSpectators(String gameId, String text);
 
     /**
      * Abort a game being played with the Bot API.
      * @param gameId  Example: 5IrD6Gzz
      */
-    One<Void> abort(String gameId);
+    Ack abort(String gameId);
 
     /**
      * Resign a game being played with the Bot API.
      * @param gameId  Example: 5IrD6Gzz
      */
-    One<Void> resign(String gameId);
+    Ack resign(String gameId);
 
     /**
      * Create/accept/decline draw offers.<br>
@@ -142,7 +142,7 @@ public interface BotApiAuth extends ChallengesApiAuthCommon, BotApi { //Bot<User
      * @param gameId Example: 5IrD6Gzz
      * @param offerOrAccept true to offer or accept a draw offer, false to decline a draw offer
      */
-    One<Void> handleDrawOffer(String gameId, boolean offerOrAccept);
+    Ack handleDrawOffer(String gameId, boolean offerOrAccept);
 
     /**
      * Create/accept/decline takeback offers.<br>
@@ -153,15 +153,15 @@ public interface BotApiAuth extends ChallengesApiAuthCommon, BotApi { //Bot<User
      * @param gameId Example: 5IrD6Gzz
      * @param offerOrAccept true to offer or accept a takeback offer, false to decline a takeback offer
      */
-    One<Void> handleTakebackOffer(String gameId, boolean offerOrAccept);
+    Ack handleTakebackOffer(String gameId, boolean offerOrAccept);
 
     /// Claim victory when the opponent has left the game for a while.
     /// @param gameId  Example: 5IrD6Gzz
-    One<Void> claimVictory(String gameId);
+    Ack claimVictory(String gameId);
 
     /// Claim draw when the opponent has left the game for a while.
     /// @param gameId  Example: 5IrD6Gzz
-    One<Void> claimDraw(String gameId);
+    Ack claimDraw(String gameId);
 
     /**
      * Get the messages posted in the game chat.

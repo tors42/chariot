@@ -45,7 +45,7 @@ public class TournamentsHandler implements TournamentsApiAuth {
         One<Arena> firstResult = _arenaByIdAndPage(arenaId, 1);
         if (! (firstResult instanceof Entry(Arena firstArena))) {
             if (firstResult instanceof Fail<Arena> f) return f;
-            return One.fail(-1, Err.from("Failed to lookup " + arenaId + " page 1 standing"));
+            return One.fail(-1, "Failed to lookup " + arenaId + " page 1 standing");
         }
         int totalPlayers = firstArena.tourInfo().nbPlayers();
         int totalPages = (int) Math.ceil(totalPlayers / 10.0);
@@ -205,14 +205,14 @@ public class TournamentsHandler implements TournamentsApiAuth {
     }
 
     @Override
-    public One<Void> terminateArena(String id) {
+    public Ack terminateArena(String id) {
         return Endpoint.terminateArenaTournament.newRequest(request -> request
                 .path(id))
             .process(requestHandler);
     }
 
     @Override
-    public One<Void> joinArena(String id, Consumer<JoinArenaParams> consumer) {
+    public Ack joinArena(String id, Consumer<JoinArenaParams> consumer) {
         return Endpoint.joinArenaTournament.newRequest(request -> request
             .path(id)
             .body(MapBuilder.of(JoinArenaParams.class)
@@ -221,7 +221,7 @@ public class TournamentsHandler implements TournamentsApiAuth {
     }
 
     @Override
-    public One<Void> withdrawArena(String id) {
+    public Ack withdrawArena(String id) {
         return Endpoint.withdrawArenaTournament.newRequest(request -> request
             .path(id))
             .process(requestHandler);
@@ -244,7 +244,7 @@ public class TournamentsHandler implements TournamentsApiAuth {
     }
 
     @Override
-    public One<Void> scheduleNextRoundSwiss(String id, ZonedDateTime date) {
+    public Ack scheduleNextRoundSwiss(String id, ZonedDateTime date) {
         return Endpoint.scheduleNextRoundSwiss.newRequest(request -> request
                 .path(id)
                 .body(Map.of("date", date.toInstant().toEpochMilli())))
@@ -253,21 +253,21 @@ public class TournamentsHandler implements TournamentsApiAuth {
 
 
     @Override
-    public One<Void> terminateSwiss(String swissId) {
+    public Ack terminateSwiss(String swissId) {
         return Endpoint.terminateSwiss.newRequest(request -> request
                 .path(swissId))
             .process(requestHandler);
     }
 
     @Override
-    public One<Void> withdrawSwiss(String id) {
+    public Ack withdrawSwiss(String id) {
         return Endpoint.withdrawSwiss.newRequest(request -> request
             .path(id))
             .process(requestHandler);
     }
 
     @Override
-    public One<Void> joinSwiss(String id, Consumer<JoinSwissParams> consumer) {
+    public Ack joinSwiss(String id, Consumer<JoinSwissParams> consumer) {
         return Endpoint.joinSwissTournament.newRequest(request -> request
                 .path(id)
                 .body(MapBuilder.of(JoinSwissParams.class)

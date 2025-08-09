@@ -81,15 +81,15 @@ public class SwissStats {
 
     One<Swiss> runSwiss(Opt<GameTestRunner> gameTestRunner) {
         if (! (IT.findTeamLeader() instanceof Some(IT.TeamLeader(var client, var userId, var teamId)))) {
-            return One.fail(-1, Err.from("Couldn't find team leader for creating a swiss"));
+            return One.fail(-1, "Couldn't find team leader for creating a swiss");
         }
         if (! (IT.findPlayers(StatsPerfType.rapid) instanceof Some(IT.Players(var white, var whiteId, var black, var blackId)))) {
-            return One.fail(-1, Err.from("Couldn't find players for swiss"));
+            return One.fail(-1, "Couldn't find players for swiss");
         }
 
         for (var c : List.of(white, black))
             if (c.teams().joinTeam(teamId, p -> p.message("please" + "!".repeat(30))) instanceof Fail<?> f)
-                return One.fail(-1, Err.from("Failed to join team " + teamId + ": " + f.message()));
+                return One.fail(-1, "Failed to join team " + teamId + ": " + f.message());
 
         List.of(whiteId, blackId).forEach(id -> client.teams().requestAccept(teamId, id));
 
@@ -111,12 +111,12 @@ public class SwissStats {
                         );
 
         if (! (swissRes instanceof Entry(Swiss swiss))) {
-            return swissRes instanceof Fail<Swiss> f ? f : One.fail(-1, Err.from("Couldn't create Swiss: " + swissRes));
+            return swissRes instanceof Fail<Swiss> f ? f : One.fail(-1, "Couldn't create Swiss: " + swissRes);
         }
 
         for (var c : List.of(white, black))
             if (c.tournaments().joinSwiss(swiss.id()) instanceof Fail<?> f)
-                return One.fail(-1, Err.from("Failed to join swiss " + swiss.id() + ": " + f.message()));
+                return One.fail(-1, "Failed to join swiss " + swiss.id() + ": " + f.message());
 
         client.tournaments().scheduleNextRoundSwiss(swiss.id(), now -> now.plusSeconds(1));
 
@@ -133,12 +133,12 @@ public class SwissStats {
         } catch(Exception e) {}
 
         if (gameId == null) {
-            return One.fail(-1, Err.from("Failed to find ongoing game"));
+            return One.fail(-1, "Failed to find ongoing game");
         }
 
         if (gameTestRunner instanceof Some(var runner)) {
             if (runner.play(gameId, white, black) instanceof Fail<?> f) {
-                return One.fail(-1, Err.from("Failure from game test runner: " + f));
+                return One.fail(-1, "Failure from game test runner: " + f);
             }
 
             var swissUpdateRes = client.tournaments().updateSwiss(swiss.id(), params -> params
@@ -147,7 +147,7 @@ public class SwissStats {
                     );
 
             if (! (swissUpdateRes instanceof Entry(Swiss updatedSwiss))) {
-                return One.fail(-1, Err.from("Failed to update swiss with next pairing: " + swissUpdateRes));
+                return One.fail(-1, "Failed to update swiss with next pairing: " + swissUpdateRes);
             }
 
             client.tournaments().scheduleNextRoundSwiss(swiss.id(), now -> now.plusSeconds(1));
@@ -164,7 +164,7 @@ public class SwissStats {
 
     record GameTestRunner(Pgn pgn) {
 
-        public One<Void> play(String gameId, ClientAuth white, ClientAuth black) {
+        public Ack play(String gameId, ClientAuth white, ClientAuth black) {
             record BoardAndUCI(Board board, String uci) {}
 
             var boardAndUCI = pgn.moveListSAN().stream()
@@ -180,10 +180,10 @@ public class SwissStats {
             for (int i = 0; i < moves.size(); i++) {
                 if (i % 2 == 0) {
                     if (white.board().move(gameId, moves.get(i)) instanceof Fail<?> f)
-                        return One.fail(-1, Err.from("White failed move ply " + i + " " + moves.get(i) + ": " + f));
+                        return new Fail<>(-1, "White failed move ply " + i + " " + moves.get(i) + ": " + f);
                 } else {
                     if (black.board().move(gameId, moves.get(i)) instanceof Fail<?> f)
-                        return One.fail(-1, Err.from("Black failed move ply " + i + " " + moves.get(i) + ": " + f));
+                        return new Fail<>(-1, "Black failed move ply " + i + " " + moves.get(i) + ": " + f);
                 }
             }
             switch (pgn.tagMap().get("Result")) {
@@ -203,7 +203,7 @@ public class SwissStats {
                 }
             };
 
-            return One.none();
+            return Ack.ok();
         }
     }
 

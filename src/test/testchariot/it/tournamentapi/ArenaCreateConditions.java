@@ -148,7 +148,7 @@ public class ArenaCreateConditions {
 
     One<Arena> _withConditions(Consumer<ArenaParams> paramsConsumer, Consumer<String> teamIdConsumer, boolean debug) {
         if (! (IT.findTeamLeader() instanceof Some(IT.TeamLeader(var client, _, var teamId)))) {
-            return One.fail(-1, Err.from("Couldn't find team leader for creating a arena"));
+            return One.fail(-1, "Couldn't find team leader for creating a arena");
         }
 
         teamIdConsumer.accept(teamId);

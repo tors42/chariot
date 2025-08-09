@@ -102,7 +102,7 @@ public class GamesHandler implements GamesApiAuth {
     }
 
     @Override
-    public One<Void> addGameIdsToStream(String streamId, Set<String> gameIds) {
+    public Ack addGameIdsToStream(String streamId, Set<String> gameIds) {
         return Endpoint.addGameIdsToStream.newRequest(request -> request
                 .path(streamId)
                 .body(String.join(",", gameIds)))

@@ -17,17 +17,17 @@ public interface TournamentsApiAuth extends TournamentsApi {
     One<Arena> updateTeamBattle(String id, int nbLeaders, Set<String> teamIds);
     default One<Arena> updateTeamBattle(String id, int nbLeaders, String... teamIds) { return updateTeamBattle(id, nbLeaders, Set.of(teamIds)); }
 
-    One<Void>   terminateArena(String id);
+    Ack   terminateArena(String id);
 
-    One<Void> joinArena(String id, Consumer<JoinArenaParams> params);
-    default One<Void> joinArena(String id) { return joinArena(id, __ -> {});}
+    Ack joinArena(String id, Consumer<JoinArenaParams> params);
+    default Ack joinArena(String id) { return joinArena(id, __ -> {});}
 
     /**
      * Leave a future Arena tournament, or take a break on an ongoing Arena tournament.<br>
      * It's possible to join again later. Points and streaks are preserved.
      * @param id The tournament ID. Example: "hL7vMrFQ"
      */
-    One<Void> withdrawArena(String id);
+    Ack withdrawArena(String id);
 
     One<Swiss> createSwiss(String teamId, Consumer<SwissBuilder> params);
 
@@ -56,7 +56,7 @@ public interface TournamentsApiAuth extends TournamentsApi {
      * @param id The tournament ID. Example: {@code hL7vMrFQ}
      * @param date The time to start the next round. Example: {@code java.time.ZonedDateTime.now().plusMinutes(5)}
      */
-    One<Void> scheduleNextRoundSwiss(String id, ZonedDateTime date);
+    Ack scheduleNextRoundSwiss(String id, ZonedDateTime date);
     /**
      * Manually schedule the next round
      * <p>
@@ -66,21 +66,21 @@ public interface TournamentsApiAuth extends TournamentsApi {
      * @param id The tournament ID. Example: {@code hL7vMrFQ}
      * @param date The time to start the next round. Example: {@code now -> now.plusMinutes(5)}
      */
-    default One<Void> scheduleNextRoundSwiss(String id, UnaryOperator<ZonedDateTime> date) {
+    default Ack scheduleNextRoundSwiss(String id, UnaryOperator<ZonedDateTime> date) {
         return scheduleNextRoundSwiss(id, date.apply(ZonedDateTime.now()));
     }
 
-    One<Void> terminateSwiss(String swissId);
+    Ack terminateSwiss(String swissId);
 
     /**
      * Leave a future Swiss tournament, or take a break on an ongoing Swiss tournament. It's possible to join again later. Points are preserved.
      * @param id The tournament ID. Example: "hL7vMrFQ"
      */
-    One<Void> withdrawSwiss(String id);
+    Ack withdrawSwiss(String id);
 
 
-    One<Void> joinSwiss(String id, Consumer<JoinSwissParams> params);
-    default One<Void> joinSwiss(String id) { return joinSwiss(id, __ -> {}); }
+    Ack joinSwiss(String id, Consumer<JoinSwissParams> params);
+    default Ack joinSwiss(String id) { return joinSwiss(id, __ -> {}); }
 
     /**
      * Generate user entry codes based on a tournament entry code, for a set of user ids.<br>

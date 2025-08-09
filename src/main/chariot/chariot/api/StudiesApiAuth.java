@@ -41,7 +41,7 @@ public interface StudiesApiAuth extends StudiesApi {
     ///
     /// @param studyId Study id
     /// @param chapterId Chapter id
-    One<Void> deleteStudyChapter(String studyId, String chapterId);
+    Ack deleteStudyChapter(String studyId, String chapterId);
 
     interface ImportParams {
 

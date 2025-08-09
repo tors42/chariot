@@ -5,7 +5,7 @@ import java.util.function.*;
 
 /**
  * A container for responses with a single entry.<br>
- * The response can be either {@link Entry} for responses with a value or {@link None} or {@link Fail} for responses without a value.<br>
+ * The response can be either {@link Entry} for responses with a value or {@link Fail} for responses without a value.<br>
  *
  * {@snippet :
  *      Client client = Client.basic();
@@ -14,7 +14,7 @@ import java.util.function.*;
  *      One<User> bad  = client.users().byId("non-existing-user-id");
  *
  *      System.out.println(good);  // Entry[entry=User[id=lichess, username= ...
- *      System.out.println(bad);   // Fail[status=404, info=Empty[]]
+ *      System.out.println(bad);   // Fail[status=404, message="not found"]
  *      }
  * One way to access the value is via an {@link Optional} which can be gotten via {@link #maybe()}
  * {@snippet :
@@ -63,7 +63,7 @@ import java.util.function.*;
  * {@snippet :
  *      String message = switch(bad) {
  *           case Entry<User> user -> "Found user!";
- *           case NoEntry<User> nouser -> "Couldn't find user!"; // NoEntry "catches" both None and Fail
+ *           case Fail<?> nouser -> "Couldn't find user!";
  *      };
  *
  *      System.out.println(message); // Couldn't find user!
@@ -72,18 +72,14 @@ import java.util.function.*;
 
 public sealed interface One<T> permits
     Entry,
-    NoEntry {
+    Fail {
 
     static <T> One<T> entry(T entry) {
         return new Entry<>(entry);
     }
 
-    static <T> One<T> none() {
-        return new None<>();
-    }
-
-    static <T> One<T> fail(int status, Err err) {
-        return new Fail<>(status, err);
+    static <T> One<T> fail(int status, String message) {
+        return new Fail<>(status, message);
     }
 
 
@@ -99,8 +95,7 @@ public sealed interface One<T> permits
     default <R> One<R> mapOne(Function<T, R> mapper) {
         return switch(this) {
             case Entry<T> one  -> One.entry(mapper.apply(one.entry()));
-            case Fail<T> f     -> One.fail(f.status(), f.info());
-            case None<T> __    -> One.none();
+            case Fail<T> f     -> One.fail(f.status(), f.message());
         };
     }
 }

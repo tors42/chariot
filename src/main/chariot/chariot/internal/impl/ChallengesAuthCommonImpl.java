@@ -49,27 +49,27 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
     }
 
     @Override
-    public One<Void> cancelChallenge(String challengeId, Supplier<char[]> opponentToken) {
+    public Ack cancelChallenge(String challengeId, Supplier<char[]> opponentToken) {
         return cancelChallenge(scope, challengeId, opponentToken);
     }
 
     @Override
-    public One<Void> cancelChallenge(String challengeId) {
+    public Ack cancelChallenge(String challengeId) {
         return cancelChallenge(scope, challengeId);
     }
 
     @Override
-    public One<Void> acceptChallenge(String challengeId) {
+    public Ack acceptChallenge(String challengeId) {
         return acceptChallenge(scope, challengeId);
     }
 
     @Override
-    public One<Void> declineChallenge(String challengeId, DeclineReason reason) {
+    public Ack declineChallenge(String challengeId, DeclineReason reason) {
         return declineChallenge(scope, challengeId, reason);
     }
 
     @Override
-    public One<Void> declineChallenge(String challengeId) {
+    public Ack declineChallenge(String challengeId) {
         return declineChallenge(scope, challengeId);
     }
 
@@ -152,7 +152,7 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
             .process(requestHandler);
     }
 
-    private One<Void> cancelChallenge(Scope scope, String challengeId, Supplier<char[]> opponentToken) {
+    private Ack cancelChallenge(Scope scope, String challengeId, Supplier<char[]> opponentToken) {
         return Endpoint.challengeCancel.newRequest(request -> request
                 .scope(scope)
                 .path(challengeId)
@@ -160,28 +160,28 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
             .process(requestHandler);
     }
 
-    private One<Void> cancelChallenge(Scope scope, String challengeId) {
+    private Ack cancelChallenge(Scope scope, String challengeId) {
         return Endpoint.challengeCancel.newRequest(request -> request
                 .scope(scope)
                 .path(challengeId))
             .process(requestHandler);
     }
 
-    private One<Void> acceptChallenge(Scope scope, String challengeId) {
+    private Ack acceptChallenge(Scope scope, String challengeId) {
         return Endpoint.challengeAccept.newRequest(request -> request
                 .scope(scope)
                 .path(challengeId))
             .process(requestHandler);
     }
 
-    private One<Void> declineChallenge(Scope scope, String challengeId, DeclineReason reason) {
+    private Ack declineChallenge(Scope scope, String challengeId, DeclineReason reason) {
         return Endpoint.challengeDecline.newRequest(request -> request
                 .body(Map.of("reason", reason.name()))
                 .path(challengeId))
             .process(requestHandler);
     }
 
-    private One<Void> declineChallenge(Scope scope, String challengeId) {
+    private Ack declineChallenge(Scope scope, String challengeId) {
         return Endpoint.challengeDecline.newRequest(request -> request
                 .path(challengeId))
             .process(requestHandler);

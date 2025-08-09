@@ -81,7 +81,7 @@ public class Play960 {
         var game = white.games().byUserId(blackUser.id()).stream()
             .findFirst()
             .map(One::entry)
-            .orElse(One.none());
+            .orElse(One.fail(404, "not found (generated)"));
 
         unboxEquals(game, gameId, Game::id);
         unboxEquals(game, Opt.of(Color.black), Game::winner);
