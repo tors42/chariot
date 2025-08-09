@@ -2,9 +2,9 @@ FROM ghcr.io/lichess-org/lila-docker:main
 
 RUN rm -rf /opt/java/openjdk
 
-RUN curl -L -o jdk.tgz https://download.java.net/java/GA/jdk24.0.2/fdc5d0102fe0414db21410ad5834341f/12/GPL/openjdk-24.0.2_linux-$(uname -i)_bin.tar.gz
+RUN curl -L -o jdk.tgz https://download.java.net/java/GA/jdk25/bd75d5f9689641da8e1daabeccb5528b/36/GPL/openjdk-25_linux-$(uname -i)_bin.tar.gz
 RUN tar xzf jdk.tgz
-RUN mv jdk-24.0.2 /opt/java/openjdk
+RUN mv jdk-25 /opt/java/openjdk
 
 ADD FastAutoStartRelayAgent.java .
 

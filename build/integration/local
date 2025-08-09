@@ -29,7 +29,7 @@ docker run \
     -e LILA_API="http://lila:8080" \
     -v $(pwd):/app \
     -w /app \
-    eclipse-temurin:23 \
+    $IMAGE_WITH_AGENT \
     java ./build/Build.java
 
 exitCode=$?
