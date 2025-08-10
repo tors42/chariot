@@ -141,7 +141,7 @@ class Build {
                 "--manifest", manifest,
                 "--file", out.resolve(filenamePrefix + "-sources.jar"),
                 "-C", out, "META-INF",
-                "-C", mainSrc, "."
+                "-C", mainSrc.resolve(module), "."
            ));
 
         executor.shutdown();
