@@ -1,24 +1,9 @@
 package chariot.internal;
 
-import java.io.UnsupportedEncodingException;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.module.ModuleFinder;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.security.*;
-import java.time.*;
-import java.util.*;
-import java.util.function.*;
-import java.util.stream.*;
+import module java.base;
 
 import chariot.model.*;
+import chariot.internal.model.DefaultPGN;
 
 public class Util {
 
@@ -185,11 +170,11 @@ public class Util {
     /**
      * An iterator of Pgn-modelled games.
      * It lazily reads line after line of PGN data, possibly many games,
-     * and assembles these lines into Pgn models.
+     * and assembles these lines into PGN models.
      */
-    public static record PgnSpliterator(Iterator<String> iterator) implements Spliterator<Pgn> {
+    public static record PgnSpliterator(Iterator<String> iterator) implements Spliterator<PGN> {
         @Override
-        public boolean tryAdvance(Consumer<? super Pgn> action) {
+        public boolean tryAdvance(Consumer<? super PGN> action) {
             List<String> tagList = new ArrayList<>();
             List<String> moveList = new ArrayList<>();
 
@@ -236,14 +221,13 @@ public class Util {
             if (empty > 0) moveList = moveList.subList(0, moveList.size()-empty);
 
             String moves = String.join("\n", moveList);
-            List<Pgn.Tag> tags = tagList.stream().map(Pgn.Tag::parse).toList();
-
-            action.accept(Pgn.of(tags, moves));
+            String tags = String.join("\n", tagList);
+            action.accept(DefaultPGN.of(tags, moves));
 
             return true;
         }
 
-        @Override public Spliterator<Pgn> trySplit() { return null; }
+        @Override public Spliterator<PGN> trySplit() { return null; }
         @Override public long estimateSize() { return Long.MAX_VALUE; }
         @Override public int characteristics() { return ORDERED; }
     }
@@ -269,8 +253,23 @@ public class Util {
         return map;
     }
 
-    public static Stream<Pgn> toPgnStream(Stream<String> stream) {
-        return StreamSupport.stream(new PgnSpliterator(stream.iterator()), false);
+    public static Stream<PGN> toPgnStream(Stream<String> stream) {
+        return StreamSupport.stream(new PgnSpliterator(stream.iterator()), false).onClose(stream::close);
+    }
+
+    public static Stream<PGN> toPgnStream(Path file) {
+        return Util.toPgnStream(Util.lines(file));
+    }
+
+    public static Stream<PGN> toPgnStream(CharSequence sequence) {
+        var br = new BufferedReader(Reader.of(sequence));
+        return Util.toPgnStream(br.lines())
+            .onClose(() -> { try { br.close(); } catch (IOException _) {}});
+    }
+
+    public static Stream<String> lines(Path file) {
+        try { return Files.lines(file);
+        } catch (IOException ex) { throw new UncheckedIOException(ex); }
     }
 
     public static String stripSensitive(String headerName, String value) {
@@ -315,7 +314,7 @@ public class Util {
                 map.put(method.getName(), args != null ? args[0] : null);
                 return proxy;
             };
-            Object proxyInstance = Proxy.newProxyInstance(
+            Object proxyInstance = java.lang.reflect.Proxy.newProxyInstance(
                     interfaceClazz.getClassLoader(),
                     new Class<?>[] { interfaceClazz },
                     (proxy, method, args) -> {

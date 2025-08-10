@@ -21,7 +21,7 @@ public class OpeningExplorerHandler implements OpeningExplorerApi {
 
 
     @Override
-    public One<Pgn> pgnByMastersGameId(String gameId) {
+    public One<PGN> pgnByMastersGameId(String gameId) {
         return Endpoint.exploreMasterOTB.newRequest(request -> request
                 .path(gameId))
                 .process(requestHandler);

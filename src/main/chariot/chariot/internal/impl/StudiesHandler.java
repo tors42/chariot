@@ -24,7 +24,7 @@ public class StudiesHandler implements StudiesApiAuth {
     }
 
     @Override
-    public Many<Pgn> exportChapterByStudyAndChapterId(String studyId, String chapterId, Consumer<Params> params) {
+    public Many<PGN> exportChapterByStudyAndChapterId(String studyId, String chapterId, Consumer<Params> params) {
         return Endpoint.exportChapter.newRequest(request -> request
                 .path(studyId, chapterId)
                 .query(MapBuilder.of(Params.class).toMap(params)))
@@ -32,7 +32,7 @@ public class StudiesHandler implements StudiesApiAuth {
     }
 
     @Override
-    public Many<Pgn> exportChaptersByStudyId(String studyId, Consumer<Params> params) {
+    public Many<PGN> exportChaptersByStudyId(String studyId, Consumer<Params> params) {
         return Endpoint.exportChapters.newRequest(request -> request
                 .path(studyId)
                 .query(MapBuilder.of(Params.class).toMap(params)))
@@ -40,7 +40,7 @@ public class StudiesHandler implements StudiesApiAuth {
      }
 
     @Override
-    public Many<Pgn> exportStudiesByUserId(String userId, Consumer<Params> params) {
+    public Many<PGN> exportStudiesByUserId(String userId, Consumer<Params> params) {
         return Endpoint.exportStudies.newRequest(request -> request
                 .path(userId)
                 .query(MapBuilder.of(Params.class).toMap(params)))

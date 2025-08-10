@@ -10,16 +10,16 @@ import java.util.stream.Stream;
  * {@snippet :
  *      Client client = Client.basic();
  *
- *      Many<Pgn> good = client.studies().exportChaptersByStudyId("YtBYXc3m"); // "Beautiful Checkmates" by NoseKnowsAll
- *      Many<Pgn> bad  = client.studies().exportChaptersByStudyId("non-existing-study-id");
+ *      Many<PGN> good = client.studies().exportChaptersByStudyId("YtBYXc3m"); // "Beautiful Checkmates" by NoseKnowsAll
+ *      Many<PGN> bad  = client.studies().exportChaptersByStudyId("non-existing-study-id");
  *
  *      System.out.println(good);  // Entries[stream=java.util.stream.ReferencePipeline$Head@3d121db3]
  *      System.out.println(bad);   // Fail[status=404, info=Info[message=404 - Resource not found]]
  *      }
  * A "lazy" way to access the values is to use the method {@code Many}.{@link Many#stream()} which is shared by all {@code Many}
  * {@snippet :
- *      List<Pgn> goodList = good.stream().toList();
- *      List<Pgn> badList  = bad.stream().toList();
+ *      List<PGN> goodList = good.stream().toList();
+ *      List<PGN> badList  = bad.stream().toList();
  *
  *      System.out.println(goodList.size()); // 64
  *      System.out.println(badList.size());  // 0
@@ -29,25 +29,25 @@ import java.util.stream.Stream;
  * <br>
  * Another way is to check the type
  * {@snippet :
- *      if (good instanceof Entries<Pgn> entries) {
+ *      if (good instanceof Entries<PGN> entries) {
  *          entries.stream().findFirst().ifPresent(pgn ->
  *              System.out.println(pgn.tagMap().get("Event"))); // Beautiful Checkmates: Study by Ercole del Rio
  *      }
  *
- *      if (bad instanceof Entries<Pgn> entries) {
+ *      if (bad instanceof Entries<PGN> entries) {
  *          // not reached
  *      }
  *
  *      // If we are interested in any failures, we can check for the Fail type
- *      if (bad instanceof Fail<Pgn> fail) {
+ *      if (bad instanceof Fail<PGN> fail) {
  *          System.out.println(fail.status()); // 404
  *      }
  *      }
  * When Pattern Matching in {@code switch} arrives, we can leave out the {@code if}-statements
  * {@snippet :
  *      String message = switch(bad) {
- *           case Entries<Pgn> entries -> "There are " + entries.stream().count() + " PGNs";
- *           case Fail<Pgn> fail -> "Couldn't find the Study! (" + fail.status() + ")";
+ *           case Entries<PGN> entries -> "There are " + entries.stream().count() + " PGNs";
+ *           case Fail<PGN> fail -> "Couldn't find the Study! (" + fail.status() + ")";
  *      };
  *
  *      System.out.println(message); // Couldn't find the Study! (404)

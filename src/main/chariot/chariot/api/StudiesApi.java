@@ -7,18 +7,18 @@ import chariot.model.*;
 
 public interface StudiesApi {
 
-    Many<Pgn> exportChapterByStudyAndChapterId(String studyId, String chapterId, Consumer<Params> params);
-    default Many<Pgn> exportChapterByStudyAndChapterId(String studyId, String chapterId) {
+    Many<PGN> exportChapterByStudyAndChapterId(String studyId, String chapterId, Consumer<Params> params);
+    default Many<PGN> exportChapterByStudyAndChapterId(String studyId, String chapterId) {
         return exportChapterByStudyAndChapterId(studyId, chapterId, __ -> {});
     }
 
-    Many<Pgn> exportChaptersByStudyId(String studyId, Consumer<Params> params);
-    default Many<Pgn> exportChaptersByStudyId(String studyId) {
+    Many<PGN> exportChaptersByStudyId(String studyId, Consumer<Params> params);
+    default Many<PGN> exportChaptersByStudyId(String studyId) {
         return exportChaptersByStudyId(studyId, __ -> {});
     }
 
-    Many<Pgn> exportStudiesByUserId(String userId, Consumer<Params> params);
-    default Many<Pgn> exportStudiesByUserId(String userId) {
+    Many<PGN> exportStudiesByUserId(String userId, Consumer<Params> params);
+    default Many<PGN> exportStudiesByUserId(String userId) {
         return exportStudiesByUserId(userId, __ -> {});
     }
 

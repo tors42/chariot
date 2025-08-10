@@ -132,7 +132,7 @@ public class TournamentsHandler implements TournamentsApiAuth {
     }
 
     @Override
-    public Many<Pgn> pgnGamesByArenaId(String arenaId, Consumer<GamesApi.Filter> params) {
+    public Many<PGN> pgnGamesByArenaId(String arenaId, Consumer<GamesApi.Filter> params) {
         return Endpoint.gamesByArenaIdPgn.newRequest(paramsConsumerByPathId(arenaId, params))
             .process(requestHandler);
     }
@@ -166,7 +166,7 @@ public class TournamentsHandler implements TournamentsApiAuth {
     }
 
     @Override
-    public Many<Pgn> pgnGamesBySwissId(String swissId, Consumer<GamesApi.Filter> params) {
+    public Many<PGN> pgnGamesBySwissId(String swissId, Consumer<GamesApi.Filter> params) {
         return Endpoint.gamesBySwissIdPgn.newRequest(paramsConsumerByPathId(swissId, params))
             .process(requestHandler);
     }

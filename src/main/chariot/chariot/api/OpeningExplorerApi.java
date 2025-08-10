@@ -16,7 +16,7 @@ public interface OpeningExplorerApi {
      *
      * @param gameId Example: "aAbqI4ey"
      */
-    One<Pgn> pgnByMastersGameId(String gameId);
+    One<PGN> pgnByMastersGameId(String gameId);
 
     /**
      * Find Masters games from Opening Explorer<br>

@@ -86,7 +86,7 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
 
 
     @Override
-    public Many<Pgn> streamBroadcast(String roundId) {
+    public Many<PGN> streamBroadcast(String roundId) {
         return Endpoint.streamBroadcast.newRequest(request -> request
                 .path(roundId)
                 .stream())
@@ -94,14 +94,14 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
     }
 
     @Override
-    public Many<Pgn> exportOneRoundPgn(String roundId) {
+    public Many<PGN> exportOneRoundPgn(String roundId) {
         return Endpoint.exportBroadcastOneRoundPgn.newRequest(request -> request
                 .path(roundId))
             .process(requestHandler);
     }
 
     @Override
-    public Many<Pgn> exportPgn(String tourId) {
+    public Many<PGN> exportPgn(String tourId) {
         return Endpoint.exportBroadcastAllRoundsPgn.newRequest(request -> request
                 .path(tourId))
             .process(requestHandler);

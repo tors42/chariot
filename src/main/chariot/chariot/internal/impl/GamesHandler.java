@@ -28,7 +28,7 @@ public class GamesHandler implements GamesApiAuth {
     }
 
     @Override
-    public One<Pgn> pgnByGameId(String gameId, Consumer<GameParams> params) {
+    public One<PGN> pgnByGameId(String gameId, Consumer<GameParams> params) {
         return Endpoint.gameByIdPgn.newRequest(paramsConsumerByIdGameParams(gameId, params))
             .process(requestHandler);
     }
@@ -40,7 +40,7 @@ public class GamesHandler implements GamesApiAuth {
     }
 
     @Override
-    public One<Pgn> pgnCurrentByUserId(String userId, Consumer<GameParams> params) {
+    public One<PGN> pgnCurrentByUserId(String userId, Consumer<GameParams> params) {
         return Endpoint.gameCurrentByUserIdPgn.newRequest(paramsConsumerByIdGameParams(userId, params))
             .process(requestHandler);
     }
@@ -52,7 +52,7 @@ public class GamesHandler implements GamesApiAuth {
     }
 
     @Override
-    public Many<Pgn> pgnByUserId(String userId, Consumer<SearchFilter> params) {
+    public Many<PGN> pgnByUserId(String userId, Consumer<SearchFilter> params) {
         return Endpoint.gamesByUserIdPgn.newRequest(paramsConsumerByUserId(userId, params))
             .process(requestHandler);
     }
@@ -64,7 +64,7 @@ public class GamesHandler implements GamesApiAuth {
     }
 
     @Override
-    public Many<Pgn> pgnByGameIds(Set<String> gameIds, Consumer<GameParams> params) {
+    public Many<PGN> pgnByGameIds(Set<String> gameIds, Consumer<GameParams> params) {
         return Endpoint.gamesByIdsPgn.newRequest(paramsConsumerByIdsGameParams(gameIds, params))
             .process(requestHandler);
     }
@@ -144,7 +144,7 @@ public class GamesHandler implements GamesApiAuth {
     }
 
     @Override
-    public Many<Pgn> pgnByChannel(Channel channel, Consumer<ChannelFilter> params) {
+    public Many<PGN> pgnByChannel(Channel channel, Consumer<ChannelFilter> params) {
         return Endpoint.gamesTVChannelPgn.newRequest(paramsConsumerByChannelChannelFilter(channel, params))
             .process(requestHandler);
     }
@@ -213,7 +213,7 @@ public class GamesHandler implements GamesApiAuth {
     }
 
     @Override
-    public Many<Pgn> imported() {
+    public Many<PGN> imported() {
         return Endpoint.gamesImportedPgn.newRequest(request -> {})
             .process(requestHandler);
     }
@@ -226,7 +226,7 @@ public class GamesHandler implements GamesApiAuth {
     }
 
     @Override
-    public Many<Pgn> pgnBookmarked(Consumer<BookmarkedParams> params) {
+    public Many<PGN> pgnBookmarked(Consumer<BookmarkedParams> params) {
         return Endpoint.gamesBookmarkedPgn.newRequest(request -> request
                 .query(MapBuilder.of(BookmarkedParams.class).toMap(params)))
             .process(requestHandler);
@@ -239,7 +239,7 @@ public class GamesHandler implements GamesApiAuth {
     }
 
     @Override
-    public Many<Pgn> pgnByBulkId(String bulkId, Consumer<GameParams> params) {
+    public Many<PGN> pgnByBulkId(String bulkId, Consumer<GameParams> params) {
         return Endpoint.bulkPairingGamesByBulkIdPgn.newRequest(paramsConsumerByIdGameParams(bulkId, params))
             .process(requestHandler);
      }

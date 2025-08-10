@@ -47,7 +47,7 @@ public interface BroadcastsApi {
     /// The stream will also send PGNs when games are added to the tournament.  
     /// This is the best way to get updates about an ongoing tournament.  
     /// Streaming means no polling, and no pollings means no latency, and minimum impact on the server.
-    Many<Pgn> streamBroadcast(String roundId);
+    Many<PGN> streamBroadcast(String roundId);
 
     /// Export one round as PGN  
     ///  
@@ -55,14 +55,14 @@ public interface BroadcastsApi {
     /// You _could_ poll this endpoint to get updates about a tournament, but it would be slow, and very inneficient.  
     /// Instead, consider streaming the tournament to get a new PGN every time a game is updated, in real-time. See {@link #streamBroadcast(String)}  
     /// @param roundId The round ID (8 characters).
-    Many<Pgn> exportOneRoundPgn(String roundId);
+    Many<PGN> exportOneRoundPgn(String roundId);
 
     /// Export all rounds as PGN  
     ///  
     /// Download all games of all rounds of a broadcast in PGN format.  
     /// You may want to download only the games of a single round instead. See {@link #exportOneRoundPgn(String)}  
     /// @param tourId The broadcast tournament ID (8 characters).
-    Many<Pgn> exportPgn(String tourId);
+    Many<PGN> exportPgn(String tourId);
 
     /// Get information about a broadcast tournament
     /// @param tourId The broadcast tournament ID (8 characters).

@@ -91,8 +91,8 @@ public interface TournamentsApi {
     default Many<Game> gamesByArenaId(String arenaId) { return gamesByArenaId(arenaId, __ -> {}); }
 
     /** See {@link #gamesByArenaId(String, Consumer)} */
-    Many<Pgn> pgnGamesByArenaId(String arenaId, Consumer<GamesApi.Filter> params);
-    default Many<Pgn> pgnGamesByArenaId(String arenaId) { return pgnGamesByArenaId(arenaId, __ -> {}); }
+    Many<PGN> pgnGamesByArenaId(String arenaId, Consumer<GamesApi.Filter> params);
+    default Many<PGN> pgnGamesByArenaId(String arenaId) { return pgnGamesByArenaId(arenaId, __ -> {}); }
 
     /**
      * Get info about a Swiss tournament.
@@ -130,8 +130,8 @@ public interface TournamentsApi {
     default Many<Game> gamesBySwissId(String swissId) { return gamesBySwissId(swissId, __ -> {}); }
 
     /** See {@link #gamesBySwissId(String, Consumer)} */
-    Many<Pgn> pgnGamesBySwissId(String swissId, Consumer<GamesApi.Filter> params);
-    default Many<Pgn> pgnGamesBySwissId(String swissId) { return pgnGamesBySwissId(swissId, __ -> {}); }
+    Many<PGN> pgnGamesBySwissId(String swissId, Consumer<GamesApi.Filter> params);
+    default Many<PGN> pgnGamesBySwissId(String swissId) { return pgnGamesBySwissId(swissId, __ -> {}); }
 
 
     interface StandingsParams {
