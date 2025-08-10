@@ -2,7 +2,6 @@ package it.broadcastapi;
 
 import chariot.ClientAuth;
 import chariot.model.*;
-import chariot.model.Pgn.Tag;
 import util.IT;
 import util.IntegrationTest;
 
@@ -16,15 +15,15 @@ public class PushPgnDelay {
     static ClientAuth client = IT.bobby();
 
     static String firstIncomingPGN = """
-        [Black "Hou Yifan"]
         [White "Lei Tingjie"]
+        [Black "Hou Yifan"]
 
          *
         """;
 
     static String secondIncomingPGN = """
-        [Black "Hou Yifan"]
         [White "Lei Tingjie"]
+        [Black "Hou Yifan"]
 
         1. d4 d5 *
         """;
@@ -34,15 +33,15 @@ public class PushPgnDelay {
          *
         """;
     static String expectedPlayersWithNoMoves = """
-        [Black "Hou Yifan"]
         [White "Lei Tingjie"]
+        [Black "Hou Yifan"]
 
          *
         """;
 
     static String expectedResult = """
-        [Black "Hou Yifan"]
         [White "Lei Tingjie"]
+        [Black "Hou Yifan"]
 
         1. d4 d5 *
         """;
@@ -84,7 +83,7 @@ public class PushPgnDelay {
         return String.join("\n\n",
                 client.broadcasts().exportOneRoundPgn(roundId).stream()
                  .map(this::filterExportedPgn)
-                 .map(Pgn::toString)
+                 .map(PGN::toString)
                  .toList());
     }
 
@@ -93,12 +92,9 @@ public class PushPgnDelay {
             "Black", "BlackElo"
             );
 
-    Pgn filterExportedPgn(Pgn pgn) {
-        return Pgn.of(pgn.tags().stream()
-                .filter(tag -> tagsToValidate.contains(tag.name()))
-                .sorted(Comparator.comparing(Tag::name))
-                .toList(),
-                pgn.moves());
+    PGN filterExportedPgn(PGN pgn) {
+        pgn.withTags(s -> s.filter(_ -> true));
+        return pgn.filterTags((tag, _) -> tagsToValidate.contains(tag));
     }
 
     MyRound createRound() {

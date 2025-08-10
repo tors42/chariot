@@ -1,10 +1,14 @@
 package tests.model;
 
 import static util.Assert.assertEquals;
+import static util.Assert.fail;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
-import chariot.model.Pgn;
+import chariot.model.PGN;
 import chariot.util.Board;
 import util.Test;
 
@@ -17,8 +21,8 @@ public class TestPgn {
 
 1. e4 1-0
 """;
-        List<Pgn> pgns = Pgn.readFromString(input);
-        String toString = pgns.getFirst().toString();
+        PGN pgn = PGN.read(input);
+        String toString = pgn.toString();
         assertEquals(input, toString);
     }
 
@@ -34,21 +38,54 @@ public class TestPgn {
 
 1. d4 0-1
 """;
-
-        List<Pgn> pgns = Pgn.readFromString(input);
-        String toString = String.join("\n\n", pgns.stream().map(Pgn::toString).toList());
+        List<PGN> pgns = PGN.stream(input).toList();
+        String toString = String.join("\n\n", pgns.stream().map(PGN::toString).toList());
         assertEquals(input, toString);
     }
+
+    @Test
+    public void threeFile() {
+        String input = """
+[Event "Test"]
+
+1. e4 1-0
+
+
+[Event "Test2"]
+
+1. d4 0-1
+
+[Event "Test3"]
+
+1. c4 1/2-1/2
+""";
+
+        Path pgnFile;
+        try {
+             pgnFile = Files.createTempFile("TestPgn-", ".pgn");
+             pgnFile.toFile().deleteOnExit();
+             Files.writeString(pgnFile, input);
+        } catch (IOException ex) {
+            fail(ex);
+            return;
+        }
+
+        try (var stream = PGN.stream(pgnFile)) {
+            String toString = String.join("\n\n", stream.map(PGN::toString).toList());
+            assertEquals(input, toString);
+        }
+    }
+
 
     @Test
     public void noTags() {
         String input = """
 1. e4 1-0
 """;
-        List<Pgn> pgns = Pgn.readFromString(input);
-        String toString = pgns.getFirst().toString();
+        PGN pgn = PGN.read(input);
+        String toString = pgn.toString();
         assertEquals(input, toString);
-        assertEquals(true, pgns.getFirst().tagMap().isEmpty());
+        assertEquals(true, pgn.tags().isEmpty());
     }
 
     @Test

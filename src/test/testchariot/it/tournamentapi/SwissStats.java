@@ -49,7 +49,7 @@ public class SwissStats {
     //@IntegrationTest
     public void drawnGame() {
 
-        Opt<GameTestRunner> draw = Opt.of(new GameTestRunner(Pgn.readFromString(pgnDraw).getFirst()));
+        Opt<GameTestRunner> draw = Opt.of(new GameTestRunner(PGN.read(pgnDraw)));
 
         var res = runSwiss(draw);
         if (! (res instanceof Entry(Swiss swiss))) {
@@ -162,12 +162,12 @@ public class SwissStats {
         return fetchRes;
     }
 
-    record GameTestRunner(Pgn pgn) {
+    record GameTestRunner(PGN pgn) {
 
         public Ack play(String gameId, ClientAuth white, ClientAuth black) {
             record BoardAndUCI(Board board, String uci) {}
 
-            var boardAndUCI = pgn.moveListSAN().stream()
+            var boardAndUCI = pgn.movesList().stream()
                 .gather(Gatherers.fold(
                             () -> new BoardAndUCI(Board.fromStandardPosition(), ""),
                             (boardAndUci, moveSAN) -> new BoardAndUCI(boardAndUci.board().play(moveSAN),
@@ -186,7 +186,7 @@ public class SwissStats {
                         return new Fail<>(-1, "Black failed move ply " + i + " " + moves.get(i) + ": " + f);
                 }
             }
-            switch (pgn.tagMap().get("Result")) {
+            switch (pgn.tags().get("Result")) {
                 case "1/2-1/2" -> {
                     white.board().handleDrawOffer(gameId, true);
                     black.board().handleDrawOffer(gameId, true);

@@ -3,7 +3,6 @@ package it.broadcastapi;
 import chariot.ClientAuth;
 import chariot.api.BroadcastsApiAuth.BroadcastBuilder;
 import chariot.model.*;
-import chariot.model.Pgn.Tag;
 import util.IntegrationTest;
 import util.IT;
 
@@ -25,10 +24,10 @@ public class PushAndSyncPgn {
 
     @IntegrationTest
     public void pushPgn() {
-        List<List<Pgn>> roundPgns = generateRounds();
+        List<List<PGN>> roundPgns = generateRounds();
         List<String> roundPgnStrings = roundPgns.stream()
             .map(round -> round.stream()
-                    .map(Pgn::toString)
+                    .map(PGN::toString)
                     .collect(Collectors.joining("\n\n")))
             .toList();
 
@@ -54,10 +53,10 @@ public class PushAndSyncPgn {
 
     @IntegrationTest
     public void pushPgnReplacements() {
-        List<List<Pgn>> roundPgns = generateRounds();
+        List<List<PGN>> roundPgns = generateRounds();
         List<String> roundPgnStrings = roundPgns.stream()
             .map(round -> round.stream()
-                    .map(Pgn::toString)
+                    .map(PGN::toString)
                     .collect(Collectors.joining("\n\n")))
             .toList();
 
@@ -76,7 +75,7 @@ public class PushAndSyncPgn {
 
     // @IntegrationTest(expectedSeconds = 80)
     public void syncUrlWithAndWithoutReplacements() {
-        List<List<Pgn>> roundPgns = generateRounds();
+        List<List<PGN>> roundPgns = generateRounds();
         List<Replacement> replacements = generateReplacements();
 
         record PollsAndPgnString(Semaphore poll, String pgn) {}
@@ -152,7 +151,7 @@ public class PushAndSyncPgn {
         }
     }
 
-    List<List<Pgn>> generateRounds() {
+    List<List<PGN>> generateRounds() {
         var player1 = new Player("Player One",   Opt.empty(), Opt.of(1200), Opt.empty());
         var player2 = new Player("Player Two",   Opt.empty(), Opt.empty(),  Opt.empty());
         var player3 = new Player("Player Three", Opt.empty(), Opt.of(1800), Opt.of("WFM"));
@@ -174,7 +173,7 @@ public class PushAndSyncPgn {
         return roundsAsPgn(rounds);
     }
 
-    void createRoundsForSync(String broadcastId, List<List<Pgn>> roundPgns, URI syncUrlBase) {
+    void createRoundsForSync(String broadcastId, List<List<PGN>> roundPgns, URI syncUrlBase) {
         var superadmin = IT.superadmin(); // to be able to set "period"
         namedPgnRounds(roundPgns).stream()
             .map(nameAndPgn -> superadmin.broadcasts().createRound(broadcastId, p -> p
@@ -185,7 +184,7 @@ public class PushAndSyncPgn {
             .findFirst().filter(one -> one instanceof Entry).orElseThrow();
     }
 
-    List<MyRound> createRoundsForPush(String broadcastId, List<List<Pgn>> roundPgns) {
+    List<MyRound> createRoundsForPush(String broadcastId, List<List<PGN>> roundPgns) {
         return namedPgnRounds(roundPgns).stream()
             .map(nameAndPgn -> client.broadcasts().createRound(broadcastId, p -> p.name(nameAndPgn.name())))
             .filter(one -> one instanceof Entry)
@@ -193,14 +192,14 @@ public class PushAndSyncPgn {
             .toList();
     }
 
-    void exportedPgnMatchesExpectedPgn(List<Pgn> exportedPgns, List<Pgn> sourcePgns, List<Replacement> replacements) {
+    void exportedPgnMatchesExpectedPgn(List<PGN> exportedPgns, List<PGN> sourcePgns, List<Replacement> replacements) {
         assertEquals(sourcePgns.size(), exportedPgns.size(), "Wrong number of PGNs");
         for (int i = 0;  i < sourcePgns.size(); i++) {
             var sourcePgn = sourcePgns.get(i);
             var exportedPgn = exportedPgns.get(i);
 
             var replacedSourcePgn = applyReplacementsToSourcePgn(sourcePgn, replacements);
-            var filteredExportedPgn = filterExportedPgn(exportedPgn);
+            var filteredExportedPgn = filterExportedSortedPgn(exportedPgn);
 
             assertEquals(replacedSourcePgn.toString(), filteredExportedPgn.toString());
         }
@@ -212,16 +211,13 @@ public class PushAndSyncPgn {
             "Black", "BlackElo", "BlackTitle", "BlackFideId"
             );
 
-    Pgn filterExportedPgn(Pgn pgn) {
-        return Pgn.of(pgn.tags().stream()
-                .filter(tag -> tagsToValidate.contains(tag.name()))
-                .sorted(Comparator.comparing(Tag::name))
-                .toList(),
-                pgn.moves());
+    PGN filterExportedSortedPgn(PGN pgn) {
+        return pgn.filterTags((tag, _) -> tagsToValidate.contains(tag))
+            .withTags(s -> s.sorted(Map.Entry.comparingByKey()));
     }
 
-    Pgn applyReplacementsToSourcePgn(Pgn pgn, List<Replacement> replacements) {
-        var newMap = new HashMap<String,String>(pgn.tagMap());
+    PGN applyReplacementsToSourcePgn(PGN pgn, List<Replacement> replacements) {
+        var newMap = new HashMap<String,String>(pgn.tags());
         replacements.stream().filter(r -> r.name().equals(newMap.get("White")) || r.name().equals(newMap.get("Black")))
             .forEach(replacement -> {
                 String color = newMap.get("White").equals(replacement.name()) ? "White" : "Black";
@@ -233,39 +229,35 @@ public class PushAndSyncPgn {
                 }
             });
 
-        return Pgn.of(newMap.entrySet().stream()
-                .map(entry -> Tag.of(entry.getKey(), entry.getValue()))
-                .sorted(Comparator.comparing(Tag::name))
-                .toList(),
-                pgn.moves());
+        return pgn.withTags(newMap)
+            .withTags(s -> s.sorted(Map.Entry.comparingByKey()));
     }
 
     record RoundNameAndPgn(String name, String pgn) {}
     record Player(String name, Opt<Integer> fideId, Opt<Integer> rating, Opt<String> title) {}
     record Matchup(Player white, Player black, String moves) {
-        Pgn toPgnAtRoundAndBoard(int round, int board) {
-            Stream<Tag> present = Stream.of(
-                    Tag.of("Round", String.valueOf(round)),
-                    Tag.of("Board", String.valueOf(board)),
-                    Tag.of("Result", Arrays.asList(moves().split(" ")).getLast()),
-                    Tag.of("White", white().name()),
-                    Tag.of("Black", black().name()));
-            Stream<Opt<Tag>> optional = Stream.of(
-                    white.rating() instanceof Some(var rating) ? Opt.of(Tag.of("WhiteElo", String.valueOf(rating))) : Opt.empty(),
-                    white.title() instanceof Some(var title)   ? Opt.of(Tag.of("WhiteTitle", title)) : Opt.empty(),
-                    black.rating() instanceof Some(var rating) ? Opt.of(Tag.of("BlackElo", String.valueOf(rating))) : Opt.empty(),
-                    black.title() instanceof Some(var title)   ? Opt.of(Tag.of("BlackTitle", title)) : Opt.empty());
-            List<Tag> tags = Stream.concat(present, optional
-                    .filter(ot -> ot instanceof Some<Tag>)
-                    .map(ot -> (Some<Tag>) ot)
-                    .map(Some::value))
-                .sorted(Comparator.comparing(Tag::name))
-                .toList();
-            return Pgn.of(tags, moves());
+        PGN toPgnAtRoundAndBoard(int round, int board) {
+            Map<String,String> present = Map.ofEntries(
+                    Map.entry("Round", String.valueOf(round)),
+                    Map.entry("Board", String.valueOf(board)),
+                    Map.entry("Result", Arrays.asList(moves().split(" ")).getLast()),
+                    Map.entry("White", white().name()),
+                    Map.entry("Black", black().name()));
+            Map<String, String> optional = Stream.<List<Map.Entry<String,String>>>of(
+                    white.rating() instanceof Some(var rating) ? List.of(Map.entry("WhiteElo", String.valueOf(rating))) : List.of(),
+                    white.title() instanceof Some(var title)   ? List.of(Map.entry("WhiteTitle", title)) : List.of(),
+                    black.rating() instanceof Some(var rating) ? List.of(Map.entry("BlackElo", String.valueOf(rating))) : List.of(),
+                    black.title() instanceof Some(var title)   ? List.of(Map.entry("BlackTitle", title)) : List.of())
+                .flatMap(List::stream)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            return PGN.read(moves())
+                .withTags(present)
+                .addTags(optional)
+                .withTags(s -> s.sorted(Map.Entry.comparingByKey()));
         }
     }
 
-    List<List<Pgn>> roundsAsPgn(List<List<Matchup>> rounds) {
+    List<List<PGN>> roundsAsPgn(List<List<Matchup>> rounds) {
         return IntStream.range(0, rounds.size())
             .mapToObj(roundNum -> IntStream.range(0, rounds.get(roundNum).size())
                     .mapToObj(boardNum -> rounds.get(roundNum).get(boardNum)
@@ -299,10 +291,11 @@ public class PushAndSyncPgn {
         return client.broadcasts().create(params).get();
     }
 
-    List<RoundNameAndPgn> namedPgnRounds(List<List<Pgn>> rounds) {
-        return rounds.stream().map(roundPgns -> new RoundNameAndPgn(
-                    "Round " + roundPgns.getFirst().tagMap().get("Round"),
-                    roundPgns.stream().map(Pgn::toString).collect(Collectors.joining("\n\n"))
+    List<RoundNameAndPgn> namedPgnRounds(List<List<PGN>> rounds) {
+        return rounds.stream()
+            .map(roundPgns -> new RoundNameAndPgn(
+                        "Round " + roundPgns.getFirst().tags().get("Round"),
+                        roundPgns.stream().map(PGN::toString).collect(Collectors.joining("\n\n"))
                     )).toList();
 
     }

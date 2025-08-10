@@ -12,7 +12,7 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
 
     public record Participant(ClientAuth client, UserAuth account, Opt<Team> team) {}
 
-    static Map<String, Pgn> scriptedGames = new ConcurrentHashMap<>();
+    static Map<String, PGN> scriptedGames = new ConcurrentHashMap<>();
 
     @Override
     public void run() {
@@ -64,8 +64,8 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
     }
 
     String scriptedMove(String gameId, Board board) {
-        Pgn pgn = scriptedGames.computeIfAbsent(gameId, _ -> Pgn.readFromString(SwissStats.pgnDraw).getFirst());
-        var sans = pgn.moveListSAN();
+        PGN pgn = scriptedGames.computeIfAbsent(gameId, _ -> PGN.read(SwissStats.pgnDraw));
+        List<String> sans = pgn.movesList();
         int index = 2*(board.fen().move()-1) + (board.blackToMove() ? 1 : 0);
         if (index >= sans.size()) return null;
         var move = Board.Move.parse(sans.get(index), board.toFEN());

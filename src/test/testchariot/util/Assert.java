@@ -55,6 +55,12 @@ public interface Assert {
     static void assertNotNull(Object o, Supplier<Object> message) { _assert(o != null, message); }
 
     static void fail()                         { fail(() -> "fail"); }
+    static void fail(Throwable throwable)      {
+        var sw = new java.io.StringWriter();
+        var pw = new java.io.PrintWriter(sw);
+        throwable.printStackTrace(pw);
+        fail(sw::toString);
+    }
     static void fail(Object message)           { fail(() -> String.valueOf(message)); }
     static void fail(Supplier<Object> message) { _fail(message); }
 

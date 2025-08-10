@@ -2,7 +2,6 @@ package it.broadcastapi;
 
 import chariot.ClientAuth;
 import chariot.model.*;
-import chariot.model.Pgn.Tag;
 import util.IntegrationTest;
 import util.IT;
 
@@ -16,14 +15,14 @@ public class PushPgnReplaceUmlaut {
     static ClientAuth client = IT.bobby();
 
     static String incomingPGN = """
-        [Black "Magnus Carlsen"]
         [White "Matthias Bluebaum"]
+        [Black "Magnus Carlsen"]
 
         1. d4 d5 *
 
 
-        [Black "Señor Ramirez"]
         [White "Jose Angel"]
+        [Black "Señor Ramirez"]
 
         1. d4 d5 *""";
 
@@ -35,18 +34,18 @@ public class PushPgnReplaceUmlaut {
         """;
 
     static String expectedResult = """
-        [Black "Magnus Carlsen"]
-        [BlackElo "2863"]
         [White "Matthias Bluebaum"]
+        [Black "Magnus Carlsen"]
         [WhiteElo "2649"]
+        [BlackElo "2863"]
 
         1. d4 d5 *
 
 
-        [Black "Señor Ramirez"]
-        [BlackElo "1812"]
         [White "Jose Angel"]
+        [Black "Señor Ramirez"]
         [WhiteElo "2002"]
+        [BlackElo "1812"]
 
         1. d4 d5 *
         """;
@@ -61,7 +60,7 @@ public class PushPgnReplaceUmlaut {
         String exported = String.join("\n\n",
                 client.broadcasts().exportPgn(broadcast.id()).stream()
                     .map(this::filterExportedPgn)
-                    .map(Pgn::toString)
+                    .map(PGN::toString)
                     .toList());
 
         assertEquals(expectedResult, exported);
@@ -72,12 +71,8 @@ public class PushPgnReplaceUmlaut {
             "Black", "BlackElo"
             );
 
-    Pgn filterExportedPgn(Pgn pgn) {
-        return Pgn.of(pgn.tags().stream()
-                .filter(tag -> tagsToValidate.contains(tag.name()))
-                .sorted(Comparator.comparing(Tag::name))
-                .toList(),
-                pgn.moves());
+    PGN filterExportedPgn(PGN pgn) {
+        return pgn.filterTags((tag, _) -> tagsToValidate.contains(tag));
     }
 
     Broadcast createBroadcast(String replacement) {
