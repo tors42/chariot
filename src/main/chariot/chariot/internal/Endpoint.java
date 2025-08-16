@@ -128,7 +128,7 @@ public sealed interface Endpoint<T> {
 
     public static EPOne<PGN> gameCurrentByUserIdPgn =
         Endpoint.of(PGN.class).endpoint("/api/user/%s/current-game")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).toOne();
 
     public static EPMany<UserCommon> relFollowing =
@@ -286,7 +286,7 @@ public sealed interface Endpoint<T> {
 
     public static EPMany<PGN> gamesByArenaIdPgn =
         Endpoint.of(PGN.class).endpoint("/api/tournament/%s/games")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
 
     public static EPMany<Game> gamesByUserId =
@@ -294,7 +294,7 @@ public sealed interface Endpoint<T> {
 
     public static EPMany<PGN> gamesByUserIdPgn =
         Endpoint.of(PGN.class).endpoint("/api/games/user/%s")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
 
     public static EPOne<Game> gameById =
@@ -302,7 +302,7 @@ public sealed interface Endpoint<T> {
 
     public static EPOne<PGN> gameByIdPgn =
         Endpoint.of(PGN.class).endpoint("/game/export/%s")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).toOne();
 
     public static EPMany<Game> gamesByIds =
@@ -310,12 +310,12 @@ public sealed interface Endpoint<T> {
 
     public static EPMany<PGN> gamesByIdsPgn =
         Endpoint.of(PGN.class).endpoint("/api/games/export/_ids").post(plain)
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
 
     public static EPMany<PGN> gamesImportedPgn =
         Endpoint.of(PGN.class).endpoint("/api/games/export/imports")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
 
     public static EPMany<Game> gamesBookmarked =
@@ -324,7 +324,7 @@ public sealed interface Endpoint<T> {
 
     public static EPMany<PGN> gamesBookmarkedPgn =
         Endpoint.of(PGN.class).endpoint("/api/games/export/bookmarks")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
 
     public static EPOne<ExploreResult.OpeningDB> exploreMasters =
@@ -338,7 +338,7 @@ public sealed interface Endpoint<T> {
 
     public static EPOne<PGN> exploreMasterOTB =
         Endpoint.of(PGN.class).endpoint("/master/pgn/%s")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).target(ServerType.explorer).toOne();
 
     public static EPOne<TablebaseResult> tablebaseLookup =
@@ -365,7 +365,7 @@ public sealed interface Endpoint<T> {
 
     public static EPMany<PGN> gamesTVChannelPgn =
         Endpoint.of(PGN.class).endpoint("/api/tv/%s")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
 
 
@@ -415,12 +415,12 @@ public sealed interface Endpoint<T> {
 
     public static EPMany<PGN> exportChapter =
         Endpoint.of(PGN.class).endpoint("/api/study/%s/%s.pgn")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
 
     public static EPMany<PGN> exportChapters =
         Endpoint.of(PGN.class).endpoint("/api/study/%s.pgn")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
 
     public static EPOne<ZonedDateTime> lastModifiedStudy  =
@@ -433,7 +433,7 @@ public sealed interface Endpoint<T> {
 
     public static EPMany<PGN> exportStudies =
         Endpoint.of(PGN.class).endpoint("/study/by/%s/export.pgn")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).scope(Scope.any).toMany();
 
     public static EPMany<ChapterMeta> importStudyChapters =
@@ -468,7 +468,7 @@ public sealed interface Endpoint<T> {
 
     public static EPMany<PGN> bulkPairingGamesByBulkIdPgn =
         Endpoint.of(PGN.class).endpoint("/api/bulk-pairing/%s/games")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).scope(Scope.challenge_bulk).toMany();
 
 
@@ -543,7 +543,7 @@ public sealed interface Endpoint<T> {
 
     public static EPMany<PGN> gamesBySwissIdPgn =
         Endpoint.of(PGN.class).endpoint("/api/swiss/%s/games")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
 
     public static EPMany<Broadcast> officialBroadcasts =
@@ -604,17 +604,17 @@ public sealed interface Endpoint<T> {
 
     public static EPMany<PGN> streamBroadcast =
         Endpoint.of(PGN.class).endpoint("/api/stream/broadcast/round/%s.pgn")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
 
     public static EPMany<PGN> exportBroadcastOneRoundPgn =
         Endpoint.of(PGN.class).endpoint("/api/broadcast/round/%s.pgn")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
 
     public static EPMany<PGN> exportBroadcastAllRoundsPgn =
         Endpoint.of(PGN.class).endpoint("/api/broadcast/%s.pgn")
-        .streamMapper(Util::toPgnStream)
+        .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
 
     public static EPMany<MyRound> streamMyRounds = Endpoint.of(mapper(MyRoundConvert.class).andThen(MyRoundConvert::toMyRound)).endpoint("/api/broadcast/my-rounds").accept(jsonstream).scope(Scope.study_read).toMany();

@@ -253,17 +253,17 @@ public class Util {
         return map;
     }
 
-    public static Stream<PGN> toPgnStream(Stream<String> stream) {
+    public static Stream<PGN> pgnStream(Stream<String> stream) {
         return StreamSupport.stream(new PgnSpliterator(stream.iterator()), false).onClose(stream::close);
     }
 
-    public static Stream<PGN> toPgnStream(Path file) {
-        return Util.toPgnStream(Util.lines(file));
+    public static Stream<PGN> pgnStream(Path file) {
+        return Util.pgnStream(Util.lines(file));
     }
 
-    public static Stream<PGN> toPgnStream(CharSequence sequence) {
+    public static Stream<PGN> pgnStream(CharSequence sequence) {
         var br = new BufferedReader(Reader.of(sequence));
-        return Util.toPgnStream(br.lines())
+        return Util.pgnStream(br.lines())
             .onClose(() -> { try { br.close(); } catch (IOException _) {}});
     }
 

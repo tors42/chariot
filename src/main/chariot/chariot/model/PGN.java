@@ -23,12 +23,12 @@ public interface PGN {
 
     /// Parses a string of PGNs into a `Stream<PGN>`
     static Stream<PGN> stream(CharSequence sequence) {
-        return Util.toPgnStream(sequence);
+        return Util.pgnStream(sequence);
     }
 
     /// Parses a file of PGNs into a `Stream<PGN>`
     static Stream<PGN> stream(Path file) {
-        return Util.toPgnStream(file);
+        return Util.pgnStream(file);
     }
 
     /// Retrieves a mapping of PGN tag names to values
