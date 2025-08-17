@@ -63,6 +63,7 @@ client.puzzles().dailyPuzzle()
 client.puzzles().nextPuzzle()
 client.puzzles().byId()
 client.puzzles().stormDashboard()
+client.puzzles().raceResult()
 
 client.simuls().simuls()
 
