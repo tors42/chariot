@@ -113,4 +113,12 @@ public class PuzzlesHandler implements PuzzlesApiAuth {
             .process(requestHandler);
     }
 
+    @Override
+    public One<PuzzleRaceResult> raceResult(String id) {
+        return Endpoint.puzzleRaceResult.newRequest(request -> request
+                .path(id))
+            .process(requestHandler);
+    }
+
+
 }

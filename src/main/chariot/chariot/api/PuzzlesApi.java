@@ -16,6 +16,8 @@ public interface PuzzlesApi {
     One<Puzzle>         nextPuzzle(Consumer<PuzzleParams> params);
     default One<Puzzle> nextPuzzle() { return nextPuzzle(__ -> {}); }
 
+    One<PuzzleRaceResult> raceResult(String id);
+
     interface StormDashboardParams {
         StormDashboardParams days(int days);
     }

@@ -388,6 +388,9 @@ public sealed interface Endpoint<T> {
     public static EPOne<PuzzleRace> puzzleRace =
         Endpoint.of(PuzzleRace.class).endpoint("/api/racer").post().scope(Scope.racer_write).toOne();
 
+    public static EPOne<PuzzleRaceResult> puzzleRaceResult =
+        Endpoint.of(PuzzleRaceResult.class).endpoint("/api/racer/%s").toOne();
+
     public static EPOne<StormDashboard> stormDashboard =
         Endpoint.of(StormDashboard.class).endpoint("/api/storm/dashboard/%s").toOne();
 
