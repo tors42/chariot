@@ -29,8 +29,7 @@ class Build {
         Path out = Path.of("out");
         del(out);
 
-        Path mainSrc   = Path.of("src", "main");
-        Path testSrc   = Path.of("src", "test");
+        Path src   = Path.of("src");
         Path classes   = out.resolve("classes");
         Path moduleOut = out.resolve("modules");
         Path metaInf   = out.resolve("META-INF");
@@ -54,7 +53,7 @@ class Build {
         var buildResult = executor.submit(() -> {
             run(javac,
                 "--release", "25",
-                "--module-source-path", mainSrc,
+                "--module-source-path", src,
                 "--module", module,
                 "-d", classes
                );
@@ -72,7 +71,7 @@ class Build {
                 "--release", String.valueOf(Runtime.version().feature()),
                 "--enable-preview",
                 "--module-path", moduleOut,
-                "--module-source-path", testSrc,
+                "--module-source-path", src,
                 "--module", "testchariot",
                 "--add-exports", "chariot/chariot.internal=testchariot",
                 "--add-exports", "chariot/chariot.internal.yayson=testchariot",
@@ -119,7 +118,7 @@ class Build {
             run(javadoc,
                 "--release", "25",
                 "-notimestamp",
-                "--module-source-path", mainSrc,
+                "--module-source-path", src,
                 "--module", module,
                 "--snippet-path", Path.of("build", "snippets").toString(),
                 "-d", out.resolve("javadoc")
@@ -141,7 +140,7 @@ class Build {
                 "--manifest", manifest,
                 "--file", out.resolve(filenamePrefix + "-sources.jar"),
                 "-C", out, "META-INF",
-                "-C", mainSrc.resolve(module), "."
+                "-C", src.resolve(module), "."
            ));
 
         executor.shutdown();
