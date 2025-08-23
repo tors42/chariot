@@ -280,7 +280,7 @@ The tool is included in JDK archives, which can be downloaded and unpacked from 
 
 <pre>
 $ <b>jshell</b>
-|  Welcome to JShell -- Version 24.0.2
+|  Welcome to JShell -- Version 25
 |  For an introduction type: /help intro
 
 jshell>
@@ -340,16 +340,16 @@ Build with latest Java. A JDK archive can be downloaded and unpacked from https:
 
 <pre>
 $ <b>java -version</b>
-openjdk version "24.0.2" 2025-07-15
-OpenJDK Runtime Environment (build 24.0.2+12-54)
-OpenJDK 64-Bit Server VM (build 24.0.2+12-54, mixed mode, sharing)
+openjdk version "25" 2025-09-16
+OpenJDK Runtime Environment (build 25+36-3489)
+OpenJDK 64-Bit Server VM (build 25+36-3489, mixed mode, sharing)
 
-$ <b>java build/Build.java</b>
-69 successful basic tests
+$ <b>java build.java</b>
+71 successful basic tests
 0 failed tests
 </pre>
 
-The resulting artifact, `out/modules/chariot-0.0.1-SNAPSHOT.jar`, will be compatible with Java release 21
+The resulting artifact, `out/modules/chariot-0.0.1-SNAPSHOT.jar`, will be compatible with Java release 25
 
 ## Examples (non-project, single files)
 
@@ -358,7 +358,7 @@ The resulting artifact, `out/modules/chariot-0.0.1-SNAPSHOT.jar`, will be compat
 An example which uses a token to authenticate in order to be able to create a Swiss tournament
 
 ```java
-package build;
+package res;
 
 import chariot.Client;
 import java.time.*;
@@ -387,7 +387,7 @@ class Example {
 ```
 
 <pre>
-$ <b>java -p out/modules --add-modules chariot build/Example.java</b>
+$ <b>java -p out/modules --add-modules chariot res/Example.java</b>
 Entry[entry=Swiss[id=vLx22Ff1, name=My 5+3 Swiss, createdBy=test, startsAt=2022-03-29T17:00:00.000+02:00, status=created, nbOngoing=0, nbPlayers=0, nbRounds=9, round=0, rated=false, variant=standard, clock=Clock[limit=300, increment=3], greatPlayer=null, nextRound=NextRound[at=2022-03-29T17:00:00.000+02:00, in=62693], quote=null]]
 </pre>
 
@@ -396,7 +396,7 @@ Entry[entry=Swiss[id=vLx22Ff1, name=My 5+3 Swiss, createdBy=test, startsAt=2022-
 An example which feeds moves to a Board in order to track FEN updates, and "draws" the board with text.
 
 ```java
-package build;
+package res;
 
 import java.util.List;
 
@@ -440,7 +440,7 @@ class FEN {
 ```
 
 <pre>
-$ <b>java -p out/modules --add-modules chariot build/FEN.java</b>
+$ <b>java -p out/modules --add-modules chariot res/FEN.java</b>
 Initial FEN: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 Initial Board:
 ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜
