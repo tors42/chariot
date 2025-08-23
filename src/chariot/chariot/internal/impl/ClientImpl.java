@@ -131,7 +131,7 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public AuthResult withPkce(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
+    public One<ClientAuth> withPkce(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
         return PKCE.pkceAuth(this, uriHandler, pkce);
     }
 

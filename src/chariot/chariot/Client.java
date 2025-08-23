@@ -156,9 +156,6 @@ public interface Client  {
     /// @param token A token to use for the authenticated parts of the API
     static ClientAuth auth(Supplier<char[]> token) { return auth(_ -> {}, token); }
 
-    sealed interface AuthResult {}
-    record AuthOk(ClientAuth client) implements AuthResult {}
-    record AuthFail(String message)  implements AuthResult {}
     record CodeAndState(String code, String state) {}
 
     public interface PkceConfig {
@@ -200,52 +197,49 @@ public interface Client  {
     /// {@snippet :
     /// Client basic = Chariot.basic();
     ///
-    /// AuthResult authResult = basic.withPkce(
+    /// One<ClientAuth> authResult = basic.withPkce(
     ///     uri -> System.out.format("Visit %s to review and grant access%n", uri),
     ///     pkce -> pkce.scope(Scope.challenge_read, Scope.challenge_write));
     ///
-    /// if (! (authResult instanceof AuthOk ok)) return;
+    /// if (! (authResult instanceof Entry(ClientAuth auth))) return;
     ///
-    /// ClientAuth auth = ok.client();
     /// var challengeResult = auth.challenges().challenge(...);
     /// }
     /// @param uriHandler The generated Lichess URI that your user can visit to review and approve granting access to your application
     /// @param pkce Configuration of for instance which scopes if any that the resulting Access Token should include.
-    AuthResult withPkce(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce);
+    One<ClientAuth> withPkce(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce);
 
     /// Use OAuth PKCE flow to make it possible for your user to grant access to your application.
     /// {@snippet :
-    /// AuthResult authResult = Client.auth(
+    /// One<ClientAuth> authResult = Client.auth(
     ///     uri -> System.out.format("Visit %s to review and grant access%n", uri),
     ///     pkce -> pkce.scope(Scope.challenge_read, Scope.challenge_write));
     ///
-    /// if (! (authResult instanceof AuthOk ok)) return;
+    /// if (! (authResult instanceof Entry(ClientAuth auth))) return;
     ///
-    /// ClientAuth auth = ok.client();
     /// var challengeResult = auth.challenges().challenge(...);
     /// }
     /// @param uriHandler The generated Lichess URI that your user can visit to review and approve granting access to your application
     /// @param pkce Configuration of for instance which scopes if any that the resulting Access Token should include.
-    static AuthResult auth(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
+    static One<ClientAuth> auth(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
         return auth(c -> c.production(), uriHandler, pkce);
     }
 
     /// Use OAuth PKCE flow to make it possible for your user to grant access to your application.
     /// {@snippet :
-    /// AuthResult authResult = Client.auth(
+    /// One<ClientAuth> authResult = Client.auth(
     ///     conf -> conf.api("http://localhost:9663"),
     ///     uri -> System.out.format("Visit %s to review and grant access%n", uri),
     ///     pkce -> pkce.scope(Scope.challenge_read, Scope.challenge_write));
     ///
-    /// if (! (authResult instanceof AuthOk ok)) return;
+    /// if (! (authResult instanceof Entry(ClientAuth auth))) return;
     ///
-    /// ClientAuth auth = ok.client();
     /// var challengeResult = auth.challenges().challenge(...);
     /// }
     /// @param config Customized client configuration such as enabling logging and number of retries etc.
     /// @param uriHandler The generated Lichess URI that your user can visit to review and approve granting access to your application
     /// @param pkce Configuration of for instance which scopes if any that the resulting Access Token should include.
-    public static AuthResult auth(Consumer<Builders.ConfigBuilder> config, Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
+    public static One<ClientAuth> auth(Consumer<Builders.ConfigBuilder> config, Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
         return basic(config).withPkce(uriHandler, pkce);
     }
 

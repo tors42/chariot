@@ -216,7 +216,7 @@ public class PKCE {
             .replaceAll("\\/", "_");
     }
 
-    public static ClientImpl.AuthResult pkceAuth(ClientImpl client, Consumer<URI> uriHandler, Consumer<ClientImpl.PkceConfig> pkce) {
+    public static One<ClientAuth> pkceAuth(ClientImpl client, Consumer<URI> uriHandler, Consumer<ClientImpl.PkceConfig> pkce) {
 
         record Custom(URI redirectUri, Supplier<ClientImpl.CodeAndState> codeAndState) {}
         record Data(Optional<Set<ClientImpl.Scope>> scope, Optional<Duration> timeout, Optional<String> htmlSuccess, Optional<String> usernameHint, Optional<Custom> custom) {}
@@ -273,9 +273,9 @@ public class PKCE {
                         html);
 
                 uriHandler.accept(uriAndToken.url());
-                return new ClientImpl.AuthOk(client.withToken(uriAndToken.token().get()));
+                return One.entry(client.withToken(uriAndToken.token().get()));
             } catch (Exception e) {
-                return new ClientImpl.AuthFail(e.getMessage());
+                return One.fail(-1, e.getMessage());
             }
         } else {
             URI redirectUri = data.custom().get().redirectUri();
@@ -293,9 +293,9 @@ public class PKCE {
                 var codeAndState = codeAndStateSupplier.get();
                 @SuppressWarnings(value = {"deprecation"})
                 var supplier = exchange.token(codeAndState.code(), codeAndState.state());
-                return new ClientImpl.AuthOk(client.withToken(supplier.get()));
+                return One.entry(client.withToken(supplier.get()));
             } catch (Exception e) {
-                return new ClientImpl.AuthFail(e.getMessage());
+                return One.fail(-1, e.getMessage());
             }
         }
     }
