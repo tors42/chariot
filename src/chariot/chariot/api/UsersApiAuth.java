@@ -1,9 +1,7 @@
 package chariot.api;
 
-import chariot.model.*;
-
-import java.util.*;
-import java.util.function.Consumer;
+import module java.base;
+import module chariot;
 
 public interface UsersApiAuth extends UsersApi {
 
@@ -24,20 +22,25 @@ public interface UsersApiAuth extends UsersApi {
      */
     One<UserAuth> byId(String userId, Consumer<UserParams> params);
 
-    /**
-     * Get public user data
-     *
-     * @param userIds
-     */
+    /// Get public user data
+    ///
+    /// Note,  
+    /// use only up to 300 ids at a time for full error handling.  
+    /// If more than 300 ids are provided, additional requests will
+    /// be made as needed and, for any successful response, the results
+    /// are concatenated into the initial response stream.
+    /// @param userIds A list of up to 300 user ids
     Many<UserAuth> byIds(String ... userIds);
 
-
-    /**
-     * Get public user data
-     *
-     * @param userIds A list of up to 300 user ids
-     */
-    Many<UserAuth> byIds(List<String> userIds);
+    /// Get public user data
+    ///
+    /// Note,  
+    /// use only up to 300 ids at a time for full error handling.  
+    /// If more than 300 ids are provided, additional requests will
+    /// be made as needed and, for any successful response, the results
+    /// are concatenated into the initial response stream.
+    /// @param userIds A list of up to 300 user ids
+    Many<UserAuth> byIds(Collection<String> userIds);
 
     Ack sendMessageToUser(String userId, String text);
 

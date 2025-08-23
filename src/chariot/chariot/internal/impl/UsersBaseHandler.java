@@ -1,15 +1,16 @@
 package chariot.internal.impl;
 
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.*;
+import module java.base;
+import module chariot;
 
-import chariot.internal.*;
+import chariot.internal.Endpoint;
+import chariot.internal.RequestHandler;
 import chariot.internal.Util.MapBuilder;
-import chariot.api.UsersApiBase;
-import chariot.api.UsersApi.*;
-import chariot.model.*;
-import chariot.model.Enums.*;
+
+import chariot.api.UsersApi.CrosstableParams;
+import chariot.api.UsersApi.UserStatusParams;
+import chariot.model.Enums.PerfType;
+import chariot.model.Enums.PerfTypeNoCorr;
 
 /**
  * Access registered users on Lichess.
@@ -75,18 +76,24 @@ public abstract class UsersBaseHandler implements UsersApiBase {
      * @param userIds
      */
     public Many<UserStatus> statusByIds(Collection<String> userIds, Consumer<UserStatusParams> consumer) {
-        int batchSize = 100;
+        List<List<String>> batches = userIds.stream()
+            .gather(Gatherers.windowFixed(100)).toList();
 
-        if (userIds.size() > batchSize) {
-            return autoSplittingStatusByIds(userIds, consumer, batchSize);
-        }
-
-        return Endpoint.userStatusByIds.newRequest(request -> request
-                .query(MapBuilder.of(UserStatusParams.class)
-                    .add("ids", userIds.stream()
-                        .collect(Collectors.joining(",")))
-                    .toMap(consumer)))
+        Function<List<String>, Many<UserStatus>> fetchBatch = batch ->
+            Endpoint.userStatusByIds.newRequest(request -> request
+                    .query(MapBuilder.of(UserStatusParams.class)
+                        .add("ids", String.join(",", batch)).toMap(consumer)))
             .process(requestHandler);
+
+        Many<UserStatus> first = fetchBatch.apply(batches.getFirst());
+
+        return switch(first) {
+            case Entries(Stream<UserStatus> stream) -> Many.entries(Stream.concat(stream,
+                        batches.stream().skip(1)
+                        .map(fetchBatch)
+                        .flatMap(Many::stream)));
+            case Fail<UserStatus> fail -> fail;
+        };
     }
 
     /**
@@ -136,24 +143,6 @@ public abstract class UsersBaseHandler implements UsersApiBase {
             .process(requestHandler);
     }
 
-    private Many<UserStatus> autoSplittingStatusByIds(Collection<String> userIds, Consumer<UserStatusParams> consumer, int batchSize) {
-        if (batchSize < 1) return Many.entries(Stream.of());
-        String[] arr = userIds.toArray(String[]::new);
-        int batches = (int) Math.ceil(arr.length / (float)batchSize);
-        Stream<UserStatus> userStatusStream = IntStream.range(0, batches)
-            .mapToObj(batch -> Arrays.stream(arr, batch * batchSize, Math.min(batch*batchSize + batchSize, arr.length))
-                    .collect(Collectors.joining(",")))
-            .map(ids -> Endpoint.userStatusByIds.newRequest(request -> request
-                        .query(MapBuilder.of(UserStatusParams.class)
-                            .add("ids", ids)
-                            .toMap(consumer)
-                            ))
-                    .process(requestHandler)
-                )
-            .flatMap(Many::stream);
-        return Many.entries(userStatusStream);
-    }
-
     /**
      * Autocomplete names given the starting 3 or more characters of a username
      * @param term The beginning of a username >= 3 characters
@@ -172,6 +161,16 @@ public abstract class UsersBaseHandler implements UsersApiBase {
         return Endpoint.usersStatusAutocomplete.newRequest(request -> request
                 .query(Map.of("term", term, "object", "true")))
             .process(requestHandler);
+    }
+
+    <T> Many<T> requestBatchUsersByIds(List<String> ids, Function<UserData, T> mapper) {
+        Many<UserData> result = Endpoint.usersByIds.newRequest(request -> request
+                        .body(String.join(",", ids)))
+                    .process(requestHandler);
+        return switch(result) {
+            case Entries(var stream)  -> Many.entries(stream.map(mapper));
+            case Fail(int s, var msg) -> Many.fail(s, msg);
+        };
     }
 
 }

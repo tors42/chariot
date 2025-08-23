@@ -1,13 +1,10 @@
 package chariot.internal.impl;
 
-import chariot.model.*;
+import module java.base;
+import module chariot;
 
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import chariot.api.UsersApi;
-import chariot.internal.*;
+import chariot.internal.Endpoint;
+import chariot.internal.RequestHandler;
 import chariot.internal.Util.MapBuilder;
 
 public class UsersHandler extends UsersBaseHandler implements UsersApi {
@@ -51,11 +48,18 @@ public class UsersHandler extends UsersBaseHandler implements UsersApi {
     }
 
     @Override
-    public Many<User> byIds(List<String> userIds) {
-        var result = Endpoint.usersByIds.newRequest(request -> request
-                .body(userIds.stream().collect(Collectors.joining(","))))
-            .process(super.requestHandler);
-        return result.map(UserData::toUser);
-    }
+    public Many<User> byIds(Collection<String> userIds) {
+        List<List<String>> batches = userIds.stream()
+            .gather(Gatherers.windowFixed(300)).toList();
 
+        Many<User> first = requestBatchUsersByIds(batches.getFirst(), UserData::toUser);
+
+        return switch(first) {
+            case Entries(Stream<User> stream) -> Many.entries(Stream.concat(stream,
+                        batches.stream().skip(1)
+                        .map(batch -> requestBatchUsersByIds(batch, UserData::toUser))
+                        .flatMap(Many::stream)));
+            case Fail<User> fail -> fail;
+        };
+    }
 }

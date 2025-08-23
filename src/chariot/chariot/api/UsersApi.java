@@ -1,9 +1,7 @@
 package chariot.api;
 
-import chariot.model.*;
-
-import java.util.List;
-import java.util.function.Consumer;
+import module java.base;
+import module chariot;
 
 public interface UsersApi extends UsersApiBase {
 
@@ -14,9 +12,6 @@ public interface UsersApi extends UsersApiBase {
      */
     One<? extends User> byId(String userId);
 
-
-    Many<? extends User> byIds(String ... userIds);
-
     /**
      * Get public user data
      *
@@ -25,13 +20,25 @@ public interface UsersApi extends UsersApiBase {
      */
     One<? extends User> byId(String userId, Consumer<UserParams> params);
 
+    /// Get public user data
+    ///
+    /// Note,  
+    /// use only up to 300 ids at a time for full error handling.  
+    /// If more than 300 ids are provided, additional requests will
+    /// be made as needed and, for any successful response, the results
+    /// are concatenated into the initial response stream.
+    /// @param userIds A list of up to 300 user ids
+    Many<? extends User> byIds(String... userIds);
 
-    /**
-     * Get public user data
-     *
-     * @param userIds A list of up to 300 user ids
-     */
-    Many<? extends User> byIds(List<String> userIds);
+    /// Get public user data
+    ///
+    /// Note,  
+    /// use only up to 300 ids at a time for full error handling.  
+    /// If more than 300 ids are provided, additional requests will
+    /// be made as needed and, for any successful response, the results
+    /// are concatenated into the initial response stream.
+    /// @param userIds A list of up to 300 user ids
+    Many<? extends User> byIds(Collection<String> userIds);
 
 
     public interface UserParams {

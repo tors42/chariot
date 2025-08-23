@@ -1,13 +1,10 @@
 package chariot.internal.impl;
 
-import chariot.model.*;
+import module java.base;
+import module chariot;
 
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import chariot.api.UsersApiAuth;
-import chariot.internal.*;
+import chariot.internal.Endpoint;
+import chariot.internal.RequestHandler;
 import chariot.internal.Util.MapBuilder;
 
 public class UsersAuthHandler extends UsersBaseHandler implements UsersApiAuth {
@@ -52,13 +49,20 @@ public class UsersAuthHandler extends UsersBaseHandler implements UsersApiAuth {
     }
 
     @Override
-    public Many<UserAuth> byIds(List<String> userIds) {
-        var result = Endpoint.usersByIds.newRequest(request -> request
-                .body(userIds.stream().collect(Collectors.joining(","))))
-            .process(super.requestHandler);
-        return result.map(UserData::toUserAuth);
-    }
+    public Many<UserAuth> byIds(Collection<String> userIds) {
+        List<List<String>> batches = userIds.stream()
+            .gather(Gatherers.windowFixed(300)).toList();
 
+        Many<UserAuth> first = requestBatchUsersByIds(batches.getFirst(), UserData::toUserAuth);
+
+        return switch(first) {
+            case Entries(Stream<UserAuth> stream) -> Many.entries(Stream.concat(stream,
+                        batches.stream().skip(1)
+                        .map(batch -> requestBatchUsersByIds(batch, UserData::toUserAuth))
+                        .flatMap(Many::stream)));
+            case Fail<UserAuth> fail -> fail;
+        };
+    }
 
     @Override
     public Ack sendMessageToUser(String userId, String text) {
