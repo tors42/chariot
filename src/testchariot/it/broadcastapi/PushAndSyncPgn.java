@@ -181,13 +181,13 @@ public class PushAndSyncPgn {
                         .syncUrl(syncUrlBase.resolve(URLEncoder.encode(nameAndPgn.name(), Charset.defaultCharset())).toString())
                         .period(Duration.ofSeconds(2)) // needs Study/Broadcast Admin
                         .startsAt(now -> now.minusHours(3))))
-            .findFirst().filter(one -> one instanceof Entry).orElseThrow();
+            .findFirst().filter(one -> one instanceof Some).orElseThrow();
     }
 
     List<MyRound> createRoundsForPush(String broadcastId, List<List<PGN>> roundPgns) {
         return namedPgnRounds(roundPgns).stream()
             .map(nameAndPgn -> client.broadcasts().createRound(broadcastId, p -> p.name(nameAndPgn.name())))
-            .filter(one -> one instanceof Entry)
+            .filter(one -> one instanceof Some)
             .map(One::get)
             .toList();
     }

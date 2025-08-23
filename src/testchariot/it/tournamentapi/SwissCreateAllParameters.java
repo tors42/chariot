@@ -69,7 +69,7 @@ public class SwissCreateAllParameters {
 
         if (debug) client.logging(l -> l.request().warning().response().warning());
 
-        if (! (createRes instanceof Entry(Swiss createdSwiss))) {
+        if (! (createRes instanceof Some(Swiss createdSwiss))) {
             fail("Failed to create Swiss - %s".formatted(createRes));
             return;
         }
@@ -84,7 +84,7 @@ public class SwissCreateAllParameters {
 
         One<Swiss> fetchRes = client.tournaments().swissById(createdSwiss.id());
 
-        if (! (fetchRes instanceof Entry(Swiss fetchedSwiss))) {
+        if (! (fetchRes instanceof Some(Swiss fetchedSwiss))) {
             fail("Failed to fetch Swiss - %s".formatted(fetchRes));
             return;
         }
@@ -178,7 +178,7 @@ public class SwissCreateAllParameters {
         Clock clock = new Clock(Duration.ofMinutes(3), Duration.ofSeconds(2));
         One<Swiss> createRes = client.tournaments().createSwiss(teamId, params -> params.clock(clock));
         unboxEquals(createRes, clock, swiss -> swiss.tourInfo().clock());
-        createRes.map(s -> s.tourInfo().id()).ifPresent(id -> client.tournaments().terminateSwiss(id));
+        createRes.maybe().map(s -> s.tourInfo().id()).ifPresent(id -> client.tournaments().terminateSwiss(id));
     }
 
 }

@@ -41,8 +41,8 @@ public class TokenHandler {
     public TokenResult token(Map<String, String> parameters) {
         return Endpoint.apiToken.newRequest(request -> request
                 .body(parameters))
-            .process(requestHandler) instanceof Entry<TokenResult> tr ?
-            tr.entry() : new TokenResult.Error("Unknown Error", "Unknown");
+            .process(requestHandler) instanceof Some<TokenResult> tr ?
+            tr.value() : new TokenResult.Error("Unknown Error", "Unknown");
     }
 
     public Many<Scope> scopes(Supplier<char[]> token) {

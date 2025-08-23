@@ -38,8 +38,8 @@ public interface TeamsApi {
     default Many<Swiss> swissByTeamId(String teamId, int max) { return swissByTeamId(teamId, p -> p.max(max)); }
 
     default int numberOfTeams() {
-        return searchByPage() instanceof Entry<PageTeam> page ?
-            page.entry().nbResults() : 0;
+        return searchByPage() instanceof Some<PageTeam> page ?
+            page.value().nbResults() : 0;
     }
 
     One<PageTeam>     searchByPage(Consumer<PageParams> params);

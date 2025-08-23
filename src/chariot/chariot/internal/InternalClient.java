@@ -243,7 +243,7 @@ public class InternalClient {
 
     public Many<Scope> fetchScopes(String endpointPath, Supplier<char[]> tokenSupplier) {
         return switch(fetchHeaders(endpointPath, tokenSupplier)) {
-            case Entry(var headers) -> Many.entries(
+            case Some(var headers) -> Many.entries(
                     headers.allValues("x-oauth-scopes").stream()
                         .flatMap(s -> Arrays.stream(s.split(",")))
                         .map(String::trim)

@@ -1,5 +1,6 @@
 package chariot.model;
 
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -9,27 +10,36 @@ public sealed interface Opt<T> permits Some, Empty {
     static <T> Some<T>  some(T value) { return new Some<T>(value); }
     static <T> Empty<T> empty()       { return new Empty<T>(); }
 
-    default <R> Opt<R> map(Function<T,R> mapper) {
-        if (this instanceof Some<T> some) return Opt.some(mapper.apply(some.value()));
-        return Opt.empty();
+    Optional<T> maybe();
+    default <R> Opt<R> map(Function<? super T, ? extends R> mapper) {
+        return switch (this) {
+            case Some(var value) -> Opt.of(mapper.apply(value));
+            case Empty() -> Opt.of();
+        };
     }
 
-    default T orElse(T other) {
-        if (this instanceof Some<T> some) return some.value();
-        return other;
-    }
-
-    default T orElseGet(Supplier<T> other) {
-        if (this instanceof Some<T> some) return some.value();
-        return other.get();
-    }
-
-    default boolean isPresent() {
-        return this instanceof Some<?>;
-    }
+    default boolean isPresent() { return this instanceof Some; }
 
     default T get() {
-        return this instanceof Some<T> some ? some.value() : null;
+        return switch (this) {
+            case Some(var value) -> value;
+            case Empty() -> null;
+        };
     }
+
+    default T orElse(T orElse) {
+        return switch (this) {
+            case Some(var value) -> value;
+            case Empty() -> orElse;
+        };
+    }
+
+    default T orElseGet(Supplier<T> orElse) {
+        return switch (this) {
+            case Some(var value) -> value;
+            case Empty() -> orElse.get();
+        };
+    }
+
 
 }

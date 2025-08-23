@@ -45,11 +45,11 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
     @Override
     public Many<Broadcast.TourWithLastRound> topPast(Consumer<Params> params) {
         var firstPage = topPastByPage(1, params);
-        if (firstPage instanceof Entry<Endpoint.PageBroadcast> one) {
+        if (firstPage instanceof Some<Endpoint.PageBroadcast> one) {
             var spliterator = Util.PageSpliterator.of(
-                    one.entry(),
-                    pageNum -> topPastByPage(pageNum, params) instanceof Entry<Endpoint.PageBroadcast> pt
-                     ? pt.entry()
+                    one.value(),
+                    pageNum -> topPastByPage(pageNum, params) instanceof Some<Endpoint.PageBroadcast> pt
+                     ? pt.value()
                      : new Endpoint.PageBroadcast(0,0,List.of(),0,0,0,0));
             return Many.entries(StreamSupport.stream(spliterator, false));
         } else {
@@ -66,11 +66,11 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
     @Override
     public Many<Broadcast.TourWithLastRound> search(String searchTerm) {
         var firstPage = searchByPage(1, searchTerm);
-        if (firstPage instanceof Entry<Endpoint.PageBroadcast> one) {
+        if (firstPage instanceof Some<Endpoint.PageBroadcast> one) {
             var spliterator = Util.PageSpliterator.of(
-                    one.entry(),
-                    pageNum -> searchByPage(pageNum, searchTerm) instanceof Entry<Endpoint.PageBroadcast> pt
-                     ? pt.entry()
+                    one.value(),
+                    pageNum -> searchByPage(pageNum, searchTerm) instanceof Some<Endpoint.PageBroadcast> pt
+                     ? pt.value()
                      : new Endpoint.PageBroadcast(0,0,List.of(),0,0,0,0));
             return Many.entries(StreamSupport.stream(spliterator, false));
         } else {
@@ -118,10 +118,10 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
     @Override
     public Many<Broadcast.TourWithLastRound> byUserId(String userId, Consumer<Params> params) {
         var firstPage = broadcastPageByUserId(userId, 1, params);
-        if (firstPage instanceof Entry<Endpoint.PageBroadcast> one) {
-            var spliterator = Util.PageSpliterator.of(one.entry(),
-                    pageNum -> broadcastPageByUserId(userId, pageNum, params) instanceof Entry<Endpoint.PageBroadcast> pt ?
-                    pt.entry() : new Endpoint.PageBroadcast(0,0,List.of(),0,0,0,0));
+        if (firstPage instanceof Some<Endpoint.PageBroadcast> one) {
+            var spliterator = Util.PageSpliterator.of(one.value(),
+                    pageNum -> broadcastPageByUserId(userId, pageNum, params) instanceof Some<Endpoint.PageBroadcast> pt ?
+                    pt.value() : new Endpoint.PageBroadcast(0,0,List.of(),0,0,0,0));
             return Many.entries(StreamSupport.stream(spliterator, false));
         } else {
             return Many.entries(Stream.of());

@@ -54,7 +54,7 @@ public class RunArena {
                 //.conditionTeam(teamId)
                 );
 
-        if (! (createRes instanceof Entry(Arena arena))) {
+        if (! (createRes instanceof Some(Arena arena))) {
             return () -> {
                 fail("Failed to create Arena - %s".formatted(createRes));
                 return null;
@@ -92,7 +92,7 @@ public class RunArena {
                 .description("Just testing to run an Team Battle Arena in Integration Tests with many characters".repeat(3))
                 );
 
-        if (! (createRes instanceof Entry(Arena arena))) {
+        if (! (createRes instanceof Some(Arena arena))) {
             return () -> {
                 fail("Failed to create Team Battle Arena - %s".formatted(createRes));
                 return null;

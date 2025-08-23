@@ -1,101 +1,66 @@
 package chariot.model;
 
 import java.util.Optional;
-import java.util.function.*;
 
-/**
- * A container for responses with a single entry.<br>
- * The response can be either {@link Entry} for responses with a value or {@link Fail} for responses without a value.<br>
- *
- * {@snippet :
- *      Client client = Client.basic();
- *
- *      One<User> good = client.users().byId("lichess");
- *      One<User> bad  = client.users().byId("non-existing-user-id");
- *
- *      System.out.println(good);  // Entry[entry=User[id=lichess, username= ...
- *      System.out.println(bad);   // Fail[status=404, message="not found"]
- *      }
- * One way to access the value is via an {@link Optional} which can be gotten via {@link #maybe()}
- * {@snippet :
- *      Optional<User> goodUser = good.maybe();
- *      Optional<User> badUser  = bad.maybe();
- *
- *      goodUser.ifPresent(user -> System.out.println(user.username())); // Lichess
- *      badUser.ifPresent(user  -> System.out.println(user.username())); //
- *      }
- * Many of the {@code Optional} methods are also available directly via {@link One} for convenience
- * {@snippet :
- *      String goodName = good.map(user -> user.username()).orElse("No user!");
- *      String badName  =  bad.map(user -> user.username()).orElse("No user!");
- *
- *      System.out.println(goodName); // Lichess
- *      System.out.println(badName);  // No user!
- *      }
- * Another way is to check the type
- * {@snippet :
- *      if (good instanceof Entry<User> u) {
- *          User user = u.entry();
- *          System.out.println(user.url()); // https://lichess.org/@/Lichess
- *      }
- *
- *      if (bad instanceof Entry<User> u) {
- *          // not reached
- *      }
- *
- *      // If we are interested in any failures, we can check for the Fail type
- *      if (bad instanceof Fail<User> fail) {
- *          System.out.println(fail.status()); // 404
- *      }
- *      }
- * Note, "inverted" match in {@code if}-statements can also be used to get an entry into scope
- * {@snippet :
- *      if (! (good instanceof Entry<User> u)) {
- *          return;
- *      }
- *
- *      User user = u.entry();  // The u-variable is reachable here!
- *
- *      var teams = client.teams().byUserId(user.id());
- *      ...
- *      }
- * When Pattern Matching in {@code switch} arrives, we can leave out the {@code if}-statements
- * {@snippet :
- *      String message = switch(bad) {
- *           case Entry<User> user -> "Found user!";
- *           case Fail<?> nouser -> "Couldn't find user!";
- *      };
- *
- *      System.out.println(message); // Couldn't find user!
- *      }
- */
-
+/// A container for responses with a single entry.  
+/// The response can be either {@link Some} for responses with a value or {@link Fail} for responses without a value.  
+///
+/// Here is an example where two requests are made and where one result has a value and the other doesn't,
+/// {@snippet :
+///      Client client = Client.basic();
+///
+///      One<Team> good = client.teams().byTeamId("lichess-swiss");
+///      One<Team> bad  = client.teams().byTeamId("non-existing-team-id");
+///
+///      IO.println(good);  // Some[value=Team[id=lichess-swiss, name=...
+///      IO.println(bad);   // Fail[status=404, message={"error":"Not found"}]
+///      }
+///
+/// Typically one would pattern match on the result in order to process it,
+/// {@snippet :
+///      String process(One<Team> result) {
+///          return switch(result) {
+///              case Some(Team team)              -> "Found team! " + team.name();
+///              case Fail(int status, String msg) -> "Couldn't find team! " + status;
+///          };
+///      }
+///
+///      String goodMessage = process(good);
+///      String badMessage = process(bad);
+///
+///      IO.println(goodMessage); // Found team! Lichess Swiss
+///      IO.println(badMessage);  // Couldn't find team! 404
+///      }
+///
+/// Another way to process the result, is to use {@link #maybe()} to access it as an {@link Optional},
+/// {@snippet :
+///      client.teams().byTeamId("lichess-swiss").maybe()
+///         .map(Team::name)
+///         .ifPresent(name -> IO.println("Team: " + name)); // Team: Lichess Swiss
+///      }
+///
+/// Or you could try to go yolo,
+/// {@snippet :
+///      Team team = client.teams().byTeamId("non-existing-team-id").get();
+///
+///      IO.println("Team name: " + team.name()) // NullPointerException!
+///      }
 public sealed interface One<T> permits
-    Entry,
+    Some,
     Fail {
 
     static <T> One<T> entry(T entry) {
-        return new Entry<>(entry);
+        return new Some<>(entry);
+    }
+
+    static <T> One<T> fail(String message) {
+        return fail(-1, message);
     }
 
     static <T> One<T> fail(int status, String message) {
         return new Fail<>(status, message);
     }
 
-
-    default Optional<T> maybe() { return this instanceof Entry<T> t ? Optional.of(t.entry()) : Optional.empty(); }
-
-    default <R> Optional<R> map(Function<? super T, ? extends R> mapper) { return maybe().map(mapper); }
-    default T orElse(T other) { return maybe().orElse(other); }
-    default T orElseGet(Supplier<? extends T> supplier) { return maybe().orElseGet(supplier); }
-    default void ifPresent(Consumer<? super T> consumer) { maybe().ifPresent(consumer); }
-    default void ifPresentOrElse(Consumer<? super T> consumer, Runnable action) { maybe().ifPresentOrElse(consumer, action); }
-    default boolean isPresent() { return maybe().isPresent(); }
-    default T get() { return maybe().get(); }
-    default <R> One<R> mapOne(Function<T, R> mapper) {
-        return switch(this) {
-            case Entry<T> one  -> One.entry(mapper.apply(one.entry()));
-            case Fail<T> f     -> One.fail(f.status(), f.message());
-        };
-    }
+    Optional<T> maybe();
+    T get();
 }

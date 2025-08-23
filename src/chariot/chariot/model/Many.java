@@ -3,57 +3,47 @@ package chariot.model;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-/**
- * A container for responses with multiple entries.<br>
- * The response can be either {@link Entries} for successful requests or {@link Fail} for failed requests.<br>
- *
- * {@snippet :
- *      Client client = Client.basic();
- *
- *      Many<PGN> good = client.studies().exportChaptersByStudyId("YtBYXc3m"); // "Beautiful Checkmates" by NoseKnowsAll
- *      Many<PGN> bad  = client.studies().exportChaptersByStudyId("non-existing-study-id");
- *
- *      System.out.println(good);  // Entries[stream=java.util.stream.ReferencePipeline$Head@3d121db3]
- *      System.out.println(bad);   // Fail[status=404, info=Info[message=404 - Resource not found]]
- *      }
- * A "lazy" way to access the values is to use the method {@code Many}.{@link Many#stream()} which is shared by all {@code Many}
- * {@snippet :
- *      List<PGN> goodList = good.stream().toList();
- *      List<PGN> badList  = bad.stream().toList();
- *
- *      System.out.println(goodList.size()); // 64
- *      System.out.println(badList.size());  // 0
- *      }
- * The problem is that we don't know if the "badList" was empty because the Study was empty or
- * because we failed to find the Study. <br>
- * <br>
- * Another way is to check the type
- * {@snippet :
- *      if (good instanceof Entries<PGN> entries) {
- *          entries.stream().findFirst().ifPresent(pgn ->
- *              System.out.println(pgn.tagMap().get("Event"))); // Beautiful Checkmates: Study by Ercole del Rio
- *      }
- *
- *      if (bad instanceof Entries<PGN> entries) {
- *          // not reached
- *      }
- *
- *      // If we are interested in any failures, we can check for the Fail type
- *      if (bad instanceof Fail<PGN> fail) {
- *          System.out.println(fail.status()); // 404
- *      }
- *      }
- * When Pattern Matching in {@code switch} arrives, we can leave out the {@code if}-statements
- * {@snippet :
- *      String message = switch(bad) {
- *           case Entries<PGN> entries -> "There are " + entries.stream().count() + " PGNs";
- *           case Fail<PGN> fail -> "Couldn't find the Study! (" + fail.status() + ")";
- *      };
- *
- *      System.out.println(message); // Couldn't find the Study! (404)
- *      }
- */
- public sealed interface Many<T> permits
+/// A container for responses with multiple entries.  
+///
+/// The response can be either {@link Entries} for successful requests or {@link Fail} for failed requests.  
+///
+/// Here is an example where two request are made and where one result has values and the other doesn't,
+/// {@snippet :
+///      Client client = Client.basic();
+///
+///      Many<PGN> good = client.studies().exportChaptersByStudyId("YtBYXc3m"); // "Beautiful Checkmates" by NoseKnowsAll
+///      Many<PGN> bad  = client.studies().exportChaptersByStudyId("non-existing-study-id");
+///
+///      IO.println(good);  // Entries[stream=java.util.stream.ReferencePipeline$Head@3d121db3]
+///      IO.println(bad);   // Fail[status=404, message=404 - Resource not found]
+///      }
+/// Typically one would pattern match on the result in order to process it,
+/// {@snippet :
+///      String process(Many<PGN> result) {
+///         return switch(result) {
+///             case Entries(Stream<PGN> stream)  -> "Found " + stream.count() + " PGNs!";
+///             case Fail(int status, String msg) -> "Failed to find PGNs! Status " + status;
+///         };
+///      }
+///
+///      String goodMessage = process(good);
+///      String badMessage = process(bad);
+///
+///      IO.println(goodMessage); // Found 64 PGNs!
+///      IO.println(badMessage);  // Failed to find PGNs! Status 404
+///      }
+///
+/// Another way to access the values is to use the method {@link #stream()},
+/// {@snippet :
+///      List<PGN> goodList = good.stream().toList();
+///      List<PGN> badList  = bad.stream().toList();
+///
+///      IO.println(goodList.size()); // 64
+///      IO.println(badList.size());  // 0
+///      }
+/// But a problem with this is that we don't know if the `badList` was empty because the Study
+/// was empty or because we failed to find the Study.
+public sealed interface Many<T> permits
     Entries,
     Fail {
 
@@ -66,17 +56,16 @@ import java.util.stream.Stream;
     }
 
     default Stream<T> stream() {
-        return this instanceof Entries<T> many ?
-            many.stream() :
-            Stream.of();
+        return switch(this) {
+            case Entries(Stream<T> stream) -> stream;
+            case Fail(_,_)                 -> Stream.of();
+        };
     }
 
-    default <R> Many<R> mapMany(Function<T, R> mapper) {
-        if (this instanceof Fail<T> f) {
-            return Many.fail(f.status(), f.message());
-        } else {
-            return Many.entries(stream().map(mapper));
-        }
+    default <R> Many<R> map(Function<T, R> mapper) {
+        return switch(this) {
+            case Entries(Stream<T> stream)    -> Many.entries(stream.map(mapper));
+            case Fail(int status, String msg) -> Many.fail(status, msg);
+        };
     }
-
 }

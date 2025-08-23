@@ -43,7 +43,7 @@ public class TournamentsHandler implements TournamentsApiAuth {
 
     private One<Arena> _arenaByIdAllPages(String arenaId) {
         One<Arena> firstResult = _arenaByIdAndPage(arenaId, 1);
-        if (! (firstResult instanceof Entry(Arena firstArena))) {
+        if (! (firstResult instanceof Some(Arena firstArena))) {
             if (firstResult instanceof Fail<Arena> f) return f;
             return One.fail(-1, "Failed to lookup " + arenaId + " page 1 standing");
         }
@@ -51,7 +51,7 @@ public class TournamentsHandler implements TournamentsApiAuth {
         int totalPages = (int) Math.ceil(totalPlayers / 10.0);
         Stream<Arena.Standing> totalStandings = firstArena.standings().stream();
         for (int page = 2; page <= totalPages; page++) {
-            if (_arenaByIdAndPage(arenaId, page) instanceof Entry(Arena current)) {
+            if (_arenaByIdAndPage(arenaId, page) instanceof Some(Arena current)) {
                 totalStandings = Stream.concat(totalStandings, current.standings().stream());
             } else {
                 break;

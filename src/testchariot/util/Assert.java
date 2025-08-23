@@ -6,7 +6,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import chariot.model.Entry;
+import chariot.model.Some;
 import chariot.model.Fail;
 import chariot.model.One;
 
@@ -18,7 +18,7 @@ public interface Assert {
 
     static <T,R> void unboxEquals(One<T> boxed, R expected, Function<T, R> mapper) {
         switch(boxed) {
-            case Entry(T entry)  -> assertEquals(expected, mapper.apply(entry));
+            case Some(T entry)  -> assertEquals(expected, mapper.apply(entry));
             case Fail<?> fail -> fail(fail);
         }
     }

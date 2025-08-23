@@ -23,7 +23,7 @@ public class Play {
         var black = IT.yulia();
 
         if (! (black.board().connect() instanceof Entries(var blackEvents)
-            && black.account().profile() instanceof Entry(var blackUser))) {
+            && black.account().profile() instanceof Some(var blackUser))) {
             fail("Couldn't connect");
             return;
         }

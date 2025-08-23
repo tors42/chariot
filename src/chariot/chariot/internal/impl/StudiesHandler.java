@@ -50,7 +50,7 @@ public class StudiesHandler implements StudiesApiAuth {
     @Override
     public One<ZonedDateTime> lastModifiedByStudyId(String studyId) {
         return switch(client.fetchHeaders(Endpoint.lastModifiedStudy.endpoint().formatted(studyId))) {
-            case Entry(var headers) -> headers.allValues("Last-Modified").stream()
+            case Some(var headers) -> headers.allValues("Last-Modified").stream()
                 .map(rfc_1123 -> ZonedDateTime.parse(rfc_1123, DateTimeFormatter.RFC_1123_DATE_TIME))
                 .map(One::entry)
                 .findFirst()
@@ -102,10 +102,10 @@ public class StudiesHandler implements StudiesApiAuth {
     @Override
     public Many<Study> listStudies() {
         var firstPage = byPage(1);
-        if (firstPage instanceof Entry<PageStudy> one) {
-            var spliterator = Util.PageSpliterator.of(one.entry(),
-                    pageNum -> byPage(pageNum) instanceof Entry<PageStudy> pt ?
-                    pt.entry() : new PageStudy(0,0,List.of(),0,0,0,0));
+        if (firstPage instanceof Some<PageStudy> one) {
+            var spliterator = Util.PageSpliterator.of(one.value(),
+                    pageNum -> byPage(pageNum) instanceof Some<PageStudy> pt ?
+                    pt.value() : new PageStudy(0,0,List.of(),0,0,0,0));
             return Many.entries(StreamSupport.stream(spliterator, false));
         } else {
             return Many.entries(Stream.of());

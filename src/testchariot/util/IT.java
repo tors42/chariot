@@ -13,7 +13,7 @@ import chariot.model.StatsPerf.StatsPerfGame;
 public class IT {
 
     public static java.net.URI lilaURI() {
-        return superadmin().account().profile().map(u -> u.url().resolve("/")).orElse(Main.itApi());
+        return superadmin().account().profile().maybe().map(u -> u.url().resolve("/")).orElse(Main.itApi());
     }
 
     public static Stream<Client> usersBasic() {

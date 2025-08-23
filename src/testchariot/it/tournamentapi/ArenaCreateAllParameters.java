@@ -69,7 +69,7 @@ public class ArenaCreateAllParameters {
 
         if (debug) client.logging(l -> l.request().warning().response().warning());
 
-        if (! (createRes instanceof Entry(Arena createdArena))) {
+        if (! (createRes instanceof Some(Arena createdArena))) {
             fail("Failed to create Arena - %s".formatted(createRes));
             return;
         }
@@ -88,7 +88,7 @@ public class ArenaCreateAllParameters {
 
         if (debug) client.logging(l -> l.request().warning().response().warning());
 
-        if (! (fetchRes instanceof Entry(Arena fetchedArena))) {
+        if (! (fetchRes instanceof Some(Arena fetchedArena))) {
             fail("Failed to fetch Arena - %s".formatted(fetchRes));
             return;
         }
@@ -177,7 +177,7 @@ public class ArenaCreateAllParameters {
         Clock clock = new Clock(Duration.ofMinutes(3), Duration.ofSeconds(2));
         One<Arena> createRes = client.tournaments().createArena(params -> params.clock(clock));
         unboxEquals(createRes, clock, arena -> arena.tourInfo().clock());
-        createRes.map(s -> s.tourInfo().id()).ifPresent(id -> client.tournaments().terminateArena(id));
+        createRes.maybe().map(s -> s.tourInfo().id()).ifPresent(id -> client.tournaments().terminateArena(id));
     }
 
 }

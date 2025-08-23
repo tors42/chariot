@@ -26,7 +26,7 @@ public class BroadcastAuth {
                 .name(name)
                 .description(description));
 
-        if (! (broadcastRequest instanceof Entry(Broadcast broadcast))) {
+        if (! (broadcastRequest instanceof Some(Broadcast broadcast))) {
             fail("Couldn't create broadcast " + broadcastRequest);
             return;
         }
@@ -48,7 +48,7 @@ public class BroadcastAuth {
         List<ZonedDateTime> dates = List.of();
         Broadcast.Info info = new Broadcast.Info();
 
-        Opt<LightUser> communityOwner = client.account().profile()
+        Opt<LightUser> communityOwner = client.account().profile().maybe()
             .map(user -> Opt.of(new LightUser(user.id(), user.title(), user.name(), user.patron(), user.flair())))
             .orElse(Opt.empty());
 
@@ -150,7 +150,7 @@ public class BroadcastAuth {
 
         if (debug) superadmin.logging(l -> l.request().warning().response().warning());
 
-        if (! (broadcastResult instanceof Entry(Broadcast broadcast))) {
+        if (! (broadcastResult instanceof Some(Broadcast broadcast))) {
             fail("Couldn't create broadcast " + broadcastResult);
             return;
         }
@@ -262,14 +262,14 @@ public class BroadcastAuth {
                 .name("startsAfterPrevious test")
                 .description("startsAfterPrevious description")
                 );
-        if (! (broadcastResult instanceof Entry(Broadcast broadcast))) {
+        if (! (broadcastResult instanceof Some(Broadcast broadcast))) {
             fail("Couldn't create broadcast " + broadcastResult);
             return;
         }
         var myRoundResult = superadmin.broadcasts().createRound(broadcast.id(), p -> p
                 .name("startsAfterPrevious name")
                 .startsAfterPrevious());
-        if (! (myRoundResult instanceof Entry(MyRound myRound))) {
+        if (! (myRoundResult instanceof Some(MyRound myRound))) {
             fail("Couldn't create round: " +  myRoundResult);
             return;
         }
@@ -294,7 +294,7 @@ public class BroadcastAuth {
                 .customScoringBlackDraw(customScoring.black().draw())
                 );
 
-        if (! (myRoundResult instanceof Entry(MyRound myRound))) {
+        if (! (myRoundResult instanceof Some(MyRound myRound))) {
             fail("Couldn't create " + roundName + " - " + myRoundResult);
             return null;
         }
@@ -369,7 +369,7 @@ public class BroadcastAuth {
 
         String roundName = "Simple Round";
 
-        var roundRequest = broadcastResult.map(broadcast -> client.broadcasts().createRound(broadcast.id(), p -> p.name(roundName))).get();
+        var roundRequest = broadcastResult.maybe().map(broadcast -> client.broadcasts().createRound(broadcast.id(), p -> p.name(roundName))).get();
 
         unboxEquals(roundRequest, roundName, r -> r.round().name());
     }

@@ -44,7 +44,10 @@ public class UsersHandler extends UsersBaseHandler implements UsersApi {
         boolean trophies = parameterMap.containsKey("trophies");
         boolean challenge = parameterMap.containsKey("challenge");
 
-        return result.mapOne(ud -> ud.toUser(trophies, challenge));
+        return switch(result) {
+            case Some(var ud) -> One.entry(ud.toUser(trophies, challenge));
+            case Fail(int s, String m) -> One.fail(s, m);
+        };
     }
 
     @Override
@@ -52,7 +55,7 @@ public class UsersHandler extends UsersBaseHandler implements UsersApi {
         var result = Endpoint.usersByIds.newRequest(request -> request
                 .body(userIds.stream().collect(Collectors.joining(","))))
             .process(super.requestHandler);
-        return result.mapMany(UserData::toUser);
+        return result.map(UserData::toUser);
     }
 
 }

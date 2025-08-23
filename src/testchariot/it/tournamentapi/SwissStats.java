@@ -23,7 +23,7 @@ public class SwissStats {
     public void ongoingGame() {
         Opt<GameTestRunner> noGameRunner = Opt.of();
         var res = runSwiss(noGameRunner);
-        if (! (res instanceof Entry(Swiss swiss))) {
+        if (! (res instanceof Some(Swiss swiss))) {
             fail("Failed to run Swiss: " + res);
             return;
         }
@@ -52,7 +52,7 @@ public class SwissStats {
         Opt<GameTestRunner> draw = Opt.of(new GameTestRunner(PGN.read(pgnDraw)));
 
         var res = runSwiss(draw);
-        if (! (res instanceof Entry(Swiss swiss))) {
+        if (! (res instanceof Some(Swiss swiss))) {
             fail("Failed to run Swiss: " + res);
             return;
         }
@@ -110,7 +110,7 @@ public class SwissStats {
                         .manualRoundScheduling()
                         );
 
-        if (! (swissRes instanceof Entry(Swiss swiss))) {
+        if (! (swissRes instanceof Some(Swiss swiss))) {
             return swissRes instanceof Fail<Swiss> f ? f : One.fail(-1, "Couldn't create Swiss: " + swissRes);
         }
 
@@ -146,7 +146,7 @@ public class SwissStats {
                     .addManualPairing(blackId, whiteId)
                     );
 
-            if (! (swissUpdateRes instanceof Entry(Swiss updatedSwiss))) {
+            if (! (swissUpdateRes instanceof Some(Swiss updatedSwiss))) {
                 return One.fail(-1, "Failed to update swiss with next pairing: " + swissUpdateRes);
             }
 

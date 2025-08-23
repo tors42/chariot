@@ -106,10 +106,10 @@ public class TeamsHandler implements TeamsApiAuth {
 
     private Many<Team> search(Consumer<PageParams> consumer) {
         var firstPage = searchByPage(consumer.andThen(p -> p.page(1)));
-        if (firstPage instanceof Entry<PageTeam> one) {
-            var spliterator = Util.PageSpliterator.of(one.entry(),
-                    pageNum -> searchByPage(consumer.andThen(p -> p.page(pageNum))) instanceof Entry<PageTeam> pt ?
-                    pt.entry() : new PageTeam(0,0,List.of(),0,0,0,0));
+        if (firstPage instanceof Some<PageTeam> one) {
+            var spliterator = Util.PageSpliterator.of(one.value(),
+                    pageNum -> searchByPage(consumer.andThen(p -> p.page(pageNum))) instanceof Some<PageTeam> pt ?
+                    pt.value() : new PageTeam(0,0,List.of(),0,0,0,0));
             return Many.entries(StreamSupport.stream(spliterator, false));
         } else {
             return Many.entries(Stream.of());
@@ -119,10 +119,10 @@ public class TeamsHandler implements TeamsApiAuth {
     @Override
     public Many<Team> popularTeams() {
         var firstPage = popularTeamsByPage(1);
-        if (firstPage instanceof Entry<PageTeam> one) {
-            var spliterator = Util.PageSpliterator.of(one.entry(),
-                    pageNum -> popularTeamsByPage(pageNum) instanceof Entry<PageTeam> pt ?
-                    pt.entry() : new PageTeam(0,0,List.of(),0,0,0,0));
+        if (firstPage instanceof Some<PageTeam> one) {
+            var spliterator = Util.PageSpliterator.of(one.value(),
+                    pageNum -> popularTeamsByPage(pageNum) instanceof Some<PageTeam> pt ?
+                    pt.value() : new PageTeam(0,0,List.of(),0,0,0,0));
             return Many.entries(StreamSupport.stream(spliterator, false));
         } else {
             return Many.entries(Stream.of());
