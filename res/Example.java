@@ -1,4 +1,4 @@
-package build;
+package res;
 
 import chariot.Client;
 import java.time.*;

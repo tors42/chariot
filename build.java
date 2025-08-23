@@ -99,7 +99,7 @@ void main(String[] args) throws Exception {
             "-notimestamp",
             "--module-source-path", src,
             "--module", module,
-            "--snippet-path", Path.of("build", "snippets").toString(),
+            "--snippet-path", Path.of("res", "snippets").toString(),
             "-d", out.resolve("javadoc"));
 
         run(jar,

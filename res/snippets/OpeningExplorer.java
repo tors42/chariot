@@ -1,4 +1,4 @@
-package build.snippets;
+package res.snippets;
 
 import chariot.Client;
 import chariot.model.*;

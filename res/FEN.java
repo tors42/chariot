@@ -1,4 +1,4 @@
-package build;
+package res;
 
 import java.util.List;
 

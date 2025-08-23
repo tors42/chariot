@@ -1,9 +1,5 @@
-import java.lang.classfile.*;
-import java.lang.classfile.instruction.InvokeInstruction;
-import java.lang.instrument.*;
-import java.security.ProtectionDomain;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Predicate;
+import module java.base;
+import module java.instrument;
 
 /// In `lila.relay.Env`,  
 /// there's a task being scheduled for polling PGN broadcast URLs.

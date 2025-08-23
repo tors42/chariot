@@ -30,7 +30,7 @@ docker run \
     -v $(pwd):/app \
     -w /app \
     $IMAGE_WITH_AGENT \
-    java ./build/Build.java
+    java ./build.java
 
 exitCode=$?
 
