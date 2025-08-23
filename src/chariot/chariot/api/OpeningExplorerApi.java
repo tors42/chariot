@@ -29,7 +29,7 @@ public interface OpeningExplorerApi {
     /**
      * See {@link #masters(Consumer)}
      */
-    default One<ExploreResult.OpeningDB> masters() { return masters(__ -> {}); }
+    default One<ExploreResult.OpeningDB> masters() { return masters(_ -> {}); }
 
     /**
      * Find Lichess games from Opening Explorer<br>
@@ -42,7 +42,7 @@ public interface OpeningExplorerApi {
     /**
      * See {@link #lichess(Consumer)}
      */
-    default One<ExploreResult.OpeningDB> lichess() { return lichess(__ -> { }); }
+    default One<ExploreResult.OpeningDB> lichess() { return lichess(_ -> {}); }
 
     /**
      * Find Player games from Opening Explorer<br>
@@ -52,7 +52,7 @@ public interface OpeningExplorerApi {
      */
     One<ExploreResult.OpeningPlayer> player(String userId, Consumer<PlayerBuilder> params);
 
-    default One<ExploreResult.OpeningPlayer> player(String userId) { return player(userId, __ -> { }); }
+    default One<ExploreResult.OpeningPlayer> player(String userId) { return player(userId, _ -> {}); }
 
     interface CommonOpeningExplorer<T> {
         /**

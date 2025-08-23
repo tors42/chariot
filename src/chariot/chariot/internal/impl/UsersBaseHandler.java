@@ -41,7 +41,7 @@ public abstract class UsersBaseHandler implements UsersApiBase {
     }
 
 
-    public One<Crosstable> crosstable(String userId1, String userId2) { return crosstable(userId1, userId2, __ -> {}); }
+    public One<Crosstable> crosstable(String userId1, String userId2) { return crosstable(userId1, userId2, _ -> {}); }
     public One<Crosstable> crosstable(String userId1, String userId2, boolean matchup) { return crosstable(userId1, userId2, p -> p.matchup(matchup)); }
 
 
@@ -60,7 +60,7 @@ public abstract class UsersBaseHandler implements UsersApiBase {
      * Get the top 10 players for each speed and variant.
      */
     public One<UserTopAll> top10() {
-        return Endpoint.usersTopAll.newRequest(request -> {})
+        return Endpoint.usersTopAll.newRequest(_ -> {})
             .process(requestHandler);
     }
 
@@ -95,7 +95,7 @@ public abstract class UsersBaseHandler implements UsersApiBase {
      * So you can call it quite often (like once every 5 seconds).
      */
     public Many<LiveStreamer> liveStreamers() {
-        return Endpoint.liveStreamers.newRequest(request -> {})
+        return Endpoint.liveStreamers.newRequest(_ -> {})
             .process(requestHandler);
     }
 

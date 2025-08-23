@@ -23,18 +23,18 @@ public interface GamesApiAuth extends GamesApi {
     Many<Game> bookmarked(Consumer<BookmarkedParams> params);
     Many<PGN> pgnBookmarked(Consumer<BookmarkedParams> params);
 
-    default Many<Game> bookmarked() { return bookmarked(__ -> {}); }
-    default Many<PGN> pgnBookmarked() { return pgnBookmarked(__ -> {}); }
+    default Many<Game> bookmarked() { return bookmarked(_ -> {}); }
+    default Many<PGN> pgnBookmarked() { return pgnBookmarked(_ -> {}); }
 
     /// Download games of a bulk
     Many<Game> byBulkId(String bulkId, Consumer<GameParams> params);
     /// Download games of a bulk
-    default Many<Game> byBulkId(String bulkId) { return byBulkId(bulkId, __ -> {}); }
+    default Many<Game> byBulkId(String bulkId) { return byBulkId(bulkId, _ -> {}); }
 
     /// Download games of a bulk
     Many<PGN> pgnByBulkId(String bulkId, Consumer<GameParams> params);
     /// Download games of a bulk
-    default Many<PGN> pgnByBulkId(String bulkId) { return pgnByBulkId(bulkId, __ -> {}); }
+    default Many<PGN> pgnByBulkId(String bulkId) { return pgnByBulkId(bulkId, _ -> {}); }
 
     interface BookmarkedParams extends CommonSearchFilterParams<BookmarkedParams>, EvalsDefaultFalse<BookmarkedParams> {}
 

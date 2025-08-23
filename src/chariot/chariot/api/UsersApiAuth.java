@@ -13,7 +13,7 @@ public interface UsersApiAuth extends UsersApi {
      * @param userId
      */
     default One<UserAuth> byId(String userId) {
-        return byId(userId, __ -> {});
+        return byId(userId, _ -> {});
     }
 
 

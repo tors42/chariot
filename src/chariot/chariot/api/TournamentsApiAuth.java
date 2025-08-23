@@ -20,7 +20,7 @@ public interface TournamentsApiAuth extends TournamentsApi {
     Ack   terminateArena(String id);
 
     Ack joinArena(String id, Consumer<JoinArenaParams> params);
-    default Ack joinArena(String id) { return joinArena(id, __ -> {});}
+    default Ack joinArena(String id) { return joinArena(id, _ -> {});}
 
     /**
      * Leave a future Arena tournament, or take a break on an ongoing Arena tournament.<br>
@@ -80,7 +80,7 @@ public interface TournamentsApiAuth extends TournamentsApi {
 
 
     Ack joinSwiss(String id, Consumer<JoinSwissParams> params);
-    default Ack joinSwiss(String id) { return joinSwiss(id, __ -> {}); }
+    default Ack joinSwiss(String id) { return joinSwiss(id, _ -> {}); }
 
     /**
      * Generate user entry codes based on a tournament entry code, for a set of user ids.<br>

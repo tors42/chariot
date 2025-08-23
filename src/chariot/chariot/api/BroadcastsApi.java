@@ -19,7 +19,7 @@ public interface BroadcastsApi {
 
     /// Get official broadcasts  
     /// First ongoing official broadcasts sorted by tier, then finished broadcasts sorted by most recent sync time.
-    default Many<Broadcast> official() { return official(__ -> {}); }
+    default Many<Broadcast> official() { return official(_ -> {}); }
 
     /// Get active top broadcasts
     Many<Broadcast.TourWithLastRound> topActive(Consumer<Params> params);
@@ -31,13 +31,13 @@ public interface BroadcastsApi {
     Many<Broadcast.TourWithLastRound> topPast(Consumer<Params> params);
 
     /// Get active top broadcasts
-    default Many<Broadcast.TourWithLastRound> topActive() { return topActive(__ -> {}); }
+    default Many<Broadcast.TourWithLastRound> topActive() { return topActive(_ -> {}); }
 
     /// Get upcoming top broadcasts
-    default Many<Broadcast.TourWithLastRound> topUpcoming() { return topUpcoming(__ -> {}); }
+    default Many<Broadcast.TourWithLastRound> topUpcoming() { return topUpcoming(_ -> {}); }
 
     /// Get past top broadcasts
-    default Many<Broadcast.TourWithLastRound> topPast() { return topPast(__ -> {}); }
+    default Many<Broadcast.TourWithLastRound> topPast() { return topPast(_ -> {}); }
 
     /// Stream an ongoing broadcast tournament as PGN  
     ///  
@@ -77,11 +77,11 @@ public interface BroadcastsApi {
 
     /// Get information about a broadcast tournament
     /// @param tourId The broadcast tournament ID (8 characters).
-    default One<Broadcast> broadcastById(String tourId) { return broadcastById(tourId, __ -> {}); }
+    default One<Broadcast> broadcastById(String tourId) { return broadcastById(tourId, _ -> {}); }
 
     /// Get information about broadcasts of a user
     /// @param userId The user to get broadcasts from
-    default Many<Broadcast.TourWithLastRound> byUserId(String userId) { return byUserId(userId, __ -> {}); }
+    default Many<Broadcast.TourWithLastRound> byUserId(String userId) { return byUserId(userId, _ -> {}); }
 
     /// Get a broadcast leaderboard, if available
     /// @param tourId The broadcast tournament ID (8 characters).

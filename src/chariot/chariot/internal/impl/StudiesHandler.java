@@ -72,11 +72,11 @@ public class StudiesHandler implements StudiesApiAuth {
         return Endpoint.importStudyChapters.newRequest(request -> request
                 .path(studyId)
                 .body(MapBuilder.of(ImportParams.class)
-                    .addCustomHandler("orientationWhite", (args, map) -> map.put("orientation", "white"))
-                    .addCustomHandler("orientationBlack", (args, map) -> map.put("orientation", "black"))
-                    .addCustomHandler("modePractice",       (__, map) -> map.put("mode", "practice"))
-                    .addCustomHandler("modeHideNextMoves",  (__, map) -> map.put("mode", "conceal"))
-                    .addCustomHandler("modeInteractive",    (__, map) -> map.put("mode", "gamebook"))
+                    .addCustomHandler("orientationWhite",   (_, map) -> map.put("orientation", "white"))
+                    .addCustomHandler("orientationBlack",   (_, map) -> map.put("orientation", "black"))
+                    .addCustomHandler("modePractice",       (_, map) -> map.put("mode", "practice"))
+                    .addCustomHandler("modeHideNextMoves",  (_, map) -> map.put("mode", "conceal"))
+                    .addCustomHandler("modeInteractive",    (_, map) -> map.put("mode", "gamebook"))
                     .toMap(params))
                 )
             .process(requestHandler);

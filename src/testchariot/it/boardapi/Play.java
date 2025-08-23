@@ -30,7 +30,7 @@ public class Play {
 
         var gameIdRef = new AtomicReference<String>();
         Thread blackThread = Thread.ofPlatform().start(() -> blackEvents
-                .takeWhile(__ -> gameIdRef.get() == null)
+                .takeWhile(_ -> gameIdRef.get() == null)
                 .forEach(event -> {
                     switch(event) {
                         case ChallengeCreatedEvent created -> {

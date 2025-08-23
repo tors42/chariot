@@ -24,11 +24,11 @@ public sealed interface Event {
 
     default Type type() {
         return switch(this) {
-            case GameStartEvent __         -> Type.gameStart;
-            case GameStopEvent __          -> Type.gameFinish;
-            case ChallengeCreatedEvent __  -> Type.challenge;
-            case ChallengeCanceledEvent __ -> Type.challengeCanceled;
-            case ChallengeDeclinedEvent __ -> Type.challengeDeclined;
+            case GameStartEvent _         -> Type.gameStart;
+            case GameStopEvent _          -> Type.gameFinish;
+            case ChallengeCreatedEvent _  -> Type.challenge;
+            case ChallengeCanceledEvent _ -> Type.challengeCanceled;
+            case ChallengeDeclinedEvent _ -> Type.challengeDeclined;
         };
     }
 

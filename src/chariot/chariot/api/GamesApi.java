@@ -17,11 +17,11 @@ public interface GamesApi {
      * Ongoing games have their last 3 moves omitted, after move 5.
      */
     One<Game> byGameId(String gameId, Consumer<GameParams> params);
-    default One<Game> byGameId(String gameId) { return byGameId(gameId, __ -> {}); }
+    default One<Game> byGameId(String gameId) { return byGameId(gameId, _ -> {}); }
 
     /** See {@link #byGameId(String, Consumer)} */
     One<PGN> pgnByGameId(String gameId, Consumer<GameParams> params);
-    default One<PGN> pgnByGameId(String gameId) { return pgnByGameId(gameId, __ -> {}); }
+    default One<PGN> pgnByGameId(String gameId) { return pgnByGameId(gameId, _ -> {}); }
 
 
     /**
@@ -29,11 +29,11 @@ public interface GamesApi {
      * If the game is ongoing, the 3 last moves are omitted.
      */
     One<Game> currentByUserId(String userId, Consumer<GameParams> params);
-    default One<Game> currentByUserId(String userId) { return currentByUserId(userId, __ -> {}); }
+    default One<Game> currentByUserId(String userId) { return currentByUserId(userId, _ -> {}); }
 
     /** See {@link #currentByUserId(String, Consumer)} */
     One<PGN> pgnCurrentByUserId(String userId, Consumer<GameParams> params);
-    default One<PGN> pgnCurrentByUserId(String userId) { return pgnCurrentByUserId(userId, __ -> {}); }
+    default One<PGN> pgnCurrentByUserId(String userId) { return pgnCurrentByUserId(userId, _ -> {}); }
 
     /**
      * Download all games of any user<br>
@@ -47,11 +47,11 @@ public interface GamesApi {
      * See {@link chariot.ClientAuth} for authenticated access.
      */
     Many<Game> byUserId(String userId, Consumer<SearchFilter> params);
-    default Many<Game> byUserId(String userId) { return byUserId(userId, __ -> {}); }
+    default Many<Game> byUserId(String userId) { return byUserId(userId, _ -> {}); }
 
     /** See {@link #byUserId(String, Consumer)} */
     Many<PGN> pgnByUserId(String userId, Consumer<SearchFilter> params);
-    default Many<PGN> pgnByUserId(String userId) { return pgnByUserId(userId, __ -> {}); }
+    default Many<PGN> pgnByUserId(String userId) { return pgnByUserId(userId, _ -> {}); }
 
     /**
      * Download games by IDs.<br>
@@ -63,7 +63,7 @@ public interface GamesApi {
 
     default Many<Game> byGameIds(Consumer<GameParams> params, String ... gameIds) { return byGameIds(Set.of(gameIds), params); }
     default Many<Game> byGameIds(String... gameIds) { return byGameIds(Set.of(gameIds)); }
-    default Many<Game> byGameIds(Set<String> gameIds) { return byGameIds(gameIds, __ -> {}); }
+    default Many<Game> byGameIds(Set<String> gameIds) { return byGameIds(gameIds, _ -> {}); }
 
 
     /** See {@link #byGameIds(Set, Consumer)} */
@@ -71,7 +71,7 @@ public interface GamesApi {
 
     default Many<PGN> pgnByGameIds(Consumer<GameParams> params, String ... gameIds) { return pgnByGameIds(Set.of(gameIds), params); }
     default Many<PGN> pgnByGameIds(String... gameIds) { return pgnByGameIds(Set.of(gameIds)); }
-    default Many<PGN> pgnByGameIds(Set<String> gameIds) { return pgnByGameIds(gameIds, __ -> {}); }
+    default Many<PGN> pgnByGameIds(Set<String> gameIds) { return pgnByGameIds(gameIds, _ -> {}); }
 
 
     /**
@@ -86,14 +86,14 @@ public interface GamesApi {
      * Get a list of ongoing games for a given TV channel.
      */
     Many<Game> byChannel(Channel channel, Consumer<ChannelFilter> params);
-    default Many<Game> byChannel(Channel channel) { return byChannel(channel, __ -> {}); }
+    default Many<Game> byChannel(Channel channel) { return byChannel(channel, _ -> {}); }
     default Many<Game> byChannel(Function<Channel.Provider, Channel> channel) { return byChannel(channel.apply(Channel.provider())); }
     default Many<Game> byChannel(Function<Channel.Provider, Channel> channel, Consumer<ChannelFilter> params) { return byChannel(channel.apply(Channel.provider()), params); }
 
 
     /** See {@link #pgnByChannel(Channel, Consumer)} */
     Many<PGN> pgnByChannel(Channel channel, Consumer<ChannelFilter> params);
-    default Many<PGN> pgnByChannel(Channel channel) { return pgnByChannel(channel, __ -> {}); }
+    default Many<PGN> pgnByChannel(Channel channel) { return pgnByChannel(channel, _ -> {}); }
     default Many<PGN> pgnByChannel(Function<Channel.Provider, Channel> channel) { return pgnByChannel(channel.apply(Channel.provider())); }
     default Many<PGN> pgnByChannel(Function<Channel.Provider, Channel> channel, Consumer<ChannelFilter> params) { return pgnByChannel(channel.apply(Channel.provider()), params); }
 
@@ -129,7 +129,7 @@ public interface GamesApi {
      * @param params
      */
     Many<GameMeta> gameInfosByUserIds(Set<String> userIds, Consumer<GamesParameters> params);
-    default Many<GameMeta> gameInfosByUserIds(Set<String> userIds) { return gameInfosByUserIds(userIds, __ -> {}); }
+    default Many<GameMeta> gameInfosByUserIds(Set<String> userIds) { return gameInfosByUserIds(userIds, _ -> {}); }
     default Many<GameMeta> gameInfosByUserIds(String... userIds) { return gameInfosByUserIds(Set.of(userIds)); }
 
     /**

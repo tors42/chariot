@@ -101,7 +101,7 @@ public class InternalClient {
         try {
             httpResponse = sendWithRetry(request.stream(), httpRequest, BodyHandlers.ofLines(), config.retries());
         } catch(Exception e) {
-            if (e instanceof InterruptedException __) {
+            if (e instanceof InterruptedException _) {
                 Thread.currentThread().interrupt();
             } else {
                 config.logging().request().log(Level.SEVERE, "%s".formatted(httpRequest), e);
@@ -169,7 +169,7 @@ public class InternalClient {
             config.logging().response().warning(() -> "%s".formatted(response));
 
             if (retries > 0) {
-                var builder = HttpRequest.newBuilder(httpRequest, (n, v) -> true);
+                var builder = HttpRequest.newBuilder(httpRequest, (_,_) -> true);
                 httpRequest.timeout().ifPresent(t -> builder.timeout(t.plusMillis(retryMillis)));
                 var retryHttpRequest = builder.build();
                 return sendWithRetry(stream, retryHttpRequest, bodyHandler, retries-1);
@@ -278,7 +278,7 @@ public class InternalClient {
         try {
             response = sendWithRetry(false, httpRequest, BodyHandlers.discarding(), config().retries());
         } catch (Exception e) {
-            if (e instanceof InterruptedException __) {
+            if (e instanceof InterruptedException _) {
                 Thread.currentThread().interrupt();
             } else {
                 config.logging().request().log(Level.SEVERE, "%s".formatted(httpRequest), e);

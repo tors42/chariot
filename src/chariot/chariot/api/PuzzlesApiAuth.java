@@ -10,7 +10,7 @@ import chariot.model.*;
 public interface PuzzlesApiAuth extends PuzzlesApi {
 
     One<Puzzle> nextPuzzle(Consumer<PuzzleParams> params, Consumer<PuzzleDifficulty> difficulty);
-    default One<Puzzle> nextPuzzle(Consumer<PuzzleParams> params) { return nextPuzzle(params, __ -> {}); }
+    default One<Puzzle> nextPuzzle(Consumer<PuzzleParams> params) { return nextPuzzle(params, _ -> {}); }
 
     One<PuzzleReplay> replay(Consumer<PuzzleReplayParams> params);
 
@@ -18,7 +18,7 @@ public interface PuzzlesApiAuth extends PuzzlesApi {
      * @param params filter the puzzle activity search. Example {@code params -> params.max(50).before(now -> now.minusDays(5))}
      */
     Many<PuzzleActivity> activity(Consumer<PuzzleActivityParams> params);
-    default Many<PuzzleActivity> activity() { return activity(__ -> {}); }
+    default Many<PuzzleActivity> activity() { return activity(_ -> {}); }
 
     @Deprecated
     /**

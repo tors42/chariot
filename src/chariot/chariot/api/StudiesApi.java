@@ -9,17 +9,17 @@ public interface StudiesApi {
 
     Many<PGN> exportChapterByStudyAndChapterId(String studyId, String chapterId, Consumer<Params> params);
     default Many<PGN> exportChapterByStudyAndChapterId(String studyId, String chapterId) {
-        return exportChapterByStudyAndChapterId(studyId, chapterId, __ -> {});
+        return exportChapterByStudyAndChapterId(studyId, chapterId, _ -> {});
     }
 
     Many<PGN> exportChaptersByStudyId(String studyId, Consumer<Params> params);
     default Many<PGN> exportChaptersByStudyId(String studyId) {
-        return exportChaptersByStudyId(studyId, __ -> {});
+        return exportChaptersByStudyId(studyId, _ -> {});
     }
 
     Many<PGN> exportStudiesByUserId(String userId, Consumer<Params> params);
     default Many<PGN> exportStudiesByUserId(String userId) {
-        return exportStudiesByUserId(userId, __ -> {});
+        return exportStudiesByUserId(userId, _ -> {});
     }
 
     /**

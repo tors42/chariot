@@ -5,8 +5,8 @@ public record Crosstable(Results results, Opt<Results> matchup) {
     public record Results(Result user1, Result user2, int nbGames) {
         public double pointsForUser(String userId) {
             return switch(this) {
-                case Results(var u1, var u2, var __) when u1.id().equals(userId) -> u1.points;
-                case Results(var u1, var u2, var __) when u2.id().equals(userId) -> u2.points;
+                case Results(Result(var id1, var p1),_,_) when id1.equals(userId) -> p1;
+                case Results(_,Result(var id2, var p2),_) when id2.equals(userId) -> p2;
                 default -> 0;
             };
         }

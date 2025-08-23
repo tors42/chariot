@@ -23,10 +23,10 @@ public class Lexer {
     public static String detokenize(List<Token> tokens) {
         return tokens.stream()
             .map(t -> switch(t) {
-                case Structural structural       -> String.valueOf(structural.token());
-                case Literal literal             -> literal.literal();
-                case JsonNumber(var str, var __) -> str;
-                case JsonString(var __, var src) -> '"' + src + '"';
+                case Structural structural  -> String.valueOf(structural.token());
+                case Literal literal        -> literal.literal();
+                case JsonNumber(var str, _) -> str;
+                case JsonString(_, var src) -> '"' + src + '"';
             })
         .collect(Collectors.joining());
     }

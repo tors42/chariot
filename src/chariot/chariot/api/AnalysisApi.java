@@ -9,7 +9,7 @@ public interface AnalysisApi {
 
     One<CloudEvalCacheEntry> cloudEval(String fen, Consumer<Params> params);
     default One<CloudEvalCacheEntry> cloudEval(String fen) {
-        return cloudEval(fen, __ -> {});
+        return cloudEval(fen, _ -> {});
     }
 
     interface Params {

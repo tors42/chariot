@@ -125,7 +125,7 @@ public sealed interface Config {
         return builder.basic;
     }
 
-    static Basic of() { return basic(__ -> {}); }
+    static Basic of() { return basic(_ -> {}); }
 
     default Basic basic() {
         return this instanceof Basic basic ? basic : ((Auth) this).basic();

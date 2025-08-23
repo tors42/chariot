@@ -145,7 +145,7 @@ public sealed interface Board {
             return moves.reduce(
                     (Board)this,
                     (board, move) -> board.play(move),
-                    (__, ___) -> __);
+                    (b1, _) -> b1);
         }
 
         private Board playSingleMove(Move move) {
@@ -311,7 +311,7 @@ public sealed interface Board {
                         bm.sans().add(bm.board().toSAN(move));
                         return new BoardMoves(bm.board().play(move), bm.sans());
                     },
-                    (__, ___) -> __);
+                    (b1, _) -> b1);
             return boardMoves.sans();
         }
 
@@ -320,7 +320,7 @@ public sealed interface Board {
         }
 
         public String toSAN(Move move) {
-            if (move instanceof Invalid invalid) return "";
+            if (move instanceof Invalid _) return "";
 
             // todo, make it possible to ask to not include the check/checkmate symbol?
             final String checkSymbol;
@@ -1089,7 +1089,7 @@ public sealed interface Board {
             return switch(this) {
                 case FromTo(var from, var to)
                     -> uci(from, to);
-                case Castling(var king, var __) when king.from().col() == 4
+                case Castling(var king, _) when king.from().col() == 4
                     -> uci(king.from(), king.to()); // standard
                 case Castling(var king, var rook)
                     -> uci(king.from(), rook.from()); // chess960
@@ -1233,9 +1233,9 @@ public sealed interface Board {
 
         return possiblyInvalidMoves.stream()
             .filter(move -> switch(move) {
-                case Castling __  -> true;
-                case Invalid __   -> false;
-                case Promotion __ -> false; //?
+                case Castling _  -> true;
+                case Invalid _   -> false;
+                case Promotion _ -> false; //?
                 case FromTo fromTo -> {
                     // Check if move would result in current side being in check
 

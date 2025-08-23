@@ -58,7 +58,7 @@ public class Parser {
                         acc.put(entry.getKey(), entry.getValue());
                         return acc;
                     },
-                    (acc1, acc2) -> acc1);
+                    (acc1,_) -> acc1);
         }
 
         private <T> Stream<Entry<String, T>> cast(Class<T> cls) {
@@ -90,8 +90,8 @@ public class Parser {
                 case TRUE  -> new YayBool(true);
                 case NULL  -> new YayNull();
             };
-            case JsonNumber(var __, var num)    -> new YayNumber(num);
-            case JsonString(String str, var __) -> new YayString(str.translateEscapes());
+            case JsonNumber(_, var num)   -> new YayNumber(num);
+            case JsonString(String str,_) -> new YayString(str.translateEscapes());
         };
     }
 

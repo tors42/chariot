@@ -13,7 +13,7 @@ public interface TeamsApiAuth extends TeamsApi {
     /**
      * Request to join team {@code teamId}
      */
-    default Ack joinTeam(String teamId) { return joinTeam(teamId, __ -> {}); }
+    default Ack joinTeam(String teamId) { return joinTeam(teamId, _ -> {}); }
 
     Ack leaveTeam(String teamId);
 

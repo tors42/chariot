@@ -14,10 +14,10 @@ public sealed interface GameStateEvent {
 
     default Type type() {
         return switch(this) {
-            case Full __         -> Type.gameFull;
-            case State __        -> Type.gameState;
-            case Chat __         -> Type.chatLine;
-            case OpponentGone __ -> Type.opponentGone;
+            case Full _         -> Type.gameFull;
+            case State _        -> Type.gameState;
+            case Chat _         -> Type.chatLine;
+            case OpponentGone _ -> Type.opponentGone;
         };
     }
 

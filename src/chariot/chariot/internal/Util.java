@@ -84,11 +84,11 @@ public class Util {
             return ModuleFinder.ofSystem().find(module)
                 .or(() -> {
                     try { return ModuleFinder.of(Path.of(System.getProperty("java.class.path"))).find(module);
-                    } catch (Exception __) {}
+                    } catch (Exception _) {}
                     return Optional.empty();
                 })
             .map(reference -> reference.descriptor().toNameAndVersion());
-        } catch(Exception __) {}
+        } catch(Exception _) {}
         return Optional.empty();
     }
 
@@ -296,7 +296,7 @@ public class Util {
         }
 
         public MapBuilder<T> addCustomHandler(String methodName, BiConsumer<Object[], Map<String,Object>> argsConsumer) {
-            customHandlers.put(methodName, (proxy, method, args) -> {;
+            customHandlers.put(methodName, (proxy, _, args) -> {;
                 argsConsumer.accept(args, map);
                 return proxy;
             });

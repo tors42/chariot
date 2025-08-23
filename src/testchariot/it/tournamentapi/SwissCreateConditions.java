@@ -19,7 +19,7 @@ public class SwissCreateConditions {
 
     @IntegrationTest
     public void noConditions() {
-        unboxEquals(_withConditions(__ -> {}),
+        unboxEquals(_withConditions(_ -> {}),
                 List.of(),
                 swiss -> swiss.conditions().list());
     }
@@ -126,7 +126,7 @@ public class SwissCreateConditions {
     }
 
     One<Swiss> _withConditions(Consumer<SwissParams> paramsConsumer, boolean debug) {
-        if (! (IT.findTeamLeader() instanceof Some(IT.TeamLeader(var client, var userId, var teamId)))) {
+        if (! (IT.findTeamLeader() instanceof Some(IT.TeamLeader(var client, _, var teamId)))) {
             return One.fail(-1, "Couldn't find team leader for creating a swiss");
         }
 
@@ -147,16 +147,16 @@ public class SwissCreateConditions {
     // so tests can be added/removed when Condition are added/removed.
     void covered(SwissCondition condition) {
         switch(condition) {
-            case Condition.MinRatedGames(int games, Speed speed) -> minRatedGames();
-            case Condition.MaxRating(int rating, Speed speed)    -> maxRating();
-            case Condition.MinRating(int rating, Speed speed)    -> minRating();
-            case Condition.Titled()                              -> titled();
-            case Condition.MinAccountAge(Period age)             -> minAccountAge();
-            case Condition.AllowList(List<String> users)         -> allowListHidden();
-            case Condition.AllowListHidden()                     -> allowListHidden();
-            case Condition.EntryCode()                           -> entryCode();
-            case Condition.NotMissedSwiss()                      -> playYourGames();
-            case Condition.Generic(String description)           -> {}
+            case Condition.MinRatedGames(_, _) -> minRatedGames();
+            case Condition.MaxRating(_, _)     -> maxRating();
+            case Condition.MinRating(_ , _)    -> minRating();
+            case Condition.Titled()            -> titled();
+            case Condition.MinAccountAge(_)    -> minAccountAge();
+            case Condition.AllowList(_)        -> allowListHidden();
+            case Condition.AllowListHidden()   -> allowListHidden();
+            case Condition.EntryCode()         -> entryCode();
+            case Condition.NotMissedSwiss()    -> playYourGames();
+            case Condition.Generic(_)          -> {}
         };
     }
 }

@@ -48,7 +48,7 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
     /**
      * See {@link #myRounds(Consumer)}
      */
-    default Many<MyRound> myRounds() { return myRounds(__ -> {}); }
+    default Many<MyRound> myRounds() { return myRounds(_ -> {}); }
 
     interface BroadcastBuilder {
 

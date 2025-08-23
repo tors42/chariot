@@ -381,16 +381,16 @@ public class TournamentsHandler implements TournamentsApiAuth {
                         case Variant.Chess960(Some(var fen))
                             -> map.putAll(Map.of("variant", "chess960",
                                                  "position", fen));
-                        case Variant.Chess960 __
+                        case Variant.Chess960 _
                             -> map.put("variant", "chess960");
                         case Variant.FromPosition(Some(var fen), Some(var name))
                             when name.equals("workaround-standard")
                             -> map.putAll(Map.of("variant", "standard",
                                                  "position", fen));
-                        case Variant.FromPosition(Some(var fen), var __)
+                        case Variant.FromPosition(Some(var fen),_)
                             -> map.putAll(Map.of("variant", "fromPosition",
                                                  "position", fen));
-                        case Variant.FromPosition(var __, var ___)
+                        case Variant.FromPosition(_,_)
                             -> map.put("variant", "fromPosition"); // hmmm
                     }
                 }

@@ -28,7 +28,7 @@ public interface TournamentsApi {
     /**
      * Get detailed info about recently finished, current, or upcoming tournament's duels, player standings, and other info.
      */
-    default One<Arena> arenaById(String arenaId) { return arenaById(arenaId, __ -> {}); }
+    default One<Arena> arenaById(String arenaId) { return arenaById(arenaId, _ -> {}); }
 
     /**
      * Get detailed info about recently finished, current, or upcoming tournament's duels, player standings, and other info.
@@ -50,7 +50,7 @@ public interface TournamentsApi {
     Many<ArenaResult> resultsByArenaId(String arenaId, Consumer<ArenaResultParams> parameters);
 
     /** @see #resultsByArenaId(String, Consumer) */
-    default Many<ArenaResult> resultsByArenaId(String arenaId) { return resultsByArenaId(arenaId, __ -> {}); }
+    default Many<ArenaResult> resultsByArenaId(String arenaId) { return resultsByArenaId(arenaId, _ -> {}); }
 
     /**
      * Get tournaments created by a given user.
@@ -58,7 +58,7 @@ public interface TournamentsApi {
      * @param params Optional filtering to only include tournaments of specified tournament status
      */
     Many<ArenaLight> arenasCreatedByUserId(String userId, Consumer<CreatedParams> params);
-    default Many<ArenaLight> arenasCreatedByUserId(String userId) { return arenasCreatedByUserId(userId, __ -> {}); }
+    default Many<ArenaLight> arenasCreatedByUserId(String userId) { return arenasCreatedByUserId(userId, _ -> {}); }
 
     @Deprecated
     /// @deprecated Use {@link #arenasCreatedByUserId(String, Consumer)}
@@ -76,7 +76,7 @@ public interface TournamentsApi {
     /// @param params Optional filtering to only include tournaments of specified tournament status
     ///
     Many<ArenaPlayed> arenasPlayedByUserId(String userId, Consumer<PlayedParams> params);
-    default Many<ArenaPlayed> arenasPlayedByUserId(String userId) { return arenasPlayedByUserId(userId, __ -> {}); }
+    default Many<ArenaPlayed> arenasPlayedByUserId(String userId) { return arenasPlayedByUserId(userId, _ -> {}); }
 
     /**
      * Teams of a team battle tournament, with top players, sorted by rank (best first).
@@ -88,11 +88,11 @@ public interface TournamentsApi {
      * Games are sorted by reverse chronological order (most recent first)
      */
     Many<Game> gamesByArenaId(String arenaId, Consumer<GamesApi.Filter> params);
-    default Many<Game> gamesByArenaId(String arenaId) { return gamesByArenaId(arenaId, __ -> {}); }
+    default Many<Game> gamesByArenaId(String arenaId) { return gamesByArenaId(arenaId, _ -> {}); }
 
     /** See {@link #gamesByArenaId(String, Consumer)} */
     Many<PGN> pgnGamesByArenaId(String arenaId, Consumer<GamesApi.Filter> params);
-    default Many<PGN> pgnGamesByArenaId(String arenaId) { return pgnGamesByArenaId(arenaId, __ -> {}); }
+    default Many<PGN> pgnGamesByArenaId(String arenaId) { return pgnGamesByArenaId(arenaId, _ -> {}); }
 
     /**
      * Get info about a Swiss tournament.
@@ -113,7 +113,7 @@ public interface TournamentsApi {
     Many<SwissResult> resultsBySwissId(String swissId, Consumer<SwissResultParams> parameters);
 
     /** @see #resultsBySwissId(String, Consumer) */
-    default Many<SwissResult> resultsBySwissId(String swissId) { return resultsBySwissId(swissId, __ -> {}); }
+    default Many<SwissResult> resultsBySwissId(String swissId) { return resultsBySwissId(swissId, _ -> {}); }
 
     /**
      * Download a tournament in the Tournament Report File format, the FIDE standard.<br>
@@ -127,11 +127,11 @@ public interface TournamentsApi {
      * ames are sorted by reverse chronological order (last round first)
      */
     Many<Game> gamesBySwissId(String swissId, Consumer<GamesApi.Filter> params);
-    default Many<Game> gamesBySwissId(String swissId) { return gamesBySwissId(swissId, __ -> {}); }
+    default Many<Game> gamesBySwissId(String swissId) { return gamesBySwissId(swissId, _ -> {}); }
 
     /** See {@link #gamesBySwissId(String, Consumer)} */
     Many<PGN> pgnGamesBySwissId(String swissId, Consumer<GamesApi.Filter> params);
-    default Many<PGN> pgnGamesBySwissId(String swissId) { return pgnGamesBySwissId(swissId, __ -> {}); }
+    default Many<PGN> pgnGamesBySwissId(String swissId) { return pgnGamesBySwissId(swissId, _ -> {}); }
 
 
     interface StandingsParams {

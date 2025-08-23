@@ -36,7 +36,7 @@ public class Play960 {
 
         var gameIdRef = new AtomicReference<String>();
         Thread blackThread = Thread.ofPlatform().start(() -> blackEvents
-                .takeWhile(__ -> gameIdRef.get() == null)
+                .takeWhile(_ -> gameIdRef.get() == null)
                 .forEach(event -> {
                     switch(event) {
                         case ChallengeCreatedEvent created -> {
@@ -91,7 +91,7 @@ public class Play960 {
     private String initialFenFromFullEvent(Full full) {
         return switch(full.gameType().variant()) {
             case Chess960(Some(String fen)) -> fen;
-            case FromPosition(Some(String fen), var __) -> fen;
+            case FromPosition(Some(String fen), _) -> fen;
             default -> Board.fromStandardPosition().toFEN();
         };
     }
@@ -127,8 +127,8 @@ public class Play960 {
                 case State        state -> log.accept("event: " + String.join("\n",
                                                       "Clock: " + clock(state),
                                                       state.moves()));
-                case Chat         chat  -> {}
-                case OpponentGone gone  -> {}
+                case Chat _,
+                     OpponentGone _  -> {}
             }});
         } catch (Exception e) {} });
 

@@ -53,12 +53,12 @@ public sealed interface Condition permits SwissCondition, ArenaCondition {
             case MinRating(int rating, Speed speed)    -> "Rated ≥ %d in %s".formatted(rating, speed.name);
             case Titled()                              -> "Only titled players";
             case Bots(boolean allowed) when allowed    -> "Bot players are allowed";
-            case Bots(boolean allowed)                 -> "Bot players are not allowed";
+            case Bots(_)                               -> "Bot players are not allowed";
             case MinAccountAge(Period age)             -> "%s old account".formatted(renderAge(age));
-            case AllowList __                          -> "Fixed line-up";
-            case AllowListHidden __                    -> "Fixed line-up";
-            case EntryCode __                          -> "Needs entry code";
-            case NotMissedSwiss __                     -> "Play your games";
+            case AllowList _                           -> "Fixed line-up";
+            case AllowListHidden _                     -> "Fixed line-up";
+            case EntryCode _                           -> "Needs entry code";
+            case NotMissedSwiss _                      -> "Play your games";
             case Member(String teamId)                 -> "Must be in team %s".formatted(teamId); // Note, id vs name...
             case Generic(String description)           -> description;
         };

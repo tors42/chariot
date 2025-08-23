@@ -67,7 +67,7 @@ public class TeamsHandler implements TeamsApiAuth {
 
     @Override
     public One<PageTeam> popularTeamsByPage() {
-        return Endpoint.popularTeamsByPage.newRequest(request -> {})
+        return Endpoint.popularTeamsByPage.newRequest(_ -> {})
             .process(requestHandler);
     }
 
@@ -101,7 +101,7 @@ public class TeamsHandler implements TeamsApiAuth {
 
     @Override
     public Many<Team> search() {
-        return search(__ -> {});
+        return search(_ -> {});
     }
 
     private Many<Team> search(Consumer<PageParams> consumer) {

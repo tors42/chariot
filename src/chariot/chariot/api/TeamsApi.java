@@ -28,12 +28,12 @@ public interface TeamsApi {
     Many<Team>        popularTeams();
 
     Many<ArenaLight>  arenaByTeamId(String teamId, Consumer<TournamentParams> params);
-    default Many<ArenaLight>  arenaByTeamId(String teamId) { return arenaByTeamId(teamId, __ -> {}); }
+    default Many<ArenaLight>  arenaByTeamId(String teamId) { return arenaByTeamId(teamId, _ -> {}); }
     @Deprecated
     default Many<ArenaLight>  arenaByTeamId(String teamId, int max) { return arenaByTeamId(teamId, p -> p.max(max)); }
 
     Many<Swiss>         swissByTeamId(String teamId, Consumer<TournamentParams> params);
-    default Many<Swiss> swissByTeamId(String teamId) { return swissByTeamId(teamId, __ -> {}); }
+    default Many<Swiss> swissByTeamId(String teamId) { return swissByTeamId(teamId, _ -> {}); }
     @Deprecated
     default Many<Swiss> swissByTeamId(String teamId, int max) { return swissByTeamId(teamId, p -> p.max(max)); }
 
@@ -44,7 +44,7 @@ public interface TeamsApi {
 
     One<PageTeam>     searchByPage(Consumer<PageParams> params);
 
-    default One<PageTeam> searchByPage() { return searchByPage(__ -> {}); }
+    default One<PageTeam> searchByPage() { return searchByPage(_ -> {}); }
     default One<PageTeam> searchByPage(int page) { return searchByPage(p -> p.page(page)); }
     default One<PageTeam> searchByPage(String text) { return searchByPage(p -> p.text(text)); }
     default One<PageTeam> searchByPage(int page, String text) { return searchByPage(p -> p.page(page).text(text)); }

@@ -60,7 +60,7 @@ public interface AccountApiAuth {
     /**
      * See {@link #timeline(Consumer)}
      */
-    default Many<TimelineEntry> timeline() { return timeline(__ -> {}); }
+    default Many<TimelineEntry> timeline() { return timeline(_ -> {}); }
 
     public interface TimelineParams {
         /**

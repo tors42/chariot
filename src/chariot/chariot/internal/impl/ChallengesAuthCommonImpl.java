@@ -190,12 +190,11 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
     private Map<String, Object> challengeBuilderToMap(Consumer<ChallengeBuilder> consumer) {
         Set<String> rules = new HashSet<>();
         var builder = MapBuilder.of(ChallengeParams.class)
-            .addCustomHandler("noAbort",    (args, map) -> rules.add("noAbort"))
-            .addCustomHandler("noRematch",  (args, map) -> rules.add("noRematch"))
-            .addCustomHandler("noGiveTime", (args, map) -> rules.add("noGiveTime"))
-            .addCustomHandler("noClaimWin", (args, map) -> rules.add("noClaimWin"))
-            .addCustomHandler("noEarlyDraw", (args, map) -> rules.add("noEarlyDraw"))
-            ;
+            .addCustomHandler("noAbort",     (_,_) -> rules.add("noAbort"))
+            .addCustomHandler("noRematch",   (_,_) -> rules.add("noRematch"))
+            .addCustomHandler("noGiveTime",  (_,_) -> rules.add("noGiveTime"))
+            .addCustomHandler("noClaimWin",  (_,_) -> rules.add("noClaimWin"))
+            .addCustomHandler("noEarlyDraw", (_,_) -> rules.add("noEarlyDraw"));
 
         var challengeBuilder = new ChallengeBuilder() {
             @Override
@@ -230,12 +229,12 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
                         map.put("variant", "fromPosition");
                         map.put("fen", fen);
                     }
-                    case Variant.FromPosition(Some(String fen), var __) -> {
+                    case Variant.FromPosition(Some(String fen),_) -> {
                         map.put("variant", "fromPosition");
                         map.put("fen", fen);
                     }
                     case Variant.Chess960(Empty()) -> map.put("variant", "chess960");
-                    case Variant.FromPosition(Empty(), var __) -> map.put("variant", "standard");
+                    case Variant.FromPosition(Empty(),_) -> map.put("variant", "standard");
                 }
             })
             .add("level","1");

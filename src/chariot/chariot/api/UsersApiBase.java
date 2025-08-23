@@ -13,7 +13,7 @@ import chariot.model.Enums.*;
 public interface UsersApiBase {
 
     default Many<UserStatus> statusByIds(Collection<String> userIds) {
-        return statusByIds(userIds, __ -> {});
+        return statusByIds(userIds, _ -> {});
     }
 
     /**
@@ -41,7 +41,7 @@ public interface UsersApiBase {
      * {@link #statusByIds(Collection)}
      */
     default Many<UserStatus> statusByIds(String... userIds) {
-        return statusByIds(Set.of(userIds), __ -> {});
+        return statusByIds(Set.of(userIds), _ -> {});
     }
 
     /**
