@@ -1,21 +1,12 @@
 package chariot.internal;
 
-import java.net.*;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.function.*;
-import java.util.stream.*;
+import module java.base;
+import module jdk.httpserver;
 
-import com.sun.net.httpserver.HttpServer;
+import module chariot;
 
-import chariot.Client;
-import chariot.Client.*;
 import chariot.internal.impl.TokenHandler;
-import chariot.model.TokenResult;
+import chariot.internal.impl.ClientImpl;
 
 public class PKCE {
 
@@ -51,7 +42,7 @@ public class PKCE {
 
     @SuppressWarnings(value = {"deprecation"})
     public static TokenHandler.UriAndTokenExchange initiateAuthorizationFlowCustom(
-            Set<Scope> scopes,
+            Set<ClientImpl.Scope> scopes,
             String lichessUri,
             Function<Map<String,String>, TokenResult> apiTokenLookup,
             URI redirectUri
@@ -66,7 +57,7 @@ public class PKCE {
                 "code",
                 moduleName,
                 redirectUri.toString(),
-                scopes.stream().map(Scope::asString).collect(Collectors.joining(" ")),
+                scopes.stream().map(Client.Scope::asString).collect(Collectors.joining(" ")),
                 generateRandomState()
                 );
 
@@ -119,7 +110,7 @@ public class PKCE {
 
     @SuppressWarnings(value = {"deprecation"})
     public static TokenHandler.UriAndToken initiateAuthorizationFlow(
-            Set<Scope> scopes,
+            Set<ClientImpl.Scope> scopes,
             String lichessUri,
             Function<Map<String,String>, TokenResult> apiTokenLookup,
             Duration timeout,
@@ -225,16 +216,16 @@ public class PKCE {
             .replaceAll("\\/", "_");
     }
 
-    public static AuthResult pkceAuth(Client client, Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
+    public static ClientImpl.AuthResult pkceAuth(ClientImpl client, Consumer<URI> uriHandler, Consumer<ClientImpl.PkceConfig> pkce) {
 
-        record Custom(URI redirectUri, Supplier<Client.CodeAndState> codeAndState) {}
-        record Data(Optional<Set<Scope>> scope, Optional<Duration> timeout, Optional<String> htmlSuccess, Optional<String> usernameHint, Optional<Custom> custom) {}
+        record Custom(URI redirectUri, Supplier<ClientImpl.CodeAndState> codeAndState) {}
+        record Data(Optional<Set<ClientImpl.Scope>> scope, Optional<Duration> timeout, Optional<String> htmlSuccess, Optional<String> usernameHint, Optional<Custom> custom) {}
 
-        final class Builder implements PkceConfig {
+        final class Builder implements ClientImpl.PkceConfig {
             Data data = new Data(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
             @Override
-            public PkceConfig scope(Scope... scopes) {
+            public ClientImpl.PkceConfig scope(ClientImpl.Scope... scopes) {
                 var updatedScopes = Stream.concat(
                         data.scope().orElse(Set.of()).stream(),
                         Arrays.stream(scopes))
@@ -244,19 +235,19 @@ public class PKCE {
             }
 
             @Override
-            public PkceConfig timeout(Duration duration) {
+            public ClientImpl.PkceConfig timeout(Duration duration) {
                 data = new Data(data.scope(), Optional.of(duration), data.htmlSuccess(), data.usernameHint(), data.custom());
                 return this;
             }
 
             @Override
-            public PkceConfig htmlSuccess(String html) {
+            public ClientImpl.PkceConfig htmlSuccess(String html) {
                 data = new Data(data.scope(), data.timeout(), Optional.of(html), data.usernameHint(), data.custom());
                 return this;
             }
 
             @Override
-            public PkceConfig customRedirect(URI redirectUri, Supplier<CodeAndState> codeAndState) {
+            public ClientImpl.PkceConfig customRedirect(URI redirectUri, Supplier<ClientImpl.CodeAndState> codeAndState) {
                 data = new Data(data.scope(), data.timeout(), data.htmlSuccess(), data.usernameHint(), Optional.of(new Custom(redirectUri, codeAndState)));
                 return this;
             }
@@ -267,7 +258,7 @@ public class PKCE {
 
         Data data = builder.data;
 
-        Set<Scope> scopes = data.scope().orElse(Set.of());
+        Set<ClientImpl.Scope> scopes = data.scope().orElse(Set.of());
         Duration timeout = data.timeout().orElse(Duration.ofMinutes(2));
         String html = data.htmlSuccess().orElse(PKCE.successPage(client.config().servers().api().toString()));
         //String usernameHint = data.usernameHint().orElse(null);
@@ -282,13 +273,13 @@ public class PKCE {
                         html);
 
                 uriHandler.accept(uriAndToken.url());
-                return new AuthOk(client.withToken(uriAndToken.token().get()));
+                return new ClientImpl.AuthOk(client.withToken(uriAndToken.token().get()));
             } catch (Exception e) {
-                return new AuthFail(e.getMessage());
+                return new ClientImpl.AuthFail(e.getMessage());
             }
         } else {
             URI redirectUri = data.custom().get().redirectUri();
-            Supplier<CodeAndState> codeAndStateSupplier = data.custom().get().codeAndState();
+            Supplier<ClientImpl.CodeAndState> codeAndStateSupplier = data.custom().get().codeAndState();
 
             try {
                 var exchange = PKCE.initiateAuthorizationFlowCustom(
@@ -302,9 +293,9 @@ public class PKCE {
                 var codeAndState = codeAndStateSupplier.get();
                 @SuppressWarnings(value = {"deprecation"})
                 var supplier = exchange.token(codeAndState.code(), codeAndState.state());
-                return new AuthOk(client.withToken(supplier.get()));
+                return new ClientImpl.AuthOk(client.withToken(supplier.get()));
             } catch (Exception e) {
-                return new AuthFail(e.getMessage());
+                return new ClientImpl.AuthFail(e.getMessage());
             }
         }
     }

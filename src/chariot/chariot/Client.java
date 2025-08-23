@@ -1,15 +1,8 @@
 package chariot;
 
-import java.net.URI;
-import java.time.Duration;
-import java.util.*;
-import java.util.function.*;
-import java.util.prefs.Preferences;
-
-import chariot.api.*;
-import chariot.api.Builders.*;
-import chariot.internal.*;
-import chariot.model.Opt;
+import module java.base;
+import module chariot;
+import chariot.internal.Config;
 
 /// Provides access to the [Lichess API](https://lichess.org/api).
 ///
@@ -50,68 +43,79 @@ import chariot.model.Opt;
 /// Their documentation covers different ways of accessing the contents of the containers.  
 /// The contents of the containers are typically data models from the [chariot.model] package.
 
-public class Client extends chariot.internal.ClientBase {
-
-    Client(Config config) {
-        super(config);
-    }
+public interface Client  {
 
     /// Access registered users on Lichess.
-    public UsersApi users() {
-        return super.usersHandler;
-    }
+    UsersApi users();
 
-    /// {@inheritDoc}
-    @Override public AnalysisApi analysis() { return super.analysis(); }
-    /// {@inheritDoc}
-    @Override public BotApi bot() { return super.bot(); }
-    /// {@inheritDoc}
-    @Override public BroadcastsApi broadcasts() { return super.broadcasts(); }
-    /// {@inheritDoc}
-    @Override public ChallengesApi challenges() { return super.challenges(); }
-    /// {@inheritDoc}
-    @Override public ExternalEngineApi externalEngine() { return super.externalEngine(); }
-    /// {@inheritDoc}
-    @Override public FideApi fide() { return super.fide(); }
-    /// {@inheritDoc}
-    @Override public GamesApi games() { return super.games(); }
-    /// {@inheritDoc}
-    @Override public OpeningExplorerApi openingExplorer() { return super.openingExplorer(); }
-    /// {@inheritDoc}
-    @Override public PuzzlesApi puzzles() { return super.puzzles();}
-    /// {@inheritDoc}
-    @Override public SimulsApi simuls() { return super.simuls(); }
-    /// {@inheritDoc}
-    @Override public StudiesApi studies() { return super.studies(); }
-    /// {@inheritDoc}
-    @Override public TablebaseApi tablebase() { return super.tablebase(); }
-    /// {@inheritDoc}
-    @Override public TeamsApi teams() { return teamsHandler; }
-    /// {@inheritDoc}
-    @Override public TournamentsApi tournaments() { return super.tournaments(); }
-    /// {@inheritDoc}
-    @Override public CustomApi custom() { return super.custom(); }
+    /// Access Lichess cloud evaluations database.
+    AnalysisApi analysis();
 
+    /// Access Lichess online bots.  
+    /// For more bot operations, see {@link chariot.ClientAuth#bot}
+    BotApi bot();
 
+    /// Access Lichess broadcasts.
+    BroadcastsApi broadcasts();
 
-    /// {@inheritDoc}
-    @Override public boolean store(Preferences prefs) { return super.store(prefs); }
+    /// Open-ended challenges.  
+    /// For authenticated challenges, see {@link chariot.api.ChallengesApiAuth}
+    ChallengesApi challenges();
+
+    /// External engine.  
+    /// For engine management, see {@link chariot.api.ExternalEngineApiAuth}
+    ExternalEngineApi externalEngine();
+
+    /// Download FIDE player info
+    FideApi fide();
+
+    /// Access games and TV channels, played on Lichess.
+    GamesApi games();
+
+    /// Lookup positions from the Lichess opening explorer.
+    OpeningExplorerApi openingExplorer();
+
+    /// Access Lichess puzzle history and dashboard.
+    PuzzlesApi puzzles();
+
+    /// Access simuls played on Lichess.
+    SimulsApi simuls();
+
+    /// Access Lichess studies.
+    StudiesApi studies();
+
+    /// Lookup positions from the Lichess tablebase server.
+    TablebaseApi tablebase();
+
+    /// Access and manage Lichess teams and their members.
+    TeamsApi teams();
+
+    /// Access Arena and Swiss tournaments played on Lichess.
+    TournamentsApi tournaments();
+
+    /// Use chariot for custom endpoints
+    CustomApi custom();
+
+    /// Stores the client configuration into the provided preferences node.  
+    /// @param prefs The preferences node to store this client configuration to
+    boolean store(Preferences prefs);
+
 
     /// Creates a default client
-    public static Client basic() {
+    static Client basic() {
         return basic(Config.of());
     }
 
 
     /// Creates a default client using the provided token to use the authenticated parts of the API
     /// @param token A token to use for the authenticated parts of the API
-    public static ClientAuth auth(String token) {
+    static ClientAuth auth(String token) {
         return auth(token::toCharArray);
     }
 
     /// Creates a customized client
     /// @param params A configuration parameters builder
-    public static Client basic(Consumer<ConfigBuilder> params){
+    static Client basic(Consumer<Builders.ConfigBuilder> params){
         return basic(Config.basic(params));
     }
 
@@ -124,7 +128,7 @@ public class Client extends chariot.internal.ClientBase {
     /// var challengeResult = auth.challenges().challenge(...);
     /// }
     /// @param token pre-created Personal Access Token - @see [Personal Access Token](https://lichess.org/account/oauth/token)
-    public ClientAuth withToken(String token) {
+    default ClientAuth withToken(String token) {
         return withToken(token::toCharArray);
     }
 
@@ -137,28 +141,25 @@ public class Client extends chariot.internal.ClientBase {
     /// var challengeResult = auth.challenges().challenge(...);
     /// }
     /// @param token pre-created Personal Access Token - @see [Personal Access Token](https://lichess.org/account/oauth/token)
-    public ClientAuth withToken(Supplier<char[]> token) {
-        var config = config().withToken(token);
-        return new ClientAuth(config);
-    }
+    ClientAuth withToken(Supplier<char[]> token);
 
     /// Creates a customizable client using the provided configuration parameters builder.
     /// @param params A configuration parameters builder
-    public static ClientAuth auth(Consumer<ConfigBuilder> params, Supplier<char[]> token) { return basic(params).withToken(token); }
+    static ClientAuth auth(Consumer<Builders.ConfigBuilder> params, Supplier<char[]> token) { return basic(params).withToken(token); }
 
 
     /// Creates a customizable client using the provided configuration parameters builder.
     /// @param params A configuration parameters builder
-    public static ClientAuth auth(Consumer<ConfigBuilder> params, String token) { return auth(params, token::toCharArray); }
+    static ClientAuth auth(Consumer<Builders.ConfigBuilder> params, String token) { return auth(params, token::toCharArray); }
 
     /// Creates a default client using the provided token to use the authenticated parts of the API
     /// @param token A token to use for the authenticated parts of the API
-    public static ClientAuth auth(Supplier<char[]> token) { return auth(c -> {}, token); }
+    static ClientAuth auth(Supplier<char[]> token) { return auth(_ -> {}, token); }
 
-    public sealed interface AuthResult {}
-    public record AuthOk(ClientAuth client) implements AuthResult {}
-    public record AuthFail(String message)  implements AuthResult {}
-    public record CodeAndState(String code, String state) {}
+    sealed interface AuthResult {}
+    record AuthOk(ClientAuth client) implements AuthResult {}
+    record AuthFail(String message)  implements AuthResult {}
+    record CodeAndState(String code, String state) {}
 
     public interface PkceConfig {
 
@@ -210,9 +211,7 @@ public class Client extends chariot.internal.ClientBase {
     /// }
     /// @param uriHandler The generated Lichess URI that your user can visit to review and approve granting access to your application
     /// @param pkce Configuration of for instance which scopes if any that the resulting Access Token should include.
-    public AuthResult withPkce(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
-        return PKCE.pkceAuth(this, uriHandler, pkce);
-    }
+    AuthResult withPkce(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce);
 
     /// Use OAuth PKCE flow to make it possible for your user to grant access to your application.
     /// {@snippet :
@@ -227,7 +226,7 @@ public class Client extends chariot.internal.ClientBase {
     /// }
     /// @param uriHandler The generated Lichess URI that your user can visit to review and approve granting access to your application
     /// @param pkce Configuration of for instance which scopes if any that the resulting Access Token should include.
-    public static AuthResult auth(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
+    static AuthResult auth(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
         return auth(c -> c.production(), uriHandler, pkce);
     }
 
@@ -246,7 +245,7 @@ public class Client extends chariot.internal.ClientBase {
     /// @param config Customized client configuration such as enabling logging and number of retries etc.
     /// @param uriHandler The generated Lichess URI that your user can visit to review and approve granting access to your application
     /// @param pkce Configuration of for instance which scopes if any that the resulting Access Token should include.
-    public static AuthResult auth(Consumer<ConfigBuilder> config, Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
+    public static AuthResult auth(Consumer<Builders.ConfigBuilder> config, Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
         return basic(config).withPkce(uriHandler, pkce);
     }
 
@@ -270,23 +269,21 @@ public class Client extends chariot.internal.ClientBase {
 
 
     /// Retrieves an [Opt] containing a [ClientAuth] if this is such a client, otherwise empty.
-    public Opt<ClientAuth> asAuth() {
+    default Opt<ClientAuth> asAuth() {
         return this instanceof ClientAuth ca ? Opt.of(ca) : Opt.empty();
     }
 
     /// Configure logging levels
-    public void logging(Consumer<LoggingBuilder> params) {
-        var logging = config().logging();
-        var builder = Config.loggingBuilder(logging);
-        params.accept(builder);
-    }
+    void logging(Consumer<Builders.LoggingBuilder> params);
 
     private static Client load(Config config) {
-        return config instanceof Config.Auth authConfig ? new ClientAuth(authConfig) : new Client(config);
+        return config instanceof Config.Auth authConfig
+            ? new chariot.internal.impl.ClientAuthImpl(authConfig)
+            : new chariot.internal.impl.ClientImpl(config);
     }
 
     private static Client basic(Config.Basic config) {
-        return new Client(config);
+        return new chariot.internal.impl.ClientImpl(config);
     }
 
 
