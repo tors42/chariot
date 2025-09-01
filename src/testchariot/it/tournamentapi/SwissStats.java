@@ -1,17 +1,15 @@
 package it.tournamentapi;
 
 import chariot.ClientAuth;
+import chariot.chess.Board;
 import chariot.model.*;
 import chariot.model.Swiss.Stats;
-import chariot.util.Board;
-import chariot.util.Board.GameState;
 import util.*;
 import static util.Assert.*;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Gatherers;
 import java.util.stream.Stream;
 
 public class SwissStats {
@@ -165,16 +163,8 @@ public class SwissStats {
     record GameTestRunner(PGN pgn) {
 
         public Ack play(String gameId, ClientAuth white, ClientAuth black) {
-            record BoardAndUCI(Board board, String uci) {}
-
-            var boardAndUCI = pgn.movesList().stream()
-                .gather(Gatherers.fold(
-                            () -> new BoardAndUCI(Board.fromStandardPosition(), ""),
-                            (boardAndUci, moveSAN) -> new BoardAndUCI(boardAndUci.board().play(moveSAN),
-                                String.join(" ", boardAndUci.uci(), Board.Move.parse(moveSAN, boardAndUci.board().toFEN()).uci()))))
-                .findFirst().orElseThrow();
-
-            String uci = boardAndUCI.uci().trim();
+            String uci = Board.ofStandard().toUCI(pgn.moves());
+            Board board = Board.ofStandard().play(pgn.moves());
 
             var moves = Arrays.stream(uci.split(" ")).toList();
             for (int i = 0; i < moves.size(); i++) {
@@ -192,12 +182,12 @@ public class SwissStats {
                     black.board().handleDrawOffer(gameId, true);
                 }
                 case "1-0" -> {
-                    if (boardAndUCI.board().gameState() == GameState.ongoing) {
+                    if (! board.validMoves().isEmpty()) {
                         black.board().resign(gameId);
                     }
                 }
                 case "0-1" -> {
-                    if (boardAndUCI.board().gameState() == GameState.ongoing) {
+                    if (!board.validMoves().isEmpty()) {
                         white.board().resign(gameId);
                     }
                 }

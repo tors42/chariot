@@ -4,6 +4,14 @@ import java.util.Locale;
 
 public sealed interface Variant {
 
+    default String key() {
+        return switch(this) {
+            case Basic basic -> basic.name();
+            case Chess960 _ -> "chess960";
+            case FromPosition _ -> "fromPosition";
+        };
+    }
+
     enum Basic implements Variant {
         standard,
         crazyhouse,

@@ -66,11 +66,9 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
     String scriptedMove(String gameId, Board board) {
         PGN pgn = scriptedGames.computeIfAbsent(gameId, _ -> PGN.read(SwissStats.pgnDraw));
         List<String> sans = pgn.movesList();
-        int index = 2*(board.fen().move()-1) + (board.blackToMove() ? 1 : 0);
+        int index = 2*(board.moveNum()-1) + (board.sideToMove() == Side.black ? 1 : 0);
         if (index >= sans.size()) return null;
-        var move = Board.Move.parse(sans.get(index), board.toFEN());
-        String uciMove = move.uci();
-        return uciMove;
+        return board.toUCI(sans.get(index));
     }
 
     void join(Arena arena, Participant participant) {
@@ -99,8 +97,9 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
                 : Board.fromFEN(fenAtGameStart).play(moves);
 
             if (game.color() == Enums.Color.white
-                    ? board.blackToMove()
-                    : board.whiteToMove()) return;
+                    ? (board.sideToMove() == Side.black)
+                    : (board.sideToMove() == Side.white))
+                return;
 
             String move = moveMaker.apply(board);
             if (move == null) {
@@ -142,15 +141,15 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
                         String infoBeforeMove = "%s (%s) played (%s - %s)".formatted(
                                 lastMove,
                                 board.toSAN(lastMove),
-                                nameByColor.apply(Enums.Color.white) + (board.whiteToMove() ? "*" : ""),
-                                nameByColor.apply(Enums.Color.black) + (board.blackToMove() ? "*" : ""));
+                                nameByColor.apply(Enums.Color.white) + (board.sideToMove() == Side.white ? "*" : ""),
+                                nameByColor.apply(Enums.Color.black) + (board.sideToMove() == Side.black ? "*" : ""));
 
                         board = board.play(lastMove);
 
-                        String infoAfterMove = "%s %s %s".formatted(
+                        String infoAfterMove = "%s %s (validMoves().isEmpty(): %s)".formatted(
                                 board.toFEN(),
-                                board.gameState(),
-                                state.status());
+                                state.status(),
+                                board.validMoves().isEmpty());
 
                         LOGGER.fine("%s\n%s".formatted(infoBeforeMove, infoAfterMove));
                     }

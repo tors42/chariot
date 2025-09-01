@@ -6,7 +6,12 @@ module chariot {
     exports chariot;
     exports chariot.api;
     exports chariot.model;
-    exports chariot.util;
+    exports chariot.chess;
+
+    uses chariot.chess.BoardProvider;
+
+    provides chariot.chess.BoardProvider
+        with chariot.internal.chess.InternalBoardProvider;
 
     requires transitive java.logging;
     requires transitive java.prefs;

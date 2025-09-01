@@ -396,46 +396,39 @@ Entry[entry=Swiss[id=vLx22Ff1, name=My 5+3 Swiss, createdBy=test, startsAt=2022-
 An example which feeds moves to a Board in order to track FEN updates, and "draws" the board with text.
 
 ```java
-package res;
+import module chariot;
 
-import java.util.List;
+void main() {
 
-import chariot.util.Board;
+    Board initialBoard = Board.ofStandard();
 
-class FEN {
-    public static void main(String[] args) {
+    List<String> validMovesUCI = initialBoard.validMoves().stream()
+        .sorted()
+        .toList();
 
-        Board initialBoard = Board.fromStandardPosition();
+    List<String> validMovesSAN = validMovesUCI.stream()
+        .map(initialBoard::toSAN)
+        .toList();
 
-        List<String> validMovesUCI = initialBoard.validMoves().stream()
-            .map(Board.Move::uci)
-            .sorted()
-            .toList();
+    String movesToPlay = "e4 e5 Nf3 Nc6"; // (UCI also ok, "e2e4 e7e5 g1f3 b8c6")
 
-        List<String> validMovesSAN = validMovesUCI.stream()
-            .map(initialBoard::toSAN)
-            .toList();
+    Board resultingBoard = initialBoard.play(movesToPlay);
 
-        String movesToPlay = "e4 e5 Nf3 Nc6"; // (UCI also ok, "e2e4 e7e5 g1f3 b8c6")
+    IO.println(String.join("\n",
+        "Initial FEN: "         + initialBoard.toFEN(),
+        "Initial Board:\n"      + DefaultBoard.render(initialBoard),
+        "Valid moves (UCI): "   + validMovesUCI,
+        "Valid moves (SAN): "   + validMovesSAN.stream().map("%4s"::formatted).toList(),
+        "Playing: "             + movesToPlay,
+        "Resulting FEN: "       + resultingBoard.toFEN(),
+        "Resulting Board:\n"    + DefaultBoard.render(resultingBoard),
+        "Board (letter, frame, coordinates):\n" +
+        DefaultBoard.render(resultingBoard, c -> c.letter().frame().coordinates())
+        ));
+}
 
-        Board resultingBoard = initialBoard.play(movesToPlay);
-
-        System.out.println(String.join("\n",
-                "Initial FEN: "         + initialBoard.toFEN(),
-                "Initial Board:\n"      + initialBoard,
-                "Valid moves (UCI): "   + validMovesUCI,
-                "Valid moves (SAN): "   + validMovesSAN.stream().map("%4s"::formatted).toList(),
-                "Playing: "             + movesToPlay,
-                "Resulting FEN: "       + resultingBoard.toFEN(),
-                "Resulting Board:\n"    + resultingBoard,
-                "Board (letter, frame, coordinates):\n" +
-                resultingBoard.toString(c -> c.letter().frame().coordinates())
-                ));
-    }
-
-   public static long costOfThisProgramBecomingSkyNet() {
-        return Long.MAX_VALUE; // https://xkcd.com/534/
-   }
+long costOfThisProgramBecomingSkyNet() {
+    return Long.MAX_VALUE; // https://xkcd.com/534/
 }
 ```
 

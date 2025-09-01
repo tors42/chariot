@@ -60,6 +60,7 @@ void main(String[] args) throws Exception {
             "--module", "testchariot",
             "--add-exports", "chariot/chariot.internal=testchariot",
             "--add-exports", "chariot/chariot.internal.yayson=testchariot",
+            "--add-exports", "chariot/chariot.internal.chess=testchariot",
             "-d", classes);
 
         run(jar,
@@ -77,6 +78,7 @@ void main(String[] args) throws Exception {
             "--enable-preview",
             "--add-exports", "chariot/chariot.internal=testchariot",
             "--add-exports", "chariot/chariot.internal.yayson=testchariot",
+            "--add-exports", "chariot/chariot.internal.chess=testchariot",
             "-p", moduleOut.toString(), "-m", "testchariot")
             .inheritIO().start().waitFor();
 
@@ -87,6 +89,7 @@ void main(String[] args) throws Exception {
                 "--enable-preview",
                 "--add-exports", "chariot/chariot.internal=testchariot",
                 "--add-exports", "chariot/chariot.internal.yayson=testchariot",
+                "--add-exports", "chariot/chariot.internal.chess=testchariot",
                 "-p", moduleOut.toString(), "-m", "testchariot", "it")
                 .inheritIO().start().waitFor();
         }

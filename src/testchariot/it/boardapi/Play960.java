@@ -7,13 +7,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import chariot.ClientAuth;
+import chariot.chess.Board;
 import chariot.model.*;
 import chariot.model.Enums.Color;
 import chariot.model.Event.*;
 import chariot.model.GameStateEvent.*;
 import chariot.model.Variant.Chess960;
 import chariot.model.Variant.FromPosition;
-import chariot.util.Board;
 import util.*;
 import static util.Assert.*;
 
@@ -58,7 +58,7 @@ public class Play960 {
         assertTrue(() -> blackThread.join(Duration.ofMinutes(1).plusSeconds(10)));
 
         Deque<Board> positions = new ArrayDeque<>();
-        positions.push(Board.fromFEN(startPosition));
+        positions.push(Board.ofChess960(startPosition));
 
         String gameId = gameIdRef.get();
 
@@ -92,7 +92,7 @@ public class Play960 {
         return switch(full.gameType().variant()) {
             case Chess960(Some(String fen)) -> fen;
             case FromPosition(Some(String fen), _) -> fen;
-            default -> Board.fromStandardPosition().toFEN();
+            default -> Board.ofStandard().toFEN();
         };
     }
 
@@ -135,16 +135,16 @@ public class Play960 {
         for (int move = 0; move < moves; move++) {
             sleep(beforeWhiteMove);
 
-            var validMoves = positions.peek().validMoves().stream().toList();
-            var whiteMove = validMoves.get(new Random().nextInt(validMoves.size()));
-            white.board().move(gameId, whiteMove.uci());
+            List<String> validMoves = positions.peek().validMoves().stream().toList();
+            String whiteMove = validMoves.get(new Random().nextInt(validMoves.size()));
+            white.board().move(gameId, whiteMove);
             positions.push(positions.peek().play(whiteMove));
 
             sleep(beforeBlackMove);
 
             validMoves = positions.peek().validMoves().stream().toList();
-            var blackMove = validMoves.get(new Random().nextInt(validMoves.size()));
-            black.board().move(gameId, blackMove.uci());
+            String blackMove = validMoves.get(new Random().nextInt(validMoves.size()));
+            black.board().move(gameId, blackMove);
             positions.push(positions.peek().play(blackMove));
         }
 

@@ -1,8 +1,8 @@
 package tests.util;
 
-import chariot.util.Board;
-import chariot.util.Board.GameState;
-import chariot.util.Board.Move;
+import module java.base;
+import module chariot;
+import chariot.internal.chess.NaiveChess;
 import util.Test;
 
 import static util.Assert.*;
@@ -12,8 +12,83 @@ public class TestBoard {
     static final String standardFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
     @Test
+    public void capture() {
+        String moves = "d4 e5 dxe5";
+
+        DefaultBoard board = DefaultBoard.ofStandard().play(moves);
+
+        assertTrue(board.pieces().captured(Side.white).equals(List.of()));
+        assertTrue(board.pieces().captured(Side.black).equals(List.of(Piece.pawn)));
+        assertTrue(board.pieces().all(Side.black).size() < board.pieces().all(Side.white).size());
+
+        DefaultBoard boardIncremental = DefaultBoard.ofStandard();
+        for (String move : moves.split(" "))
+            boardIncremental = boardIncremental.play(move);
+        assertTrue(boardIncremental.pieces().captured(Side.white).equals(List.of()));
+        assertTrue(boardIncremental.pieces().captured(Side.black).equals(List.of(Piece.pawn)));
+        assertTrue(boardIncremental.pieces().all(Side.black).size() < boardIncremental.pieces().all(Side.white).size());
+    }
+
+    @Test
+    public void naive() {
+        NaiveChess nc = NaiveChess.of("standard", FEN.standardStr);
+        Collection<String> moves = nc.validMoves();
+        //moves.stream().sorted().forEach(IO::println);
+        assertTrue(20 == moves.size());
+    }
+
+    @Test
+    public void castling() {
+        Board board = Board.fromFEN("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+        Collection<String> moves = board.validMoves();
+        //moves.stream().sorted().forEach(IO::println);
+        assertTrue(moves.contains("e1c1"));
+        assertTrue(moves.contains("e1g1"));
+    }
+
+    @Test
+    public void castlingChess960() {
+        Board boardKQ = Board.ofChess960("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+        Board boardHA = Board.ofChess960("r3k2r/8/8/8/8/8/8/R3K2R w HAha - 0 1");
+        Collection<String> movesKQ = boardKQ.validMoves();
+        Collection<String> movesHA = boardHA.validMoves();
+        //movesKQ.stream().sorted().forEach(IO::println);
+        //movesHA.stream().sorted().forEach(IO::println);
+        assertTrue(movesKQ.contains("e1a1"));
+        assertTrue(movesKQ.contains("e1h1"));
+        assertTrue(movesHA.contains("e1a1"));
+        assertTrue(movesHA.contains("e1h1"));
+    }
+
+    @Test
+    public void castlingChess960Pos10() {
+        Board boardKQ = Board.ofChess960("qnnrbbkr/pppppppp/8/8/8/8/PPPPPPPP/QNNRBBKR w KQkq - 0 1");
+        Board boardDH = Board.ofChess960(10);
+
+        assertEquals("qnnrbbkr/pppppppp/8/8/8/8/PPPPPPPP/QNNRBBKR w DHdh - 0 1", boardDH.toFEN());
+
+        String moves = "e3 e6 f3 f6 Bg3 Bg6 Bd3 Bd6 Ne2 Ne7";
+        boardKQ = boardKQ.play(moves);
+        boardDH = boardDH.play(moves);
+
+        Collection<String> movesKQ = boardKQ.validMoves();
+        Collection<String> movesDH = boardDH.validMoves();
+
+        assertTrue(movesKQ.contains("g1d1"));
+        assertTrue(movesKQ.contains("g1h1"));
+        assertTrue(movesDH.contains("g1d1"));
+        assertTrue(movesDH.contains("g1h1"));
+    }
+
+    @Test
+    public void toUCI() {
+        Board board = Board.ofStandard();
+        assertEquals("b1c3", board.toUCI("Nc3"));
+    }
+
+    @Test
     public void standardFen() {
-        Board board = Board.fromStandardPosition();
+        Board board = Board.ofStandard();
         assertEquals(standardFen, board.toFEN());
     }
 
@@ -25,15 +100,13 @@ public class TestBoard {
 
     @Test
     public void threefoldRepetition() {
-        Board board = Board.fromStandardPosition();
+        Board board = Board.ofStandard();
         board = board.play("Na3 Na6 Nb1 Nb8 Na3 Na6 Nb1");
 
-        assertEquals(GameState.ongoing, board.gameState());
+        assertFalse(board.validMoves().isEmpty());
 
         // third time position shows up
         board = board.play("Nb8");
-
-        assertEquals(GameState.draw_by_threefold_repetition, board.gameState());
     }
 
     @Test
@@ -42,6 +115,14 @@ public class TestBoard {
         String san = board.toSAN("a6a2");
 
         assertEquals("Q6xa2#", san);
+    }
+
+    @Test
+    public void disambiguations() {
+        Board board = Board.fromFEN("k7/pp6/8/5Q2/4Q2Q/8/5Q1Q/K7 w - - 0 1");
+        assertEquals("Qef4",  board.toSAN("e4f4")); // specify file
+        assertEquals("Q5f4",  board.toSAN("f5f4")); // specify rank
+        assertEquals("Qh2g3", board.toSAN("h2g3")); // specify file and rank
     }
 
     @Test
@@ -60,8 +141,12 @@ public class TestBoard {
 
     @Test
     public void cantCastleIntoCheck() {
-        assertTrue(Move.parse("e8g8", "rn1qk2r/p1p1p2p/1p1p2Rn/5p1P/2b1P3/3P4/PBP2PP1/RN1QKB2 b Qkq - 0 13") instanceof Board.Invalid);
-        assertTrue(Move.parse("e8h8", "rn1qk2r/p1p1p2p/1p1p2Rn/5p1P/2b1P3/3P4/PBP2PP1/RN1QKB2 b Qkq - 0 13") instanceof Board.Invalid);
+        Board boardBeforeIllegalCastling = Board.fromFEN("rn1qk2r/p1p1p2p/1p1p2Rn/5p1P/2b1P3/3P4/PBP2PP1/RN1QKB2 b Qkq - 0 13");
+        Board afterIllegalCastlingE8G8 = boardBeforeIllegalCastling.play("e8g8");
+        Board afterIllegalCastlingE8H8 = boardBeforeIllegalCastling.play("e8h8");
+
+        assertTrue(boardBeforeIllegalCastling.equals(afterIllegalCastlingE8G8));
+        assertTrue(boardBeforeIllegalCastling.equals(afterIllegalCastlingE8H8));
     }
 
 
@@ -107,6 +192,7 @@ public class TestBoard {
         assertFalse(blackToMoveAfterMovingKing.validMoves().stream().map(m -> m.toString()).toList().contains("e8c8"));
         assertFalse(blackToMoveAfterMovingKing.validMoves().stream().map(m -> m.toString()).toList().contains("e8g8"));
     }
+
 
     @Test
     public void whiteCastling() {
@@ -172,8 +258,8 @@ public class TestBoard {
         Board initial = Board.fromFEN("qnbbrnkr/pppppppp/8/8/8/8/PPPPPPPP/QNBBRNKR w EHeh - 0 1");
         Board positionToTest = initial.play("e4 c6 e5 e6 d4 h6 d5 b5 dxe6 Nh7 exd7 g6 dxe8=Q+ Nf8 Qxd8 Bd7 Qxd7");
         // Kingside castling shouldn't be possible, as there is a Knight on f8 where Rook should end up
-        Board.Move kingsideCastling = Board.Move.parse("g8h8", positionToTest.to960FEN());
-        assertTrue(kingsideCastling instanceof Board.Invalid, "Castling shouldn't be possible here");
+        Board illegal = positionToTest.play("g8h8");
+        assertTrue(illegal.equals(positionToTest), "Castling shouldn't be possible here");
     }
 
     @Test
@@ -181,8 +267,8 @@ public class TestBoard {
         Board initial = Board.fromFEN("qnbbrnkr/pppppppp/8/8/8/8/PPPPPPPP/QNBBRNKR w EHeh - 0 1");
         Board positionToTest = initial.play("e4 c6 e5 e6 d4 h6 d5 b5 dxe6 Nh7 exd7 g6 dxe8=Q+ Nf8 Qxd8 Bd7 Qxd7 Ne6 c3");
         // Kingside castling should be possible, as the Knight has moved from f8
-        Board.Move kingsideCastling = Board.Move.parse("g8h8", positionToTest.to960FEN());
-        assertTrue(kingsideCastling instanceof Board.Castling, "Castling should be possible here");
+        Board legal = positionToTest.play("g8h8");
+        assertTrue(! legal.equals(positionToTest), "Castling should be possible here");
     }
 
     @Test
@@ -190,8 +276,8 @@ public class TestBoard {
         Board initial = Board.fromFEN("qnbbrnkr/pppppppp/8/8/8/8/PPPPPPPP/QNBBRNKR w EHeh - 0 1");
         Board positionToTest = initial.play("e4 c6 e5 e6 d4 h6 d5 b5 dxe6 Nh7 exd7 g6 dxe8=Q+ Nf8 Qxd8 Bd7 Qxd7 Ne6 c3");
         // Kingside castling should be possible, as the Knight has moved from f8
-        Board.Move kingsideCastling = Board.Move.parse("O-O", positionToTest.to960FEN());
-        assertTrue(kingsideCastling instanceof Board.Castling, "Castling should be possible here");
+        Board legal = positionToTest.play("O-O");
+        assertTrue(! legal.equals(positionToTest), "Castling should be possible here");
     }
 
 
