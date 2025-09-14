@@ -26,10 +26,10 @@ public interface StudiesApiAuth extends StudiesApi {
     ///          .stream().toList();
     ///
     ///      for (var chapter : createdChapters) {
-    ///          System.out.println(STR."""
-    ///          Name: \{chapter.name()}
-    ///          Id:   \{chapter.id()}"""
-    ///          );
+    ///          IO.println("""
+    ///          Name: %s
+    ///          Id:   %s
+    ///          """.formatted(chapter.name(), chapter.id()));
     ///      }
     ///
     /// }
