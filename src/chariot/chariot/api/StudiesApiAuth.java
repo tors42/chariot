@@ -1,6 +1,7 @@
 package chariot.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -42,6 +43,18 @@ public interface StudiesApiAuth extends StudiesApi {
     /// @param studyId Study id
     /// @param chapterId Chapter id
     Ack deleteStudyChapter(String studyId, String chapterId);
+
+    /// Update PGN tags in a chapter of a study  
+    ///  
+    /// Any chapter tags not included in the `tags` map will remain unchanged.  
+    /// New tags from the `tags` map will be added to the chapter.  
+    /// Matching tags from the `tags` map will be updated with the provided value.  
+    /// If the value is an empty string, the tag will be removed from the chapter.
+    ///
+    /// @param studyId Study id
+    /// @param chapterId Chapter id
+    /// @param tags a map of tags to update
+    Ack updateStudyChapterTags(String studyId, String chapterId, Map<String, String> tags);
 
     interface ImportParams {
 

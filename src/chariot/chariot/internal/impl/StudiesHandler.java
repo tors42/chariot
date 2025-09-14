@@ -11,6 +11,7 @@ import java.util.stream.StreamSupport;
 import chariot.api.StudiesApiAuth;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
+import chariot.internal.model.DefaultPGN;
 import chariot.model.*;
 
 public class StudiesHandler implements StudiesApiAuth {
@@ -91,6 +92,14 @@ public class StudiesHandler implements StudiesApiAuth {
             .process(requestHandler);
     }
 
+    @Override
+    public Ack updateStudyChapterTags(String studyId, String chapterId, Map<String, String> tags) {
+        return Endpoint.updateStudyChapterTags.newRequest(request -> request
+                .path(studyId, chapterId)
+                .body(Map.of("pgn", DefaultPGN.of("", "").withTags(tags).tagsSection()))
+                )
+            .process(requestHandler);
+    }
 
     @Override
     public One<PageStudy> byPage(int page) {
