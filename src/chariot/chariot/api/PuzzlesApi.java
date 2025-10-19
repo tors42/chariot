@@ -24,8 +24,10 @@ public interface PuzzlesApi {
 
     interface PuzzleParams {
         PuzzleParams theme(PuzzleAngle theme);
+        PuzzleParams color(Enums.Color color);
         default PuzzleParams theme(PuzzleAngle.Theme theme) { return theme((PuzzleAngle) theme); }
         default PuzzleParams opening(String opening) { return theme(PuzzleAngle.provider().opening(opening)); }
         default PuzzleParams theme(Function<PuzzleAngle.Provider, PuzzleAngle> theme) { return theme(theme.apply(PuzzleAngle.provider())); }
+        default PuzzleParams color(Function<Enums.Color.Provider, Enums.Color> color) { return color(color.apply(Enums.Color.provider())); }
     }
 }
