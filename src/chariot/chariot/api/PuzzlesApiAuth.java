@@ -9,9 +9,6 @@ import chariot.model.*;
 
 public interface PuzzlesApiAuth extends PuzzlesApi {
 
-    One<Puzzle> nextPuzzle(Consumer<PuzzleParams> params, Consumer<PuzzleDifficulty> difficulty);
-    default One<Puzzle> nextPuzzle(Consumer<PuzzleParams> params) { return nextPuzzle(params, _ -> {}); }
-
     One<PuzzleReplay> replay(Consumer<PuzzleReplayParams> params);
 
     /**
@@ -66,30 +63,6 @@ public interface PuzzlesApiAuth extends PuzzlesApi {
         default PuzzleActivityParams since(UnaryOperator<ZonedDateTime> now) {
             return since(now.apply(ZonedDateTime.now()));
         }
-    }
-
-    interface PuzzleDifficulty {
-        PuzzleDifficulty difficulty(Difficulty difficulty);
-        default PuzzleDifficulty difficulty(Function<Difficulty.Provider, Difficulty> difficulty) { return difficulty(difficulty.apply(Difficulty.provider())); }
-    }
-
-    enum Difficulty {
-        easiest,
-        easier,
-        normal,
-        harder,
-        hardest,
-        ;
-
-        public interface Provider {
-
-            default Difficulty easiest() { return Difficulty.easiest; }
-            default Difficulty easier() { return Difficulty.easier; }
-            default Difficulty normal() { return Difficulty.normal; }
-            default Difficulty harder() { return Difficulty.harder; }
-            default Difficulty hardest() { return Difficulty.hardest; }
-        }
-        static Provider provider() {return new Provider(){};}
     }
 
     interface PuzzleReplayParams {

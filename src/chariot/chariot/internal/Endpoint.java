@@ -384,6 +384,17 @@ public sealed interface Endpoint<T> {
     public static EPOne<Puzzle> puzzleNext =
         Endpoint.of(Puzzle.class).endpoint("/api/puzzle/next").toOne();
 
+    public static EPMany<Puzzle> puzzleBatchGet =
+        Endpoint.of(Puzzle.class).endpoint("/api/puzzle/batch/%s")
+        .streamMapper(stream -> stream.map(mapper(PuzzleRound.class)).flatMap(pr -> pr.puzzles().stream()))
+        .toMany();
+
+    public static EPOne<PuzzleRound> puzzleBatchSolve =
+        Endpoint.of(PuzzleRound.class).endpoint("/api/puzzle/batch/%s")
+        .post(json)
+        .scope(Scope.puzzle_write)
+        .toOne();
+
     public static EPOne<PuzzleReplay> puzzleReplay =
         Endpoint.of(PuzzleReplay.class).endpoint("/api/puzzle/replay/%d/%s").toOne();
 

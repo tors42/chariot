@@ -1,6 +1,7 @@
 package chariot.internal.impl;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -52,8 +53,8 @@ public class PuzzlesHandler implements PuzzlesApiAuth {
 
 
     @Override
-    public One<Puzzle> nextPuzzle(Consumer<PuzzleParams> params, Consumer<PuzzleDifficulty> difficulty) {
-        var angleMap = MapBuilder.of(PuzzleParams.class)
+    public One<Puzzle> nextPuzzle(Consumer<PuzzleParams> params) {
+        var paramsMap = MapBuilder.of(PuzzleParams.class)
             .addCustomHandler("theme", (args, map) -> {
                 if (args[0] instanceof PuzzleAngle angle) {
                     map.put("angle", switch(angle) {
@@ -66,16 +67,70 @@ public class PuzzlesHandler implements PuzzlesApiAuth {
             })
             .toMap(params);
 
-        var difficultyMap = MapBuilder.of(PuzzleDifficulty.class).toMap(difficulty);
-
-        var combined = Stream.of(angleMap, difficultyMap)
-            .flatMap(map -> map.entrySet().stream())
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
         return Endpoint.puzzleNext.newRequest(request -> request
-                .query(combined))
+                .query(paramsMap))
             .process(requestHandler);
- }
+    }
+
+    @Override
+    public Many<Puzzle> batch(Consumer<PuzzleNbParams> params) {
+        var paramMap = MapBuilder.of(PuzzleNbParams.class)
+            .addCustomHandler("theme", (args, map) -> {
+                if (args[0] instanceof PuzzleAngle angle) {
+                    map.put("angle", switch(angle) {
+                        case PuzzleAngle.Theme.long_ -> "long";
+                        case PuzzleAngle.Theme.short_ -> "short";
+                        case PuzzleAngle.Theme theme -> theme.name();
+                        case PuzzleAngle.Custom(String name) -> name;
+                    });
+                }
+            })
+            .toMap(params);
+
+        var angle = paramMap.getOrDefault("angle", "mix");
+
+        return Endpoint.puzzleBatchGet.newRequest(request -> request
+                .path(angle)
+                .query(paramMap))
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<PuzzleRound> batchSolve(List<PuzzleRound.Solution> solutions, Consumer<PuzzleNbSolveParams> params) {
+        var paramMap = MapBuilder.of(PuzzleNbSolveParams.class)
+            .addCustomHandler("theme", (args, map) -> {
+                if (args[0] instanceof PuzzleAngle angle) {
+                    map.put("angle", switch(angle) {
+                        case PuzzleAngle.Theme.long_ -> "long";
+                        case PuzzleAngle.Theme.short_ -> "short";
+                        case PuzzleAngle.Theme theme -> theme.name();
+                        case PuzzleAngle.Custom(String name) -> name;
+                    });
+                }
+            })
+            .toMap(params);
+
+        var angle = paramMap.getOrDefault("angle", "mix");
+
+        return Endpoint.puzzleBatchSolve.newRequest(request -> request
+                .path(angle)
+                .query(paramMap)
+                .body("""
+                    {
+                        "solutions": [
+                            %s
+                        ]
+                    }
+                    """.formatted(solutions.stream().map(solution -> """
+                            {
+                                "id": "%s",
+                                "win": %s,
+                                "rated": %s
+                            }
+                            """.formatted(solution.id(), solution.win(), solution.rated()))
+                            .collect(Collectors.joining(",")))))
+            .process(requestHandler);
+    }
 
     @Override
     public One<StormDashboard> stormDashboard(String username, Consumer<StormDashboardParams> consumer) {
