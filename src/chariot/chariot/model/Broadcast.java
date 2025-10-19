@@ -58,7 +58,8 @@ public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group, Opt<Str
             Opt<ZonedDateTime> startsAt,
             Opt<ZonedDateTime> finishedAt,
             Opt<CustomScoring> customScoring,
-            URI url
+            URI url,
+            Opt<Integer> delay
             ) {}
 
     public record Group(String name, List<IdAndName> tours) {}
