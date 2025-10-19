@@ -1,10 +1,11 @@
 package chariot.internal.impl;
 
-import java.util.Map;
+import module java.base;
+import module chariot;
 
-import chariot.api.TablebaseApi;
-import chariot.internal.*;
-import chariot.model.*;
+import chariot.internal.Endpoint;
+import chariot.internal.RequestHandler;
+import chariot.internal.Util.MapBuilder;
 
 public class TablebaseHandler implements TablebaseApi {
 
@@ -15,9 +16,11 @@ public class TablebaseHandler implements TablebaseApi {
     }
 
     @Override
-    public One<TablebaseResult> standard(String fen) {
+    public One<TablebaseResult> standard(String fen, Consumer<Params> params) {
+        var map = paramsToMap(params);
+        map.put("fen", fen);
         return Endpoint.tablebaseLookup.newRequest(request -> request
-                .query(Map.of("fen", fen)))
+                .query(map))
                 .process(requestHandler);
     }
 
@@ -33,5 +36,13 @@ public class TablebaseHandler implements TablebaseApi {
         return Endpoint.tablebaseAntichessLookup.newRequest(request -> request
                 .query(Map.of("fen", fen)))
                 .process(requestHandler);
+    }
+
+    Map<String, Object> paramsToMap(Consumer<Params> consumer) {
+        return MapBuilder.of(Params.class)
+            .addCustomHandler("op1Never", (_, map) -> map.put("op1", "never"))
+            .addCustomHandler("op1Auxiliary", (_, map) -> map.put("op1", "auxiliary"))
+            .addCustomHandler("op1Always", (_, map) -> map.put("op1", "always"))
+            .toMap(consumer);
     }
 }
