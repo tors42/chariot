@@ -39,6 +39,21 @@ public interface BroadcastsApi {
     /// Get past top broadcasts
     default Many<Broadcast.TourWithLastRound> topPast() { return topPast(_ -> {}); }
 
+
+    /// Get players of a broadcast
+    /// @param broadcastId
+    Many<BroadcastPlayer> playersById(String broadcastId);
+
+    /// Get details a player from a broadcast
+    /// @param broadcastId
+    /// @param name Name or FIDE ID - findable from {@link #playersById(String)}
+    One<BroadcastPlayer> playerDetailsById(String broadcastId, String name);
+
+    /// Get details a player from a broadcast
+    /// @param broadcastId
+    /// @param fideId FIDE ID
+    default One<BroadcastPlayer> playerDetailsById(String broadcastId, int fideId) { return playerDetailsById(broadcastId, String.valueOf(fideId)); }
+
     /// Stream an ongoing broadcast tournament as PGN  
     ///  
     /// This streaming endpoint first sends all games of a broadcast tournament in PGN format.  

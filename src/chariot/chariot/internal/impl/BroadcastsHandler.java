@@ -64,6 +64,20 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
     }
 
     @Override
+    public Many<BroadcastPlayer> playersById(String broadcastId) {
+        return Endpoint.broadcastPlayers.newRequest(request -> request
+                .path(broadcastId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public One<BroadcastPlayer> playerDetailsById(String broadcastId, String playerId) {
+        return Endpoint.broadcastPlayerById.newRequest(request -> request
+                .path(broadcastId, playerId))
+            .process(requestHandler);
+    }
+
+    @Override
     public Many<Broadcast.TourWithLastRound> search(String searchTerm) {
         var firstPage = searchByPage(1, searchTerm);
         if (firstPage instanceof Some<Endpoint.PageBroadcast> one) {
