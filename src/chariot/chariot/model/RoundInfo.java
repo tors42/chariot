@@ -4,7 +4,7 @@ import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-public record RoundInfo(Broadcast.RoundByUser round, Tour tour, Study study, List<Game> games, Opt<Broadcast.Group> group)  {
+public record RoundInfo(Broadcast.RoundByUser round, Tour tour, Study study, List<Game> games, Opt<Broadcast.Group> group, Opt<Boolean> isSubscribed)  {
 
     public String id() { return round().id(); }
 
