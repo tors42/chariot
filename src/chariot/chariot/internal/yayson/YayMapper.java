@@ -297,6 +297,16 @@ public class YayMapper {
             @SuppressWarnings("unchecked")
             T t = (T) Optional.empty();
             return t;
+        } else if (cls.equals(Opt.class)) {
+            if (node != null && typeClass(parameterizedType) instanceof Class<?> typeClass) {
+                var value = buildFromClass(node, typeClass, null);
+                @SuppressWarnings("unchecked")
+                T t = (T) Opt.of(value);
+                return t;
+            }
+            @SuppressWarnings("unchecked")
+            T t = (T) Opt.empty();
+            return t;
         } else if (cls.isArray()) {
             Class<?> componentClass = typeClass(parameterizedType) instanceof Class<?> typeClass
                 ? typeClass
