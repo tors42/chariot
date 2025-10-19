@@ -37,6 +37,8 @@ public record AccountPreferences(Prefs prefs, String language)  {
         Integer zen,
         Integer ratings,
         Integer moveEvent,
-        Integer rookCastle
+        Integer rookCastle,
+        boolean flairs,
+        Integer sayGG // 0 = No, 1 = When losing, 2 = When losing or drawing
         ) {}
 }
