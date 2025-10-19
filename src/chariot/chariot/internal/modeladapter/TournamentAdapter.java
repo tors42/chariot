@@ -463,7 +463,7 @@ public interface TournamentAdapter {
             && sheetYo.getString("scores") instanceof String scores
            ) {
             return Opt.of(new Arena.Standing(
-                        new LightUser(tmp.name().toLowerCase(Locale.ROOT), tmp.title(), tmp.name(), tmp.patron(), tmp.flair()),
+                        new LightUser(tmp.name().toLowerCase(Locale.ROOT), tmp.title(), tmp.name(), tmp.patronColor(), tmp.flair()),
                         rank, rating, playerYo.getBool("provisional"), score, scores,
                         sheetYo.getBool("fire"), playerYo.getBool("withdraw"), Opt.of(playerYo.getString("team"))));
         }
@@ -495,7 +495,7 @@ public interface TournamentAdapter {
             && nbYo.getInteger("win") instanceof Integer win
            ) {
             return Opt.of(new Arena.Podium(
-                        new LightUser(tmp.name().toLowerCase(Locale.ROOT), tmp.title(), tmp.name(), tmp.patron(), tmp.flair()),
+                        new LightUser(tmp.name().toLowerCase(Locale.ROOT), tmp.title(), tmp.name(), tmp.patronColor(), tmp.flair()),
                         rank, rating, score, performance, game, berserk, win, Opt.of(podiumYo.getString("team"))));
         }
         return Opt.of();

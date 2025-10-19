@@ -30,7 +30,7 @@ public interface UserAdapter {
                 case "username"     -> username.of(yo.getString(entry.getKey()));
                 case "name"         -> name.of(yo.getString(entry.getKey()));
                 case "title"        -> title.of(yo.getString(entry.getKey()));
-                case "patron"       -> patron.of(yo.getBool(entry.getKey()));
+                case "patronColor"  -> patronColor.of(yo.getInteger(entry.getKey()));
                 case "flair"        -> flair.of(yo.getString(entry.getKey()));
                 case "online"       -> online.of(yo.getBool(entry.getKey()));
                 case "streaming"    -> streaming.of(yo.getBool(entry.getKey()));

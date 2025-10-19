@@ -28,8 +28,8 @@ public class TestGameExport {
                     ZonedDateTime.ofInstant(Instant.ofEpochMilli(1514505592843l), ZoneId.systemDefault()).withNano(0),
                     Status.draw,
                     new Game.Players(
-                        Player.account(new LightUser("lance5500", Opt.of("LM"), "Lance5500", true, Opt.empty()), 2389, false, 4),
-                        Player.account(new LightUser("tryinghard87", Opt.empty(), "TryingHard87", false, Opt.empty()), 2498, false, -4)
+                        Player.account(new LightUser("lance5500", Opt.of("LM"), "Lance5500", Opt.of(10), Opt.empty()), 2389, false, 4),
+                        Player.account(new LightUser("tryinghard87", Opt.empty(), "TryingHard87", Opt.empty(), Opt.empty()), 2498, false, -4)
                         ),
                     Opt.empty(),
                     Opt.empty(), Opt.empty(), Opt.empty(),
@@ -60,7 +60,7 @@ public class TestGameExport {
               "user": {
                 "name": "Lance5500",
                 "title": "LM",
-                "patron": true,
+                "patronColor": 10,
                 "id": "lance5500"
               },
               "rating": 2389,

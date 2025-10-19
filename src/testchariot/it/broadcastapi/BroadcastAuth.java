@@ -49,7 +49,7 @@ public class BroadcastAuth {
         Broadcast.Info info = new Broadcast.Info();
 
         Opt<LightUser> communityOwner = client.account().profile().maybe()
-            .map(user -> Opt.of(new LightUser(user.id(), user.title(), user.name(), user.patron(), user.flair())))
+            .map(user -> Opt.of(new LightUser(user.id(), user.title(), user.name(), user.patronColor(), user.flair())))
             .orElse(Opt.empty());
 
         Broadcast expected = new Broadcast(

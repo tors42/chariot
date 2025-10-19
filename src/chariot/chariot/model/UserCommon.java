@@ -5,6 +5,7 @@ public sealed interface UserCommon permits User, UserStatus, LightUser, Disabled
     default String id() { return lightUser().id(); }
     default String name() { return lightUser().name(); }
     default boolean patron() { return lightUser().patron(); }
+    default Opt<Integer> patronColor() { return lightUser().patronColor(); }
     default Opt<String> title() { return lightUser().title(); }
     default Opt<String> flair() { return lightUser().flair(); }
 
@@ -35,7 +36,7 @@ public sealed interface UserCommon permits User, UserStatus, LightUser, Disabled
     private LightUser lightUser() {
         return switch(userCommon()) {
             case LightUser light -> light;
-            case Disabled disabled -> new LightUser(disabled.id(), Opt.empty(), disabled.name(), false, Opt.empty());
+            case Disabled disabled -> new LightUser(disabled.id(), Opt.empty(), disabled.name(), Opt.empty(), Opt.empty());
             default -> null;
         };
     }

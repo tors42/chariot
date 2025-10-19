@@ -8,9 +8,11 @@ public record UserPerformance (
         String username,
         String title,
         boolean online,
-        boolean patron,
+        Opt<Integer> patronColor,
         Perfs perfs
         )  {
+
+    public boolean patron() { return patronColor.isPresent(); }
 
     public UserPerformance {
         title = orEmpty(title);
