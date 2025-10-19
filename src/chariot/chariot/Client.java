@@ -305,6 +305,8 @@ public interface Client  {
         racer_write,
         /// Read puzzle activity
         puzzle_read,
+        /// Solve puzzles
+        puzzle_write,
         /// Read private team information
         team_read,
         /// Join, leave
