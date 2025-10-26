@@ -15,7 +15,7 @@ public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group, Opt<Str
             List<ZonedDateTime> dates,
             Info info,
             int tier,
-            String description,
+            Opt<String> description,
             URI url,
             Opt<URI> image,
             boolean teamTable,

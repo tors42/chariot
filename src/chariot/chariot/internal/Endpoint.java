@@ -592,7 +592,7 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Broadcast.class).endpoint("/broadcast/new").post(wwwform).scope(Scope.study_write).toOne();
 
     public static EPOne<MyRound> createRound =
-        Endpoint.of(mapper(MyRoundConvert.class).andThen(MyRoundConvert::toMyRound)).endpoint("/broadcast/%s/new").post(wwwform).scope(Scope.study_write).toOne();
+        Endpoint.of(mapper(MyRoundIntegerToDuration.class).andThen(MyRoundIntegerToDuration::toMyRound)).endpoint("/broadcast/%s/new").post(wwwform).scope(Scope.study_write).toOne();
 
     public static EPOne<Broadcast> broadcastById =
         Endpoint.of(Broadcast.class).endpoint("/api/broadcast/%s").scope(Scope.study_read).toOne();
@@ -637,7 +637,10 @@ public sealed interface Endpoint<T> {
         .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
 
-    public static EPMany<MyRound> streamMyRounds = Endpoint.of(mapper(MyRoundConvert.class).andThen(MyRoundConvert::toMyRound)).endpoint("/api/broadcast/my-rounds").accept(jsonstream).scope(Scope.study_read).toMany();
+    public static EPMany<MyRound> streamMyRounds = Endpoint.of(
+            mapper(MyRoundIntegerToDuration.class)
+            .andThen(MyRoundIntegerToDuration::toMyRound))
+        .endpoint("/api/broadcast/my-rounds").accept(jsonstream).scope(Scope.study_read).toMany();
 
     public static EPOne<FidePlayer> fidePlayer =
         Endpoint.of(FidePlayer.class).endpoint("/api/fide/player/%s").toOne();
@@ -762,10 +765,16 @@ public sealed interface Endpoint<T> {
     static record WrappedChapters(List<ChapterMeta> chapters) {}
     static record PushAck(int moves) {}
 
-    static record MyRoundConvert(MyRound.Tour tour, RoundConvert round, MyRound.Study study) {
+    static record MyRoundIntegerToDuration(Broadcast.Tour tour, RoundIntegerToDuration round, RoundInfo.Study study) {
         MyRound toMyRound() { return new MyRound(tour, round.toRound(), study); }
     }
-    static record RoundConvert(String id, String slug, String name, ZonedDateTime createdAt, boolean startsAfterPrevious, Opt<ZonedDateTime> startsAt, Opt<ZonedDateTime> finishedAt, boolean ongoing, boolean finished, boolean rated, java.net.URI url, Integer delay, Opt<Broadcast.CustomScoring> customScoring) {
+    static record RoundIntegerToDuration(
+            String id, String slug, String name, ZonedDateTime createdAt, boolean startsAfterPrevious, Opt<ZonedDateTime> startsAt, Opt<ZonedDateTime> finishedAt,
+            boolean ongoing, boolean finished, boolean rated, java.net.URI url,
+
+            Integer delay, // <-- want a Duration
+
+            Opt<Broadcast.CustomScoring> customScoring) {
         MyRound.Round toRound() {
             return new MyRound.Round(id, slug, name, createdAt, startsAfterPrevious, startsAt, finishedAt, ongoing, finished, rated, url, delay == null ? Duration.ZERO : Duration.ofSeconds(delay), customScoring);
         }

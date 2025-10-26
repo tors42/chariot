@@ -61,7 +61,7 @@ public class BroadcastAuth {
                         dates,
                         info,
                         tier,
-                        description,
+                        Opt.of(description),
                         IT.lilaURI().resolve("/broadcast/" + slug + "/" + id),
                         image,
                         teamTable,
@@ -83,7 +83,7 @@ public class BroadcastAuth {
         // or as rendered HTML.
 
         // Test that description field gets rendered as HTML when specified
-        String expectedHtmlDescription = "<p>" + description + "</p>\n";
+        Opt<String> expectedHtmlDescription = Opt.of("<p>" + description + "</p>\n");
 
 
         // In future with withers (ish):
@@ -197,7 +197,7 @@ public class BroadcastAuth {
                         dates,
                         info,
                         tier,
-                        description,
+                        Opt.of(description),
                         IT.lilaURI().resolve("/broadcast/" + slug + "/" + id),
                         image,
                         teamLeaderboard,
@@ -212,9 +212,15 @@ public class BroadcastAuth {
 
         unboxEquals(broadcastById, expected);
 
-        var myRound1 = createAndVerifyRound(broadcast, "Round 1", 1);
-        var myRound2 = createAndVerifyRound(broadcast, "Round 2", 2);
-        var myRound3 = createAndVerifyRound(broadcast, "Round 3", 3);
+        List<ZonedDateTime> expectedStartEndPairDates = List.of();
+
+        var myRound1 = createAndVerifyRound(broadcast, "Round 1", 1, expectedStartEndPairDates);
+        expectedStartEndPairDates = List.of(myRound1.round().startsAt().get());
+        var myRound2 = createAndVerifyRound(broadcast, "Round 2", 2, expectedStartEndPairDates);
+        expectedStartEndPairDates = List.of(myRound1.round().startsAt().get(), myRound2.round().startsAt().get());
+        var myRound3 = createAndVerifyRound(broadcast, "Round 3", 3, List.of(myRound1.round().startsAt().get(), myRound2.round().startsAt().get()));
+
+        expectedStartEndPairDates = List.of(myRound1.round().startsAt().get(), myRound3.round().startsAt().get());
 
         var broadcastAfterRoundHaveBeenCreated = superadmin.broadcasts().broadcastById(broadcast.id());
 
@@ -223,7 +229,6 @@ public class BroadcastAuth {
                 myRoundToRound(myRound2),
                 myRoundToRound(myRound3));
 
-        List<ZonedDateTime> expectedDates = List.of(myRound1.round().startsAt().get(), myRound3.round().startsAt().get());
 
         Opt<String> expectedDefaultRoundIdAfterRoundsHaveBeenCreated = Opt.of(myRound1.id());
 
@@ -238,7 +243,7 @@ public class BroadcastAuth {
                     broadcast.tour().name(),
                     broadcast.tour().slug(),
                     broadcast.tour().createdAt(),
-                    expectedDates,
+                    expectedStartEndPairDates,
                     broadcast.tour().info(),
                     broadcast.tour().tier(),
                     broadcast.tour().description(),
@@ -278,7 +283,7 @@ public class BroadcastAuth {
         unboxEquals(broadcastFetchRes, true, b -> ! b.rounds().isEmpty() && b.rounds().getFirst().startsAfterPrevious());
     }
 
-    static MyRound createAndVerifyRound(Broadcast broadcast, String roundName, int plusDays) {
+    static MyRound createAndVerifyRound(Broadcast broadcast, String roundName, int plusDays, List<ZonedDateTime> previousRounds) {
         ZonedDateTime createRound = ZonedDateTime.now();
         ZonedDateTime roundStartsAt = createRound.plusDays(plusDays).withNano(0);
         Duration roundDelay = Duration.ofMinutes(30);
@@ -305,14 +310,21 @@ public class BroadcastAuth {
         ZonedDateTime roundCreatedAt = myRound.round().createdAt();
         assertTrue(aboutSameTime(createRound, roundCreatedAt), roundName + " Created At off");
 
-        MyRound.Tour expectedRoundTour = new MyRound.Tour(
-                broadcast.tour().id(),
-                broadcast.tour().slug(),
-                broadcast.tour().name(),
-                broadcast.tour().info(),
-                broadcast.tour().createdAt(),
-                broadcast.tour().tier(),
-                broadcast.tour().image());
+        Broadcast.Tour expectedRoundTour =
+                new Broadcast.Tour(
+                        broadcast.tour().id(),
+                        broadcast.tour().name(),
+                        broadcast.tour().slug(),
+                        broadcast.tour().createdAt(),
+                        previousRounds,
+                        broadcast.tour().info(),
+                        broadcast.tour().tier(),
+                        broadcast.tour().description(),
+                        broadcast.tour().url(),
+                        broadcast.tour().image(),
+                        broadcast.tour().teamTable(),
+                        broadcast.tour().communityOwner());
+
 
         MyRound.Round expectedRoundRound = new MyRound.Round(
                 roundId,
@@ -329,7 +341,7 @@ public class BroadcastAuth {
                 roundDelay,
                 Opt.of(customScoring)
                 );
-        MyRound.Study expectedRoundStudy = new MyRound.Study(true);
+        RoundInfo.Study expectedRoundStudy = new RoundInfo.Study(true, new RoundInfo.Features(true, true, true));
 
         MyRound expectedRound = new MyRound(expectedRoundTour, expectedRoundRound, expectedRoundStudy);
 
