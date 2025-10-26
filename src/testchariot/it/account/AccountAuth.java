@@ -1,9 +1,7 @@
 package it.account;
 
-import chariot.ClientAuth;
-import chariot.model.User;
-import chariot.model.UserAuth;
-import chariot.model.UserCommon;
+import module chariot;
+
 import util.IntegrationTest;
 import util.IT;
 import static util.Assert.assertFalse;
@@ -30,9 +28,10 @@ public class AccountAuth {
 
     @IntegrationTest
     public void kidMode() {
-        unboxEquals(bobby.account().kidMode(), false);
-        bobby.account().kidMode(true);
-        unboxEquals(bobby.account().kidMode(), true);
+       bobby.account().kidMode(true);
+       unboxEquals(bobby.account().kidMode(), true);
+       bobby.account().kidMode(false);
+       unboxEquals(bobby.account().kidMode(), false);
     }
 
     @IntegrationTest
