@@ -4,9 +4,9 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public record PerformanceStatistics(Perf perf, Integer rank, Float percentile, Stat stat)  {
+public record PerformanceStatistics(Perf perf, Opt<Integer> rank, Opt<Double> percentile, Stat stat)  {
 
-    public record Perf(Glicko glicko, Integer nb, Integer progress) { }
+    public record Perf(Glicko glicko, int nb, int progress) { }
     public record Glicko(Float rating, Float deviation, boolean provisional) {}
 
     public record PerfType(String key, String name) {}
@@ -20,7 +20,7 @@ public record PerformanceStatistics(Perf perf, Integer rank, Float percentile, S
             Integer tour, Integer berserk, Integer opAvg, Integer seconds, Integer disconnects) {}
 
     public record ResultStreak(Streak win, Streak loss) {}
-    public record PlayStreak(Streak nb, Streak time, String lastDate) {}
+    public record PlayStreak(Streak nb, Streak time, Opt<String> lastDate) {}
 
     public record Streak(StreakInfo cur, StreakInfo max) {}
     public record StreakPoint(ZonedDateTime at, String gameId) {}
@@ -30,9 +30,8 @@ public record PerformanceStatistics(Perf perf, Integer rank, Float percentile, S
     public record WithStreak(Integer v, StreakPoint from, StreakPoint to) implements StreakInfo { }
 
     public record Stat(
-            PerfType perfType,
-            DateResult highest,
-            DateResult lowest,
+            Opt<DateResult> highest,
+            Opt<DateResult> lowest,
             Results bestWins,
             Results worstLosses,
             Count count,
