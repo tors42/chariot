@@ -33,6 +33,8 @@ client.broadcasts().byUserId()
 client.broadcasts().topActive()
 client.broadcasts().topUpcoming()
 client.broadcasts().topPast()
+client.broadcasts().playersById()
+client.broadcasts().playerDetailsById()
 
 client.challenges().challengeOpenEnded()
 
@@ -64,6 +66,8 @@ client.puzzles().nextPuzzle()
 client.puzzles().byId()
 client.puzzles().stormDashboard()
 client.puzzles().raceResult()
+client.puzzles().batch()
+client.puzzles().batchSolve()
 
 client.simuls().simuls()
 
@@ -74,7 +78,6 @@ client.studies().lastModifiedByStudyId()
 client.studies().byPage()
 client.studies().listStudies()
 client.studies().listStudiesByUser()
-client.studies().deleteStudyChapter()
 
 client.tablebase().standard()
 client.tablebase().atomic()
@@ -216,10 +219,11 @@ client.games().byBulkId()
 client.puzzles().activity()
 client.puzzles().createAndJoinRace()
 client.puzzles().puzzleDashboard()
-client.puzzles().nextPuzzle()
 client.puzzles().replay()
 
 client.studies().importPgn()
+client.studies().deleteStudyChapter()
+client.studies().updateStudyChapterTags()
 
 client.teams().joinTeam()
 client.teams().leaveTeam()
