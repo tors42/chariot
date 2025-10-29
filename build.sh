@@ -23,7 +23,7 @@ echo "modifier:  [$modifier]"
 echo "tstamp:    [$tstamp]"
 
 java -Xinternalversion
-java build/Build.java "$version$modifier" "$tstamp"
+java build.java "$version$modifier" "$tstamp"
 
 cd -
 
