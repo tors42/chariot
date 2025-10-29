@@ -39,7 +39,7 @@ jobs:
         run: java -Xinternalversion
 
       - name: Run integration tests
-        run: cd chariot && java build/Build.java
+        run: cd chariot && java build.java
         env:
           LILA_API: http://lila:8080
           IT_LONG: y
