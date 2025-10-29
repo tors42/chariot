@@ -1,6 +1,6 @@
 # Chariot
 
-Chariot is a Java client for the [Lichess API](https://lichess.org/api). It is compiled for Java 25.  
+Chariot is a Java client for the [Lichess API](https://lichess.org/api).  
 _[Lichess](https://github.com/lichess-org/lila) is a charity and entirely free/libre open source software._
 
 ## API Listing
@@ -258,8 +258,9 @@ Checkout the [JavaDoc](https://tors42.github.io/chariot/chariot/chariot/Client.h
 
 ## Use as Dependency
 
-The coordinates are `io.github.tors42:chariot:0.1.21`, so in a Maven project
-the following dependency can be added to the `pom.xml`:
+The latest version is compiled for Java 25, with the coordinates
+`io.github.tors42:chariot:0.1.21`, so in a Maven project the following
+dependency can be added to the `pom.xml`:
 
 ```xml
     <dependency>
@@ -268,6 +269,7 @@ the following dependency can be added to the `pom.xml`:
       <version>0.1.21</version>
     </dependency>
 ```
+_The latest version compiled for Java 21 is 0.1.21_
 
 Here is a link to a simple example Maven project application
 https://github.com/tors42/chariot-example which can be imported into an IDE in
@@ -301,7 +303,7 @@ Copy/paste the following example code,
 import chariot.Client;
 
 var client = Client.basic();
-System.out.println(client.teams().byTeamId("lichess-swiss")
+IO.println(client.teams().byTeamId("lichess-swiss").maybe()
     .map(team -> "Team %s has %d members!".formatted(team.name(), team.nbMembers()))
     .orElse("Couldn't find team!"));
 ```
@@ -310,11 +312,11 @@ System.out.println(client.teams().byTeamId("lichess-swiss")
 jshell> <b>import chariot.Client;</b>
    ...> 
    ...> <b>var client = Client.basic();</b>
-   ...> <b>System.out.println(client.teams().byTeamId("lichess-swiss")</b>
+   ...> <b>IO.println(client.teams().byTeamId("lichess-swiss").maybe()</b>
    ...> <b>    .map(team -> "Team %s has %d members!".formatted(team.name(), team.nbMembers()))</b>
    ...> <b>    .orElse("Couldn't find team!"));</b>
-client ==> chariot.Client@235834f2
-Team Lichess Swiss has 614985 members!
+client ==> chariot.internal.impl.ClientImpl@954b04f
+Team Lichess Swiss has 643763 members!
 
 jshell>
 </pre>
@@ -328,7 +330,7 @@ numberOfTeams()       popularTeams()        popularTeamsByPage(   search(
 searchByPage(         swissByTeamId(        toString()            usersByTeamId(
 usersByTeamIdFull(    wait(
 jshell> client.teams().<b>numberOfTeams();</b>
-$4 ==> 400392
+$4 ==> 377439
 
 jshell> <b>/exit</b>
 |  Goodbye
@@ -340,12 +342,12 @@ Build with latest Java. A JDK archive can be downloaded and unpacked from https:
 
 <pre>
 $ <b>java -version</b>
-openjdk version "25" 2025-09-16
-OpenJDK Runtime Environment (build 25+36-3489)
-OpenJDK 64-Bit Server VM (build 25+36-3489, mixed mode, sharing)
+openjdk version "25.0.1" 2025-10-21
+OpenJDK Runtime Environment (build 25.0.1+8-27)
+OpenJDK 64-Bit Server VM (build 25.0.1+8-27, mixed mode, sharing)
 
-$ <b>java build.java</b>
-71 successful basic tests
+$ <b>./build.java</b>
+78 successful basic tests
 0 failed tests
 </pre>
 
@@ -360,35 +362,32 @@ An example which uses a token to authenticate in order to be able to create a Sw
 ```java
 package res;
 
-import chariot.Client;
-import java.time.*;
+import module chariot;
+import module java.base;
 
-class Example {
+void main() {
 
-    public static void main(String[] args) {
+    var client = Client.auth("my-token");
 
-        var client = Client.auth("my-token");
+    var tomorrow = ZonedDateTime.now().plusDays(1).with(
+        LocalTime.parse("17:00"));
 
-        var tomorrow = ZonedDateTime.now().plusDays(1).with(
-            LocalTime.parse("17:00"));
+    String teamId = "my-team-id";
 
-        String teamId = "my-team-id";
+    var result = client.tournaments().createSwiss(teamId, params -> params
+        .clockBlitz5m3s()
+        .name("My 5+3 Swiss")
+        .rated(false)
+        .description("Created via API")
+        .startsAt(tomorrow));
 
-        var result = client.tournaments().createSwiss(teamId, params -> params
-            .clockBlitz5m3s()
-            .name("My 5+3 Swiss")
-            .rated(false)
-            .description("Created via API")
-            .startsAt(tomorrow));
-
-        System.out.println(result);
-    }
+    IO.println(result);
 }
 ```
 
 <pre>
 $ <b>java -p out/modules --add-modules chariot res/Example.java</b>
-Entry[entry=Swiss[id=vLx22Ff1, name=My 5+3 Swiss, createdBy=test, startsAt=2022-03-29T17:00:00.000+02:00, status=created, nbOngoing=0, nbPlayers=0, nbRounds=9, round=0, rated=false, variant=standard, clock=Clock[limit=300, increment=3], greatPlayer=null, nextRound=NextRound[at=2022-03-29T17:00:00.000+02:00, in=62693], quote=null]]
+Some[value=Swiss[id=vLx22Ff1, name=My 5+3 Swiss, createdBy=test, startsAt=2022-03-29T17:00:00.000+02:00, status=created, nbOngoing=0, nbPlayers=0, nbRounds=9, round=0, rated=false, variant=standard, clock=Clock[limit=300, increment=3], greatPlayer=null, nextRound=NextRound[at=2022-03-29T17:00:00.000+02:00, in=62693], quote=null]]
 </pre>
 
 ### 2. FEN.java
