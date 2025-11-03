@@ -17,6 +17,8 @@ public record ConditionInfo<T extends Condition>(List<T> list, Map<T, String> un
 
     public boolean hasEntryCode() { return find(Condition.EntryCode.class).isPresent(); }
     public boolean onlyForTitled() { return find(Condition.Titled.class).isPresent(); }
+    public boolean allowsBots() { return find(Condition.Bots.class)
+        .map(Condition.Bots::allowed).orElse(false); }
 
     public Opt<Integer> minRating() {
         return find(Condition.MinRating.class)
