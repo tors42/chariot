@@ -313,6 +313,11 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
          * The start date is unknown, and the round will start automatically when the previous round completes.
          */
         default RoundBuilder startsAfterPrevious() { return startsAfterPrevious(true); }
+
+        /// Only update the provided fields, leaving others unchanged. Default `true`
+        RoundBuilder patch(boolean patch);
+        /// Only update the provided fields, leaving others unchanged. Default `true`
+        default RoundBuilder patch() { return patch(true); }
     }
 
     interface RoundsParameters {

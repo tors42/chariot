@@ -1,16 +1,10 @@
 package chariot.internal.impl;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import module java.base;
+import module chariot;
 
-import chariot.api.*;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
-import chariot.model.*;
 
 public class BroadcastsHandler implements BroadcastsApiAuth {
 
@@ -173,17 +167,22 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
 
     @Override
     public One<MyRound> createRound(String tourId, Consumer<RoundBuilder> params) {
+        var map = roundBuilderToMap(params);
+        map.remove("patch");
         return Endpoint.createRound.newRequest(request -> request
                 .path(tourId)
-                .body(roundBuilderToMap(params)))
+                .body(map))
             .process(requestHandler);
     }
 
     @Override
     public One<Broadcast.Round> updateRound(String roundId, Consumer<RoundBuilder> params) {
+        var map = roundBuilderToMap(params);
+        String patch = Objects.toString(map.remove("patch"), "true");
         return Endpoint.updateRound.newRequest(request -> request
                 .path(roundId)
-                .body(roundBuilderToMap(params)))
+                .query(Map.of("patch", patch))
+                .body(map))
             .process(requestHandler);
     }
 
@@ -239,6 +238,7 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
                         .collect(Collectors.joining("\n"))))
             .addCustomHandler("syncIds", (args, map) -> map.put("syncIds", String.join(" ", (List<String>)args[0])))
             .addCustomHandler("syncUsers", (args, map) -> map.put("syncUsers", String.join(" ", (List<String>)args[0])))
+            .addCustomHandler("patch", (args, map) -> map.put("patch", String.valueOf(args[0])))
             .rename("customScoringWhiteWin",  "customScoring.white.win")
             .rename("customScoringBlackWin",  "customScoring.black.win")
             .rename("customScoringWhiteDraw", "customScoring.white.draw")
