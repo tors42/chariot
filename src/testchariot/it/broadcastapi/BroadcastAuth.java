@@ -83,7 +83,7 @@ public class BroadcastAuth {
         // or as rendered HTML.
 
         // Test that description field gets rendered as HTML when specified
-        Opt<String> expectedHtmlDescription = Opt.of("<p>" + description + "</p>\n");
+        Opt<String> expectedHtmlDescription = Opt.of("<p>" + description + "</p>\t");
 
 
         // In future with withers (ish):
