@@ -1,12 +1,13 @@
 package tests.internal.yayson;
 
-import chariot.internal.yayson.Parser;
-import chariot.internal.yayson.Parser.*;
+import module java.base;
+
 import util.Test;
+import chariot.internal.yayson.*;
+import chariot.internal.yayson.Parser.*;
 
 import static util.Assert.*;
 
-import java.util.Base64;
 
 public class TestParser {
 
@@ -227,5 +228,17 @@ public class TestParser {
         var node = Parser.fromString(json);
 
         assertTrue(node instanceof YayObject yo && yo.value().get("escapes") instanceof YayString);
+    }
+
+    @Test
+    public void escapedQuotesAndUnicode() throws Exception {
+        // {"key":"\"T\u00c3\u00bcrk\u00c3\u00a7e\""}
+        byte[] jsonBytes = Base64.getDecoder().decode("eyJrZXkiOiJcIlRcdTAwYzNcdTAwYmNya1x1MDBjM1x1MDBhN2VcIiJ9Cg==");
+        String json = new String(jsonBytes);
+        if (! (Parser.fromString(json) instanceof YayObject yo && yo.value().get("key") instanceof YayString ys)) {
+            fail("Not a string!");
+            return;
+        }
+        assertEquals("\"T\u00c3\u00bcrk\u00c3\u00a7e\"", ys.value());
     }
 }

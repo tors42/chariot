@@ -1,8 +1,6 @@
 package chariot.internal.yayson;
 
-import java.util.*;
-import java.nio.ByteBuffer;
-import java.util.List;
+import module java.base;
 
 public sealed interface Token {
 
@@ -70,14 +68,6 @@ public sealed interface Token {
 
     record JsonString(String string, String source) implements Token {
         public JsonString(String string) { this(string, string); }
-
-        public static JsonString decode(String json) {
-            if (json.contains("\\")) {
-                return new JsonString(json.transform(Token::decodeUnicode));
-            } else {
-                return new JsonString(json);
-            }
-        }
         @Override public int length() { return source.length() + 2; } // +2 for quotation marks
     };
 
@@ -106,36 +96,34 @@ public sealed interface Token {
     }
 
     private static Token lexString(String json) {
-        int endQuote = 1;
-
-        try {
-            while((endQuote = json.indexOf('"', endQuote)) != -1) {
-                // Check if the " is escaped...
-                if (json.charAt(endQuote-1) == '\\') {
-                    // Check if the \ is not escaped...
-                    if (json.charAt(endQuote-2) != '\\') {
-
-                        // Ok escape was real...
-                        // Search for next " instead.
-
-                        endQuote++;
-                        continue;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i < json.length(); i++) {
+            switch (json.charAt(i)) {
+                case '"' -> { return new JsonString(sb.toString(), json.substring(1,i)); }
+                case '\\' -> {
+                    i++;
+                    switch(json.charAt(i)) {
+                        case 'b' -> sb.append('\b');
+                        case 't' -> sb.append('\t');
+                        case 'n' -> sb.append('\t');
+                        case 'f' -> sb.append('\f');
+                        case 'r' -> sb.append('\r');
+                        case 'u' -> {
+                            i++;
+                            String udigits = json.substring(i, i+4);
+                            sb.append((char)Integer.parseInt(udigits, 16));
+                            i += 3;
+                        }
+                        case '"',
+                             '\'',
+                             '\\',
+                             '/' -> sb.append(json.charAt(i));
+                        default -> System.err.println("Illegal escape in " + json);
                     }
                 }
-
-                // Ok it seems the found " is not escaped,
-                // let's use everything we found.
-
-                var parsedString = json.substring(1, endQuote);
-                var string = JsonString.decode(parsedString);
-                return string;
+                default -> sb.append(json.charAt(i));
             }
-        } catch (Exception e) {
-            // todo error.log
-            e.printStackTrace(System.err);
         }
-
-        // todo error.log
         System.err.println("Couldn't find matching [\"], for json [" + json + "]");
         return null;
     }
@@ -175,74 +163,4 @@ public sealed interface Token {
         }
         return null;
     }
-
-    static String decodeUnicode(String string) {
-        try {
-            return _decodeUnicode(string);
-        } catch (Exception e) {
-            // todo, logger.errors
-            e.printStackTrace(System.err);
-            return string;
-        }
-    }
-
-    static String _decodeUnicode(String string) throws Exception {
-        byte[] bytes = string.getBytes();
-        ByteBuffer bb = ByteBuffer.allocate(bytes.length);
-        for(int i = 0; i < bytes.length; i++) {
-            byte b = bytes[i];
-
-            // An escape
-            if (b == 0x5c) {
-                if (i+1 < bytes.length) {
-                    byte next = bytes[i+1];
-                    // u
-                    if (next == 0x75) {
-
-                        byte ub1 = bytes[i+2];   // 50
-                        byte ub2 = bytes[i+3];
-                        byte ub3 = bytes[i+4];
-                        byte ub4 = bytes[i+5];
-
-                        char uc1 = (char) ub1;   // '2'
-                        char uc2 = (char) ub2;
-                        char uc3 = (char) ub3;
-                        char uc4 = (char) ub4;
-
-                        String four = ""+uc1+uc2+uc3+uc4;  // "2658"
-
-                        int cp = Integer.parseInt(four, 16); // 9816
-
-                        char[] chars = Character.toChars(cp);  // char[1] {horse}
-
-
-
-                        // Hmm, "ud83d udcdc" -> "{scroll}"
-                        //
-                        // "{scroll}".getBytes()  ->  { -16, -97, -109, -100 }
-
-                        // So after the first unicodes, check if there is a follow up,
-                        // and figure out how to parse it...
-
-                        String s = new String(chars);
-
-                        //System.out.println("Decoded string: [" + s + "]");
-                        var sbytes = s.getBytes();
-                        for (int j = 0; j < sbytes.length; j++) {
-                            bb.put(sbytes[j]);
-                        }
-
-                        i += 5;
-                        continue;
-                    }
-                }
-            }
-
-            bb.put(b);
-        }
-
-        int pos = bb.position();
-        return new String(bb.slice(0, pos).array());
-    }
-
 }
