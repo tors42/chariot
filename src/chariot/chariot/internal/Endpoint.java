@@ -569,11 +569,6 @@ public sealed interface Endpoint<T> {
         .streamMapper(stream -> stream.map(mapper(ActiveAndUpcoming.class)).flatMap(au -> au.active().stream()))
         .toMany();
 
-    public static EPMany<Broadcast.TourWithLastRound> broadcastsTopUpcoming =
-        Endpoint.of(Broadcast.TourWithLastRound.class).endpoint("/api/broadcast/top")
-        .streamMapper(stream -> stream.map(mapper(ActiveAndUpcoming.class)).flatMap(au -> au.upcoming().stream()))
-        .toMany();
-
     public static EPOne<PageBroadcast> broadcastsTopPastPage =
         Endpoint.of(mapper(PageBroadcastWrapper.class).andThen(PageBroadcastWrapper::past))
         .endpoint("/api/broadcast/top").toOne();

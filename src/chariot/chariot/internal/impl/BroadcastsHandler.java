@@ -35,14 +35,6 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
     }
 
     @Override
-    public Many<Broadcast.TourWithLastRound> topUpcoming(Consumer<Params> params) {
-        return Endpoint.broadcastsTopUpcoming.newRequest(request -> request
-                .query(MapBuilder.of(Params.class).toMap(params)))
-            .process(requestHandler);
-    }
-
-
-    @Override
     public Many<Broadcast.TourWithLastRound> topPast(Consumer<Params> params) {
         var firstPage = topPastByPage(1, params);
         if (firstPage instanceof Some<Endpoint.PageBroadcast> one) {

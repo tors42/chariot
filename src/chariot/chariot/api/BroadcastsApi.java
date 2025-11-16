@@ -1,8 +1,7 @@
 package chariot.api;
 
-import java.util.function.Consumer;
-
-import chariot.model.*;
+import module chariot;
+import module java.base;
 
 public interface BroadcastsApi {
 
@@ -24,17 +23,14 @@ public interface BroadcastsApi {
     /// Get active top broadcasts
     Many<Broadcast.TourWithLastRound> topActive(Consumer<Params> params);
 
-    /// Get upcoming top broadcasts
-    Many<Broadcast.TourWithLastRound> topUpcoming(Consumer<Params> params);
+    @Deprecated default Many<Broadcast.TourWithLastRound> topUpcoming(Consumer<Params> params) { return Many.entries(Stream.of()); }
+    @Deprecated default Many<Broadcast.TourWithLastRound> topUpcoming() { return topUpcoming(_ -> {}); }
 
     /// Get past top broadcasts
     Many<Broadcast.TourWithLastRound> topPast(Consumer<Params> params);
 
     /// Get active top broadcasts
     default Many<Broadcast.TourWithLastRound> topActive() { return topActive(_ -> {}); }
-
-    /// Get upcoming top broadcasts
-    default Many<Broadcast.TourWithLastRound> topUpcoming() { return topUpcoming(_ -> {}); }
 
     /// Get past top broadcasts
     default Many<Broadcast.TourWithLastRound> topPast() { return topPast(_ -> {}); }
