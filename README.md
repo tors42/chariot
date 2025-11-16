@@ -31,7 +31,6 @@ client.broadcasts().leaderboardById()
 client.broadcasts().roundById()
 client.broadcasts().byUserId()
 client.broadcasts().topActive()
-client.broadcasts().topUpcoming()
 client.broadcasts().topPast()
 client.broadcasts().playersById()
 client.broadcasts().playerDetailsById()
@@ -351,7 +350,7 @@ OpenJDK Runtime Environment (build 25.0.1+8-27)
 OpenJDK 64-Bit Server VM (build 25.0.1+8-27, mixed mode, sharing)
 
 $ <b>./build.java</b>
-78 successful basic tests
+79 successful basic tests
 0 failed tests
 </pre>
 
