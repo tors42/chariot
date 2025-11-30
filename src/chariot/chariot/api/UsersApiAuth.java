@@ -5,21 +5,12 @@ import module chariot;
 
 public interface UsersApiAuth extends UsersApi {
 
-    /**
-     * Get public user data
-     *
-     * @param userId
-     */
+    /// Get public user data
     default One<UserAuth> byId(String userId) {
         return byId(userId, _ -> {});
     }
 
-
-    /**
-     * Get public user data
-     *
-     * @param userId
-     */
+    /// Get public user data
     One<UserAuth> byId(String userId, Consumer<UserParams> params);
 
     /// Get public user data
@@ -30,7 +21,13 @@ public interface UsersApiAuth extends UsersApi {
     /// be made as needed and, for any successful response, the results
     /// are concatenated into the initial response stream.
     /// @param userIds A list of up to 300 user ids
-    Many<UserAuth> byIds(String ... userIds);
+    default Many<UserAuth> byIds(Consumer<UsersParams> params, String... userIds) {
+        return byIds(Arrays.asList(userIds), params);
+    }
+
+
+    /// See {@link #byIds(java.util.function.Consumer, String...)}
+    default Many<UserAuth> byIds(String... userIds) { return byIds(_ -> {}, userIds); }
 
     /// Get public user data
     ///
@@ -40,7 +37,10 @@ public interface UsersApiAuth extends UsersApi {
     /// be made as needed and, for any successful response, the results
     /// are concatenated into the initial response stream.
     /// @param userIds A list of up to 300 user ids
-    Many<UserAuth> byIds(Collection<String> userIds);
+    Many<UserAuth> byIds(Collection<String> userIds, Consumer<UsersParams> params);
+
+    /// See {@link #byIds(java.util.Collection, java.util.function.Consumer)}
+    default Many<UserAuth> byIds(Collection<String> userIds) { return byIds(userIds, _ -> {}); }
 
     Ack sendMessageToUser(String userId, String text);
 

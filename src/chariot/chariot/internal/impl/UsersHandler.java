@@ -14,23 +14,8 @@ public class UsersHandler extends UsersBaseHandler implements UsersApi {
     }
 
     @Override
-    public One<User> byId(String userId) { return byId(userId, p -> p.withTrophies(false)); }
-
-    @Override
-    public Many<User> byIds(String ... userIds) {
-        return byIds(List.of(userIds));
-    }
-
-    @Override
     public One<User> byId(String userId, Consumer<UserParams> params) {
-        var parameterMap = MapBuilder.of(UserParams.class)
-            .addCustomHandler("withTrophies", (args, map) -> {
-                if (args[0] instanceof Boolean b && b.booleanValue()) map.put("trophies", 1);
-            })
-            .addCustomHandler("withChallengeable", (args, map) -> {
-                if (args[0] instanceof Boolean b && b.booleanValue()) map.put("challenge", 1);
-            })
-            .toMap(params);
+        var parameterMap = MapBuilder.of(UserParams.class).toMap(params);
 
         var result = Endpoint.userById.newRequest(request -> request
                 .path(userId)
@@ -48,16 +33,18 @@ public class UsersHandler extends UsersBaseHandler implements UsersApi {
     }
 
     @Override
-    public Many<User> byIds(Collection<String> userIds) {
+    public Many<User> byIds(Collection<String> userIds, Consumer<UsersParams> params) {
         List<List<String>> batches = userIds.stream()
             .gather(Gatherers.windowFixed(300)).toList();
 
-        Many<User> first = requestBatchUsersByIds(batches.getFirst(), UserData::toUser);
+        var paramMap = MapBuilder.of(UsersParams.class).toMap(params);
+
+        Many<User> first = requestBatchUsersByIds(batches.getFirst(), UserData::toUser, paramMap);
 
         return switch(first) {
             case Entries(Stream<User> stream) -> Many.entries(Stream.concat(stream,
                         batches.stream().skip(1)
-                        .map(batch -> requestBatchUsersByIds(batch, UserData::toUser))
+                        .map(batch -> requestBatchUsersByIds(batch, UserData::toUser, paramMap))
                         .flatMap(Many::stream)));
             case Fail<User> fail -> fail;
         };

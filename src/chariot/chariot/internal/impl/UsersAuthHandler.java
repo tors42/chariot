@@ -14,15 +14,6 @@ public class UsersAuthHandler extends UsersBaseHandler implements UsersApiAuth {
     }
 
     @Override
-    public One<UserAuth> byId(String userId) { return byId(userId, p -> p.withTrophies(false)); }
-
-
-    @Override
-    public Many<UserAuth> byIds(String ... userIds) {
-        return byIds(List.of(userIds));
-    }
-
-    @Override
     public One<UserAuth> byId(String userId, Consumer<UserParams> params) {
         var parameterMap = MapBuilder.of(UserParams.class)
             .addCustomHandler("withTrophies", (args, map) -> {
@@ -49,16 +40,18 @@ public class UsersAuthHandler extends UsersBaseHandler implements UsersApiAuth {
     }
 
     @Override
-    public Many<UserAuth> byIds(Collection<String> userIds) {
+    public Many<UserAuth> byIds(Collection<String> userIds, Consumer<UsersParams> params) {
         List<List<String>> batches = userIds.stream()
             .gather(Gatherers.windowFixed(300)).toList();
 
-        Many<UserAuth> first = requestBatchUsersByIds(batches.getFirst(), UserData::toUserAuth);
+        var paramsMap = MapBuilder.of(UsersParams.class).toMap(params);
+
+        Many<UserAuth> first = requestBatchUsersByIds(batches.getFirst(), UserData::toUserAuth, paramsMap);
 
         return switch(first) {
             case Entries(Stream<UserAuth> stream) -> Many.entries(Stream.concat(stream,
                         batches.stream().skip(1)
-                        .map(batch -> requestBatchUsersByIds(batch, UserData::toUserAuth))
+                        .map(batch -> requestBatchUsersByIds(batch, UserData::toUserAuth, paramsMap))
                         .flatMap(Many::stream)));
             case Fail<UserAuth> fail -> fail;
         };

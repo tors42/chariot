@@ -5,19 +5,10 @@ import module chariot;
 
 public interface UsersApi extends UsersApiBase {
 
-    /**
-     * Get public user data
-     *
-     * @param userId
-     */
-    One<? extends User> byId(String userId);
+    /// Get public user data
+    default One<? extends User> byId(String userId) { return byId(userId, _ -> {}); }
 
-    /**
-     * Get public user data
-     *
-     * @param userId
-     * @param params
-     */
+    /// Get public user data
     One<? extends User> byId(String userId, Consumer<UserParams> params);
 
     /// Get public user data
@@ -28,7 +19,12 @@ public interface UsersApi extends UsersApiBase {
     /// be made as needed and, for any successful response, the results
     /// are concatenated into the initial response stream.
     /// @param userIds A list of up to 300 user ids
-    Many<? extends User> byIds(String... userIds);
+    default Many<? extends User> byIds(Consumer<UsersParams> params, String... userIds) {
+        return byIds(Arrays.asList(userIds), params);
+    }
+
+    /// See {@link #byIds(java.util.function.Consumer, String...)}
+    default Many<? extends User> byIds(String... userIds) { return byIds(_ -> {}, userIds); }
 
     /// Get public user data
     ///
@@ -38,25 +34,59 @@ public interface UsersApi extends UsersApiBase {
     /// be made as needed and, for any successful response, the results
     /// are concatenated into the initial response stream.
     /// @param userIds A list of up to 300 user ids
-    Many<? extends User> byIds(Collection<String> userIds);
+    Many<? extends User> byIds(Collection<String> userIds, Consumer<UsersParams> params);
 
+    /// See {@link #byIds(java.util.Collection, java.util.function.Consumer)}
+    default Many<? extends User> byIds(Collection<String> userIds) { return byIds(userIds, _ -> {}); }
 
-    public interface UserParams {
-        /**
-         * Whether or not to include any trophies in the result
-         */
-        UserParams withTrophies(boolean withTrophies);
+    interface ProfileRank<T> {
+        /// Whether or not to include user profile in the result - Default `true`
+        T profile(boolean profile);
+        /// Whether or not to include user profile in the result - Default `true`
+        default T profile() { return profile(true); }
 
-        default UserParams withTrophies() { return withTrophies(true); }
-
-        /**
-         * Whether or not to include if user accepts challenges in the result.
-         */
-        UserParams withChallengeable(boolean withChallengeable);
-        default UserParams withChallengeable() { return withChallengeable(true); }
+        /// Whether or not to include user rank in the stats in the result - Default `false`
+        T rank(boolean rank);
+        /// Whether or not to include user rank in the stats in the result - Default `false`
+        default T rank() { return rank(true); }
     }
 
-    public interface CrosstableParams {
+    interface UsersParams extends ProfileRank<UsersParams> {}
+
+    interface UserParams extends ProfileRank<UserParams> {
+
+        /// Whether or not to include any trophies in the result - Default `false`
+        UserParams trophies(boolean withTrophies);
+        /// Whether or not to include any trophies in the result - Default `false`
+        default UserParams trophies() { return trophies(true); }
+
+        /// Whether or not to include if user accepts challenges in the result - Default `false`
+        UserParams challenge(boolean challenge);
+        /// Whether or not to include if user accepts challenges in the result - Default `false`
+        default UserParams challenge() { return challenge(true); }
+
+
+
+        /// Whether or not to include any trophies in the result - Default `false`
+        /// @deprecated
+        @Deprecated
+        default UserParams withTrophies(boolean withTrophies) { return trophies(withTrophies); }
+        /// Whether or not to include any trophies in the result - Default `false`
+        /// @deprecated
+        @Deprecated
+        default UserParams withTrophies() { return trophies(true); }
+
+        /// Whether or not to include if user accepts challenges in the result - Default `false`
+        /// @deprecated
+        @Deprecated
+        default UserParams withChallengeable(boolean withChallengeable) { return challenge(withChallengeable); }
+        /// Whether or not to include if user accepts challenges in the result - Default `false`
+        /// @deprecated
+        @Deprecated
+        default UserParams withChallengeable() { return challenge(true); }
+    }
+
+    interface CrosstableParams {
         /**
          * Whether or not to include matchup in the result
          */
@@ -64,7 +94,7 @@ public interface UsersApi extends UsersApiBase {
         default CrosstableParams matchup() { return matchup(true); }
     }
 
-    public interface UserStatusParams {
+    interface UserStatusParams {
         /**
          * Whether or not to include game IDs in the result
          */

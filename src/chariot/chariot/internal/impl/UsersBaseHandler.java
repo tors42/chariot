@@ -163,10 +163,11 @@ public abstract class UsersBaseHandler implements UsersApiBase {
             .process(requestHandler);
     }
 
-    <T> Many<T> requestBatchUsersByIds(List<String> ids, Function<UserData, T> mapper) {
+    <T> Many<T> requestBatchUsersByIds(List<String> ids, Function<UserData, T> mapper, Map<String,Object> paramMap) {
         Many<UserData> result = Endpoint.usersByIds.newRequest(request -> request
-                        .body(String.join(",", ids)))
-                    .process(requestHandler);
+                .query(paramMap)
+                .body(String.join(",", ids)))
+            .process(requestHandler);
         return switch(result) {
             case Entries(var stream)  -> Many.entries(stream.map(mapper));
             case Fail(int s, var msg) -> Many.fail(s, msg);
