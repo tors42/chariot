@@ -163,14 +163,24 @@ public class RunArena {
         };
     }
 
-    static List<ArenaRunner.Participant> participants(List<String> userIds, Opt<String> teamId) {
+    static List<ArenaRunner.Participant> participants(List<String> userIds, Opt<String> teamIdOpt) {
         return userIds.stream()
-            .map(userId -> {
+            .<ArenaRunner.Participant>mapMulti( (userId, mapper) -> {
                 ClientAuth client = IT.clientAuthByUserId(userId);
-                UserAuth account = client.account().profile().get();
-                Opt<Team> team = teamId.map(id -> client.teams().byTeamId(id).get());
-                return new ArenaRunner.Participant(client, account, team);
+                switch (client.account().profile()) {
+                    case Some(var account) -> {
+                        Opt<Team> teamOpt = switch(teamIdOpt) {
+                            case Some(var teamId) -> switch (client.teams().byTeamId(teamId)) {
+                                case Some(var team) -> Opt.of(team);
+                                case Fail<?> f -> { IO.println(f); yield Opt.empty(); }
+                            };
+                            case Empty() -> Opt.empty();
+                        };
+                        mapper.accept(new ArenaRunner.Participant(client, account, teamOpt));
+                    }
+                    case Fail<?> f -> IO.println(f);
+                }
             })
-            .toList();
+        .toList();
     }
 }
