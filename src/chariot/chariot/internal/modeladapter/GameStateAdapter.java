@@ -65,7 +65,12 @@ public interface GameStateAdapter {
                     : stateYo.getBool("btakeback")
                       ? Opt.of(Color.black)
                       : Opt.empty(),
-                Opt.of(stateYo.getString("rematch"))
+                Opt.of(stateYo.getString("rematch")),
+                stateYo.value().get("expiration") instanceof YayObject expYo
+                    && expYo.getLong("idleMillis") instanceof Long idle
+                    && expYo.getLong("millisToMove") instanceof Long toMove
+                    ? Opt.of(new GameStateEvent.Expiration(Duration.ofMillis(idle), Duration.ofMillis(toMove)))
+                    : Opt.empty()
                 );
     }
 

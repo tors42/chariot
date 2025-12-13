@@ -50,7 +50,8 @@ public sealed interface GameStateEvent {
             Opt<Color> winner,
             Opt<Color> drawOffer,
             Opt<Color> takebackOffer,
-            Opt<String> rematch
+            Opt<String> rematch,
+            Opt<Expiration> expiration
             ) implements GameStateEvent {
 
         public State {
@@ -61,6 +62,10 @@ public sealed interface GameStateEvent {
             return Arrays.stream(moves.split(" ")).filter(s -> ! s.isEmpty()).toList();
         }
     }
+
+    /// @param idle for how long player has been idle
+    /// @param toMove for how long player is allowed to be idle
+    record Expiration(Duration idle, Duration toMove) {}
 
     record Chat(String username, String text, String room) implements GameStateEvent {}
 
