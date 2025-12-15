@@ -506,7 +506,7 @@ public record NaiveChess(String variant, FEN fen, Map<Square.Pos, Square<Piece>>
                     if (square instanceof Square.Empty(_) ||
                             (square instanceof Square.With(_, _, Side side) && side == fen().side().other())) {
                         mapper.accept(new FromTo(piece, pos));
-                            }
+                    }
                 });
 
             case pawn -> {
@@ -532,7 +532,7 @@ public record NaiveChess(String variant, FEN fen, Map<Square.Pos, Square<Piece>>
                         if (squareMap().get(twoForward.to()) instanceof Square.Empty) {
                             fromTo = Stream.concat(fromTo, Stream.of(twoForward));
                         }
-                            }
+                    }
                 }
 
                 yield switch(piece) {
