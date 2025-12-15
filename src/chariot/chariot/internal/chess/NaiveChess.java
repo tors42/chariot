@@ -512,7 +512,8 @@ public record NaiveChess(String variant, FEN fen, Map<Square.Pos, Square<Piece>>
             case pawn -> {
                 Stream<FromTo> fromTo = attackedSquares
                     .<FromTo>mapMulti( (pos, mapper) -> {
-                        if (squareMap().get(pos) instanceof Square.With(_, _, Side side) && side == fen().side().other()) {
+                        if (squareMap().get(pos) instanceof Square.With(_, _, Side side) && side == fen().side().other()
+                            || fen.ep().equals(pos.toString())) {
                             mapper.accept(new FromTo(piece, pos));
                         }
                     });
