@@ -98,7 +98,7 @@ void main(String[] args) throws Exception {
 
     executor.submit(() -> {
         run(javadoc,
-            "--release", "25",
+            "--release", Runtime.version().feature(),
             "-notimestamp",
             "--module-source-path", src,
             "--module", module,
