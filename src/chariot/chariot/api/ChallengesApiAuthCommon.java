@@ -35,6 +35,8 @@ public interface ChallengesApiAuthCommon {
     Ack     cancelChallenge(String challengeId);
     Ack     cancelChallenge(String challengeId, Supplier<char[]> opponentToken);
     Ack     acceptChallenge(String challengeId);
+    /// Accept specific side in an Open-Ended challenge
+    Ack     acceptChallenge(String challengeId, Function<Enums.Color.Provider, Enums.Color> color);
     Ack     declineChallenge(String challengeId);
     Ack     declineChallenge(String challengeId, DeclineReason reason);
 

@@ -60,7 +60,12 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
 
     @Override
     public Ack acceptChallenge(String challengeId) {
-        return acceptChallenge(scope, challengeId);
+        return acceptChallenge(scope, challengeId, Optional.empty());
+    }
+
+    @Override
+    public Ack acceptChallenge(String challengeId, Function<Enums.Color.Provider, Enums.Color> color) {
+        return acceptChallenge(scope, challengeId, Optional.of(color.apply(Enums.Color.provider())));
     }
 
     @Override
@@ -167,10 +172,12 @@ public class ChallengesAuthCommonImpl extends ChallengesImpl implements Challeng
             .process(requestHandler);
     }
 
-    private Ack acceptChallenge(Scope scope, String challengeId) {
+    private Ack acceptChallenge(Scope scope, String challengeId, Optional<Enums.Color> color) {
         return Endpoint.challengeAccept.newRequest(request -> request
                 .scope(scope)
-                .path(challengeId))
+                .query(color.map(c -> Map.of("color", (Object)c)).orElseGet(Map::of))
+                .path(challengeId)
+                )
             .process(requestHandler);
     }
 
