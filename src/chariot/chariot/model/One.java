@@ -1,6 +1,6 @@
 package chariot.model;
 
-import java.util.Optional;
+import module java.base;
 
 /// A container for responses with a single entry.  
 /// The response can be either {@link Some} for responses with a value or {@link Fail} for responses without a value.  
@@ -63,4 +63,11 @@ public sealed interface One<T> permits
 
     Optional<T> maybe();
     T get();
+
+    default <U> One<U> mapOne(Function<? super T,? extends U> mapper) {
+        return switch(this) {
+            case Some(T t) -> One.entry(mapper.apply(t));
+            case Fail(int status, String msg) -> One.fail(status, msg);
+        };
+    }
 }
