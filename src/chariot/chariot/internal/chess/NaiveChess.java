@@ -73,7 +73,9 @@ public record NaiveChess(String variant, FEN fen, Map<Square.Pos, Square<Piece>>
                                 candidate.type() == type &&
                                 candidate.side() == side &&
                                 !candidate.pos().equals(from) &&
-                                squaresAttackedByPiece(candidate).anyMatch(square -> square.equals(to)))
+                                squaresAttackedByPiece(candidate).anyMatch(square -> square.equals(to)) &&
+                                !Objects.equals(play(candidate.pos().toString() + to.toString()).toFEN(), toFEN())
+                                )
                             .toList();
 
                         String dis = "";
