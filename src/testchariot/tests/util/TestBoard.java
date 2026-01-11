@@ -126,6 +126,21 @@ public class TestBoard {
     }
 
     @Test
+    public void disambiguationNotNeededIfPiecePinnedToKing() {
+        Board boardPinnedD4 = Board.fromFEN("7k/8/2p5/4b3/1N1N4/2K5/8/8 w - - 0 1");
+        // Two knights attack the pawn on c6 square,
+        // but d4-knight is pinned to king by bishop on e5,
+        // so b4c6 can be expressed as Nxc6 without explicitly mentioning it is the b4 knight.
+        assertEquals("Nxc6", boardPinnedD4.toSAN("b4c6"));
+
+        Board boardPinnedB4 = Board.fromFEN("7k/8/2p5/b7/1N1N4/2K5/8/8 w - - 0 1");
+        assertEquals("Nxc6", boardPinnedB4.toSAN("d4c6"));
+
+        assertEquals("b4c6", boardPinnedD4.toUCI("Nxc6"));
+        assertEquals("d4c6", boardPinnedB4.toUCI("Nxc6"));
+    }
+
+    @Test
     public void castlingUciKingToRookOrFinalSquare() {
         Board boardBeforeCastling = Board.fromFEN("r3kb1r/pbpn1ppp/1p1p4/1P6/P1P2P2/4K2P/8/1q5n b kq - 3 18");
 
