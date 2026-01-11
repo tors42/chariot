@@ -175,6 +175,7 @@ public interface OAuth {
                 return One.fail("Missing code and state supplier");
             }
             try {
+                initialRequestHandler.apply(remoteURI);
                 Client.CodeAndState codeAndState = supplier.get();
                 return finalRequestHandler.apply(remoteURI, codeAndState.code())
                     .mapOne(AccessToken::access_token);
