@@ -5,8 +5,8 @@ import module chariot;
 
 import chariot.internal.Config;
 import chariot.internal.InternalClient;
-import chariot.internal.PKCE;
 import chariot.internal.RequestHandler;
+import chariot.util.OAuth;
 
 public class ClientImpl implements Client {
 
@@ -30,9 +30,9 @@ public class ClientImpl implements Client {
     final StudiesHandler studiesHandler;
     final TablebaseHandler tablebaseHandler;
     final TeamsHandler teamsHandler;
-    final TokenHandler tokenHandler;
     final TournamentsHandler tournamentsHandler;
     final UsersHandler usersHandler;
+    final OAuthHandler oAuthHandler;
     final CustomHandler customHandler;
 
     public ClientImpl(Config config) {
@@ -52,9 +52,9 @@ public class ClientImpl implements Client {
         studiesHandler = new StudiesHandler(client, client::request);
         tablebaseHandler = new TablebaseHandler(client::request);
         teamsHandler = new TeamsHandler(client::request);
-        tokenHandler = new TokenHandler(client, requestHandler());
         tournamentsHandler = new TournamentsHandler(client::request);
         usersHandler = new UsersHandler(client::request);
+        oAuthHandler = new OAuthHandler(client, requestHandler());
         customHandler = new CustomHandler(client::request);
     }
 
@@ -91,6 +91,11 @@ public class ClientImpl implements Client {
     @Override
     public TournamentsApi tournaments() { return tournamentsHandler; }
     @Override
+    public UsersApi users() { return usersHandler; }
+
+    @Override
+    public OAuthApi oauth() { return oAuthHandler; }
+    @Override
     public CustomApi custom() { return customHandler; }
 
     @Override
@@ -102,21 +107,6 @@ public class ClientImpl implements Client {
         } catch(Exception e) { e.printStackTrace(System.err); }
         return false;
     }
-    public URI personalAccessTokenForm(String description, Scope... scopes) {
-        return tokenHandler.personalAccessTokenForm(description, scopes);
-    }
-    public One<TokenBulkResult> testTokens(Set<String> tokens) {
-        return tokenHandler.testTokens(tokens);
-    }
-    public Many<Scope> scopes(Supplier<char[]> token) {
-        return tokenHandler.scopes(token);
-    }
-    public Many<Scope> scopes(String token) { return scopes(() -> token.toCharArray()); }
-
-    public TokenResult token(Map<String, String> parameters) {
-        return tokenHandler.token(parameters);
-    }
-    public One<TokenBulkResult> testTokens(String... tokens) { return testTokens(Set.of(tokens)); }
 
     @Override
     public void logging(Consumer<Builders.LoggingBuilder> params) {
@@ -126,13 +116,9 @@ public class ClientImpl implements Client {
     }
 
     @Override
-    public UsersApi users() {
-        return usersHandler;
-    }
-
-    @Override
     public One<ClientAuth> withPkce(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce) {
-        return PKCE.pkceAuth(this, uriHandler, pkce);
+        return OAuth.lichessAuthorizationCodeFlowPKCE(uriHandler, pkce, this)
+            .mapOne(this::withToken);
     }
 
     @Override

@@ -79,6 +79,8 @@ public interface ClientAuth extends Client {
     /// {@inheritDoc}
     @Override TournamentsApiAuth tournaments();
 
+    /// {@inheritDoc}
+    @Override OAuthAuthApi oauth();
 
     /// Fetch which scopes are available with current token.<br>
     /// Note, a token can be revoked externally by user at any time.

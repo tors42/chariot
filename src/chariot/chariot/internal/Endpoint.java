@@ -93,14 +93,17 @@ public sealed interface Endpoint<T> {
     public static EPAck accountOAuthToken =
         Endpoint.of(Ack.class).endpoint("/account/oauth/token").toAck();
 
-    public static EPOne<TokenResult> apiToken =
-        Endpoint.of(TokenResult.class).endpoint("/api/token").post(wwwform).toOne();
+    public static EPAck oauth =
+        Endpoint.of(Ack.class).endpoint("/oauth").toAck();
 
-    public static EPAck apiTokenRevoke =
+    public static EPOne<AccessToken> oauthToken =
+        Endpoint.of(AccessToken.class).endpoint("/api/token").post(wwwform).toOne();
+
+    public static EPAck oauthRevoke =
         Endpoint.of(Ack.class).endpoint("/api/token").delete().scope(Scope.any).toAck();
 
-    public static EPOne<TokenBulkResult> apiTokenBulkTest =
-        Endpoint.of(TokenBulkResult.class).endpoint("/api/token/test").post(plain).toOne();
+    public static EPOne<TokenStatus> oauthTestTokens =
+        Endpoint.of(TokenStatus.class).endpoint("/api/token/test").post(plain).toOne();
 
     public static EPOne<ChallengeTokens> apiAdminChallengeTokens =
         Endpoint.of(ChallengeTokens.class).endpoint("/api/token/admin-challenge").post(wwwform).scope(Scope.web_mod).toOne();

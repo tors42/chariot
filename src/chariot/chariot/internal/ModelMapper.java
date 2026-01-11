@@ -1,14 +1,13 @@
 package chariot.internal;
 
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.*;
+import module java.base;
+import module chariot;
+
+import chariot.model.Arena;
 
 import chariot.internal.modeladapter.*;
 import chariot.internal.yayson.*;
 import chariot.internal.yayson.Parser.*;
-import chariot.model.*;
 
 @SuppressWarnings("unchecked")
 public class ModelMapper {
@@ -74,14 +73,26 @@ public class ModelMapper {
             case null, default -> null;
         });
 
-        strToObjMappings.put(TokenBulkResult.class, json -> switch(Parser.fromString(json)) {
-            case YayObject yo -> new TokenBulkResult(yo.filterCastMap(
-                        tokenInfo -> new TokenBulkResult.TokenInfo(
-                            tokenInfo.getString("userId"),
-                            tokenInfo.getString("scopes"),
-                            tokenInfo.getLong("expires") instanceof Long exp ? Util.fromLong(exp) : null),
-                        YayObject.class));
-            case null, default -> null;
+        strToObjMappings.put(TokenStatus.class, json -> {
+            TokenStatus status = new TokenStatus(new ArrayList<>(), new ArrayList<>());
+            if (Parser.fromString(json) instanceof YayObject yo) {
+                for (var entry : yo.value().entrySet()) {
+                    String token = entry.getKey();
+                    if (entry.getValue() instanceof YayObject yoStatus
+                        && yoStatus.getString("userId") instanceof String userId) {
+                        List<String> scopeList = yoStatus.getString("scopes") instanceof String scopes
+                            ? Arrays.stream(scopes.split(",")).toList()
+                            : List.of();
+                        Duration expiresIn = yoStatus.getLong("expires") instanceof Long expires
+                            ? Duration.between(Instant.now(), Instant.ofEpochMilli(expires))
+                            : Duration.ofDays(Long.MAX_VALUE);
+                        status.valid().add(new TokenStatus.Valid(token, userId, scopeList, expiresIn));
+                    } else {
+                        status.invalid().add(token);
+                    }
+                }
+            }
+            return new TokenStatus(List.copyOf(status.valid()), List.copyOf(status.invalid()));
         });
 
         Function<YayNode, UserData> userDataMapper = node -> UserAdapter.nodeToUserData(node, yayMapper);

@@ -93,6 +93,8 @@ public interface Client  {
     /// Access Arena and Swiss tournaments played on Lichess.
     TournamentsApi tournaments();
 
+    OAuthApi oauth();
+
     /// Use chariot for custom endpoints
     CustomApi custom();
 
@@ -161,8 +163,18 @@ public interface Client  {
     public interface PkceConfig {
 
         /// @param scopes The scope/s, if any, that the resulting token should be valid for.
-        PkceConfig scope(Scope... scopes);
+        PkceConfig scope(Set<Scope> scopes);
+        /// @param scopes The scope/s, if any, that the resulting token should be valid for.
+        default PkceConfig scope(Scope... scopes) {
+            return scope(Arrays.stream(scopes).collect(Collectors.toSet()));
+        }
 
+        PkceConfig bindURI(URI bindURI);
+        PkceConfig bindURI(URI bindURI, KeyStore keystore, char[] password);
+        PkceConfig redirectURI(URI redirectURI);
+
+        PkceConfig username(String username);
+        PkceConfig appName(String appName);
 
         /// @param timeout How long to wait for user to grant access. Default 2 minutes.
         PkceConfig timeout(Duration timeout);

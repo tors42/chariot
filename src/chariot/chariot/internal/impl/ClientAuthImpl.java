@@ -24,9 +24,10 @@ public class ClientAuthImpl extends ClientImpl implements ClientAuth {
     @Override public AdminApiAuth admin() { return adminHandler; }
     @Override public BoardApiAuth board() { return boardHandler; }
     @Override public UsersApiAuth users() { return usersHandler; }
+    @Override public OAuthAuthApi oauth() { return oAuthHandler; }
 
-    @Override public Many<Scope> scopes() { return tokenHandler.scopes(); }
-    @Override public Ack revokeToken() { return tokenHandler.revokeToken(); }
+    @Override public Many<Scope> scopes() { return oAuthHandler.scopes(); }
+    @Override public Ack revokeToken() { return oAuthHandler.revokeToken(); }
     @Override public void clearAuth(Preferences prefs) { Config.clearAuth(prefs); }
 
     // Client

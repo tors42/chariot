@@ -7,6 +7,7 @@ module chariot {
     exports chariot.api;
     exports chariot.model;
     exports chariot.chess;
+    exports chariot.util;
 
     uses chariot.chess.BoardProvider;
 
