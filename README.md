@@ -56,6 +56,12 @@ client.games().tvChannels()
 client.games().byChannel()
 client.games().importGame()
 
+client.oauth().requestAuthorizationCodeURI()
+client.oauth().personalAccessTokenForm()
+client.oauth().obtainAccessToken()
+client.oauth().scopes()
+client.oauth().testTokens()
+
 client.openingExplorer().masters()
 client.openingExplorer().lichess()
 client.openingExplorer().player()
@@ -215,6 +221,9 @@ client.games().ongoing()
 client.games().imported()
 client.games().byBulkId()
 
+client.oauth().revokeToken()
+client.oauth().scopes()
+
 client.puzzles().activity()
 client.puzzles().createAndJoinRace()
 client.puzzles().puzzleDashboard()
@@ -350,7 +359,7 @@ OpenJDK Runtime Environment (build 25.0.1+8-27)
 OpenJDK 64-Bit Server VM (build 25.0.1+8-27, mixed mode, sharing)
 
 $ <b>./build.java</b>
-79 successful basic tests
+80 successful basic tests
 0 failed tests
 </pre>
 
