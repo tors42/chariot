@@ -194,7 +194,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
 
     public record ChannelInfo(Map<String, String> channels) {
         Opt<String> twitch() { return Opt.of(channels.get("twitch")); }
-        Opt<String> youtube() { return Opt.of(channels.get("youTube")); }
+        Opt<String> youtube() { return Opt.of(channels.get("youtube")); }
     }
 
     public UserData withProperties(Map<UserPropertyEnum, ?> map) {

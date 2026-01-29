@@ -119,8 +119,8 @@ public interface UserAdapter {
                                            var map = new HashMap<String,String>();
                                            if (streamerYo.value().get("twitch") instanceof YayObject twitchYo)
                                                map.put("twitch", twitchYo.getString("channel"));
-                                           if (streamerYo.value().get("youTube") instanceof YayObject youtubeYo)
-                                               map.put("youTube", youtubeYo.getString("channel"));
+                                           if (streamerYo.value().get("youtube") instanceof YayObject youtubeYo)
+                                               map.put("youtube", youtubeYo.getString("channel"));
                                            yield channelInfo.of(new UserData.ChannelInfo(Collections.unmodifiableMap(map)));
                                        }
 
@@ -130,7 +130,7 @@ public interface UserAdapter {
                                                case "headline"    -> headline.of(streamerYo.getString(streamerEntry.getKey()));
                                                case "description" -> description.of(streamerYo.getString(streamerEntry.getKey()));
                                                case "twitch"      -> twitch.of(streamerYo.getString(streamerEntry.getKey()));
-                                               case "youTube"     -> youtube.of(streamerYo.getString(streamerEntry.getKey()));
+                                               case "youtube"     -> youtube.of(streamerYo.getString(streamerEntry.getKey()));
                                                case "image"       -> image.of(streamerYo.getString(streamerEntry.getKey()));
                                                default            -> StreamerInfoPropertyEnum.unmapped.of(streamerEntry);
                                            })
