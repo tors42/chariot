@@ -12,8 +12,11 @@ import chariot.model.One;
 
 public interface CustomApi {
 
-    default <T> EndpointBuilder<T> of(Class<T> model) { return of(ModelMapper.mapper(model)); }
-    <T> EndpointBuilder<T> of(Function<String, T> mapper);
+    default <T> EndpointBuilder<T> of(Class<T> model) { return of(ModelMapper.mapper(model), false); }
+    default <T> EndpointBuilder<T> of(Function<String, T> mapper) { return of(mapper, false); }
+    default <T> EndpointBuilder<T> of(Class<T> model, boolean joinLines) { return of(ModelMapper.mapper(model), joinLines); }
+
+    <T> EndpointBuilder<T> of(Function<String, T> mapper, boolean joinLines);
 
     interface EndpointBuilder<T> {
         EndpointBuilder<T> path(String path);

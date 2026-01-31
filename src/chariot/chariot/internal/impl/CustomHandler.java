@@ -22,9 +22,9 @@ public class CustomHandler implements CustomApi {
     }
 
     @Override
-    public <T> EndpointBuilder<T> of(Function<String, T> mapper) {
+    public <T> EndpointBuilder<T> of(Function<String, T> mapper, boolean joinLines) {
         return new EndpointBuilder<T>() {
-            Builder<T> builder = Endpoint.of(mapper);
+            Builder<T> builder = Endpoint.of(mapper, joinLines);
 
             @Override
             public EndpointBuilder<T> path(String path) {

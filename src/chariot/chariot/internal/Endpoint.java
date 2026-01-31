@@ -813,13 +813,29 @@ public sealed interface Endpoint<T> {
         private Scope scope;
 
         public Builder<T> elementMapper(Function<String, T> mapper) {
+            return elementMapper(mapper, false);
+        }
+
+        public Builder<T> elementMapper(Function<String, T> mapper, boolean joinLines) {
             Objects.requireNonNull(mapper);
             this.mapAck = _ -> Ack.ok();
-            this.mapOne = stream -> stream.map(mapper)
-                .filter(Objects::nonNull)
-                .findFirst()
-                .map(One::entry)
-                .orElseGet(() -> One.fail(404, "not found (generated)"));
+            if (joinLines) {
+                this.mapOne = stream -> {
+                    try {
+                        return One.entry(mapper.apply(stream
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.joining())));
+                    } catch (Exception e) {
+                        return One.fail(e.getMessage());
+                    }
+                };
+            } else {
+                this.mapOne = stream -> stream.map(mapper)
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .map(One::entry)
+                    .orElseGet(() -> One.fail(404, "not found (generated)"));
+            }
             this.mapMany = stream -> Many.entries(stream.map(mapper).filter(Objects::nonNull));
             return this;
         }
@@ -911,8 +927,11 @@ public sealed interface Endpoint<T> {
     }
 
     public static <T> Builder<T> of(Function<String, T> elementMapper) {
+        return of(elementMapper, false);
+    }
+    public static <T> Builder<T> of(Function<String, T> elementMapper, boolean joinLines) {
         return new Builder<T>()
-            .elementMapper(elementMapper);
+            .elementMapper(elementMapper, joinLines);
     }
 
     public static <T> Builder<T> ofArr(Class<T> clazz) {
