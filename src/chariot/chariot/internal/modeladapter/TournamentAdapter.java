@@ -113,6 +113,9 @@ public interface TournamentAdapter {
         if (allConditions.stream().anyMatch(c -> c.getClass().equals(Condition.AllowList.class))) {
             allConditions.remove(Condition.allowListHidden());
         }
+        if (allConditions.stream().anyMatch(c -> c.getClass().equals(Condition.Member.class))) {
+            allConditions.remove(Condition.generic("mustBeInTeam"));
+        }
 
         return new ConditionInfo<>(allConditions.stream()
                 .sorted(Comparator.comparing(c -> c.getClass().getName()))
