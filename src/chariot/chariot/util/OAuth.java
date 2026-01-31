@@ -20,6 +20,10 @@ public interface OAuth {
         return _twitchClientCredentials(params);
     }
 
+    static One<String> youtubeImplicitGrantFlow(Consumer<URI> visitURI, Consumer<YouTubeParams> params) {
+        return _youtubeImplicitGrantFlow(visitURI, params);
+    }
+
     static String generateCodeVerifier() { return encodeBytes(randomBytes(32)); }
     static String generateState() { return encodeBytes(randomBytes(16)).substring(0, 8); }
     static String generateCodeChallenge(String code_verifier) {
@@ -87,6 +91,11 @@ public interface OAuth {
 
     interface TwitchCredentialsParams {
         TwitchCredentialsParams registeredAppWithSecret(String client_id, String client_secret);
+    }
+
+    interface YouTubeParams extends Params<YouTubeParams>, ScopeParams<YouTubeParams> {
+        YouTubeParams registeredApp(String client_id, String redirect_uri);
+        YouTubeParams noCache();
     }
 
     static One<String> lichessAuthorizationCodeFlowPKCE(Consumer<URI> uriHandler, Consumer<Client.PkceConfig> pkce, Client client) {
@@ -271,6 +280,98 @@ public interface OAuth {
                     URI visitURI = URI.create("https://id.twitch.tv/oauth2/authorize?"
                             + Util.urlEncode(map));
                     uriConsumer.accept(visitURI);
+                    return map;
+                },
+                queryParams -> {
+                    if (! (queryParams.get("access_token") instanceof String access_token)) {
+                        String error = queryParams.getOrDefault("error", "");
+                        String errorDescription = queryParams.getOrDefault("error_description", "");
+                        return One.fail(String.join(" - ", "Missing access_token", error, errorDescription));
+                    }
+                    if (! (queryParams.get("state") instanceof String paramState))
+                        return One.fail("Missing state");
+                    if (! state.equals(paramState))
+                        return One.fail("state param mismatch");
+                    return One.entry(access_token);
+                },
+                (var _, var token) -> {
+                    if (prefs != null) {
+                        prefs.put(client_id, token);
+                        try { prefs.flush(); } catch (BackingStoreException _) {}
+                    }
+                    return One.entry(token);
+                });
+    }
+
+    static One<String> _youtubeImplicitGrantFlow(Consumer<URI> uriHandler, Consumer<YouTubeParams> params) {
+        Map<String, Object> paramMap = MapBuilder.of(YouTubeParams.class)
+            .addCustomHandler("noCache", (args, map) -> map.put("noCache", true))
+            .addCustomHandler("registeredApp", (args, map) -> {
+                map.put("client_id", args[0]);
+                map.put("redirect_uri", args[1]);
+            })
+            .addCustomHandler("bindExplicit", (args, map) -> map.put("bind",
+                args.length == 1
+                ? Bind.explicit((URI) args[0])
+                : Bind.explicit((URI) args[0],(KeyStore)args[1], (char[])args[2])
+                ))
+            .toMap(params);
+
+        String client_id = (String) paramMap.get("client_id");
+        if (client_id == null) return One.fail("Missing client_id");
+
+        Preferences prefs = paramMap.containsKey("noCache")
+            ? null
+            : Preferences.userRoot().node("chariot.youtube");
+
+        if (prefs != null) {
+            String cachedToken = prefs.get(client_id, null);
+            if (cachedToken != null) {
+                Client youtubeOAuth = Client.basic(c -> c.api("https://www.googleapis.com/oauth2/v3"));
+                var validateEndpoint = youtubeOAuth.custom().of(Function.identity())
+                    .path("/tokeninfo").toOne();
+                var res = validateEndpoint.request(p -> p.query(Map.of("access_token", cachedToken)));
+                if (res instanceof Some) {
+                    return One.entry(cachedToken);
+                } else {
+                    prefs.remove(client_id);
+                    try { prefs.flush(); } catch (BackingStoreException _) {}
+                }
+            }
+        }
+
+        String redirect_uri = (String) paramMap.get("redirect_uri");
+        if (redirect_uri == null) return One.fail("Missing redirect_uri");
+
+        Bind bind = (Bind) paramMap.getOrDefault("bind", Bind.explicit(URI.create(redirect_uri)));
+        Duration timeout = (Duration) paramMap.getOrDefault("timeout", Duration.ofMinutes(2));
+        String scope = Arrays.stream((String[]) paramMap.getOrDefault("scopes", new String[]{""}))
+            .collect(Collectors.joining(" "));
+        String successHtml = (String) paramMap.getOrDefault("successHtml",
+                "<html><body>Success</body></html>");
+
+        String state = OAuth.generateState();
+
+        Consumer<ManualParams> consumer = p -> p
+            .remapFragmentAsQuery()
+            .timeout(timeout)
+            .successHtml(successHtml);
+        consumer = switch(bind) {
+            case Any() -> consumer;
+            case Explicit(URI bindURI, Some(var ks)) -> consumer.andThen(p -> p.bindExplicit(bindURI, ks.keyStore(), ks.pass()));
+            case Explicit(URI bindURI, _) -> consumer.andThen(p -> p.bindExplicit(bindURI));
+        };
+
+        return manualFlow(consumer,
+                _ -> {
+                    var map = Map.of("response_type", "token",
+                                     "client_id",     client_id,
+                                     "redirect_uri",  redirect_uri,
+                                     "scope",         scope,
+                                     "state",         state);
+                    URI visitURI = URI.create("https://accounts.google.com/o/oauth2/v2/auth?"
+                            + Util.urlEncode(map));
+                    uriHandler.accept(visitURI);
                     return map;
                 },
                 queryParams -> {
