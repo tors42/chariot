@@ -294,7 +294,7 @@ The tool is included in JDK archives, which can be downloaded and unpacked from 
 
 <pre>
 $ <b>jshell</b>
-|  Welcome to JShell -- Version 25
+|  Welcome to JShell -- Version 25.0.2
 |  For an introduction type: /help intro
 
 jshell>
@@ -328,7 +328,7 @@ jshell> <b>import chariot.Client;</b>
    ...> <b>    .map(team -> "Team %s has %d members!".formatted(team.name(), team.nbMembers()))</b>
    ...> <b>    .orElse("Couldn't find team!"));</b>
 client ==> chariot.internal.impl.ClientImpl@954b04f
-Team Lichess Swiss has 643763 members!
+Team Lichess Swiss has 673808 members!
 
 jshell>
 </pre>
@@ -342,7 +342,7 @@ numberOfTeams()       popularTeams()        popularTeamsByPage(   search(
 searchByPage(         swissByTeamId(        toString()            usersByTeamId(
 usersByTeamIdFull(    wait(
 jshell> client.teams().<b>numberOfTeams();</b>
-$4 ==> 377439
+$4 ==> 385939
 
 jshell> <b>/exit</b>
 |  Goodbye
@@ -354,9 +354,9 @@ Build with latest Java. A JDK archive can be downloaded and unpacked from https:
 
 <pre>
 $ <b>java -version</b>
-openjdk version "25.0.1" 2025-10-21
-OpenJDK Runtime Environment (build 25.0.1+8-27)
-OpenJDK 64-Bit Server VM (build 25.0.1+8-27, mixed mode, sharing)
+openjdk version "25.0.2" 2026-01-20
+OpenJDK Runtime Environment (build 25.0.2+10-69)
+OpenJDK 64-Bit Server VM (build 25.0.2+10-69, mixed mode, sharing)
 
 $ <b>./build.java</b>
 80 successful basic tests
