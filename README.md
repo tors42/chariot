@@ -62,10 +62,6 @@ client.oauth().obtainAccessToken()
 client.oauth().scopes()
 client.oauth().testTokens()
 
-client.openingExplorer().masters()
-client.openingExplorer().lichess()
-client.openingExplorer().player()
-
 client.puzzles().dailyPuzzle()
 client.puzzles().nextPuzzle()
 client.puzzles().byId()
@@ -83,10 +79,6 @@ client.studies().lastModifiedByStudyId()
 client.studies().byPage()
 client.studies().listStudies()
 client.studies().listStudiesByUser()
-
-client.tablebase().standard()
-client.tablebase().atomic()
-client.tablebase().antichess()
 
 client.teams().numberOfTeams()
 client.teams().search()
@@ -224,6 +216,10 @@ client.games().byBulkId()
 client.oauth().revokeToken()
 client.oauth().scopes()
 
+client.openingExplorer().masters()
+client.openingExplorer().lichess()
+client.openingExplorer().player()
+
 client.puzzles().activity()
 client.puzzles().createAndJoinRace()
 client.puzzles().puzzleDashboard()
@@ -232,6 +228,10 @@ client.puzzles().replay()
 client.studies().importPgn()
 client.studies().deleteStudyChapter()
 client.studies().updateStudyChapterTags()
+
+client.tablebase().standard()
+client.tablebase().atomic()
+client.tablebase().antichess()
 
 client.teams().joinTeam()
 client.teams().leaveTeam()
