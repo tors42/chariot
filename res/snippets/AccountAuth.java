@@ -1,4 +1,5 @@
-import module java.base;
+///usr/bin/env java -p out/modules/ --add-modules chariot "$0" "$@" ; exit $?
+
 import module chariot;
 
 import chariot.model.TimelineEntry.*;

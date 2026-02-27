@@ -1,3 +1,5 @@
+///usr/bin/env java -p out/modules/ --add-modules chariot "$0" "$@" ; exit $?
+
 import module chariot;
 
 ClientAuth client = Client.basic().withToken(System.getenv("SNIPPET_TOKEN"));
