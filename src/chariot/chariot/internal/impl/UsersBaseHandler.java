@@ -110,7 +110,7 @@ public abstract class UsersBaseHandler implements UsersApiBase {
      * Get the leaderboard for a single speed or variant (a.k.a. `perfType`).<br>
      * There is no leaderboard for correspondence or puzzles.
      *
-     * @param nb How many users to fetch. Min 1, Max 200.
+     * @param nb How many users to fetch. Min 1, Max 100.
      * @param perfType Which speed or variant leaderboard.
      */
 
