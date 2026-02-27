@@ -94,13 +94,13 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
         BroadcastBuilder tier(int tier);
 
         /**
-         * Show player's rating diffs. Default: `true`
+         * Show player's rating diffs. Default: `false`
          */
         BroadcastBuilder showRatingDiffs(boolean showRatingDiffs);
         default BroadcastBuilder showRatingDiffs() { return showRatingDiffs(true); }
 
         /**
-         * Show players scores based on game results. Default: `true`
+         * Show players scores based on game results. Default: `false`
          */
         BroadcastBuilder showScores(boolean showScores);
         default BroadcastBuilder showScores() { return showScores(true); }
