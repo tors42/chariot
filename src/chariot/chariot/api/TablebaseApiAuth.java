@@ -4,7 +4,7 @@ import module java.base;
 import module chariot;
 
 /// Lookup positions from the Lichess tablebase server.
-public interface TablebaseApi {
+public interface TablebaseApiAuth {
 
     /// Lookup positions from the Lichess tablebase server.
     One<TablebaseResult> standard(String fen, Consumer<Params> params);

@@ -7,7 +7,7 @@ import chariot.internal.Endpoint;
 import chariot.internal.RequestHandler;
 import chariot.internal.Util.MapBuilder;
 
-public class TablebaseHandler implements TablebaseApi {
+public class TablebaseHandler implements TablebaseApiAuth {
 
     private final RequestHandler requestHandler;
 

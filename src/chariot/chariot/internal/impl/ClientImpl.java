@@ -27,7 +27,6 @@ public class ClientImpl implements Client {
     final PuzzlesHandler puzzlesHandler;
     final SimulsHandler simulsHandler;
     final StudiesHandler studiesHandler;
-    final TablebaseHandler tablebaseHandler;
     final TeamsHandler teamsHandler;
     final TournamentsHandler tournamentsHandler;
     final UsersHandler usersHandler;
@@ -48,7 +47,6 @@ public class ClientImpl implements Client {
         puzzlesHandler = new PuzzlesHandler(client::request);
         simulsHandler = new SimulsHandler(client::request);
         studiesHandler = new StudiesHandler(client, client::request);
-        tablebaseHandler = new TablebaseHandler(client::request);
         teamsHandler = new TeamsHandler(client::request);
         tournamentsHandler = new TournamentsHandler(client::request);
         usersHandler = new UsersHandler(client::request);
@@ -80,8 +78,6 @@ public class ClientImpl implements Client {
     public SimulsApi simuls() { return simulsHandler; }
     @Override
     public StudiesApi studies() { return studiesHandler; }
-    @Override
-    public TablebaseApi tablebase() { return tablebaseHandler; }
     @Override
     public TeamsApi teams() { return teamsHandler; }
     @Override
