@@ -15,5 +15,6 @@ public record UserProfileData(
         Opt<Boolean> canChallenge,
         Opt<String> twitchStream,
         Opt<String> youtubeStream,
+        Opt<Integer> fideId,
         URI url) implements User, UserAuth {
 }

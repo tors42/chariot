@@ -28,4 +28,5 @@ public sealed interface User extends UserCommon permits UserAuth, UserProfileDat
     default Opt<Boolean>      canChallenge()  { return userProfile().canChallenge();         }
     default Opt<String>       twitchStream()  { return userProfile().twitchStream();         }
     default Opt<String>       youtubeStream() { return userProfile().youtubeStream();        }
+    default Opt<Integer>      fideId()        { return userProfile().fideId();               }
 }

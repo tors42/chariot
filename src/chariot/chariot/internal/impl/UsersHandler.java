@@ -15,7 +15,9 @@ public class UsersHandler extends UsersBaseHandler implements UsersApi {
 
     @Override
     public One<User> byId(String userId, Consumer<UserParams> params) {
-        var parameterMap = MapBuilder.of(UserParams.class).toMap(params);
+        var parameterMap = MapBuilder.of(UserParams.class)
+            .add("fideId", true)
+            .toMap(params);
 
         var result = Endpoint.userById.newRequest(request -> request
                 .path(userId)

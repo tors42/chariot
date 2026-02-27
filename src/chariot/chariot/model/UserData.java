@@ -69,6 +69,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
                 canChallenge,
                 twitch,
                 youtube,
+                _fideId(),
                 url);
         return userProfileData;
     }
@@ -116,7 +117,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
         playTime, createdAt, seenAt, url, counts, ratings,
         profile, followable, following, blocking,
         joinedTeamAt, streamInfo, streamerInfo, channelInfo,
-        signal, playingGameMeta, canChallenge,
+        signal, playingGameMeta, canChallenge, fideId,
 
         unmapped
         ;
@@ -191,6 +192,7 @@ public record UserData(Map<UserPropertyEnum, ?> properties) {
     Opt<StreamInfo> _liveStreamInfo() { return property(streamInfo, StreamInfo.class); }
     Opt<StreamerInfo> _liveStreamerInfo() { return property(streamerInfo, StreamerInfo.class); }
     Opt<ChannelInfo> _channelInfo() { return property(channelInfo, ChannelInfo.class); }
+    Opt<Integer> _fideId() { return property(fideId, Integer.class); }
 
     public record ChannelInfo(Map<String, String> channels) {
         Opt<String> twitch() { return Opt.of(channels.get("twitch")); }
