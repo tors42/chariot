@@ -331,18 +331,18 @@ public sealed interface Endpoint<T> {
         .accept(chesspgn).toMany();
 
     public static EPOne<ExploreResult.OpeningDB> exploreMasters =
-        Endpoint.of(ExploreResult.OpeningDB.class).endpoint("/masters").target(ServerType.explorer).toOne();
+        Endpoint.of(ExploreResult.OpeningDB.class).endpoint("/masters").target(ServerType.explorer).scope(Scope.any).toOne();
 
     public static EPOne<ExploreResult.OpeningDB> exploreLichess =
-        Endpoint.of(ExploreResult.OpeningDB.class).endpoint("/lichess").target(ServerType.explorer).toOne();
+        Endpoint.of(ExploreResult.OpeningDB.class).endpoint("/lichess").target(ServerType.explorer).scope(Scope.any).toOne();
 
     public static EPOne<ExploreResult.OpeningPlayer> explorePlayers =
-        Endpoint.of(ExploreResult.OpeningPlayer.class).endpoint("/player").target(ServerType.explorer).toOne();
+        Endpoint.of(ExploreResult.OpeningPlayer.class).endpoint("/player").target(ServerType.explorer).scope(Scope.any).toOne();
 
     public static EPOne<PGN> exploreMasterOTB =
         Endpoint.of(PGN.class).endpoint("/master/pgn/%s")
         .streamMapper(Util::pgnStream)
-        .accept(chesspgn).target(ServerType.explorer).toOne();
+        .accept(chesspgn).target(ServerType.explorer).scope(Scope.any).toOne();
 
     public static EPOne<TablebaseResult> tablebaseLookup =
         Endpoint.of(TablebaseResult.class).endpoint("/standard").target(ServerType.tablebase).toOne();

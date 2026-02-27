@@ -52,7 +52,7 @@ public sealed interface Config {
 
         public static Servers of() {
             URI api       = URI.create("https://lichess.org");
-            URI explorer  = URI.create("https://explorer.lichess.ovh");
+            URI explorer  = URI.create("https://explorer.lichess.org");
             URI tablebase = URI.create("https://tablebase.lichess.ovh");
             URI engine    = URI.create("https://engine.lichess.ovh");
             return new Servers(api, explorer, tablebase, engine);

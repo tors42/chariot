@@ -4,14 +4,14 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import chariot.api.OpeningExplorerApi;
+import chariot.api.OpeningExplorerApiAuth;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.model.ExploreResult.*;
 import chariot.model.*;
 import chariot.model.Enums.*;
 
-public class OpeningExplorerHandler implements OpeningExplorerApi {
+public class OpeningExplorerHandler implements OpeningExplorerApiAuth {
 
     private final RequestHandler requestHandler;
 

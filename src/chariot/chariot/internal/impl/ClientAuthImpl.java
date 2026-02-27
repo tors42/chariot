@@ -10,6 +10,7 @@ public class ClientAuthImpl extends ClientImpl implements ClientAuth {
     final AdminHandler adminHandler;
     final BoardHandler boardHandler;
     final UsersAuthHandler usersHandler;
+    final OpeningExplorerHandler openingExplorerHandler;
 
     public ClientAuthImpl(Config config) {
         super(config);
@@ -17,6 +18,7 @@ public class ClientAuthImpl extends ClientImpl implements ClientAuth {
         adminHandler = new AdminHandler(requestHandler());
         boardHandler = new BoardHandler(requestHandler());
         usersHandler = new UsersAuthHandler(requestHandler());
+        openingExplorerHandler = new OpeningExplorerHandler(requestHandler());
     }
 
     // ClientAuth
@@ -25,6 +27,8 @@ public class ClientAuthImpl extends ClientImpl implements ClientAuth {
     @Override public BoardApiAuth board() { return boardHandler; }
     @Override public UsersApiAuth users() { return usersHandler; }
     @Override public OAuthAuthApi oauth() { return oAuthHandler; }
+
+    public OpeningExplorerApiAuth openingExplorer() { return openingExplorerHandler; }
 
     @Override public Many<Scope> scopes() { return oAuthHandler.scopes(); }
     @Override public Ack revokeToken() { return oAuthHandler.revokeToken(); }

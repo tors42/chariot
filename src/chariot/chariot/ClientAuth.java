@@ -51,6 +51,8 @@ public interface ClientAuth extends Client {
     /// - Bots cannot play UltraBullet (¼+0) because it requires making too many requests. But 0+1 and ½+0 are allowed.
     BotApiAuth bot();
 
+    /// Lookup positions from the Lichess opening explorer.
+    OpeningExplorerApiAuth openingExplorer();
 
     /// {@inheritDoc}
     @Override UsersApiAuth users();

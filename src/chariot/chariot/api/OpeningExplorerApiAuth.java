@@ -1,16 +1,13 @@
 package chariot.api;
 
-import java.util.Set;
-import java.util.function.*;
-import java.util.stream.*;
+import module java.base;
+import module chariot;
 
 import chariot.model.Enums.*;
-import chariot.model.*;
 
-/**
- * Lookup positions from the Lichess opening explorer.
- */
-public interface OpeningExplorerApi {
+/// Lookup positions from the Lichess opening explorer.
+public interface OpeningExplorerApiAuth {
+
     /**
      * Fetches the PGN of specified game from Masters OTB database
      *

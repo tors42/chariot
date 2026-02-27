@@ -24,7 +24,6 @@ public class ClientImpl implements Client {
     final ExternalEngineHandler externalEngineHandler;
     final FideApiHandler fideApiHandler;
     final GamesHandler gamesHandler;
-    final OpeningExplorerHandler openingExplorerHandler;
     final PuzzlesHandler puzzlesHandler;
     final SimulsHandler simulsHandler;
     final StudiesHandler studiesHandler;
@@ -46,7 +45,6 @@ public class ClientImpl implements Client {
         externalEngineHandler = new ExternalEngineHandler(client::request);
         fideApiHandler = new FideApiHandler(client::request);
         gamesHandler = new GamesHandler(client::request);
-        openingExplorerHandler = new OpeningExplorerHandler(client::request);
         puzzlesHandler = new PuzzlesHandler(client::request);
         simulsHandler = new SimulsHandler(client::request);
         studiesHandler = new StudiesHandler(client, client::request);
@@ -76,8 +74,6 @@ public class ClientImpl implements Client {
     public FideApi fide() { return fideApiHandler; }
     @Override
     public GamesApi games() { return gamesHandler; }
-    @Override
-    public OpeningExplorerApi openingExplorer() { return openingExplorerHandler; }
     @Override
     public PuzzlesApi puzzles() { return puzzlesHandler;}
     @Override

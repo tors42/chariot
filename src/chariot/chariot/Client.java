@@ -72,9 +72,6 @@ public interface Client  {
     /// Access games and TV channels, played on Lichess.
     GamesApi games();
 
-    /// Lookup positions from the Lichess opening explorer.
-    OpeningExplorerApi openingExplorer();
-
     /// Access Lichess puzzle history and dashboard.
     PuzzlesApi puzzles();
 
