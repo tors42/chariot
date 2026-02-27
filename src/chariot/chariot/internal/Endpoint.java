@@ -1,13 +1,8 @@
 package chariot.internal;
 
-import static chariot.internal.Util.MediaType.*;
+import module java.base;
 
-import java.io.InputStream;
-import java.time.Duration;
-import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.function.*;
-import java.util.stream.*;
+import static chariot.internal.Util.MediaType.*;
 
 import chariot.Client.Scope;
 import chariot.internal.Config.ServerType;
