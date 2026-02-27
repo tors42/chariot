@@ -148,7 +148,6 @@ public class BroadcastAuth {
                 .showRatingDiffs(showRatingDiffs)
                 .teamTable(teamLeaderboard));
 
-        if (debug) superadmin.logging(l -> l.request().warning().response().warning());
 
         if (! (broadcastResult instanceof Some(Broadcast broadcast))) {
             fail("Couldn't create broadcast " + broadcastResult);
@@ -166,7 +165,6 @@ public class BroadcastAuth {
                 Opt.some(infoTournamentFormat),
                 Opt.some(infoTimeControl),
                 Opt.some(infoPlayers),
-                Opt.some(infoTimeControlFIDE),
                 Opt.of(infoLocation),
                 Opt.of(infoWebsite),
                 Opt.of(infoStandings),
@@ -211,6 +209,8 @@ public class BroadcastAuth {
         var broadcastById = superadmin.broadcasts().broadcastById(broadcast.id());
 
         unboxEquals(broadcastById, expected);
+
+        if (debug) superadmin.logging(l -> l.request().warning().response().warning());
 
         List<ZonedDateTime> expectedStartEndPairDates = List.of();
 
