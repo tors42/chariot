@@ -446,7 +446,7 @@ public sealed interface Endpoint<T> {
         .accept(jsonstream).scope(Scope.study_read).toMany();
 
     public static EPMany<PGN> exportStudies =
-        Endpoint.of(PGN.class).endpoint("/study/by/%s/export.pgn")
+        Endpoint.of(PGN.class).endpoint("/api/study/by/%s/export.pgn")
         .streamMapper(Util::pgnStream)
         .accept(chesspgn).scope(Scope.any).toMany();
 
