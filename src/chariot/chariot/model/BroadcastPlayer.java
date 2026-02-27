@@ -5,17 +5,16 @@ import module java.base;
 public record BroadcastPlayer(
             String name,
             Opt<String> title,
-            Opt<Integer> rating,
             Opt<Integer> fideId,
             Opt<String> team,
             Opt<String> fed,
             int played,
             Opt<Float> score,
-            Opt<Integer> ratingDiff,
-            Opt<Integer> performance,
+            Opt<Ratings> ratingsMap,
+            Opt<Ratings> ratingDiffs,
+            Opt<Ratings> performances,
             Opt<Tiebreak[]> tiebreaks,
             Opt<Integer> rank,
-            Opt<Fide> fide,
             Opt<Boolean> isFollowing,
             Opt<Game[]> games
             ) {
