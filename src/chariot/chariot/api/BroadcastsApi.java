@@ -98,6 +98,10 @@ public interface BroadcastsApi {
     /// @param roundId The broadcast round id (8 characters).
     One<RoundInfo> roundById(String roundId);
 
+
+    /// Get the team leaderboard of a broadcast, if available
+    Many<TeamLeaderboardEntry> teamLeaderboard(String broadcastId);
+
     interface BroadcastParameters {
         /// @param nb Max number of broadcasts to fetch. `1..100` Default `20`
         BroadcastParameters nb(int nb);

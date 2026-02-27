@@ -581,6 +581,9 @@ public sealed interface Endpoint<T> {
     public static EPOne<BroadcastPlayer> broadcastPlayerById =
         Endpoint.of(BroadcastPlayer.class).endpoint("/broadcast/%s/players/%s").toOne();
 
+    public static EPMany<TeamLeaderboardEntry> broadcastTeamsStandings =
+        Endpoint.ofArr(TeamLeaderboardEntry.class).endpoint("/broadcast/%s/teams/standings").toMany();
+
     public static EPOne<Broadcast> createBroadcast =
         Endpoint.of(Broadcast.class).endpoint("/broadcast/new").post(wwwform).scope(Scope.study_write).toOne();
 

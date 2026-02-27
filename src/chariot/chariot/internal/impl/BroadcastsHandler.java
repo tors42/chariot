@@ -157,6 +157,14 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
             .process(requestHandler);
      }
 
+
+    @Override
+    public Many<TeamLeaderboardEntry> teamLeaderboard(String broadcastId) {
+        return Endpoint.broadcastTeamsStandings.newRequest(request -> request
+                .path(broadcastId))
+            .process(requestHandler);
+    }
+
     @Override
     public One<MyRound> createRound(String tourId, Consumer<RoundBuilder> params) {
         var map = roundBuilderToMap(params);
