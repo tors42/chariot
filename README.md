@@ -33,6 +33,7 @@ client.broadcasts().topActive()
 client.broadcasts().topPast()
 client.broadcasts().playersById()
 client.broadcasts().playerDetailsById()
+client.broadcasts().teamLeaderboard()
 
 client.challenges().challengeOpenEnded()
 
