@@ -6,6 +6,8 @@ import chariot.model.*;
 
 public interface TeamsApiAuth extends TeamsApi {
 
+    Many<Team>        byUserId(String userId);
+
     /**
      * Request to join team {@code teamId}
      */

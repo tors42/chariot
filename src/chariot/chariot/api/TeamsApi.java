@@ -7,7 +7,6 @@ import chariot.model.*;
 public interface TeamsApi {
 
     One<Team>         byTeamId(String teamId);
-    Many<Team>        byUserId(String userId);
 
     ///  Members are sorted by reverse chronological order of joining the team (most recent first).  
     ///  OAuth is only required if the list of members is private.  
