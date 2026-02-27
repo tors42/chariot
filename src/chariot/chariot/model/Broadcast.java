@@ -62,7 +62,8 @@ public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group, Opt<Str
             Opt<Integer> delay
             ) {}
 
-    public record Group(String name, List<IdAndName> tours) {}
+    public record Group(String id, String name, String slug, List<GroupTour> tours) {}
+    public record GroupTour(String id, String name, boolean active, boolean live) {}
 
     public record Info(
             Opt<String> format,
