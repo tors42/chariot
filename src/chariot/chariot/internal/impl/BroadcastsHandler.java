@@ -214,7 +214,7 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
                     .rename("infoTimeControl", "info.tc")
                     .rename("infoTournamentFormat", "info.format")
                     .rename("infoFeaturedPlayers", "info.players")
-                    .rename("infoTimeControlFIDE", "info.fideTc")
+                    .rename("infoTimeControlFIDE", "info.fideTC")
                     .rename("infoLocation", "info.location")
                     .rename("infoStandings", "info.standings")
                     .rename("infoWebsite", "info.website")

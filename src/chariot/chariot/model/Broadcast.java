@@ -68,7 +68,7 @@ public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group, Opt<Str
             Opt<String> format,
             Opt<String> tc,
             Opt<String> players,
-            Opt<FideTC> fideTc,
+            Opt<FideTC> fideTC,
             Opt<String> location,
             Opt<URI> website,
             Opt<URI> standings,
