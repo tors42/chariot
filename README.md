@@ -336,11 +336,11 @@ Tip, it is possible to use the tab key to get code completion to discover the AP
 For instance, after writing `client.teams().` and pressing the tab key,
 <pre>
 jshell> <b>client.teams().</b><i>&lt;press tab key&gt;</i>
-arenaByTeamId(        byTeamId(             byUserId(             equals(
-getClass()            hashCode()            notify()              notifyAll()
-numberOfTeams()       popularTeams()        popularTeamsByPage(   search(
-searchByPage(         swissByTeamId(        toString()            usersByTeamId(
-usersByTeamIdFull(    wait(
+arenaByTeamId(        byTeamId(             equals(               getClass()
+hashCode()            notify()              notifyAll()           numberOfTeams()
+popularTeams()        popularTeamsByPage(   search(               searchByPage(
+swissByTeamId(        toString()            usersByTeamId(        usersByTeamIdFull(
+wait(
 jshell> client.teams().<b>numberOfTeams();</b>
 $4 ==> 385939
 
