@@ -94,10 +94,6 @@ public interface BroadcastsApi {
     /// @param userId The user to get broadcasts from
     default Many<Broadcast.TourWithLastRound> byUserId(String userId) { return byUserId(userId, _ -> {}); }
 
-    /// Get a broadcast leaderboard, if available
-    /// @param tourId The broadcast tournament ID (8 characters).
-    Many<LeaderboardEntry> leaderboardById(String tourId);
-
     /// Get information about a broadcast round
     /// @param roundId The broadcast round id (8 characters).
     One<RoundInfo> roundById(String roundId);

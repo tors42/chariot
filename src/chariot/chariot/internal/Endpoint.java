@@ -612,9 +612,6 @@ public sealed interface Endpoint<T> {
         Endpoint.of(Ack.class).endpoint("/api/broadcast/round/%s/reset")
         .post().scope(Scope.study_write).toAck();
 
-    public static EPMany<LeaderboardEntry> broadcastLeaderboard =
-        Endpoint.ofArr(LeaderboardEntry.class).endpoint("/broadcast/%s/leaderboard").toMany();
-
     public static EPMany<PushResult> pushPGNbyRoundId =
         Endpoint.of(PushResult.class).endpoint("/api/broadcast/round/%s/push")
         .streamMapper(stream -> stream.map(mapper(PushWrapper.class)).flatMap(PushWrapper::result))

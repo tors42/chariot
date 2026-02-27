@@ -136,14 +136,6 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
     }
 
     @Override
-    public Many<LeaderboardEntry> leaderboardById(String tourId) {
-        return Endpoint.broadcastLeaderboard.newRequest(request -> request
-                .path(tourId))
-            .process(requestHandler);
-    }
-
-
-    @Override
     public One<Broadcast> create(Consumer<BroadcastBuilder> params) {
         return Endpoint.createBroadcast.newRequest(request -> request
                 .body(broadastBuilderToMap(params)))
