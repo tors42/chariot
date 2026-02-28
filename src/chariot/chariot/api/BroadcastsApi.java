@@ -141,6 +141,6 @@ public interface BroadcastsApi {
         /// Include analysis comments in the PGN moves, when available. Default `true`
         /// Example: `12. Bxf6 { [%eval 0.23] }`
         PgnParameters comments(boolean comments);
-        default PgnParameters commentsOff() { return comments(true); };
+        default PgnParameters commentsOff() { return comments(false); };
     }
 }
