@@ -58,7 +58,12 @@ public interface BroadcastsApi {
     /// The stream will also send PGNs when games are added to the tournament.  
     /// This is the best way to get updates about an ongoing tournament.  
     /// Streaming means no polling, and no pollings means no latency, and minimum impact on the server.
-    Many<PGN> streamBroadcast(String roundId);
+    /// @param roundId The round ID (8 characters).
+    /// @param params To disable clocks and/or comments (lke eval) in PGN
+    Many<PGN> streamBroadcast(String roundId, Consumer<PgnParameters> params);
+
+    /// See {@link #streamBroadcast(String, java.util.function.Consumer)}
+    default Many<PGN> streamBroadcast(String roundId) { return streamBroadcast(roundId, _ -> {}); }
 
     /// Export one round as PGN  
     ///  
@@ -66,14 +71,22 @@ public interface BroadcastsApi {
     /// You _could_ poll this endpoint to get updates about a tournament, but it would be slow, and very inneficient.  
     /// Instead, consider streaming the tournament to get a new PGN every time a game is updated, in real-time. See {@link #streamBroadcast(String)}  
     /// @param roundId The round ID (8 characters).
-    Many<PGN> exportOneRoundPgn(String roundId);
+    /// @param params To disable clocks and/or comments (lke eval) in PGN
+    Many<PGN> exportOneRoundPgn(String roundId, Consumer<PgnParameters> params);
+
+    /// See {@link #exportOneRoundPgn(String, java.util.function.Consumer)}
+    default Many<PGN> exportOneRoundPgn(String roundId) { return exportOneRoundPgn(roundId, _ -> {}); }
 
     /// Export all rounds as PGN  
     ///  
     /// Download all games of all rounds of a broadcast in PGN format.  
     /// You may want to download only the games of a single round instead. See {@link #exportOneRoundPgn(String)}  
     /// @param tourId The broadcast tournament ID (8 characters).
-    Many<PGN> exportPgn(String tourId);
+    /// @param params To disable clocks and/or comments (lke eval) in PGN
+    Many<PGN> exportPgn(String tourId, Consumer<PgnParameters> params);
+
+    /// See {@link #exportPgn(String, java.util.function.Consumer)}
+    default Many<PGN> exportPgn(String tourId) { return exportPgn(tourId, _ -> {}); }
 
     /// Get information about a broadcast tournament
     /// @param tourId The broadcast tournament ID (8 characters).
@@ -117,5 +130,17 @@ public interface BroadcastsApi {
         Params html(boolean html);
         /// Convert `description` field from Markdown to HTML
         default Params html() { return html(true); }
+    }
+
+    interface PgnParameters {
+        /// Include clock comments in the PGN moves, when available. Default `true`
+        /// Example: `2. exd5 { [%clk 1:01:27] } e5 { [%clk 1:01:28] }`
+        PgnParameters clocks(boolean clocks);
+        default PgnParameters clocksOff() { return clocks(false); }
+
+        /// Include analysis comments in the PGN moves, when available. Default `true`
+        /// Example: `12. Bxf6 { [%eval 0.23] }`
+        PgnParameters comments(boolean comments);
+        default PgnParameters commentsOff() { return comments(true); };
     }
 }

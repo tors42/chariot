@@ -86,24 +86,27 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
 
 
     @Override
-    public Many<PGN> streamBroadcast(String roundId) {
+    public Many<PGN> streamBroadcast(String roundId, Consumer<PgnParameters> params) {
         return Endpoint.streamBroadcast.newRequest(request -> request
                 .path(roundId)
+                .query(MapBuilder.of(PgnParameters.class).toMap(params))
                 .stream())
             .process(requestHandler);
     }
 
     @Override
-    public Many<PGN> exportOneRoundPgn(String roundId) {
+    public Many<PGN> exportOneRoundPgn(String roundId, Consumer<PgnParameters> params) {
         return Endpoint.exportBroadcastOneRoundPgn.newRequest(request -> request
-                .path(roundId))
+                .path(roundId)
+                .query(MapBuilder.of(PgnParameters.class).toMap(params)))
             .process(requestHandler);
     }
 
     @Override
-    public Many<PGN> exportPgn(String tourId) {
+    public Many<PGN> exportPgn(String tourId, Consumer<PgnParameters> params) {
         return Endpoint.exportBroadcastAllRoundsPgn.newRequest(request -> request
-                .path(tourId))
+                .path(tourId)
+                .query(MapBuilder.of(PgnParameters.class).toMap(params)))
             .process(requestHandler);
     }
 
