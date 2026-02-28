@@ -641,6 +641,10 @@ public sealed interface Endpoint<T> {
     public static EPMany<FidePlayer> fidePlayers =
         Endpoint.ofArr(FidePlayer.class).endpoint("/api/fide/player").toMany();
 
+    public static EPOne<FideRatingHistory> fideRatingHistory =
+        Endpoint.of(mapper(RatingWrapper.class).andThen(RatingWrapper::toFideRatingHistory))
+        .endpoint("/api/fide/player/%s/ratings").toOne();
+
     public static EPMany<String> boardSeekRealTime =
         Endpoint.of(Function.identity()).endpoint("/api/board/seek").post(wwwform).accept(plain).scope(Scope.board_play).toMany();
 
@@ -794,6 +798,30 @@ public sealed interface Endpoint<T> {
             Integer nextPage,
             Integer nbPages) implements Page<Broadcast.TourWithLastRound> {}
 
+    static record RatingWrapper(List<Integer> blitz, List<Integer> rapid, List<Integer> standard) {
+        public RatingWrapper {
+            blitz = Objects.requireNonNullElse(blitz, List.of());
+            rapid = Objects.requireNonNullElse(rapid, List.of());
+            standard = Objects.requireNonNullElse(standard, List.of());
+        }
+        FideRatingHistory toFideRatingHistory() {
+            return new FideRatingHistory(
+                    decodeRatingHistory(blitz),
+                    decodeRatingHistory(rapid),
+                    decodeRatingHistory(standard));
+        }
+        static SortedMap<LocalDate, Integer> decodeRatingHistory(List<Integer> encoded) {
+            return encoded.stream()
+                .map(String::valueOf)
+                .collect(Collectors.toMap(
+                            s -> LocalDate.of(Integer.parseInt(s.substring(0,4)),
+                                              Integer.parseInt(s.substring(4,6)),
+                                              1),
+                            s -> Integer.parseInt(s.substring(6)),
+                            (key1, _) -> key1,
+                            TreeMap::new));
+        }
+    }
 
     public static class Builder<T> {
         private String endpoint = "";

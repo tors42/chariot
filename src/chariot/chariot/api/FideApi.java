@@ -1,8 +1,6 @@
 package chariot.api;
 
-import chariot.model.One;
-import chariot.model.FidePlayer;
-import chariot.model.Many;
+import module chariot;
 
 /// FIDE players and federations from [their public download](https://ratings.fide.com/download_lists.phtml)  
 /// [https://lichess.org/fide](https://lichess.org/fide)
@@ -13,5 +11,7 @@ public interface FideApi {
 
     /// Search information about FIDE players by name.
     Many<FidePlayer> searchByName(String name);
-}
 
+    /// Get ratings history of a FIDE player
+    One<FideRatingHistory> ratingHistoryById(int fideId);
+}
