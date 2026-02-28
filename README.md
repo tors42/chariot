@@ -43,6 +43,7 @@ client.externalEngine().analyse()
 
 client.fide().playerById()
 client.fide().searchFidePlayers()
+client.fide().ratingHistoryById()
 
 client.games().byGameId()
 client.games().byGameIds()
