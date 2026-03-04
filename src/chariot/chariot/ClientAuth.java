@@ -55,7 +55,7 @@ public interface ClientAuth extends Client {
     OpeningExplorerApiAuth openingExplorer();
 
     /// Lookup positions from the Lichess tablebase server.
-    TablebaseApiAuth tablebase();
+    @Override TablebaseApiAuth tablebase();
 
     /// {@inheritDoc}
     @Override UsersApiAuth users();

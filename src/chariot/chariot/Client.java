@@ -81,6 +81,9 @@ public interface Client  {
     /// Access Lichess studies.
     StudiesApi studies();
 
+    /// Lookup positions from the Lichess tablebase server.
+    TablebaseApi tablebase();
+
     /// Access and manage Lichess teams and their members.
     TeamsApi teams();
 
