@@ -81,6 +81,10 @@ client.studies().byPage()
 client.studies().listStudies()
 client.studies().listStudiesByUser()
 
+client.tablebase().standard()
+client.tablebase().atomic()
+client.tablebase().antichess()
+
 client.teams().numberOfTeams()
 client.teams().search()
 client.teams().searchByPage()
@@ -228,10 +232,6 @@ client.puzzles().replay()
 client.studies().importPgn()
 client.studies().deleteStudyChapter()
 client.studies().updateStudyChapterTags()
-
-client.tablebase().standard()
-client.tablebase().atomic()
-client.tablebase().antichess()
 
 client.teams().byUserId()
 client.teams().joinTeam()
