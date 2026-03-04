@@ -335,7 +335,7 @@ public sealed interface Endpoint<T> {
         Endpoint.of(ExploreResult.OpeningPlayer.class).endpoint("/player").target(ServerType.explorer).scope(Scope.any).toOne();
 
     public static EPOne<PGN> exploreMasterOTB =
-        Endpoint.of(PGN.class).endpoint("/master/pgn/%s")
+        Endpoint.of(PGN.class).endpoint("/masters/pgn/%s")
         .streamMapper(Util::pgnStream)
         .accept(chesspgn).target(ServerType.explorer).scope(Scope.any).toOne();
 
