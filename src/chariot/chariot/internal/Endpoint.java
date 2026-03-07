@@ -422,6 +422,10 @@ public sealed interface Endpoint<T> {
         Endpoint.of(mapper(PageStudyWrapper.class).andThen(PageStudyWrapper::paginator))
         .endpoint("/study").scope(Scope.study_read).toOne();
 
+    public static EPOne<String> studyCreate =
+        Endpoint.of(mapper(StudyId.class).andThen(StudyId::id))
+        .endpoint("/api/study").post(wwwform).scope(Scope.study_write).toOne();
+
     public static EPMany<PGN> exportChapter =
         Endpoint.of(PGN.class).endpoint("/api/study/%s/%s.pgn")
         .streamMapper(Util::pgnStream)
@@ -786,6 +790,7 @@ public sealed interface Endpoint<T> {
 
     static record ActiveAndUpcoming(List<Broadcast.TourWithLastRound> active, List<Broadcast.TourWithLastRound> upcoming) {}
 
+    static record StudyId(String id) {}
     static record PageBroadcastWrapper(PageBroadcast past) {}
     static record PageStudyWrapper(PageStudy paginator) {}
 

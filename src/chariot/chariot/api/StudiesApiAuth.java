@@ -1,14 +1,40 @@
 package chariot.api;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import module java.base;
+import module chariot;
 
-import chariot.model.*;
-import chariot.model.Enums.GameVariant;
+import chariot.model.Study.UserSelection;
 
 public interface StudiesApiAuth extends StudiesApi {
+
+    /// Create a new Study.
+    /// {@snippet :
+    ///      var client = Client.auth("token-with-scope-study:write");
+    ///
+    ///      One<String> newStudy = client.studies().create("MyStudy", params -> params
+    ///              .visibilityPublic()
+    ///              .computer(p -> p.owner())
+    ///              .chat(p -> p.nobody())
+    ///              .sticky());
+    ///
+    ///      switch (newStudy) {
+    ///          case Some(String id) -> IO.println("Study ID: " + id);
+    ///          case Fail<?> f -> IO.println(f);
+    ///      }
+    /// }
+    ///
+    /// @return the ID of the created study
+    /// @param name The name of the study. Minimum 2 characters.
+    /// @param params Default values:
+    /// - visibility: unlisted
+    /// - chat: member
+    /// - computer: everyone
+    /// - explorer: everyone
+    /// - cloneable: everyone
+    /// - shareable: everyone
+    One<String> create(String name, Consumer<CreateParams> params);
+
+    default One<String> create(String name) { return create(name, _ -> {}); }
 
     /// Import PGN into a study
     ///
@@ -56,6 +82,25 @@ public interface StudiesApiAuth extends StudiesApi {
     /// @param tags a map of tags to update
     Ack updateStudyChapterTags(String studyId, String chapterId, Map<String, String> tags);
 
+    interface CreateParams {
+        CreateParams visibilityPublic();
+        CreateParams visibilityUnlisted();
+        CreateParams visibilityPrivate();
+        CreateParams chat(UserSelection selection);
+        CreateParams computer(UserSelection selection);
+        CreateParams explorer(UserSelection selection);
+        CreateParams cloneable(UserSelection selection);
+        CreateParams shareable(UserSelection selection);
+        CreateParams sticky(boolean sticky);
+
+        default CreateParams sticky() { return sticky(true); }
+        default CreateParams computer(Function<UserSelection.Provider, UserSelection> mapper) { return computer(mapper.apply(UserSelection.provider())); }
+        default CreateParams explorer(Function<UserSelection.Provider, UserSelection> mapper) { return explorer(mapper.apply(UserSelection.provider())); }
+        default CreateParams cloneable(Function<UserSelection.Provider, UserSelection> mapper) { return cloneable(mapper.apply(UserSelection.provider())); }
+        default CreateParams shareable(Function<UserSelection.Provider, UserSelection> mapper) { return shareable(mapper.apply(UserSelection.provider())); }
+        default CreateParams chat(Function<UserSelection.Provider, UserSelection> mapper) { return chat(mapper.apply(UserSelection.provider())); }
+    }
+
     interface ImportParams {
 
         /// @param pgn Required. PGN to import. Can contain multiple games separated by 2 or more newlines.
@@ -69,8 +114,10 @@ public interface StudiesApiAuth extends StudiesApi {
 
         ImportParams orientationWhite();
         ImportParams orientationBlack();
-        ImportParams variant(GameVariant variant);
-        default ImportParams variant(Function<GameVariant.Provider, GameVariant> variant) { return variant(variant.apply(GameVariant.provider())); }
+        ImportParams variant(Enums.GameVariant variant);
+        default ImportParams variant(Function<Enums.GameVariant.Provider, Enums.GameVariant> variant) {
+            return variant(variant.apply(Enums.GameVariant.provider()));
+        }
 
         /// Analysis mode: Practice with computer
         ImportParams modePractice();

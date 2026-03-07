@@ -15,4 +15,21 @@ public record Study(
         List<StudyMember> members
         ) {
     public record StudyMember(UserCommon user, String role) {}
+
+    public enum UserSelection {
+        nobody,
+        owner,
+        contributor,
+        member,
+        everyone,
+        ;
+        public interface Provider {
+            default UserSelection nobody()      { return nobody; }
+            default UserSelection owner()       { return owner; }
+            default UserSelection contributor() { return contributor; }
+            default UserSelection member()      { return member; }
+            default UserSelection everyone()    { return everyone; }
+        }
+        public static Provider provider() {return new Provider(){};}
+    }
 }

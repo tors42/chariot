@@ -1,18 +1,11 @@
 package chariot.internal.impl;
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import module java.base;
+import module chariot;
 
-import chariot.api.StudiesApiAuth;
 import chariot.internal.*;
 import chariot.internal.Util.MapBuilder;
 import chariot.internal.model.DefaultPGN;
-import chariot.model.*;
 
 public class StudiesHandler implements StudiesApiAuth {
 
@@ -65,7 +58,28 @@ public class StudiesHandler implements StudiesApiAuth {
         return Endpoint.listStudiesByUser.newRequest(request -> request
                 .path(user))
             .process(requestHandler);
-     }
+    }
+
+    @Override
+    public One<String> create(String name, Consumer<CreateParams> params) {
+        return Endpoint.studyCreate.newRequest(request -> request
+                .body(MapBuilder.of(CreateParams.class)
+                    .add("name", name)
+                    // defaults
+                    .add("visibility", "unlisted")
+                    .add("chat", Study.UserSelection.member)
+                    .add("computer", Study.UserSelection.everyone)
+                    .add("explorer", Study.UserSelection.everyone)
+                    .add("cloneable", Study.UserSelection.everyone)
+                    .add("shareable", Study.UserSelection.everyone)
+
+                    .addCustomHandler("visibilityPublic",   (_, map) -> map.put("visibility", "public"))
+                    .addCustomHandler("visibilityUnlisted", (_, map) -> map.put("visibility", "unlisted"))
+                    .addCustomHandler("visibilityPrivate",  (_, map) -> map.put("visibility", "private"))
+                    .toMap(params))
+                )
+            .process(requestHandler);
+    }
 
     @Override
     public Many<ChapterMeta> importPgn(String studyId, Consumer<ImportParams> params) {
