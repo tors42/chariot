@@ -118,6 +118,17 @@ public interface Client  {
         return basic(Config.basic(params));
     }
 
+    /// Get a user token, by initiating a OAuth Authorization Grant flow,
+    /// where the user needs to visit a Lichess web page with their user account and click "Authorize".
+    default One<String> token(Consumer<URI> uri, Consumer<PkceConfig> pkce) {
+        return OAuth.lichessAuthorizationCodeFlowPKCE(uri, pkce, this);
+    }
+    /// Get a user token, by initiating a OAuth Authorization Grant flow,
+    /// where the user needs to visit a Lichess web page with their user account and click "Authorize".
+    default One<String> token(Consumer<URI> uri, Scope... scopes) {
+        return OAuth.lichessAuthorizationCodeFlowPKCE(uri, scopes == null ? _ -> {} : pkce -> pkce.scope(scopes), this);
+    }
+
     /// Use a pre-created Personal Access Token to use the authenticated API
     /// {@snippet :
     /// String token = ...
@@ -217,6 +228,10 @@ public interface Client  {
     /// @param uriHandler The generated Lichess URI that your user can visit to review and approve granting access to your application
     /// @param pkce Configuration of for instance which scopes if any that the resulting Access Token should include.
     One<ClientAuth> withPkce(Consumer<URI> uriHandler, Consumer<PkceConfig> pkce);
+
+    default One<ClientAuth> withPkce(Consumer<URI> uriHandler, Scope... scopes) {
+        return withPkce(uriHandler, scopes == null ? _ -> {} : pkce -> pkce.scope(scopes));
+    }
 
     /// Use OAuth PKCE flow to make it possible for your user to grant access to your application.
     /// {@snippet :
