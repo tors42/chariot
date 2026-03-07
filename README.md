@@ -229,6 +229,7 @@ client.puzzles().createAndJoinRace()
 client.puzzles().puzzleDashboard()
 client.puzzles().replay()
 
+client.studies().create()
 client.studies().importPgn()
 client.studies().deleteStudyChapter()
 client.studies().updateStudyChapterTags()
