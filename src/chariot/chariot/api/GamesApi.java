@@ -161,6 +161,11 @@ public interface GamesApi {
      */
     Many<MoveInfo> moveInfosByGameId(String gameId);
 
+
+    /// Fetch the chat messages in the spectator chat
+    Many<ChatMessage> fetchSpectatorChat(String gameId);
+
+
     interface GamesParameters {
         /**
          * @param withCurrentGames whether to include ongoing games or not. Default: true

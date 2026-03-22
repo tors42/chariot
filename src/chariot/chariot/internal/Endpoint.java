@@ -325,6 +325,13 @@ public sealed interface Endpoint<T> {
         .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
 
+    public static EPMany<ChatMessage> gameChat =
+        Endpoint.ofArr(mapper(ChatWrapper.class).andThen(ChatWrapper::lines))
+        .endpoint("/api/game/%s/chat")
+        .toMany();
+
+    public static record ChatWrapper(ChatMessage[] lines) {}
+
     public static EPOne<ExploreResult.OpeningDB> exploreMasters =
         Endpoint.of(ExploreResult.OpeningDB.class).endpoint("/masters").target(ServerType.explorer).scope(Scope.any).toOne();
 

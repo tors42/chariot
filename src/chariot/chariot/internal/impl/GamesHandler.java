@@ -149,6 +149,13 @@ public class GamesHandler implements GamesApiAuth {
             .process(requestHandler);
     }
 
+    @Override
+    public Many<ChatMessage> fetchSpectatorChat(String gameId) {
+        return Endpoint.gameChat.newRequest(request -> request
+                .path(gameId))
+            .process(requestHandler);
+    }
+
     static Consumer<Params> paramsConsumerByChannelChannelFilter(Channel channel, Consumer<ChannelFilter> params) {
         return request -> request
             .path(channel.name())
