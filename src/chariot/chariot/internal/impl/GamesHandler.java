@@ -1,16 +1,11 @@
 package chariot.internal.impl;
 
-import java.time.Duration;
-import java.util.*;
-import java.util.stream.Collectors;
+import module java.base;
+import module chariot;
 
-import chariot.api.*;
 import chariot.internal.*;
 import chariot.internal.RequestParameters.Params;
 import chariot.internal.Util.MapBuilder;
-import chariot.model.*;
-import java.util.function.*;
-
 import chariot.model.Enums.*;
 
 public class GamesHandler implements GamesApiAuth {

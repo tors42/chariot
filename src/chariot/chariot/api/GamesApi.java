@@ -1,11 +1,9 @@
 package chariot.api;
 
-import java.time.ZonedDateTime;
-import java.util.Set;
-import java.util.function.*;
+import module java.base;
+import module chariot;
 
 import chariot.model.Enums.*;
-import chariot.model.*;
 
 /**
  * Access games played on Lichess.
