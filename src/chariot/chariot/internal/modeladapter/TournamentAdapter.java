@@ -279,27 +279,11 @@ public interface TournamentAdapter {
                     Opt.of(name));
         }
 
-
-        //////
-        //
-        // Workaround if-statements instead of commented out switch expression,
-        // due to java.lang.Verify error when compiling ("java build/Build.java")
-        if (parentYo.value().get("variant") instanceof YayString(String variant)) {
-            return Variant.fromString(variant);
-        }
-        if (parentYo.value().get("variant") instanceof YayObject variantYo
-            && variantYo.getString("key") instanceof String key) {
-            return Variant.fromString(key);
-        }
-        return Variant.Basic.standard;
-        // This snippet causes a java.lang.Verify when compiling ("java build/Build.java"), "inconsistent stackframes"
-        //
-        // Works in 26-ea+8-804
-        //return switch(parentYo.value().get("variant")) {
-        //    case YayString(String variant) -> Variant.fromString(variant);
-        //    case YayObject yo when yo.getString("key") instanceof String key -> Variant.fromString(key);
-        //    case null, default -> Variant.Basic.standard;
-        //};
+        return switch(parentYo.value().get("variant")) {
+            case YayString(String variant) -> Variant.fromString(variant);
+            case YayObject yo when yo.getString("key") instanceof String key -> Variant.fromString(key);
+            case null, default -> Variant.Basic.standard;
+        };
     }
 
     static Swiss nodeToSwiss(YayNode swissNode, YayMapper yayMapper) {
