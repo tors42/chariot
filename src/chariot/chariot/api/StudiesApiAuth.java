@@ -82,6 +82,16 @@ public interface StudiesApiAuth extends StudiesApi {
     /// @param tags a map of tags to update
     Ack updateStudyChapterTags(String studyId, String chapterId, Map<String, String> tags);
 
+    /// Update PGN moves in a chapter of a study  
+    ///  
+    /// Replaces the moves tree of a study chapter. No tags will be modified. 
+    ///
+    /// @param studyId Study id
+    /// @param chapterId Chapter id
+    /// @param pgn PGN text containing the moves that will replace the chapter's existing moves. Any provided tags are ignored.
+    Ack updateStudyChapterMoves(String studyId, String chapterId, String pgn);
+
+
     interface CreateParams {
         CreateParams visibilityPublic();
         CreateParams visibilityUnlisted();

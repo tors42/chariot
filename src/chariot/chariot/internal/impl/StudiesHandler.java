@@ -116,6 +116,16 @@ public class StudiesHandler implements StudiesApiAuth {
     }
 
     @Override
+    public Ack updateStudyChapterMoves(String studyId, String chapterId, String pgn) {
+        return Endpoint.updateStudyChapterMoves.newRequest(request -> request
+                .path(studyId, chapterId)
+                .body(Map.of("pgn", pgn))
+                )
+            .process(requestHandler);
+    }
+
+
+    @Override
     public One<PageStudy> byPage(int page) {
         return Endpoint.studyPage.newRequest(request -> request
                 .query(Map.of("page", page)))

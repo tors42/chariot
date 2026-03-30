@@ -468,6 +468,10 @@ public sealed interface Endpoint<T> {
     public static EPAck updateStudyChapterTags =
         Endpoint.of(Ack.class).endpoint("/api/study/%s/%s/tags").scope(Scope.study_write).post(wwwform).toAck();
 
+    public static EPAck updateStudyChapterMoves =
+        Endpoint.of(Ack.class).endpoint("/api/study/%s/%s/moves").scope(Scope.study_write).post(wwwform).toAck();
+
+
     public static EPOne<BulkPairing> bulkPairingGet =
         Endpoint.of(BulkPairing.class).endpoint("/api/bulk-pairing/%s")
         .scope(Scope.challenge_bulk).toOne();
