@@ -234,6 +234,7 @@ client.studies().create()
 client.studies().importPgn()
 client.studies().deleteStudyChapter()
 client.studies().updateStudyChapterTags()
+client.studies().updateStudyChapterMoves()
 
 client.teams().byUserId()
 client.teams().joinTeam()
