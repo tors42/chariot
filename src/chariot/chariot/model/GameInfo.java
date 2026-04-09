@@ -18,6 +18,7 @@ public record GameInfo(
         Opponent opponent,
         String source,
         Opt<String> lastMove,
+        Opt<Integer> rating,
         Opt<Integer> ratingDiff,
         Opt<TournamentId> tournament
         ) {

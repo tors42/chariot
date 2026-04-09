@@ -68,7 +68,7 @@ public interface GameInfoAdapter {
         var gameInfo = new GameInfo(fullId, gameId, fen,
                 color, status, variantType, timeInfo,
                 rated, hasMoved, isMyTurn, opponent,
-                source, lastMove,
+                source, lastMove, Opt.of(gameYo.getInteger("rating")),
                 Opt.of(gameYo.getInteger("ratingDiff")), Opt.of(tournamentInfo));
 
         return gameInfo;
