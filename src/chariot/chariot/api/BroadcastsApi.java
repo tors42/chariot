@@ -7,12 +7,14 @@ public interface BroadcastsApi {
 
     /// Get official broadcasts  
     ///  
-    /// First ongoing official broadcasts sorted by tier, then finished broadcasts sorted by most recent sync time.
+    /// Returns active (a round is scheduled or ongoing) official broadcasts sorted by tier.
+    /// After that, returns finished broadcasts sorted by most recent sync time.
     Many<Broadcast> official(Consumer<BroadcastParameters> params);
 
     /// Get official broadcasts  
     ///  
-    /// First ongoing official broadcasts sorted by tier, then finished broadcasts sorted by most recent sync time.
+    /// Returns active (a round is scheduled or ongoing) official broadcasts sorted by tier.
+    /// After that, returns finished broadcasts sorted by most recent sync time.
     /// @param max Max number of broadcasts to fetch. `1..100` Default `20`
     default Many<Broadcast> official(int max) { return official(p -> p.nb(max)); }
 
@@ -118,6 +120,12 @@ public interface BroadcastsApi {
     interface BroadcastParameters {
         /// @param nb Max number of broadcasts to fetch. `1..100` Default `20`
         BroadcastParameters nb(int nb);
+
+        /// Include only broadcasts where a round is ongoing, i.e. started and not finished
+        /// @param live
+        BroadcastParameters live(boolean live);
+        /// Include only broadcasts where a round is ongoing, i.e. started and not finished
+        default BroadcastParameters live() { return live(true); }
 
         /// @param html Convert `description` field from Markdown to HTML
         BroadcastParameters html(boolean html);
