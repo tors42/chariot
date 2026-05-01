@@ -12,6 +12,7 @@ public record FidePlayer(
         Opt<Integer> rapid,
         Opt<Integer> blitz,
         Opt<Photo> photo,
+        String gender,
         boolean inactive
         ) {
     public record Photo(String credit, URI small, URI medium) {}
