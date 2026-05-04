@@ -33,8 +33,6 @@ public record Game (
     Opt<Boolean> bookmarked
     )  {
 
-    public record Players (Player white, Player black) { }
-
     public record Opening (String eco, String name, Integer ply) {}
 
     public record Clock (int initial, int increment, int totalTime) {}

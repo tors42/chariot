@@ -39,5 +39,4 @@ public sealed interface MoveInfo {
     }
 
     public record Status(int id, String name) {}
-    public record Players(Player white, Player black) { }
 }

@@ -27,7 +27,7 @@ public class TestGameExport {
                     ZonedDateTime.ofInstant(Instant.ofEpochMilli(1514505150384l), ZoneId.systemDefault()).withNano(0),
                     ZonedDateTime.ofInstant(Instant.ofEpochMilli(1514505592843l), ZoneId.systemDefault()).withNano(0),
                     Status.draw,
-                    new Game.Players(
+                    new Players.Pair(
                         Player.account(new LightUser("lance5500", Opt.of("LM"), "Lance5500", Opt.of(10), Opt.empty()), 2389, false, 4),
                         Player.account(new LightUser("tryinghard87", Opt.empty(), "TryingHard87", Opt.empty(), Opt.empty()), 2498, false, -4)
                         ),

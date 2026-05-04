@@ -119,9 +119,13 @@ public class ModelMapper {
         yayMapper.setCustomMapper(TVFeedEvent.class, tvFeedEventMapper);
         strToObjMappings.put(TVFeedEvent.class, json -> tvFeedEventMapper.apply(Parser.fromString(json)));
 
-        Function<YayNode, Player> gamePlayerMapper = node -> GamePlayerAdapter.nodeToPlayer(node, yayMapper);
-        yayMapper.setCustomMapper(Player.class, gamePlayerMapper);
-        strToObjMappings.put(Player.class, json -> gamePlayerMapper.apply(Parser.fromString(json)));
+        Function<YayNode, Player> playerMapper = node -> PlayersAdapter.nodeToPlayer(node, yayMapper);
+        yayMapper.setCustomMapper(Player.class, playerMapper);
+        strToObjMappings.put(Player.class, json -> playerMapper.apply(Parser.fromString(json)));
+
+        Function<YayNode, Players> playersMapper = node -> PlayersAdapter.nodeToPlayers(node, yayMapper);
+        yayMapper.setCustomMapper(Players.class, playersMapper);
+        strToObjMappings.put(Players.class, json -> playersMapper.apply(Parser.fromString(json)));
 
         Function<YayNode, UserCommon> userCommonMapper = node -> yayMapper.fromYayTree(node, UserData.class).toCommon();
 
