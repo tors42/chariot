@@ -179,14 +179,12 @@ public interface TournamentAdapter {
                             yield Condition.minAccountAge(Period.ofYears(nb));
                         }
                     } catch (NumberFormatException nfe) {}
-                } else if (s.endsWith(" rated games")
-                        && s.split(" rated games") instanceof String[] arr
-                        && arr.length == 1
-                        && arr[0].split(" ") instanceof String[] parts
-                        && parts.length == 3) {
+                } else if (s.endsWith(" games") && s.contains(" rated ")
+                        && s.split(" ") instanceof String[] arr
+                        && arr.length == 5) {
                     try {
-                        int games = Integer.parseInt(parts[1]);
-                        if (Speed.fromString(parts[2]) instanceof Speed speed) {
+                        int games = Integer.parseInt(arr[1]);
+                        if (Speed.fromString(arr[3]) instanceof Speed speed) {
                             yield Condition.minRatedGames(games, speed);
                         }
                     } catch (NumberFormatException nfe) {}
