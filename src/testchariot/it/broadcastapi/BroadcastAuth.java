@@ -41,6 +41,7 @@ public class BroadcastAuth {
 
         int tier = 0;
         boolean teamTable = false;
+        boolean showTeamScores = false;
 
         List<Broadcast.Round> rounds = List.of();
         Opt<Broadcast.Group> group = Opt.empty();
@@ -65,6 +66,7 @@ public class BroadcastAuth {
                         IT.lilaURI().resolve("/broadcast/" + slug + "/" + id),
                         image,
                         teamTable,
+                        showTeamScores,
                         communityOwner),
                 rounds,
                 group,
@@ -102,6 +104,7 @@ public class BroadcastAuth {
                         expected.tour().url(),
                         expected.tour().image(),
                         expected.tour().teamTable(),
+                        expected.tour().showTeamScores(),
                         expected.tour().communityOwner()),
                 expected.rounds(),
                 expected.group(),
@@ -180,6 +183,8 @@ public class BroadcastAuth {
         //    .map(user -> Opt.of(new LightUser(user.id(), user.title(), user.name(), user.patron(), user.flair())))
         //    .orElse(Opt.empty());
 
+        // not a parameter to set via API
+        boolean showTeamScores = false;
 
         // Note,
         //  It is not possible to query the values for, so no obvious way to verify them...
@@ -199,6 +204,7 @@ public class BroadcastAuth {
                         IT.lilaURI().resolve("/broadcast/" + slug + "/" + id),
                         image,
                         teamLeaderboard,
+                        showTeamScores,
                         communityOwner),
                 rounds,
                 group,
@@ -250,6 +256,7 @@ public class BroadcastAuth {
                     broadcast.tour().url(),
                     broadcast.tour().image(),
                     broadcast.tour().teamTable(),
+                    broadcast.tour().showTeamScores(),
                     broadcast.tour().communityOwner()
                     ),
                 expectedRounds,
@@ -323,6 +330,7 @@ public class BroadcastAuth {
                         broadcast.tour().url(),
                         broadcast.tour().image(),
                         broadcast.tour().teamTable(),
+                        broadcast.tour().showTeamScores(),
                         broadcast.tour().communityOwner());
 
 

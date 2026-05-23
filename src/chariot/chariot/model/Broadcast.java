@@ -19,6 +19,7 @@ public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group, Opt<Str
             URI url,
             Opt<URI> image,
             boolean teamTable,
+            boolean showTeamScores,
             Opt<LightUser> communityOwner
             ) {
         public Opt<ZonedDateTime> startDate() { return dates().isEmpty() == false ? Opt.of(dates().getFirst()) : Opt.empty(); }
