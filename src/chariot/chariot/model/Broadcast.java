@@ -4,7 +4,11 @@ import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group, Opt<String> defaultRoundId)  {
+public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group, Opt<String> defaultRoundId, Photos photos)  {
+    public Broadcast(Tour tour, List<Round> rounds, Opt<Group> group, Opt<String> defaultRoundId)  {
+        this(tour, rounds, group, defaultRoundId, new Photos(List.of()));
+    }
+
     public String id() { return tour().id(); }
 
     public record Tour(
@@ -82,4 +86,6 @@ public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group, Opt<Str
 
     public record Points(double win, double draw) {}
     public record CustomScoring(Points white, Points black) {}
+    public record Photos(List<Photo> list) {}
+    public record Photo(String id, URI small, URI medium, String credit) {}
 }
