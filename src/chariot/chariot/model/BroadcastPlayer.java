@@ -13,16 +13,16 @@ public record BroadcastPlayer(
             Opt<Ratings> ratingsMap,
             Opt<Ratings> ratingDiffs,
             Opt<Ratings> performances,
-            Opt<Tiebreak[]> tiebreaks,
+            List<Tiebreak> tiebreaks,
             Opt<Integer> rank,
             Opt<Boolean> isFollowing,
-            Opt<Game[]> games
+            List<Game> games
             ) {
 
-    // Opt<List<X>> is tricky for YayMapper, handling parameterized types...
-    // Opt<X[]> works like a charm. So taking easy way out and provide list getters...
-    public List<Game> gamesList() { return games().map(Arrays::asList).orElse(List.of()); }
-    public List<Tiebreak> tiebreaksList() { return tiebreaks().map(Arrays::asList).orElse(List.of()); }
+    public BroadcastPlayer {
+        if (tiebreaks == null) tiebreaks = List.of();
+        if (games == null) games = List.of();
+    }
 
     public record Tiebreak(String extendedCode, String description, float points) {}
     public record Fide(Ratings ratings, Opt<Integer> year) {}
@@ -40,6 +40,8 @@ public record BroadcastPlayer(
             Opponent opponent,
             Enums.Color color,
             String points,
+            boolean ongoing,
+            Opt<String> fideTC,
             Opt<Float> customPoints,
             Opt<Integer> ratingDiff) {}
 }
