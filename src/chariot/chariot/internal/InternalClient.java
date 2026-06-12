@@ -163,12 +163,12 @@ public class InternalClient {
 
         if (response.statusCode() == 429) {
 
-            // Perform a retry in a minute...
-            throttle429.set(true);
-
             config.logging().response().warning(() -> "%s".formatted(response));
 
             if (retries > 0) {
+                // Perform a retry in a minute...
+                throttle429.set(true);
+
                 var builder = HttpRequest.newBuilder(httpRequest, (_,_) -> true);
                 httpRequest.timeout().ifPresent(t -> builder.timeout(t.plusMillis(retryMillis)));
                 var retryHttpRequest = builder.build();
