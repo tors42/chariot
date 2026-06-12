@@ -25,11 +25,15 @@ public class IT {
     }
 
     public static Client clientBasicByUserId(String userId) {
-        return userIdClientBasic.computeIfAbsent(userId, _ -> Client.basic(conf -> conf.api(Main.itApi()).spacing(Duration.ZERO)));
+        return userIdClientBasic.computeIfAbsent(userId, _ -> Client.basic(conf -> conf.api(Main.itApi()).spacing(Duration.ZERO).retries(0)));
     }
 
     public static ClientAuth clientAuthByUserId(String userId) {
-        return userIdClientAuth.computeIfAbsent(userId, id -> Client.auth(conf -> conf.api(Main.itApi()).spacing(Duration.ZERO), "lip_" + id));
+        String suffix = switch(System.getenv("TOKEN_SUFFIX")) {
+            case String value -> "-%s".formatted(value);
+            case null -> "";
+        };
+        return userIdClientAuth.computeIfAbsent(userId, id -> Client.auth(conf -> conf.api(Main.itApi()).spacing(Duration.ZERO).retries(0), "lip_" + id + suffix));
     }
 
     public static ClientAuth admin()      { return clientAuthByUserId("admin"); }
