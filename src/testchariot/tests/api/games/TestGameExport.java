@@ -33,7 +33,7 @@ public class TestGameExport {
                         ),
                     Opt.empty(),
                     Opt.empty(), Opt.empty(), Opt.empty(),
-                    Opt.of("winter17"),
+                    Opt.of(new Game.ArenaTour("winter17", "2017 Winter Marathon")),
                     Opt.empty(), Opt.empty(),
                     Opt.empty(),
                     Opt.empty(),
@@ -75,7 +75,10 @@ public class TestGameExport {
               "ratingDiff": -4
             }
           },
-          "tournament": "winter17",
+          "arenaTour": {
+              "id": "winter17",
+              "name": "2017 Winter Marathon"
+          },
           "clock": {
             "initial": 300,
             "increment": 3,

@@ -21,8 +21,8 @@ public record Game (
     Opt<String> initialFen,
     Opt<String> lastFen,
     Opt<String> pgn,
-    Opt<String> tournament,
-    Opt<String> swiss,
+    Opt<ArenaTour> arenaTour,
+    Opt<String> swissTour,
     Opt<Integer> daysPerTurn,
     Opt<Color> winner,
     Opt<Opening> opening,
@@ -32,6 +32,11 @@ public record Game (
     Opt<Division> division,
     Opt<Boolean> bookmarked
     )  {
+
+    @Deprecated public Opt<String> tournament() { return arenaTour().map(ArenaTour::id); }
+    @Deprecated public Opt<String> swiss() { return swissTour(); }
+
+    public record ArenaTour(String id, String name) {}
 
     public record Opening (String eco, String name, Integer ply) {}
 
