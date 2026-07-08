@@ -75,12 +75,13 @@ public record Broadcast(Tour tour, List<Round> rounds, Opt<Group> group, Opt<Str
             Opt<String> tc,
             Opt<String> players,
             Opt<String> location,
+            Opt<String> timeZone,
             Opt<URI> website,
             Opt<URI> standings,
-            Opt<String> timeZone
+            Opt<URI> regulations
             ) {
         public Info() {
-            this(Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of());
+            this(Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of(), Opt.of());
         }
     }
 

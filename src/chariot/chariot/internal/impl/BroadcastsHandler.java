@@ -219,9 +219,10 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
                     .rename("infoFeaturedPlayers", "info.players")
                     .rename("infoTimeControlFIDE", "info.fideTC")
                     .rename("infoLocation", "info.location")
+                    .rename("infoTimeZone", "info.timeZone")
                     .rename("infoStandings", "info.standings")
                     .rename("infoWebsite", "info.website")
-                    .rename("infoTimeZone", "info.timeZone")
+                    .rename("infoRegulations", "info.regulations")
                     .addCustomHandler("tiebreaks", (args, map) -> {
                         if (args == null || args[0] == null) return;
                         String[] arr = (String[]) args[0];

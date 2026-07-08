@@ -128,6 +128,7 @@ public class BroadcastAuth {
         String infoLocation = "Utopia";
         URI infoWebsite = URI.create("https://localhost/tournament");
         URI infoStandings = URI.create("https://localhost/tournament/results");
+        URI infoRegulations = URI.create("https://localhost/tournament/regulations");
         String infoTimeZone = "America/New_York";
 
         ZonedDateTime create = ZonedDateTime.now();
@@ -143,9 +144,10 @@ public class BroadcastAuth {
                 .infoTournamentFormat(infoTournamentFormat)
                 .infoFeaturedPlayers(infoPlayers)
                 .infoLocation(infoLocation)
+                .infoTimeZone(infoTimeZone)
                 .infoWebsite(infoWebsite)
                 .infoStandings(infoStandings)
-                .infoTimeZone(infoTimeZone)
+                .infoRegulations(infoRegulations)
                 .tier(tier)
                 .showScores(showScores)
                 .showRatingDiffs(showRatingDiffs)
@@ -169,9 +171,11 @@ public class BroadcastAuth {
                 Opt.some(infoTimeControl),
                 Opt.some(infoPlayers),
                 Opt.of(infoLocation),
+                Opt.of(infoTimeZone),
                 Opt.of(infoWebsite),
                 Opt.of(infoStandings),
-                Opt.of(infoTimeZone));
+                Opt.of(infoRegulations)
+                );
 
         List<Broadcast.Round> rounds = List.of();
         Opt<Broadcast.Group> group = Opt.empty();
