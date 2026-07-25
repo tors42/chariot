@@ -82,6 +82,12 @@ public sealed interface Endpoint<T> {
         .streamMapper(stream -> stream.map(mapper(PlayingWrapper.class)).filter(Objects::nonNull).flatMap(pw -> pw.nowPlaying().stream()))
         .scope(Scope.any).toMany();
 
+    public static EPOne<Integer> accountNowPlayingNbMyTurn =
+        Endpoint.of(mapper(PlayingWrapper.class).andThen(PlayingWrapper::nbMyTurn))
+        .endpoint("/api/account/playing")
+        .scope(Scope.any).toOne();
+
+
     public static EPMany<TimelineEntry> timeline =
         Endpoint.of(TimelineEntry.class).streamMapper(stream -> stream.map(mapper(Timeline.class)).flatMap(Timeline::toTimelineEntries)).endpoint("/api/timeline").scope(Scope.any).toMany();
 
@@ -765,7 +771,7 @@ public sealed interface Endpoint<T> {
 
     static record AutocompleteWrapper(List<UserData> result) {}
     static record BulkPairingWrapper(List<BulkPairing> bulks) {}
-    static record PlayingWrapper(List<GameInfo> nowPlaying)  {}
+    static record PlayingWrapper(int nbMyTurn, List<GameInfo> nowPlaying)  {}
     static record AccountEmail(String email)  {}
     static record AccountKid(boolean kid)  {}
     static record ArenaPlayedWrapped(ArenaLight tournament, ArenaPlayer player) {}

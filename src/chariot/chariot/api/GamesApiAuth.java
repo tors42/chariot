@@ -15,6 +15,9 @@ public interface GamesApiAuth extends GamesApi {
      */
     Many<GameInfo> ongoing();
 
+    /// Number of ongoing games where it is your turn
+    One<Integer> ongoingMyTurnCount();
+
     /**
      * Download all games imported by you.
      */

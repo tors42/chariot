@@ -208,6 +208,13 @@ public class GamesHandler implements GamesApiAuth {
     }
 
     @Override
+    public One<Integer> ongoingMyTurnCount() {
+        return Endpoint.accountNowPlayingNbMyTurn.newRequest(request -> {})
+            .process(requestHandler);
+    }
+
+
+    @Override
     public Many<GameInfo> ongoing(int nb) {
         return Endpoint.accountNowPlaying.newRequest(request -> request
                 .query(Map.of("nb", nb)))
