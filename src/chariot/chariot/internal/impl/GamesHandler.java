@@ -228,6 +228,21 @@ public class GamesHandler implements GamesApiAuth {
     }
 
     @Override
+    public Ack bookmarkToggle(String gameId) {
+        return Endpoint.bookmarkGameToggle.newRequest(request -> request
+                .path(gameId))
+            .process(requestHandler);
+    }
+
+    @Override
+    public Ack bookmarkSet(String gameId, boolean bookmarked) {
+        return Endpoint.bookmarkGameToggle.newRequest(request -> request
+                .path(gameId)
+                .query(Map.of("v", bookmarked)))
+            .process(requestHandler);
+    }
+
+    @Override
     public Many<Game> bookmarked(Consumer<BookmarkedParams> params) {
         return Endpoint.gamesBookmarked.newRequest(request -> request
                 .query(MapBuilder.of(BookmarkedParams.class).toMap(params)))

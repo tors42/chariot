@@ -331,6 +331,10 @@ public sealed interface Endpoint<T> {
         .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
 
+    public static EPAck bookmarkGameToggle =
+        Endpoint.of(Ack.class).endpoint("/bookmark/%s")
+        .post().scope(Scope.preference_write).toAck();
+
     public static EPMany<ChatMessage> gameChat =
         Endpoint.ofArr(mapper(ChatWrapper.class).andThen(ChatWrapper::lines))
         .endpoint("/api/game/%s/chat")

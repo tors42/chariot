@@ -23,6 +23,12 @@ public interface GamesApiAuth extends GamesApi {
      */
     Many<PGN> imported();
 
+    /// Toggle the bookmark status of game
+    Ack bookmarkToggle(String gameId);
+
+    /// Set the bookmark status of game
+    Ack bookmarkSet(String gameId, boolean bookmarked);
+
     Many<Game> bookmarked(Consumer<BookmarkedParams> params);
     Many<PGN> pgnBookmarked(Consumer<BookmarkedParams> params);
 
