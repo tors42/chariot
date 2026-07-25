@@ -230,6 +230,29 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
                             map.put("tiebreaks[%d]".formatted(i), arr[i]);
                         }
                     })
+                    .addCustomHandler("grouping", (args, map) -> {
+                        map.put("grouping.info.name", args[0]);
+                        if (args[1] instanceof List<?> tourIds && !tourIds.isEmpty()) {
+                            map.put("grouping.info.tours", tourIds.stream()
+                                    .map(Object::toString)
+                                    .collect(Collectors.joining("\n")));
+                        }
+                        if (args[2] instanceof List<?> scoreGroupIds && !scoreGroupIds.isEmpty()) {
+                            String[] groupArr = scoreGroupIds.stream()
+                                .<String>mapMulti((innerObject, mapper) -> {
+                                    if (innerObject instanceof List<?> innerList && !innerList.isEmpty()) {
+                                        String combined = innerList.stream()
+                                            .map(Object::toString)
+                                            .collect(Collectors.joining(","));
+                                        mapper.accept(combined);
+                                    }
+                                }).toArray(String[]::new);
+
+                            for (int i = 0; i < groupArr.length; i++) {
+                                map.put("grouping.scoreGroups[%d]".formatted(i), groupArr[i]);
+                            }
+                        }
+                    })
                     .toMap(consumer);
     }
 

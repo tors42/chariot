@@ -205,6 +205,14 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
             return tiebreaks(map.keySet().stream().map(name -> name.replace('_', '-')).toArray(String[]::new));
         }
 
+
+        /// Group this broadcast along with others
+        ///
+        /// @param name Name of the group. Example: `"Chess Olympiad | Open"`
+        /// @param tourIds A list of tournament IDs to group together. Example: `List.of("0Q7D7mbv","FQhDGXQV","kB2hV6yh", "yu0LNYvJ")`
+        /// @param scoreGroupIds A list of lists of tournament IDs to group together for scoring purposes. Example: `List.of(List.of("0Q7D7mbv","FQhDGXQV"), List.of("kB2hV6yh", "yu0LNYvJ"))`
+        BroadcastBuilder grouping(String name, List<String> tourIds, List<List<String>> scoreGroupIds);
+
     }
 
     interface RoundBuilder {
