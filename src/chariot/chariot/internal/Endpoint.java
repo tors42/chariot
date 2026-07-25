@@ -1012,7 +1012,7 @@ public sealed interface Endpoint<T> {
             public Params query(Map<String, Object> queryParameters) { builder.query(queryParameters); return this;}
             public Params body(InputStream inputStream)              { builder.body(inputStream); return this; }
             public Params body(String data)                          { builder.body(data); return this; }
-            public Params body(Map<String, ?> dataMap)               { builder.body(dataMap); return this; }
+            public Params body(Map<String, Object> dataMap)          { builder.body(dataMap); return this; }
             public Params timeout(Duration timeout)                  { builder.timeout(timeout); return this; }
             public Params headers(Map<String, String> headers)       { builder.headers(headers); return this; }
             public Params scope(Scope scope)                         { builder.scope(scope); return this; }

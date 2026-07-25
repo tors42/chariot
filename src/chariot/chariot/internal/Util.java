@@ -54,7 +54,7 @@ public class Util {
                         .collect(Collectors.joining("&"));
                     return arrayString;
                 } else {
-                    return urlEncode(e.getKey()) + "=" + urlEncode(String.valueOf(e.getValue()));
+                    return urlEncode(e.getKey()) + "=" + urlEncode(stringify(e.getValue()));
                 }
             })
             .collect(Collectors.joining("&"));

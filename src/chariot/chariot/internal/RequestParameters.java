@@ -85,7 +85,7 @@ public sealed interface RequestParameters {
         Params query(Map<String, Object> queryParameters);
         Params body(InputStream inputStream);
         Params body(String data);
-        Params body(Map<String, ?> map);
+        Params body(Map<String, Object> map);
         Params timeout(Duration timeout);
         Params headers(Map<String, String> headers);
         Params scope(Scope scope);
@@ -99,7 +99,7 @@ public sealed interface RequestParameters {
         private String path;
         private String data;
         private InputStream dataInputStream;
-        private Map<String, ?> dataMap;
+        private Map<String, Object> dataMap;
 
         private Duration timeout = Duration.ofSeconds(60);
         private Map<String, String> headers = Map.of();
@@ -118,7 +118,7 @@ public sealed interface RequestParameters {
         public ParamsBuilder query(Map<String, Object> queryParameters) { this.queryParameters = Objects.requireNonNull(queryParameters); return this; }
         public ParamsBuilder body(InputStream inputStream) { this.dataInputStream = inputStream; return this; }
         public ParamsBuilder body(String data) { this.data = data; return this; }
-        public ParamsBuilder body(Map<String, ?> dataMap) { this.dataMap = dataMap; return this; }
+        public ParamsBuilder body(Map<String, Object> dataMap) { this.dataMap = dataMap; return this; }
         public ParamsBuilder timeout(Duration timeout) { this.timeout = timeout; return this; }
         public ParamsBuilder headers(Map<String, String> headers) { this.headers = headers; return this; }
         public ParamsBuilder scope(Scope scope) { this.scope = scope; return this; }
@@ -136,7 +136,7 @@ public sealed interface RequestParameters {
             // todo, encode by content-type...
             // currently the only used content-type for "Map<String, ?>" is url-encoding
             if (dataMap != null) {
-                data = Util.urlEncode(dataMap);
+                data = Util.urlEncodeWithWorkaround(dataMap);
             }
 
             return new Parameters(path, data, dataInputStream, method, timeout, headers, scope, target, stream);
