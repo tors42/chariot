@@ -67,6 +67,27 @@ public interface BroadcastsApi {
     /// See {@link #streamBroadcast(String, java.util.function.Consumer)}
     default Many<PGN> streamBroadcast(String roundId) { return streamBroadcast(roundId, _ -> {}); }
 
+    /// Stream ongoing broadcast rounds of a group as PGN  
+    ///  
+    /// For a given broadcast group (example
+    /// `https://lichess.org/broadcast/fide-world-cadets-cup-2026/albQx5zq`), selects
+    /// all the ongoing and recently finished rounds, and sends all games of these
+    /// rounds in PGN format. Then, it waits for new moves to be played. As soon as
+    /// it happens, the entire PGN of the game is sent to the stream. The stream will
+    /// also send PGNs when games are added to the rounds. This is the best way to
+    /// get updates about an ongoing broadcast with multiple concurrent rounds. To
+    /// stream a single round, use
+    /// {@link #streamBroadcast(String, java.util.function.Consumer)} instead.
+    ///
+    /// @param groupId The group ID (8 characters).
+    /// @param params  To disable clocks and/or comments (lke eval) in PGN
+    Many<PGN> streamBroadcastGroup(String groupId, Consumer<PgnParameters> params);
+
+    /// See {@link #streamBroadcastGroup(String, java.util.function.Consumer)}
+    default Many<PGN> streamBroadcastGroup(String groupId) { return streamBroadcastGroup(groupId, _ -> {}); }
+
+
+
     /// Export one round as PGN  
     ///  
     /// Download all games of a single round of a broadcast tournament in PGN format.  

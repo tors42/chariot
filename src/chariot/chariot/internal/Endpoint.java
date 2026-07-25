@@ -640,10 +640,16 @@ public sealed interface Endpoint<T> {
         .streamMapper(stream -> stream.map(mapper(PushWrapper.class)).flatMap(PushWrapper::result))
         .post(plain).scope(Scope.study_write).toMany();
 
-    public static EPMany<PGN> streamBroadcast =
+    public static EPMany<PGN> streamBroadcastRound =
         Endpoint.of(PGN.class).endpoint("/api/stream/broadcast/round/%s.pgn")
         .streamMapper(Util::pgnStream)
         .accept(chesspgn).toMany();
+
+    public static EPMany<PGN> streamBroadcastGroup =
+        Endpoint.of(PGN.class).endpoint("/api/stream/broadcast/group/%s.pgn")
+        .streamMapper(Util::pgnStream)
+        .accept(chesspgn).toMany();
+
 
     public static EPMany<PGN> exportBroadcastOneRoundPgn =
         Endpoint.of(PGN.class).endpoint("/api/broadcast/round/%s.pgn")
