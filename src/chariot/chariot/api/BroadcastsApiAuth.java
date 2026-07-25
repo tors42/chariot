@@ -266,6 +266,11 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
         /// Custom scoring of game results in round
         RoundBuilder customScoringBlackDraw(double points);
 
+        /// Custom team scoring of game results in round
+        RoundBuilder customScoringTeamWin(double points);
+        /// Custom team scoring of game results in round
+        RoundBuilder customScoringTeamDraw(double points);
+
         /**
          * @param delay The delay of the broadcast, in seconds
          */

@@ -247,6 +247,8 @@ public class BroadcastsHandler implements BroadcastsApiAuth {
             .rename("customScoringBlackWin",  "customScoring.black.win")
             .rename("customScoringWhiteDraw", "customScoring.white.draw")
             .rename("customScoringBlackDraw", "customScoring.black.draw")
+            .rename("customScoringTeamWin",   "teamCustomScoring.win")
+            .rename("customScoringTeamDraw",  "teamCustomScoring.draw")
             .toMap(consumer);
     }
 }

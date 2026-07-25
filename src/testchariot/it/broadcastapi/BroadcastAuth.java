@@ -299,6 +299,7 @@ public class BroadcastAuth {
         ZonedDateTime roundStartsAt = createRound.plusDays(plusDays).withNano(0);
         Duration roundDelay = Duration.ofMinutes(30);
         Broadcast.CustomScoring customScoring = new Broadcast.CustomScoring(new Broadcast.Points(1.0, 0.5), new Broadcast.Points(1.0, 0.5));
+        Broadcast.Points teamCustomScoring = new Broadcast.Points(1.0, 0.5); // not returned in any model, but putting here as input parameter still...
         var myRoundResult = superadmin.broadcasts().createRound(broadcast.id(), p -> p
                 .name(roundName)
                 .startsAt(roundStartsAt)
@@ -308,6 +309,8 @@ public class BroadcastAuth {
                 .customScoringWhiteDraw(customScoring.white().draw())
                 .customScoringBlackWin(customScoring.black().win())
                 .customScoringBlackDraw(customScoring.black().draw())
+                .customScoringTeamWin(teamCustomScoring.win())
+                .customScoringTeamDraw(teamCustomScoring.draw())
                 );
 
         if (! (myRoundResult instanceof Some(MyRound myRound))) {
