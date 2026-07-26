@@ -213,6 +213,16 @@ public interface BroadcastsApiAuth extends BroadcastsApi {
         /// @param scoreGroupIds A list of lists of tournament IDs to group together for scoring purposes. Example: `List.of(List.of("0Q7D7mbv","FQhDGXQV"), List.of("kB2hV6yh", "yu0LNYvJ"))`
         BroadcastBuilder grouping(String name, List<String> tourIds, List<List<String>> scoreGroupIds);
 
+        /// Group this broadcast along with others
+        ///
+        /// To include score groups,see {@link #grouping(String, List, List)}
+        ///
+        /// @param name Name of the group. Example: `"Chess Olympiad | Open"`
+        /// @param tourIds A list of tournament IDs to group together. Example: `List.of("0Q7D7mbv","FQhDGXQV","kB2hV6yh", "yu0LNYvJ")`
+        default BroadcastBuilder grouping(String name, List<String> tourIds) {
+            return grouping(name, tourIds, List.of());
+        }
+
     }
 
     interface RoundBuilder {
