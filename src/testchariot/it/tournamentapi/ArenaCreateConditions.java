@@ -42,7 +42,7 @@ public class ArenaCreateConditions {
     @IntegrationTest
     public void titled() {
         unboxEquals(_withConditions(p -> p.conditionTitled()),
-                List.of(Condition.bots(false), Condition.titled()),
+                List.of(Condition.allowListHidden(), Condition.bots(false)),
                 arena -> arena.conditions().list());
     }
 
@@ -173,7 +173,6 @@ public class ArenaCreateConditions {
             case Condition.MinRatedGames(int games, Speed speed) -> minRatedGames();
             case Condition.MaxRating(int rating, Speed speed)    -> maxRating();
             case Condition.MinRating(int rating, Speed speed)    -> minRating();
-            case Condition.Titled()                              -> titled();
             case Condition.Bots(boolean allowed)                 -> bots();
             case Condition.MinAccountAge(Period age)             -> minAccountAge();
             case Condition.AllowList(List<String> users)         -> allowList();

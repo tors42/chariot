@@ -12,13 +12,11 @@ public record MyRound(Broadcast.Tour tour, Round round, RoundInfo.Study study) {
             String id,
             String slug,
             String name,
-            ZonedDateTime createdAt,
             boolean startsAfterPrevious,
             Opt<ZonedDateTime> startsAt,
             Opt<ZonedDateTime> finishedAt,
             boolean ongoing,
             boolean finished,
-            boolean rated,
             URI url,
             Duration delay,
             Opt<Broadcast.CustomScoring> customScoring

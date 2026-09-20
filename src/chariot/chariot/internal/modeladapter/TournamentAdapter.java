@@ -66,8 +66,6 @@ public interface TournamentAdapter {
                 case "maxRating"     -> entry.getValue() instanceof YayObject yo
                                         && yo.getInteger("rating") instanceof Integer rating
                                         ? Opt.of(Condition.maxRating(rating, speed)) : Opt.<Condition>of();
-                case "onlyTitled"    -> entry.getValue() instanceof YayBool(boolean titled) && titled
-                                        ? Opt.of(Condition.titled()) : Opt.<Condition>of();
                 case "allowList"     -> entry.getValue() instanceof YayArray yarr
                                         && yarr.filterCastMap(YayString::value, YayString.class) instanceof List<String> users
                                         ? users.isEmpty()
@@ -138,7 +136,6 @@ public interface TournamentAdapter {
         return switch(condition) {
             case "Fixed line-up"               -> Condition.allowListHidden();
             case "Play your games"             -> Condition.notMissedSwiss();
-            case "Only titled players"         -> Condition.titled();
             case "Bot players are allowed"     -> Condition.bots(true);
             case "Bot players are not allowed" -> Condition.bots(false);
             case String s -> {

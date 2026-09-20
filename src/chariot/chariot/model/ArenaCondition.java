@@ -7,7 +7,6 @@ public sealed interface ArenaCondition extends Condition permits
     MinRatedGames,
     MaxRating,
     MinRating,
-    Titled,
     MinAccountAge,
     AllowList,
     AllowListHidden,

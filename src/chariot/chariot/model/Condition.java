@@ -12,7 +12,6 @@ public sealed interface Condition permits SwissCondition, ArenaCondition {
     record MinRatedGames(int games, Speed speed) implements SwissCondition, ArenaCondition {}
     record MaxRating(int rating, Speed speed)    implements SwissCondition, ArenaCondition {}
     record MinRating(int rating, Speed speed)    implements SwissCondition, ArenaCondition {}
-    record Titled()                              implements SwissCondition, ArenaCondition {}
     record MinAccountAge(Period age)             implements SwissCondition, ArenaCondition {}
     record AllowList(List<String> users)         implements SwissCondition, ArenaCondition {
         public AllowList { users = users.stream().distinct().sorted().toList(); }
@@ -28,7 +27,6 @@ public sealed interface Condition permits SwissCondition, ArenaCondition {
     static Condition minRatedGames(int games, Speed speed) { return new MinRatedGames(games, speed); }
     static Condition minRating(int rating, Speed speed)    { return new MinRating(rating, speed); }
     static Condition maxRating(int rating, Speed speed)    { return new MaxRating(rating, speed); }
-    static Condition titled()                              { return new Titled(); }
     static Condition bots(boolean allowed)                 { return new Bots(allowed); }
     static Condition minAccountAge(Period age)             { return new MinAccountAge(age); }
     static Condition allowListHidden()                     { return new AllowListHidden(); }
@@ -51,7 +49,6 @@ public sealed interface Condition permits SwissCondition, ArenaCondition {
             case MinRatedGames(int games, Speed speed) -> "≥ %d %s rated games".formatted(games, speed.name);
             case MaxRating(int rating, Speed speed)    -> "Rated ≤ %d in %s for the last week".formatted(rating, speed.name);
             case MinRating(int rating, Speed speed)    -> "Rated ≥ %d in %s".formatted(rating, speed.name);
-            case Titled()                              -> "Only titled players";
             case Bots(boolean allowed) when allowed    -> "Bot players are allowed";
             case Bots(_)                               -> "Bot players are not allowed";
             case MinAccountAge(Period age)             -> "%s old account".formatted(renderAge(age));

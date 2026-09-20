@@ -797,14 +797,14 @@ public sealed interface Endpoint<T> {
         MyRound toMyRound() { return new MyRound(tour, round.toRound(), study); }
     }
     static record RoundIntegerToDuration(
-            String id, String slug, String name, ZonedDateTime createdAt, boolean startsAfterPrevious, Opt<ZonedDateTime> startsAt, Opt<ZonedDateTime> finishedAt,
-            boolean ongoing, boolean finished, boolean rated, java.net.URI url,
+            String id, String slug, String name, boolean startsAfterPrevious, Opt<ZonedDateTime> startsAt, Opt<ZonedDateTime> finishedAt,
+            boolean ongoing, boolean finished, java.net.URI url,
 
             Integer delay, // <-- want a Duration
 
             Opt<Broadcast.CustomScoring> customScoring) {
         MyRound.Round toRound() {
-            return new MyRound.Round(id, slug, name, createdAt, startsAfterPrevious, startsAt, finishedAt, ongoing, finished, rated, url, delay == null ? Duration.ZERO : Duration.ofSeconds(delay), customScoring);
+            return new MyRound.Round(id, slug, name, startsAfterPrevious, startsAt, finishedAt, ongoing, finished, url, delay == null ? Duration.ZERO : Duration.ofSeconds(delay), customScoring);
         }
     }
     static record PushWrapper(List<PushResult> games) {

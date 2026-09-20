@@ -40,8 +40,8 @@ public class SwissCreateConditions {
 
     @IntegrationTest
     public void titled() {
-        unboxEquals(_withConditions(p -> p.conditionTitled()),
-                List.of(Condition.titled()),
+        unboxEquals(_withConditions(p -> p.conditionTitled(), false),
+                List.of(Condition.allowListHidden()),
                 swiss -> swiss.conditions().list());
     }
 
@@ -150,7 +150,6 @@ public class SwissCreateConditions {
             case Condition.MinRatedGames(_, _) -> minRatedGames();
             case Condition.MaxRating(_, _)     -> maxRating();
             case Condition.MinRating(_ , _)    -> minRating();
-            case Condition.Titled()            -> titled();
             case Condition.MinAccountAge(_)    -> minAccountAge();
             case Condition.AllowList(_)        -> allowListHidden();
             case Condition.AllowListHidden()   -> allowListHidden();

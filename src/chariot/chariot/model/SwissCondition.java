@@ -6,7 +6,6 @@ public sealed interface SwissCondition extends Condition permits
     MinRatedGames,
     MaxRating,
     MinRating,
-    Titled,
     MinAccountAge,
     AllowList,
     AllowListHidden,

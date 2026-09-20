@@ -225,14 +225,24 @@ public class BroadcastAuth {
         List<ZonedDateTime> expectedStartEndPairDates = List.of();
 
         var myRound1 = createAndVerifyRound(broadcast, "Round 1", 1, expectedStartEndPairDates);
+        try { Thread.sleep(100); /* attempt to influence defaultRoundId */ } catch (InterruptedException _) {}
         expectedStartEndPairDates = List.of(myRound1.round().startsAt().get());
         var myRound2 = createAndVerifyRound(broadcast, "Round 2", 2, expectedStartEndPairDates);
+        try { Thread.sleep(100); /* attempt to influence defaultRoundId */ } catch (InterruptedException _) {}
         expectedStartEndPairDates = List.of(myRound1.round().startsAt().get(), myRound2.round().startsAt().get());
         var myRound3 = createAndVerifyRound(broadcast, "Round 3", 3, List.of(myRound1.round().startsAt().get(), myRound2.round().startsAt().get()));
 
         expectedStartEndPairDates = List.of(myRound1.round().startsAt().get(), myRound3.round().startsAt().get());
 
+        if (debug) superadmin.logging(l -> l.request().all().response().all());
         var broadcastAfterRoundHaveBeenCreated = superadmin.broadcasts().broadcastById(broadcast.id());
+        if (debug) superadmin.logging(l -> l.request().warning().response().warning());
+
+        IO.println("r1: " + myRound1.id());
+        IO.println("r2: " + myRound2.id());
+        IO.println("r3: " + myRound3.id());
+        if (broadcastAfterRoundHaveBeenCreated instanceof Some(var b))
+            IO.println("defaultRoundId: " + b.defaultRoundId());
 
         List<Broadcast.Round> expectedRounds = List.of(
                 myRoundToRound(myRound1),
@@ -300,6 +310,7 @@ public class BroadcastAuth {
         Duration roundDelay = Duration.ofMinutes(30);
         Broadcast.CustomScoring customScoring = new Broadcast.CustomScoring(new Broadcast.Points(1.0, 0.5), new Broadcast.Points(1.0, 0.5));
         Broadcast.Points teamCustomScoring = new Broadcast.Points(1.0, 0.5); // not returned in any model, but putting here as input parameter still...
+
         var myRoundResult = superadmin.broadcasts().createRound(broadcast.id(), p -> p
                 .name(roundName)
                 .startsAt(roundStartsAt)
@@ -320,9 +331,6 @@ public class BroadcastAuth {
 
         String roundId = myRound.round().id();
         URI roundUrl = myRound.round().url();
-
-        ZonedDateTime roundCreatedAt = myRound.round().createdAt();
-        assertTrue(aboutSameTime(createRound, roundCreatedAt), roundName + " Created At off");
 
         Broadcast.Tour expectedRoundTour =
                 new Broadcast.Tour(
@@ -345,13 +353,11 @@ public class BroadcastAuth {
                 roundId,
                 roundName.toLowerCase(Locale.ROOT).replace(' ', '-'),
                 roundName,
-                roundCreatedAt,
                 false, // startsAfterPrevious
                 Opt.of(roundStartsAt),
                 Opt.of(),
                 true, // ongoing
                 false,
-                true, // rated
                 roundUrl,
                 roundDelay,
                 Opt.of(customScoring)
@@ -370,11 +376,9 @@ public class BroadcastAuth {
                 round.id(),
                 round.name(),
                 round.slug(),
-                round.createdAt(),
                 round.ongoing(),
                 round.finished(),
                 round.startsAfterPrevious(),
-                round.rated(),
                 round.startsAt(),
                 round.finishedAt(),
                 Opt.empty(),

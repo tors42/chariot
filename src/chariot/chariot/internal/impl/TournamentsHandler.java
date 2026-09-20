@@ -361,12 +361,26 @@ public class TournamentsHandler implements TournamentsApiAuth {
             .rename("conditionMinRatedGames", "conditions.nbRatedGame.nb")
             .rename("conditionPlayYourGames", "conditions.playYourGames")
             .rename("conditionAccountAge",    "conditions.accountAge")
-            .rename("conditionTitled",        "conditions.titled")
             .rename("conditionBots",          "conditions.bots")
             .rename("conditionTeam",          "conditions.teamMember.teamId") // only in Arena
+            .addCustomHandler("conditionTitled", (args, map) -> {
+                @SuppressWarnings("unchecked")
+                String withTitled = (String) map.get("conditions.allowList");
+                if (withTitled != null) {
+                    withTitled = String.join(",", withTitled , "%titled");
+                } else {
+                    withTitled = "%titled";
+                }
+                map.put("conditions.allowList", withTitled);
+            })
             .addCustomHandler("allowList", (args, map) -> {
                 @SuppressWarnings("unchecked")
                 Collection<String> allowList = (Collection<String>) args[0];
+                String current = (String) map.get("conditions.allowList");
+                if (current != null) {
+                    allowList = new ArrayList<>(allowList);
+                    allowList.add(current);
+                }
                 if (!allowList.isEmpty()) map.put( "conditions.allowList", String.join(",", allowList));
             });
     }
