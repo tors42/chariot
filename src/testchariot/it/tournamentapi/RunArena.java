@@ -8,6 +8,7 @@ import static util.Assert.*;
 import java.time.*;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.stream.Collectors;
@@ -25,7 +26,11 @@ public class RunArena {
                     scope.fork(() -> runTeamBattleArena()));
             try {
                 scope.join();
-            } catch (InterruptedException ie) {}
+            } catch (ExecutionException execution) {
+                execution.printStackTrace();
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
 
             tasks.stream()
                 .filter(task -> task.state() == Subtask.State.SUCCESS)

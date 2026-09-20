@@ -32,7 +32,12 @@ public record ArenaRunner(Arena arena, ClientAuth creator, List<Participant> par
 
             try {
                 arenaScope.join();
-            } catch (StructuredTaskScope.TimeoutException to) {
+            } catch (ExecutionException execution) {
+                if (execution.getCause() instanceof StructuredTaskScope.CancelledByTimeoutException timeout) {
+                    IO.println("Timed out: " + timeout);
+                } else {
+                    execution.printStackTrace();
+                }
                 // End the tournament
                 creator().tournaments().terminateArena(arena().id());
             } catch (InterruptedException ie) {
